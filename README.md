@@ -4,7 +4,7 @@ SOFI2D stands for Seismic mOdeling with FInite differences and denotes our
 2-D viscoelastic time domain massive parallel modeling code for P- and SV-waves.   
 The manual and a reference paper is included 
 in the download archive 
-or can be downloaded [here](https://git.scc.kit.edu/GPIAG-Software/SOFI3D/wikis/home)
+or can be downloaded [here](https://git.scc.kit.edu/GPIAG-Software/SOFI2D/wikis/home)
 
 # Conditions for the Use of the Software
 
@@ -22,7 +22,7 @@ download package. See file [COPYING](/COPYING) and/or [online](http://www.gnu.or
 
 # Download and Newsletter
 
-You can Download the [latest Release](https://git.scc.kit.edu/GPIAG-Software/SOFI2D/tree/Release) or the current [Beta-Version](https://git.scc.kit.edu/GPIAG-Software/SOFI2D/tree/master).
+You can Download the [latest stable Release](https://git.scc.kit.edu/GPIAG-Software/SOFI2D/tree/Release) or the current [beta-version](https://git.scc.kit.edu/GPIAG-Software/SOFI2D/tree/master).
 Additional a SOFI2D branch with benchmarks is available: [overnightbuilt](https://git.scc.kit.edu/GPIAG-Software/SOFI2D/tree/overnightbuilt)
 
 To receive news and updates please [register](https://www.gpi.kit.edu/Software.php) on the email list sofi@lists.kit.edu.  
