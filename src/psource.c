@@ -26,23 +26,27 @@
 void psource(int nt, float ** sxx, float ** syy,
 		float **  srcpos_loc, float ** signals, int nsrc){
 
-	extern float DH;
-	extern int RSG;
+	extern float DH, DT;
+	extern int RSG, NT;
 	int i, j, l;
-	float amp;
+	float amp=0;
 
 
 
 	/* adding source wavelet to stress components 
 	   (explosive source) at source points */
 
-	if (RSG){
+/*	if (RSG){
 		for (l=1;l<=nsrc;l++) {
 			i=(int)srcpos_loc[1][l];
 			j=(int)srcpos_loc[2][l];
 
 			//amp=signals[l][nt]/4.0; //unscaled explosive source
-			amp=(signals[l][nt])/(4.0*DH*DH); //scaled explosive source, seismic Moment = 1 Nm
+			//amp=(signals[l][nt])/(4.0*DH*DH); //scaled explosive source, seismic Moment = 1 Nm
+			if(nt==1){amp=signals[l][nt+1]/(2.0*DH*DH);}
+	                if((nt>1)&&(nt<NT)){amp=(signals[l][nt+1]-signals[l][nt-1])/(2.0*DH*DH);}
+        	        if(nt==NT){amp=-signals[l][nt-1]/(2.0*DH*DH);}
+
 
 			sxx[j][i]+=amp;
 			sxx[j][i+1]+=amp;
@@ -55,7 +59,7 @@ void psource(int nt, float ** sxx, float ** syy,
 			syy[j+1][i+1]+=amp;
 		}
 
-	}else{
+	}else{*/
 
 		for (l=1;l<=nsrc;l++) {
 			i=(int)srcpos_loc[1][l];
@@ -63,10 +67,14 @@ void psource(int nt, float ** sxx, float ** syy,
 
 			//amp=signals[l][nt]; //unscaled explosive source
 			amp=(signals[l][nt])/(DH*DH); //scaled explosive source, seismic Moment = 1 Nm
+			
+			if(nt==1){amp=signals[l][nt+1]/(2.0*DH*DH);}
+                        if((nt>1)&&(nt<NT)){amp=(signals[l][nt+1]-signals[l][nt-1])/(2.0*DH*DH);}
+                        if(nt==NT){amp=-signals[l][nt-1]/(2.0*DH*DH);}
 
-
+			
 			sxx[j][i]+=amp;
 			syy[j][i]+=amp;
-		}
+		
 	}
 }
