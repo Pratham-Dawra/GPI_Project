@@ -400,10 +400,12 @@ void checkfd ( FILE *fp, float ** prho, float ** ppi, float ** pu,
 
 		if ( SNAP ) {
 			fprintf ( fp," Checking the snapshot parameters. \n" );
-			if ( ( TSNAP2>TIME ) && ( MYID==0 ) ) {
-				sprintf ( errormessage,"TSNAP2 = %e (last snapshot) > Time of wave propagation %e. Choose smaller TSNAP2.",TSNAP2, TIME );
-				err ( errormessage ); /* if TSNAP2>simulation TIME, snapmerge will generate "additional" snapshots out of nowhere, thus, snapshot files size blow up */
-			}
+	                if (TSNAP2>TIME) {
+                	        sprintf(errormessage,"\nTSNAP2 = %e (last snapshot) > Time of wave propagation %e. TSNAP2 was changed to be equal to TIME.\n",TSNAP2, TIME);
+                       		 TSNAP2=TIME;
+	                if  (MYID==0)
+        	                warning(errormessage); /* if TSNAP2>simulation TIME, snapmerge will generate "additional" snapshots out of nowhere, thus, snapshot files size blow up */
+                }
 
 			snapoutx=NX/ ( float ) IDX;
 			snapouty=NY/ ( float ) IDY;

@@ -10,7 +10,9 @@ guide_sofi2D.pdf
 *jout
 *.log*
 *.su
-
+*.bin*
+*.dat
+*.json
 
 ### C ###
 # Object files
