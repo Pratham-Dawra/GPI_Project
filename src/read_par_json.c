@@ -30,7 +30,7 @@ char ** varname_list,** value_list;
 void read_par_json(FILE *fp, char *fileinp){
 
 	/* declaration of extern variables */
-	extern int   NX, NY, FDORDER, MAXRELERROR, SOURCE_TYPE, SOURCE_SHAPE, SNAP, SNAP_FORMAT, L;
+	extern int   NX, NY, FDORDER, FDORDER_TIME, MAXRELERROR, SOURCE_TYPE, SOURCE_SHAPE, SNAP, SNAP_FORMAT, L;
 	extern int SEISMO, NDT, SEIS_FORMAT, FREE_SURF, READMOD, READREC, SRCREC;
 	extern int BOUNDARY, REC_ARRAY, DRX, LOG,  WRITE_MODELFILES; //RSG
 	extern int  NPROCX, NPROCY, MYID, IDX, IDY, CHECKPTREAD, CHECKPTWRITE, RUN_MULTIPLE_SHOTS, ABS_TYPE, FW;
@@ -81,6 +81,13 @@ void read_par_json(FILE *fp, char *fileinp){
 			err("Variable RSG could not be retrieved from the json input file!");*/
 		if (get_int_from_objectlist("FDORDER",number_readobjects,&FDORDER,varname_list, value_list))
 			err("Variable FDORDER could not be retrieved from the json input file!");
+        if (get_int_from_objectlist("FDORDER_TIME",number_readobjects,&FDORDER_TIME,varname_list, value_list)) {
+            FDORDER_TIME=2;
+        } else {
+            if(FDORDER_TIME!=2 && FDORDER_TIME!=4) {
+                err("Only FDORDER_TIME 2 or 4 are supported!");
+            }
+        }
 		if (get_int_from_objectlist("MAXRELERROR",number_readobjects,&MAXRELERROR,varname_list, value_list))
 			err("Variable MAXRELERROR could not be retrieved from the json input file!");
 		if (get_int_from_objectlist("NX",number_readobjects,&NX,varname_list, value_list))
@@ -261,9 +268,9 @@ void read_par_json(FILE *fp, char *fileinp){
 			err("Variable TAU could not be retrieved from the json input file!");
 		if (get_int_from_objectlist("L",number_readobjects,&L,varname_list, value_list))
 			err("Variable L could not be retrieved from the json input file!");
-		else {
-			FL=vector(1,L);
-			switch(L) {
+        else {
+            FL=vector(1,L);
+            switch(L) {
 			case 0:
 				break;
 			case 5:

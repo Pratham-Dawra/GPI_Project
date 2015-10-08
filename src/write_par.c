@@ -42,7 +42,7 @@ void write_par(FILE *fp){
 	extern char SEIS_FILE[STRING_SIZE];
 	extern char SIGNAL_FILE[STRING_SIZE];
 	extern char  MFILE[STRING_SIZE];
-	extern int NP, NPROCX, NPROCY, MYID; 
+	extern int NP, NPROCX, NPROCY, MYID,FDORDER_TIME;
 
 	/* definition of local variables */
 	int l;
@@ -67,7 +67,8 @@ void write_par(FILE *fp){
 
 	} else 	{
 		fprintf(fp," Standard Staggered Grid (SSG) (Virieux-grid) is used. \n");
-		fprintf(fp," Order of spatial FD operators (FDORDER) is %d\n.", FDORDER);
+		fprintf(fp," Order of spatial FD operators (FDORDER) is %d\n", FDORDER);
+        fprintf(fp," Order of temporal FD operator (FDORDER_TIME) is %d\n", FDORDER_TIME);
 	}
 	fprintf(fp,"\n");
 

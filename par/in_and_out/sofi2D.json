@@ -12,7 +12,8 @@
 
 "FD order" : "comment",
 			"FDORDER" : "4",
-			"MAXRELERROR" : "1",
+			"FDORDER_TIME" : "4",
+			"MAXRELERROR" : "0",
 
 "2-D Grid" : "comment",
 			"NX" : "300",
@@ -48,7 +49,7 @@
 			"WRITE_MODELFILES" : "2",
 
 "Q-approximation" : "comment",
-			"L" : "0",
+			"L" : "1",
 			"FL1" : "5.0", 
 			"TAU" : "0.00001",
 

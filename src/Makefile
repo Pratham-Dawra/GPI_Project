@@ -95,6 +95,7 @@ SOFI2D_SRC= \
 	operators_v.c \
 	PML_pro.c \
 	prepare_update_s.c \
+	prepare_update_s_4.c \
 	psource.c \
 	rd_sour.c \
 	read_checkpoint.c\
@@ -115,23 +116,37 @@ SOFI2D_SRC= \
 	surface.c \
 	surface_elastic.c \
 	update_s_elastic_abs.c \
+    update_s_elastic_abs_4.c \
 	update_s_elastic_interior.c \
+    update_s_elastic_interior_4.c \
 	update_s_elastic_PML.c \
+    update_s_elastic_PML_4.c \
 	update_s_visc_abs.c \
 	update_s_visc_interior.c \
 	update_s_visc_PML.c \
+    update_s_visc_abs_4.c \
+    update_s_visc_interior_4.c \
+    update_s_visc_PML_4.c \
 	update_v_abs.c \
+    update_v_abs_4.c \
 	update_v_interior.c \
+    update_v_interior_4.c \
 	update_v_PML.c \
+	update_v_PML_4.c \
 	util.c \
 	wavefield_update_s_el.c \
+    wavefield_update_s_el_4.c \
 	wavefield_update_s_visc.c \
+	wavefield_update_s_visc_4.c \
 	wavefield_update_v.c \
+	wavefield_update_v_4.c \
 	wavelet.c \
 	write_par.c \
 	writedsk.c \
 	writemod.c \
 	zero_elastic.c \
+    zero_elastic_4.c \
+    zero_visco_4.c \
 	zero_visc.c \
 	zero_PML_elastic.c \
 	zero_PML_visc.c 
@@ -170,6 +185,7 @@ SOFI2D_BENCH_SRC= \
 	operators_v.c \
 	PML_pro.c \
 	prepare_update_s.c \
+	prepare_update_s_4.c \
 	psource.c \
 	rd_sour.c \
 	read_checkpoint.c\
@@ -190,23 +206,37 @@ SOFI2D_BENCH_SRC= \
 	surface.c \
 	surface_elastic.c \
 	update_s_elastic_abs.c \
+    update_s_elastic_abs_4.c \
 	update_s_elastic_interior.c \
+    update_s_elastic_interior_4.c \
 	update_s_elastic_PML.c \
 	update_s_visc_abs.c \
 	update_s_visc_interior.c \
 	update_s_visc_PML.c \
+    update_s_elastic_PML_4.c \
+    update_s_visc_abs_4.c \
+    update_s_visc_interior_4.c \
+    update_s_visc_PML_4.c \
 	update_v_abs.c \
+    update_v_abs_4.c \
 	update_v_interior.c \
+	update_v_interior_4.c \
 	update_v_PML.c \
+    update_v_PML_4.c \
 	util.c \
 	wavefield_update_s_el.c \
+    wavefield_update_s_el_4.c \
 	wavefield_update_s_visc.c \
+	wavefield_update_s_visc_4.c \
 	wavefield_update_v.c \
+    wavefield_update_v_4.c \
 	wavelet.c \
 	write_par.c \
 	writedsk.c \
 	writemod.c \
 	zero_elastic.c \
+    zero_elastic_4.c \
+    zero_visco_4.c \
 	zero_visc.c \
 	zero_PML_elastic.c \
         zero_PML_visc.c \

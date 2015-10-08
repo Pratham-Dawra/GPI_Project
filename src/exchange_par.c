@@ -26,7 +26,7 @@
 void exchange_par(void){
 
 	/* declaration of extern variables */
-	extern int   NX, NY, FDORDER, MAXRELERROR, SOURCE_TYPE, SOURCE_SHAPE, SNAP, SNAP_FORMAT, L;
+	extern int   NX, NY, FDORDER, MAXRELERROR, SOURCE_TYPE, SOURCE_SHAPE, SNAP, SNAP_FORMAT, L, FDORDER_TIME;
 	extern float DH, TIME, DT, TS, *FL, TAU, DAMPING, FPML, NPOWER, K_MAX_CPML, VPPML, PLANE_WAVE_DEPTH, PLANE_WAVE_ANGLE, SRCPOSXYZ[3];
 	extern float XREC1, XREC2, YREC1, YREC2;
 	extern float REC_ARRAY_DEPTH, REC_ARRAY_DIST;
@@ -126,6 +126,8 @@ void exchange_par(void){
 		idum[34]  = WRITE_MODELFILES;
 		
 		idum[35] = ABS_TYPE;
+        
+        idum[36] = FDORDER_TIME;
 
 	} /** if (MYID == 0) **/
 
@@ -219,7 +221,10 @@ void exchange_par(void){
 	RUN_MULTIPLE_SHOTS = idum[33];
 	WRITE_MODELFILES = idum[34];
 	
-	ABS_TYPE = idum[35];	
+	ABS_TYPE = idum[35];
+    
+    FDORDER_TIME = idum[36];
+
 
 	MPI_Bcast(&FL[1],L,MPI_FLOAT,0,MPI_COMM_WORLD);
 

@@ -35,7 +35,7 @@ void checkfd ( FILE *fp, float ** prho, float ** ppi, float ** pu,
 	extern float DH, DT, TS, TIME, TSNAP2;
 	extern float XREC1, XREC2, YREC1, YREC2;
 	extern int NX, NY, L, MYID, IDX, IDY, NT, NDT, RSG;
-	extern int READREC, NPROCX,NPROCY, SRCREC, FREE_SURF, ABS_TYPE, FW, BOUNDARY;
+	extern int READREC, NPROCX,NPROCY, SRCREC, FREE_SURF, ABS_TYPE, FW, BOUNDARY,FDORDER_TIME;
 	extern int SNAP, SEISMO, CHECKPTREAD, CHECKPTWRITE, SEIS_FORMAT[6], SNAP_FORMAT, POS[4];
 	extern char SEIS_FILE[STRING_SIZE], CHECKPTFILE[STRING_SIZE], SNAP_FILE[STRING_SIZE];
 	extern char SOURCE_FILE[STRING_SIZE], REC_FILE[STRING_SIZE];
@@ -43,10 +43,11 @@ void checkfd ( FILE *fp, float ** prho, float ** ppi, float ** pu,
 	/* local variables */
 
 	float  c, cmax_p=0.0, cmin_p=1e9, cmax_s=0.0, cmin_s=1e9,  cwater=1.0, fmax, gamma;
-	float  cmax=0.0, cmin=1e9, sum, dtstab, dhstab, ts, cmax_r, cmin_r;
+	float  cmax=0.0, cmin=1e9, sum, dtstab, dhstab, ts, cmax_r, cmin_r, temporal;
 	float snapoutx=0.0, snapouty=0.0;
 	float srec_minx=DH*NX*NPROCX+1, srec_miny=DH*NY*NPROCY+1;
 	float srec_maxx=-1.0, srec_maxy=-1.0;
+    float CFL;
 	const float w=2.0*PI/TS; /*center frequency of source*/
 
 	int i, j, k, l, ny1=1, nx, ny, myidcounter, nfw;
@@ -351,14 +352,14 @@ void checkfd ( FILE *fp, float ** prho, float ** ppi, float ** pu,
 	MPI_Allreduce ( &cmin,&cmin_r,1,MPI_FLOAT,MPI_MIN,MPI_COMM_WORLD );
 	cmax=cmax_r;
 	cmin=cmin_r;
-
+    if (FDORDER_TIME==4) {temporal=3.0/2.0;} else {temporal=1.0;}
 	fmax=2.0/TS;
 	dhstab = ( cmin/ ( hc[0]*fmax ) );
 	gamma = fabs ( hc[1] ) + fabs ( hc[2] ) + fabs ( hc[3] ) + fabs ( hc[4] ) + fabs ( hc[5] ) + fabs ( hc[6] );
-	dtstab = DH/ ( sqrt ( 2 ) *gamma*cmax );
-	if ( RSG ) dtstab=DH/cmax;
-
-
+	dtstab = DH/ ( sqrt ( 2 ) *gamma*cmax*temporal );
+    CFL=cmax*DT/DH;
+    if ( RSG ) dtstab=DH/cmax;
+    
 	if ( MYID == 0 ) {
 
 		fprintf ( fp," Global values for entire model: \n" );
@@ -388,6 +389,7 @@ void checkfd ( FILE *fp, float ** prho, float ** ppi, float ** pu,
 		fprintf ( fp," In the current simulation cmax is %8.2f m/s .\n\n",cmax );
 
 		fprintf ( fp," DT is the timestep and DH is the grid size.\n\n" );
+        fprintf ( fp," In this simulation the Courant-Friedrichs-Lewy number is %2.4f.\n",CFL );
 		fprintf ( fp," In this simulation the stability limit for timestep DT is %e seconds .\n",dtstab );
 		fprintf ( fp," You have specified DT= %e s.\n", DT );
 		if ( DT>dtstab )
