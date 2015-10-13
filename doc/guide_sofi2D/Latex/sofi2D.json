@@ -14,6 +14,7 @@
 
 "FD order" : "comment",
 			"FDORDER" : "8",
+			"FDORDER_TIME" : "2",
 			"MAXRELERROR" : "1",
 
 "2-D Grid" : "comment",

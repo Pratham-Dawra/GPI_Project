@@ -25,7 +25,7 @@
 %       \includegraphics[width=\paperwidth,height=\paperheight,
 %                        keepaspectratio]{eps/title_page1.ps}
        
-       \includegraphics[width=\paperwidth,height=30cm]{eps/title_page1.ps}
+       \includegraphics[width=\paperwidth,height=30cm]{eps/title_page1.pdf}
        \vfill
      }}}
 % The picture is centered on the page background
@@ -297,15 +297,86 @@ The coefficients $\rm{\beta_i}$ in the FD operator are called {\bf{Taylor coeffi
 %\end{split}}
 The accuracy of higher order FD operators can be improved by seeking for FD coefficients $\rm{\beta_k}$ that approximate the first derivative in a certain frequency range \cite{holberg:87}. These numerically optimized coefficients are called {\bf{Holberg coefficients}}.
 
-% \subsection{Initial and Boundary Conditions}\label{bound_cond}
-% To find a unique solution of the problem, initial and boundary conditions have to be defined. The initial conditions for the elastic forward problem are:
-% \EQ{ini:1}{\begin{split}
-% v_i(\mathbf{x},t) &\rm{= 0}\\
-% \frac{\partial v_i(\mathbf{x},t)}{\partial t} &\rm{= 0}\\
-% \end{split}}
-% for all $x \in V$ at $t=0$. \\
-% For the geophysical application two types of boundary conditions are very important:
+\subsection{Adams-Bashforth fourth-order accurate time integrators}
+To improve the precision of the temporal discretization the Adams-Bashforth fourth-order accurate time integrator can be used. 
+The staggered Adams-Bashforth method (ABS) is a multi-step method that uses previously calculated wavefields to increase the accuracy order in time.\\
+In \cite{bohlen2015higher2} and \cite{bohlen2015higher} we give a detailed study of the performance of the ABS method in 1-D and 3-D. The analysis shows that the numerical dispersion is much lower than that of the widely used second-order leapfrog method. However numerical dissipation is introduced by the ABS method. In simulation experiments the convincing improvements of accuracy of the fourth-order ABS method is verified. For instance, in a realistic elastic 3-D scenario the computing time reduces by a factor of approximately 2.2, whereas the memory requirements increase by approximately the same factor.\\
+The ABS method thus provides an alternative strategy to increase the time accuracy by investing computer memory instead of computing time.\\
 
+In the following we provide an extract of \cite{bohlen2015higher2} to demonstrate the underlying theory. Additionally seismograms of different temporal orders of accuracy and an analysis of the numerical simulation error are shown.\\ 
+In SOFI2D only a fourth-order accurate Adams-Bashforth time integrator is implemented, due to the superior performance over third-order.
+\subsubsection{Theory}
+For the sake of simplicity we illustrate the staggered Adams-Bashforth method (ABS-method) using the 1-D acoustic wave equation in velocity-stress formulation
+\begin{eqnarray}
+\frac{\partial p(x,t)}{\partial t}&=& - \pi (x) \frac{\partial v(x,t)}{\partial x}  \notag \\
+\frac{\partial v(x,t)}{\partial t}&=& -\rho^{-1}(x) \frac{\partial p(x,t)}{\partial x}
+\label{waveequation}
+\end{eqnarray}
+The wavefield variables are the pressure $p(x,t)$ and the particle velocity $v(x,t)$. The material is described by the P-wave modulus $\pi (x)$ and the mass density $\rho(x)$. For simplicity we omit the temporal ($t$) and spatial dependencies ($x$)  in the following.
+
+Using the conventional second order staggered grid approximation to the first order time derivative we obtain
+\begin{eqnarray}
+\frac{p |^{n+1/2}-p|^{n-1/2}}{\Delta t}&=& - \pi \frac{\partial v}{\partial x}\bigg |^n  + \mathcal{O}(\Delta t^2) \nonumber \\ 
+\frac{v|^n-v|^{n-1}}{\Delta t}&=& -\rho^{-1} \frac{\partial p}{\partial x}\bigg |^{(n-1/2)} + \mathcal{O}(\Delta t^2)
+\label{2ndorder}
+\end{eqnarray}
+
+This results in the conventional explicit second order accurate time-stepping (leapfrog) scheme
+\begin{eqnarray}
+p|^{n+1/2}&=&p|^{n-1/2} - \Delta t \pi \frac{\partial v}{\partial x}\bigg |^n  + \mathcal{O}(\Delta t^2) \nonumber \\
+v|^n&=&v|^{n-1} -\Delta t \rho^{-1} \frac{\partial p}{\partial x}\bigg |^{(n-1/2)}  + \mathcal{O}(\Delta t^2)
+\label{2ndorderexplicit}
+\end{eqnarray}
+which requires no additional storage of the wavefield variables $p$ and $v$. 
+
+With the ABS-method the order of the temporal integration  can be increased by using previous time levels of the right hand sides of equation \ref{2ndorder} \cite{ghrist2000staggered}.
+The ABS-method thus requires the storage of previous time levels of spatial derivatives of the pressure $p$ and particle velocity $v$. The time update for the ABS-method thus reads
+\begin{eqnarray}
+p|^{n+1/2}&=&p|^{n-1/2} - \Delta t \pi \sum_{k=0}^{M-1} a_k \frac{\partial v}{\partial x}\bigg |^{n-k}   + \mathcal{O}(\Delta t^M) \nonumber \\
+v|^n&=&v|^{n-1} -\Delta t \rho^{-1}  \sum_{k=0}^{M-1} a_k  \frac{\partial p}{\partial x}\bigg |^{(n-1/2-k)}  + \mathcal{O}(\Delta t^M)
+\label{absmethod}
+\end{eqnarray}
+The weights for the time accuracy orders $M=2,3,4$ are given in Table \ref{absweights}. 
+
+\begin{table}[ht]
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}\hline
+$M$ & $a_0$ & $a_1$ & $a_2$ & $a_3$  \\ \hline
+2 & 1             &  0           &  0           &     0   \\
+3 &  25/24     &  -1/12         & 1/24   & 0   \\
+4 & 13/12      &  -5/24      &  1/6       &  -1/24     \\ \hline
+\end{tabular}
+\end{center}
+\caption{\label{absweights}Weights used for the summation of previous time levels in the Adams-Bashforth method \protect\cite{ghrist2000staggered}.}
+\end{table}
+\newpage
+\subsubsection{Accuracy in 1-D}
+We first compare seismograms calculated with the 1-D ABS-method using equations \ref{absmethod} for different orders of accuracy in time ($M$). We use a 1-D homogeneous acoustic 
+medium with a wave velocity of $c=3500$\,m/s and constant density of $\rho=2000$\,kg/m$^3$ . The source signal is a Ricker signal with a center frequency of 600\,Hz. We choose a large source-receiver distance of 120 dominant wavelength to emphasize the effects of numerical dispersion and numerical dissipation in the synthetic seismograms. The spatial derivatives are
+computed with high accuracy using a centered staggered FD stencil of 8th order accuracy.  The spatial grid spacing is held constant at $\Delta x=0.4$\,m corresponding to approximately 14 grid points per dominant wavelength. Discrepancies to the analytical solution (time-shifted Ricker signal) are thus mainly caused by the chosen time step interval $\Delta t$ and the order of the temporal discretization ($M=2,3,4$). The numerical results for Courant numbers $r=c \Delta t/\Delta x=0.4, 0.2, 0.1$ and temporal orders of accuracy $M=2, 3, 4$ are compared with the analytical solution in Figure \ref{fig_1dfdseis}.  For a large Courant number of $r=0.4$ (corresponding to a large time step interval) and second order approximation of the time derivative ($M=2$) we can observe a large time dispersion error causing a leading phase with high amplitude (Figure \ref{fig_1dfdseis}, top-left). Figure  \ref{fig_1dfdseis} compares two ways to reduce this time discretization error. The conventional way is to  stay with the given temporal accuracy order (typically $M=2$) and then reduce the time step interval, i.e. Courant number. The resulting waveforms are shown in the rows of Figure  \ref{fig_1dfdseis}.
+Reducing the Courant number (time step interval) will increase the computation time proportional to $1/r$.  The alternative  way proposed in this study is to increase the order of the temporal discretization with the ABS-method which requires to store $M-1$ previously calculated spatial derivates of wavefields. The resulting waveforms are shown in the columns of  Figure  \ref{fig_1dfdseis}. \\ \\
+
+In Figure \ref{fig_1dfdseis} we see that the simulation accuracy increases with decreasing Courant number and increasing accuracy order.  In order to quantify the corresponding numerical simulation error we calculated the normalized L2-misfit between the numerical and analytical solution for different Courant numbers and accuracy orders 
+$M = 2, 3, 4$. 
+In Figure \ref{fig_L2} we plot the normalized L2-misfit over the number of time steps $NT=T/\Delta t=T c/(r \Delta x)$ where the propagation time of waves is held fixed at $T=0.24$\,s. We can observe the expected higher order reduction of the simulation accuracy which reduces proportional to $\Delta t^{M}$ or $NT^{-M}$. For a given accuracy level of $E=0.1\%$ (horizontal line in Figure \ref{fig_L2}) the required numbers of time steps are 39233, 13938, and 8704 for $M=2,M=3$ and $M=4$, respectively. The number of time steps thus reduces  to $36\%$  and $22\%$  when we increase the temporal order from $M=2$ to  $M=3$ and $M=4$, respectively (Figure  \ref{fig_L2} ). The ABS methods thus allows to significantly decrease the number of time steps and thus to save computing time. \\ \\
+\begin{figure*}[!h]
+\begin{center}
+\includegraphics[width=\textwidth]{eps/seismo.pdf}
+\caption{Seismograms (red lines) calculated for the 1-D case for different Courant numbers $r$ and accuracy orders $M$. $M=2$ corresponds to the classical second order leapfrog scheme (equations \ref{2ndorder}). $M=3,4$ correspond to the multi-step ABS method (equations \ref{absmethod}). The analytical solution is plotted as a black line. }
+\label{fig_1dfdseis}
+\end{center}
+\end{figure*}
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=0.7]{eps/error_1D_courant}
+\caption{Relative error of 1-D simulations (Figure \ref{fig_1dfdseis}). 
+The normalized L2 norm is plotted over the required number of time steps ($NT$). The temporal accuracy orders are $M=2,3,4$. The spatial accuracy is fixed at order $N=8$. 
+The number of time steps to achieve a given accuracy of $E=0.01\%$ (horizontal line) reduce to $36\%$ and $22\%$ for the temporal orders $M=3$ and $M=4$, respectively. 
+For large $NT$ (small time step intervals) the error converges to the fixed error of the spatial discretization. }
+\label{fig_L2}
+\end{center}
+\end{figure}
+\newpage
 \subsection{Free Surface}
 The interface between the elastic medium and air at the surface is very important when trying to model surface waves or multiple reflections
 in a marine environment. Since all stresses in the normal direction at this interface vanish
@@ -422,9 +493,9 @@ FDORDER & n (Taylor) & n (Holberg) \\ \hline
 \subsection{The Courant Instability}\label{courandt}
 In analogy to the spatial, the temporal discretization has to satisfy a sampling criterion to ensure the stability of the FD code. If a  wave is crossing a discrete grid, then the timestep $dt$ must be less than the time for the wave to travel between two adjacent grid  points with grid spacing $dh$. For a 2-D grid this means mathematically: 
 
-\EQ{courandt:1}{dt \le \frac{dh}{h \sqrt{2} v_{p,max}}.}
+\EQ{courandt:1}{dt \le \frac{dh}{h \cdot \sqrt{2}\cdot v_{p,max}}.}
 
-Where $v_{p,max}$ is the maximum P-wave velocity in the model. The factor h again depends on the order of the FD operator. In table  \ref{courant.1}, h is listed for different FD operator lengths and types (Taylor and Holberg operators). Criterion \ER{courandt:1} is called {\bf{Courant-Friedrichs-Lewy criterion}}. \FIG{courandt_pics} shows the evolution of the pressure field when the Courant 
+Where $v_{p,max}$ is the maximum P-wave velocity in the model. The factor h again depends on the order of the spatial FD operator. If a temporal fourth-order accurate FD operator (FDORDER\_TIME=4) is used, the stability limit will be lowered by a factor of 2/3. In table  \ref{courant.1}, h is listed for different FD operator lengths and types (Taylor and Holberg operators). Criterion \ER{courandt:1} is called {\bf{Courant-Friedrichs-Lewy criterion}}. \FIG{courandt_pics} shows the evolution of the pressure field when the Courant 
 criterion is violated. After a few time steps the amplitudes are growing to infinity and the calculation becomes unstable.
 
 \begin{table}[hbt]
@@ -572,12 +643,14 @@ domains than CPUs are available two or more  domains will be updated on the same
 \begin{verbatim}
 "FD order" : "comment",
 			"FDORDER" : "2",
+			"FDORDER_TIME" : "2",
 			"MAXRELERROR" : "1",
 \end{verbatim}
 
 with 
 
 FDORDER : Order of ssg FD coefficients (values: 2, 4, ..., 12)\newline
+FDORDER TIME : Order of temporal FD coefficients (values: 2 and 4)\newline
 MAXRELERROR : Maximum relative group velocity error E and minimum number of grid points per shortest wavelength, values:\newline
 	0 = Taylor coefficients\newline
 	1 = Holberg coeff.: E = 0.1 \% \newline
@@ -585,7 +658,7 @@ MAXRELERROR : Maximum relative group velocity error E and minimum number of grid
 	3 =                 E = 1.0 \% \newline
 	4 =                 E = 3.0 \% \newline
 
-The order of the used FD operator is defined by the option FDORDER. In the current FD software, 2nd, 4th, 6th, 8th, 10th and 12th order operators are implemented. By the option max\_relative\_error the user can switch between Taylor (0) and Holberg (1) FD coefficients or define a maximum of tolerated group velocity error in \%. The chosen FD operator and FD coefficients have an influence on the numerical stability and grid dispersion (see next chapter).
+The order of the used FD operator is defined by the option FDORDER. In the current FD software, 2nd, 4th, 6th, 8th, 10th and 12th order operators are implemented. The variable FDORDER\_TIME represents the used temporal FD order. FDORDER\_TIME=2 correspondents to the classical leapfrog scheme and FDORDER\_TIME=4 to a fourth order accurate scheme. By the option max\_relative\_error the user can switch between Taylor (0) and Holberg (1) FD coefficients or define a maximum of tolerated group velocity error in \%. The chosen FD operator and FD coefficients have an influence on the numerical stability and grid dispersion (see next chapter).
 
 \subsubsection{Discretization}
 
