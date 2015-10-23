@@ -262,7 +262,7 @@ int main ( int argc, char **argv )
     }
     
     /*allocate memory for dynamic, static and buffer arrays */
-    nd = FDORDER / 2;
+    nd = FDORDER/2 + 1;
     fdo3 = 2 * nd;
     
     fac1 = ( NX + fdo3 ) * ( NY + fdo3 );
@@ -838,7 +838,7 @@ int main ( int argc, char **argv )
             }
             /*---------------------------------------------------------------*/
             /* -------- stress exchange between PEs --------*/
-            /*---------------------------------------------------------------*
+            /*---------------------------------------------------------------*/
              
             /*if ( RSG ) {
              exchange_s_rsg ( psxx, psyy, psxy, bufferlef_to_rig, bufferrig_to_lef, buffertop_to_bot, bufferbot_to_top );
