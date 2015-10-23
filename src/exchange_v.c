@@ -25,7 +25,7 @@
 
 #include "fd.h"
 
-void exchange_v(float ** vx, float ** vy,
+void exchange_v(int nd, float ** vx, float ** vy,
 		float ** bufferlef_to_rig, float ** bufferrig_to_lef,
 		float ** buffertop_to_bot, float ** bufferbot_to_top,
 		MPI_Request * req_send, MPI_Request * req_rec){
@@ -39,7 +39,7 @@ void exchange_v(float ** vx, float ** vy,
 
 
 
-	fdo = FDORDER/2 + 1;
+	fdo = nd;
 	// 	fdo2= FDORDER + 1;
 	fdo2 = 2*fdo;
 
