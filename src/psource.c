@@ -26,8 +26,9 @@
 void psource(int nt, float ** sxx, float ** syy,
 		float **  srcpos_loc, float ** signals, int nsrc){
 
-	extern float DH, DT;
-	extern int RSG, NT;
+	extern float DH;
+//	extern int RSG;
+	extern int NT;
 	int i, j, l;
 	float amp=0;
 

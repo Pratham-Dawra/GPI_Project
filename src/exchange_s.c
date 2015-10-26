@@ -31,8 +31,9 @@ void exchange_s(int nd, float ** sxx, float ** syy,
 		MPI_Request *req_send, MPI_Request *req_rec){
 
 
-	extern int NX, NY, POS[3], NPROCX, NPROCY, BOUNDARY, FDORDER;
-	extern int INDEX[5],MYID;
+	extern int NX, NY, POS[3], NPROCX, NPROCY, BOUNDARY;
+//	extern int FDORDER;
+	extern int INDEX[5];
 	extern const int TAG1,TAG2,TAG5,TAG6;
 	MPI_Status  status;
 	int i, j, fdo, fdo2, n, l;

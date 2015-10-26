@@ -29,14 +29,14 @@ float  **  pi, float  **  u, float ** taup,
 float ** taus, float * etajm, float * peta, float *hc, float * K_x, float * a_x, float * b_x, float ** psi_vxx){
 
 
-	int i,j,l,m,h,h1,fdoh;
+	int i,j,l,m,h1,fdoh;
 	float bjm, djm, e, fjm, g, dhi;
 	float  vxx, vyy, sump=0.0;
 	float  dthalbe;	
 	extern float DT, DH;
 	extern int NX, L, FDORDER;
 	extern int FW, BOUNDARY;
-	extern int NPROCX, NPROCY, POS[3], MYID; 
+	extern int NPROCX,POS[3]; 
 	extern int ABS_TYPE;	
 	fdoh = FDORDER/2;
 	dhi = 1.0/DH;
@@ -98,7 +98,6 @@ float ** taus, float * etajm, float * peta, float *hc, float * K_x, float * a_x,
              		if((!BOUNDARY) && (POS[1]==NPROCX-1) && (i>=NX-FW+1)){
                 
                         	h1 = (i-NX+2*FW);
-                        	h = i;
                         
                        	 	psi_vxx[j][h1] = b_x[h1] * psi_vxx[j][h1] + a_x[h1] * vxx;
                         	vxx = vxx / K_x[h1] + psi_vxx[j][h1];                                            

@@ -27,13 +27,13 @@ void surface_elastic(int ndepth, int * gx, float ** vx, float ** vy, float ** sx
 float **sxy, float  **pi, float  **u, float *hc, float * K_x, float * a_x, float * b_x, float ** psi_vxx){
 
 
-	int i,j,m,fdoh,h,h1;
+	int i,j,m,fdoh,h1;
 	float fjm, g, dhi;
 	float  vxx, vyy;
 	extern float DT, DH;
 	extern int NX, FDORDER;
 	extern int FW, BOUNDARY;
-        extern int NPROCX, NPROCY, POS[3], MYID; 
+        extern int NPROCX, POS[3]; 
 	extern int ABS_TYPE;
 	fdoh = FDORDER/2;
 	dhi = 1.0/DH;
@@ -77,7 +77,6 @@ float **sxy, float  **pi, float  **u, float *hc, float * K_x, float * a_x, float
              		if((!BOUNDARY) && (POS[1]==NPROCX-1) && (i>=NX-FW+1)){
                 
                         	h1 = (i-NX+2*FW);
-                        	h = i;
                         
                         	psi_vxx[j][h1] = b_x[h1] * psi_vxx[j][h1] + a_x[h1] * vxx;
                         	vxx = vxx / K_x[h1] + psi_vxx[j][h1];                                            
