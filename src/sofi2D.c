@@ -262,7 +262,7 @@ int main ( int argc, char **argv )
     }
     
     /*allocate memory for dynamic, static and buffer arrays */
-    nd = FDORDER/2 + 1;
+    nd = FDORDER/2;
     fdo3 = 2 * nd;
     
     fac1 = ( NX + fdo3 ) * ( NY + fdo3 );
@@ -650,24 +650,21 @@ int main ( int argc, char **argv )
         
         if(FDORDER_TIME==4){
             if(L) {
-                zero_visco_4(-nd+1,NY+nd,-nd+1,NX+nd,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4);
+                zero_visco_4(-nd+1,NY+nd,-nd+1,NX+nd,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,
+				vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,
+				svy_1,svy_2,svy_3,svy_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4);
             } else {
-                zero_elastic_4(-nd+1,NY+nd,-nd+1,NX+nd,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4);
+                zero_elastic_4(-nd+1,NY+nd,-nd+1,NX+nd,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,
+				vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4);
             }
         }
         
         if ( ABS_TYPE != 1 ) {
             if ( L )
-                zero_visc ( -FDORDER / 2, NX + FDORDER / 2 + 1, -FDORDER / 2,
-                           NY + FDORDER / 2 + 1, pvx, pvy, psxx, psyy, psxy, pr, pp,
-                           pq );
+                zero_visc ( -nd+1, NX+nd, -nd+1,NY+nd, pvx, pvy, psxx, psyy, psxy, pr, pp,pq );
             else
-                zero_elastic ( -FDORDER / 2, NX + FDORDER / 2 + 1, 1 - FDORDER / 2,
-                              NY + FDORDER / 2 + 1, pvx, pvy, psxx, psyy, psxy );
+                zero_elastic ( -nd+1, NX + nd, -nd+1, NY+nd, pvx, pvy, psxx, psyy, psxy );
         }
-        /* above arguments for function call have been defined differently -> minus 1 in every dimension, not quite clear why
-         old version:
-         zero_elastic(1-FDORDER/2,NX+FDORDER/2,1-FDORDER/2,NY+FDORDER/2,pvx,pvy,psxx,psyy,psxy); */
         
         /* Reseting lsmap to NDT for saving seismograms  */
         lsamp = NDT;

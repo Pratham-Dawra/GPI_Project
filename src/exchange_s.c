@@ -32,14 +32,13 @@ void exchange_s(int nd, float ** sxx, float ** syy,
 
 
 	extern int NX, NY, POS[3], NPROCX, NPROCY, BOUNDARY, FDORDER;
-	extern int INDEX[5];
+	extern int INDEX[5],MYID;
 	extern const int TAG1,TAG2,TAG5,TAG6;
 	MPI_Status  status;
 	int i, j, fdo, fdo2, n, l;
 
 
 	fdo = nd;
-	// 	fdo2 = FDORDER + 1;
 	fdo2 = 2*fdo;
 
 
@@ -69,8 +68,6 @@ void exchange_s(int nd, float ** sxx, float ** syy,
 				bufferbot_to_top[i][n++]  = syy[NY-l+1][i];
 			}
 		}
-
-
 	/* send and receive values for points at inner boundaries */
 	/* blocking communication */
 	/*
@@ -114,7 +111,8 @@ void exchange_s(int nd, float ** sxx, float ** syy,
 			for (l=1;l<=fdo-1;l++) {
 				syy[1-l][i] = bufferbot_to_top[i][n++];
 			}
-		}
+	}
+
 
 
 	/* left - right */
@@ -123,10 +121,10 @@ void exchange_s(int nd, float ** sxx, float ** syy,
 		for (j=1;j<=NY;j++){
 			/* storage of left edge of local volume into buffer */
 			n = 1;
-			for (l=1;l<fdo-1;l++) {
+			for (l=1;l<=fdo-1;l++) {
 				bufferlef_to_rig[j][n++] =  sxy[j][l];
 			}
-			for (l=1;l<fdo;l++) {
+			for (l=1;l<=fdo;l++) {
 				bufferlef_to_rig[j][n++] =  sxx[j][l];
 			}
 		}
@@ -136,10 +134,10 @@ void exchange_s(int nd, float ** sxx, float ** syy,
 		for (j=1;j<=NY;j++){
 			/* storage of right edge of local volume into buffer */
 			n = 1;
-			for (l=1;l<fdo;l++) {
+			for (l=1;l<=fdo;l++) {
 				bufferrig_to_lef[j][n++] =  sxy[j][NX-l+1];
 			}
-			for (l=1;l<fdo-1;l++) {
+			for (l=1;l<=fdo-1;l++) {
 				bufferrig_to_lef[j][n++] =  sxx[j][NX-l+1];
 			}
 		}
@@ -173,10 +171,10 @@ void exchange_s(int nd, float ** sxx, float ** syy,
 	if ((BOUNDARY) || (POS[1]!=NPROCX-1))	/* no boundary exchange at right edge of global grid */
 		for (j=1;j<=NY;j++){
 			n = 1;
-			for (l=1;l<fdo-1;l++) {
+			for (l=1;l<=fdo-1;l++) {
 				sxy[j][NX+l] = bufferlef_to_rig[j][n++];
 			}
-			for (l=1;l<fdo;l++) {
+			for (l=1;l<=fdo;l++) {
 				sxx[j][NX+l] = bufferlef_to_rig[j][n++];
 			}
 		}
@@ -184,10 +182,10 @@ void exchange_s(int nd, float ** sxx, float ** syy,
 	if ((BOUNDARY) || (POS[1]!=0))	/* no boundary exchange at left edge of global grid */
 		for (j=1;j<=NY;j++){
 			n = 1;
-			for (l=1;l<fdo;l++) {
+			for (l=1;l<=fdo;l++) {
 				sxy[j][1-l] = bufferrig_to_lef[j][n++];
 			}
-			for (l=1;l<fdo-1;l++) {
+			for (l=1;l<=fdo-1;l++) {
 				sxx[j][1-l] = bufferrig_to_lef[j][n++];
 			}
 		}
