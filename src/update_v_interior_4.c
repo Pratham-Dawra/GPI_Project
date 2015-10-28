@@ -141,9 +141,9 @@ void update_v_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,
         case 2:
             for ( j=gy[2]+1; j<=gy[3]; j++ ) {
                 svx_1_j=*(svx_1+j);svy_1_j=*(svy_1+j);
-                svx_2_j=*(svx_1+j);svy_2_j=*(svy_1+j);
-                svx_3_j=*(svx_1+j);svy_3_j=*(svy_1+j);
-                svx_4_j=*(svx_1+j);svy_4_j=*(svy_1+j);
+                svx_2_j=*(svx_2+j);svy_2_j=*(svy_2+j);
+                svx_3_j=*(svx_3+j);svy_3_j=*(svy_3+j);
+                svx_4_j=*(svx_4+j);svy_4_j=*(svy_4+j);
                 for ( i=gx[2]+1; i<=gx[3]; i++ ) {
                     
                     sxx_x =  hc[1]* ( sxx[j][i+1]-sxx[j][i] );
@@ -165,9 +165,9 @@ void update_v_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,
         case 4:
             for ( j=gy[2]+1; j<=gy[3]; j++ ) {
                 svx_1_j=*(svx_1+j);svy_1_j=*(svy_1+j);
-                svx_2_j=*(svx_1+j);svy_2_j=*(svy_1+j);
-                svx_3_j=*(svx_1+j);svy_3_j=*(svy_1+j);
-                svx_4_j=*(svx_1+j);svy_4_j=*(svy_1+j);
+                svx_2_j=*(svx_2+j);svy_2_j=*(svy_2+j);
+                svx_3_j=*(svx_3+j);svy_3_j=*(svy_3+j);
+                svx_4_j=*(svx_4+j);svy_4_j=*(svy_4+j);
                 for ( i=gx[2]+1; i<=gx[3]; i++ ) {
                     
                     sxx_x =  hc[1]* ( sxx[j][i+1]-sxx[j][i] )
@@ -195,9 +195,9 @@ void update_v_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,
         case 6:
             for ( j=gy[2]+1; j<=gy[3]; j++ ) {
                 svx_1_j=*(svx_1+j);svy_1_j=*(svy_1+j);
-                svx_2_j=*(svx_1+j);svy_2_j=*(svy_1+j);
-                svx_3_j=*(svx_1+j);svy_3_j=*(svy_1+j);
-                svx_4_j=*(svx_1+j);svy_4_j=*(svy_1+j);
+                svx_2_j=*(svx_2+j);svy_2_j=*(svy_2+j);
+                svx_3_j=*(svx_3+j);svy_3_j=*(svy_3+j);
+                svx_4_j=*(svx_4+j);svy_4_j=*(svy_4+j);
                 for ( i=gx[2]+1; i<=gx[3]; i++ ) {
                     sxx_x =  hc[1]* ( sxx[j][i+1]-sxx[j][i] )
                     + hc[2]* ( sxx[j][i+2]-sxx[j][i-1] )
@@ -228,9 +228,9 @@ void update_v_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,
         case 8:
             for ( j=gy[2]+1; j<=gy[3]; j++ ) {
                 svx_1_j=*(svx_1+j);svy_1_j=*(svy_1+j);
-                svx_2_j=*(svx_1+j);svy_2_j=*(svy_1+j);
-                svx_3_j=*(svx_1+j);svy_3_j=*(svy_1+j);
-                svx_4_j=*(svx_1+j);svy_4_j=*(svy_1+j);
+                svx_2_j=*(svx_2+j);svy_2_j=*(svy_2+j);
+                svx_3_j=*(svx_3+j);svy_3_j=*(svy_3+j);
+                svx_4_j=*(svx_4+j);svy_4_j=*(svy_4+j);
                 for ( i=gx[2]+1; i<=gx[3]; i++ ) {
                     
                     sxx_x =  hc[1]* ( sxx[j][i+1]-sxx[j][i] )
@@ -267,9 +267,9 @@ void update_v_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,
         case 10:
             for ( j=gy[2]+1; j<=gy[3]; j++ ) {
                 svx_1_j=*(svx_1+j);svy_1_j=*(svy_1+j);
-                svx_2_j=*(svx_1+j);svy_2_j=*(svy_1+j);
-                svx_3_j=*(svx_1+j);svy_3_j=*(svy_1+j);
-                svx_4_j=*(svx_1+j);svy_4_j=*(svy_1+j);
+                svx_2_j=*(svx_2+j);svy_2_j=*(svy_2+j);
+                svx_3_j=*(svx_3+j);svy_3_j=*(svy_3+j);
+                svx_4_j=*(svx_4+j);svy_4_j=*(svy_4+j);
                 for ( i=gx[2]+1; i<=gx[3]; i++ ) {
                     sxx_x= hc[1]* ( sxx[j][i+1]-sxx[j][i] )
                     + hc[2]* ( sxx[j][i+2]-sxx[j][i-1] )
@@ -310,9 +310,9 @@ void update_v_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,
         case 12:
             for ( j=gy[2]+1; j<=gy[3]; j++ ) {
                 svx_1_j=*(svx_1+j);svy_1_j=*(svy_1+j);
-                svx_2_j=*(svx_1+j);svy_2_j=*(svy_1+j);
-                svx_3_j=*(svx_1+j);svy_3_j=*(svy_1+j);
-                svx_4_j=*(svx_1+j);svy_4_j=*(svy_1+j);
+                svx_2_j=*(svx_2+j);svy_2_j=*(svy_2+j);
+                svx_3_j=*(svx_3+j);svy_3_j=*(svy_3+j);
+                svx_4_j=*(svx_4+j);svy_4_j=*(svy_4+j);
                 for ( i=gx[2]+1; i<=gx[3]; i++ ) {
                     sxx_x = hc[1]* ( sxx[j][i+1]-sxx[j][i] )
                     + hc[2]* ( sxx[j][i+2]-sxx[j][i-1] )
@@ -356,9 +356,9 @@ void update_v_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,
         default: // 2nd order
             for ( j=gy[2]+1; j<=gy[3]; j++ ) {
                 svx_1_j=*(svx_1+j);svy_1_j=*(svy_1+j);
-                svx_2_j=*(svx_1+j);svy_2_j=*(svy_1+j);
-                svx_3_j=*(svx_1+j);svy_3_j=*(svy_1+j);
-                svx_4_j=*(svx_1+j);svy_4_j=*(svy_1+j);
+                svx_2_j=*(svx_2+j);svy_2_j=*(svy_2+j);
+                svx_3_j=*(svx_3+j);svy_3_j=*(svy_3+j);
+                svx_4_j=*(svx_4+j);svy_4_j=*(svy_4+j);
                 for ( i=gx[2]+1; i<=gx[3]; i++ ) {
                     
                     sxx_x =  hc[1]* ( sxx[j][i+1]-sxx[j][i] );
