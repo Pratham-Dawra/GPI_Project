@@ -17,14 +17,14 @@ cd ./Latex
 /bin/rm -rf *.spl >  /dev/null
 /bin/rm -rf breakurl.sty > /dev/null
 
-	latex breakurl.ins
+	pdflatex breakurl.ins
 
-        latex guide_sofi2D
+        pdflatex guide_sofi2D
         bibtex guide_sofi2D
-        latex guide_sofi2D
-        latex guide_sofi2D
-	latex guide_sofi2D
-	dvipdf guide_sofi2D
+        pdflatex guide_sofi2D
+        pdflatex guide_sofi2D
+	pdflatex guide_sofi2D
+	#dvipdf guide_sofi2D
 
 /bin/rm -rf *.dvi >  /dev/null
 /bin/rm -rf *.log >  /dev/null

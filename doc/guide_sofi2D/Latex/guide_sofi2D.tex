@@ -23,9 +23,9 @@
        \vfill
        \centering
 %       \includegraphics[width=\paperwidth,height=\paperheight,
-%                        keepaspectratio]{eps/title_page1.ps}
+%                        keepaspectratio]{figures/title_page1.ps}
        
-       \includegraphics[width=\paperwidth,height=30cm]{eps/title_page1.pdf}
+       \includegraphics[width=\paperwidth,height=30cm]{figures/title_page1.pdf}
        \vfill
      }}}
 % The picture is centered on the page background
@@ -60,9 +60,9 @@ seismic modeling with finite differences \\
 \small Hertzstrasse 16, 76187 Karlsruhe, Germany \par
 
 \vfill
-\includegraphics[height=30mm]{eps/kit_logo_en_4c_positiv.eps}
+\includegraphics[height=30mm]{figures/kit_logo_en_4c_positiv.pdf}
 \vfill
-\large Karlsruhe, April 16$^{\rm{th}}$, 2015
+\large Karlsruhe, \today
 \end{center}
 \cleardoublepage
 \thispagestyle{empty} 
@@ -83,11 +83,7 @@ SOFI2D can be generally run under Windows and Linux. You just have to make sure 
 \begin{small}
 \begin{tabular}{lll}
 Program & Description & Weblink \\ 
-OpenMPI & MPI Implementation & \tiny{\url{http://www.mcs.anl.gov/research/projects/mpich2}} \\
- & (for the parallelization) & \\
-MPICH2 & MPI Implementation & \url{http://www.open-mpi.org} \\  
-& (for the parallelization) & \\
-LAM/MPI & MPI Implementation & \url{http://www.lam-mpi.org} \\
+OpenMPI & MPI Implementation & \url{http://www.open-mpi.org} \\
 & (for the parallelization) & \\
 C-Compiler & the whole code is written in C,& \\
 & any C-Compiler should be able & \\
@@ -109,24 +105,24 @@ xmovie & Console based movie program, can & usually included in Linux distributi
 \section{Quick guide}\label{qguide}
 To compile the program do:
 
-\path{cd sofi2D/src}
+\texttt{cd sofi2D/src}
 
 then
 
-\path{make all} or \path{make sofi2D}
+\texttt{make all} or \texttt{make sofi2D}
 
-to compile the program. You may also use the shell script \path{compileSOFI2D.sh} located in \path{sofi2D/par}. For a successful compiler run you probably need to change the compiler options in \path{sofi2D/src/Makefile}. 
+to compile the program. You may also use the shell script \texttt{compileSOFI2D.sh} located in \texttt{sofi2D/par}. For a successful compiler run you probably need to change the compiler options in \texttt{sofi2D/src/Makefile}. 
 
 To run the program on 8 CPUs do
 
-\path{cd sofi2D/par}
+\texttt{cd sofi2D/par}
 
-\path{mpirun -np 8 ../bin/sofi2D ./in_and_out/sofi2D.json}
+\texttt{mpirun -np 8 ../bin/sofi2D ./in\_and\_out/sofi2D.json}
 
 
-You may also use the shell script \path{startSOFI2D.sh} located in \path{sofi2D/par} that also writes the screen output to the file \path{sofi2D/par/in_and_out/sofi2D.jout}.
+You may also use the shell script \texttt{startSOFI2D.sh} located in \texttt{sofi2D/par} that also writes the screen output to the file \texttt{sofi2D/par/in\_and\_out/sofi2D.jout}.
 
-The modeling parameters are specified in the sofi2D input file \path{./in_and_out/sofi2D.json}. The parameters should be more or less self-explanatory. The synthetic seismograms and snapshots are written to the files specified in the sofi2D input file.
+The modeling parameters are specified in the sofi2D input file \texttt{./in\_and\_out/sofi2D.json}. The parameters should be more or less self-explanatory. The synthetic seismograms and snapshots are written to the files specified in the sofi2D input file.
 
 In the current distribution, the model is generated on the fly by the function sofi2D/src/hh.c. This function generates a homogeneous medium with $v_p$=3500 m/s, $v_s$=2000 m/s, and $\rho$=2000 kg/$\mathrm{m}^3$. Instead, the function readmod.c can be used to read model info from external grid files. See readmod.c for the format of the external files. You can change the function which generates the model grid by switching the READMOD parameter in the sofi2D input file.
 
@@ -135,9 +131,9 @@ In the current distribution, the model is generated on the fly by the function s
 
 SOFI2D is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.0 of the License only.
  
-SOFI2D is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with SOFI2D. See file COPYING and/or \path{http://www.gnu.org/licenses/gpl-2.0.html}.
+SOFI2D is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with SOFI2D. See file COPYING and/or \url{http://www.gnu.org/licenses/gpl-2.0.html}.
 
-The Authors of SOFI2D are listed in file \path{AUTHORS}.
+The Authors of SOFI2D are listed in file \texttt{AUTHORS}.
 
 \section{Introduction}
 In order to extract information about the 2-D structure and composition of the crust from seismic observations, it is necessary to be able to predict how seismic wavefields are affected by complex structures. Since exact analytical solutions to the wave equations do not exist for most subsurface configurations, the solutions can be obtained only  by numerical methods. Various techniques for seismic wave modeling in realistic (complex)  media have been developed. Explicit finite difference methods have been widely used to model seismic wave propagation in 2-D {\em elastic} media, because of their ability to accurately model seismic waves in arbitrary heterogeneous media. The FD software described here is based on the original work of Virieux (1986) and Levander (1988) who both formulated staggered-grid, finite difference scheme based on a system \nocite{levander:88} \nocite{virieux:86} of first-order coupled elastic equations where the variables are stresses  and velocities. This distribution of wavefield and material parameters is referred to a the standard staggered grid (SSG). Robertsson et al. \shortcite{robertsson:94} extended the elastic SSG algorithms of Virieux (1986) and Levander (1988) to the viscoelastic case. To incorporate absorption he applied the ''generalized standard linear solid'' rheological model  (GSLS) which was first proposed by \cite{emmerich:87}.
@@ -191,7 +187,7 @@ for the accuracy at strong discontinuities \cite{zahradnik:93,falk:98,moczo:02}.
 
 \begin{figure}[tb]
 \begin{center}
-\includegraphics[width=7.4cm,angle=0]{eps/cells_2D_ssg.eps}
+\includegraphics[width=7.4cm,angle=0]{figures/cells_2D_ssg.pdf}
 \end{center}
 \caption{Locations of wavefield and material parameters in a 2-D finite-difference cell for the Standard Staggered Grid (SSG) \protect\cite{virieux:86,levander:88,robertsson:94}. $\sigma_{ij}$ denote stress components, $r_{ij}$ are the memory variables, $v_i$ are the particle velocities, $f_i$ are the body force components, $\pi$ is the P-wave modulus, $\mu$ is the shear modulus, $\varrho$ denotes density, and $\tau^s$ and $\tau^p$ are the attenuation parameters for P- and S-waves, respectively. $\mu_{xy}$, and $\tau^s_{xy}$,
 and $\varrho_x, \varrho_y$ denote averaged material properties for shear modulus, attenuation parameter $\tau^s$, and density, respectively (equation \protect\ref{eq_av_ssg}).}
@@ -361,14 +357,14 @@ $M = 2, 3, 4$.
 In Figure \ref{fig_L2} we plot the normalized L2-misfit over the number of time steps $NT=T/\Delta t=T c/(r \Delta x)$ where the propagation time of waves is held fixed at $T=0.24$\,s. We can observe the expected higher order reduction of the simulation accuracy which reduces proportional to $\Delta t^{M}$ or $NT^{-M}$. For a given accuracy level of $E=0.1\%$ (horizontal line in Figure \ref{fig_L2}) the required numbers of time steps are 39233, 13938, and 8704 for $M=2,M=3$ and $M=4$, respectively. The number of time steps thus reduces  to $36\%$  and $22\%$  when we increase the temporal order from $M=2$ to  $M=3$ and $M=4$, respectively (Figure  \ref{fig_L2} ). The ABS methods thus allows to significantly decrease the number of time steps and thus to save computing time. \\ \\
 \begin{figure*}[!h]
 \begin{center}
-\includegraphics[width=\textwidth]{eps/seismo.pdf}
+\includegraphics[width=\textwidth]{figures/seismo.pdf}
 \caption{Seismograms (red lines) calculated for the 1-D case for different Courant numbers $r$ and accuracy orders $M$. $M=2$ corresponds to the classical second order leapfrog scheme (equations \ref{2ndorder}). $M=3,4$ correspond to the multi-step ABS method (equations \ref{absmethod}). The analytical solution is plotted as a black line. }
 \label{fig_1dfdseis}
 \end{center}
 \end{figure*}
 \begin{figure}[h]
 \begin{center}
-\includegraphics[scale=0.7]{eps/error_1D_courant}
+\includegraphics[scale=0.7]{figures/error_1D_courant}
 \caption{Relative error of 1-D simulations (Figure \ref{fig_1dfdseis}). 
 The normalized L2 norm is plotted over the required number of time steps ($NT$). The temporal accuracy orders are $M=2,3,4$. The spatial accuracy is fixed at order $N=8$. 
 The number of time steps to achieve a given accuracy of $E=0.01\%$ (horizontal line) reduce to $36\%$ and $22\%$ for the temporal orders $M=3$ and $M=4$, respectively. 
@@ -429,36 +425,41 @@ The PMLs are damping the seismic waves by a factor 5-10 more effective than the 
 To avoid numerical artefacts and instabilities during a FD modeling run, a spatial and temporal sampling condition for the wavefield has to be satisfied. These will be discussed in the following two sections. 
 
 \subsection{Grid Dispersion}\label{grid-dispersion}
-The first question when building a FD model is: What is the maximum spatial grid point distance dh, so that the wavefield is correctly sampled? To answer this question we take a look at this simple example: The particle velocity in x-direction is defined by a sine function:
-
-\EQ{grid_disp:1}{v_x=\sin\biggl(2 \pi \frac{x}{\lambda}\biggr),}
-
-where $\lambda$ denotes the wavelength. When calculating the derivation of this function analytically at x=0 and setting $\lambda=1\;m$ we get:
-
-\EQ{grid_disp:2}{\frac{d v_x}{d x}\biggl|_{x=0}=\frac{2 \pi}{\lambda} \cos\biggl(2 \pi \frac{x}{\lambda}\biggr)\biggl|_{x=0}=2 \pi.}
-
-In the next step, the derivation is approximated numerically by a 2nd order finite-difference operator:
-
-\EQ{grid_disp:3}{\frac{d v_x}{d x}\biggl|_{x=0} \approx \frac{v_x(x+\Delta x)-v_x(x)}{\Delta x}\biggl|_{x=0}=\frac{\sin \biggl(\frac{2 \pi \Delta
-x}{\lambda} \biggr)}{\Delta x}.}
-
-Using the Nyquist-criteria it should be sufficient to sample the wavefield with $\Delta x = \lambda/2$. In table \ref{grid_disp.1}, the numerical solutions of Equation \ER{grid_disp:3} and the analytical solution \ER{grid_disp:2} are compared for different sample intervals  $\Delta x = \lambda /n$, where n is the number of gridpoints per wavelength. For the case n=2, which corresponds to the Nyquist criteria, the numerical solution is $\frac{d v_x}{d x}|_{x=0}=0.0$, which is not equal with the analytical solution $2 \pi$. A refinement of the spatial sampling of the wavefield results in an improvement of the finite difference solution. For n=16 the numerical solution is accurate to one decimal place. The effect of a sparsly sampled pressure field is illustrated in \FIG{grid_disp_pics}. The dimensions of the FD grid are fixed and the central frequency of the source signal is increased systematically.  When using a spatial sampling of 16 grid points per minimum wavelength (\FIG{grid_disp_pics}, top) the wavefronts are sharply defined. For n=4  grid points a slight numerical dispersion of the wave occurs (\FIG{grid_disp_pics}, center). This effect is obvious when using the Nyquist criteria (n=2)  (\FIG{grid_disp_pics}, bottom). Since the numerical calculated wavefield seem to be dispersive this numerical artefact is called {\bf{grid dispersion}}. To avoid the occurrence of grid dispersion the following criteria for the spatial grid spacing dh has to be satisfied:
-
-\EQ{grid_disp:4}{dh \le \frac{\lambda_{min}}{n} = \frac{V_{s,min}}{n\; f_{max}}.}
-
-Here $\lambda_{min}$ denotes the minimum wavelength, $V_{s,min}$ the minimum S-wave velocity in the model and $f_{max}$ is the maximum frequency of the source signal.Depending on the accuracy of the used FD operator the parameter n is different.  In table \ref{grid_disp.2}, n is listed for different FD operator lengths  and types (Taylor and Holberg operators). For short operators n should be chosen relatively large, so the spatial grid spacing is small, while for longer FD operators n is smaller and the grid spacing can be larger.            
-
+The first question when building a FD model is: What is the maximum spatial grid point distance dh, for a correct sampling of the wavefield? To answer this question we take a look at this simple example: The particle displacement in x-direction is defined by a sine function:
+\EQ{grid_disp:1}{v_x=\sin\biggl(2 \pi \frac{x}{\rm{\lambda}}\biggr),}
+where $\rm{\lambda}$ denotes the wavelength. When calculating the derivation of this function analytically at $x=0$ and setting $\rm{\lambda}=1\;\rm{m}$ we get:
+\EQ{grid_disp:2}{\frac{d v_x}{d x}\biggl|_{x=0}=\frac{2 \pi}{\rm{\lambda}} \cos\biggl(2 \pi \frac{x}{\rm{\lambda}}\biggr)\biggl|_{x=0}=2 \pi.}
+In the next step the derivation is approximated numerically by a staggered 2nd order finite-difference operator:
+\EQ{grid_disp:3}{\frac{d v_x}{d x}\biggl|_{x=0} \approx \frac{v_x(x+\frac{1}{2}\Delta x)-v_x(x-\frac{1}{2}\Delta x)}{\Delta x}\biggl|_{x=0}=\frac{\sin \biggl(\frac{2 \pi (\frac{1}{2}{\rm dx})}{\rm{\lambda}} \biggr)-\sin \biggl(\frac{2 \pi (\frac{1}{2}{\rm dx})}{\rm{\lambda}} \biggr)}{\Delta x}.}
+Using the Nyquist-Shannon sampling theorem it should be sufficient to sample the wavefield with $\Delta x = \rm{\lambda}/2$. In table \ref{grid_disp.1} the
+numerical solutions of eq. \ER{grid_disp:3} and the analytical solution \ER{grid_disp:2} are compared for different sample intervals 
+$\Delta x = \rm{\lambda} /n$, where n is the number of gridpoints per wavelength. For the case n=2, which corresponds to the Nyquist-Shannon theorem, the
+numerical solution is $\frac{d v_x}{d x}|_{x=0}=4.0$, which is not equal with the analytical solution $2 \pi$. A refinement of the spatial
+sampling of the wavefield results in an improvement of the finite difference solution. For $\rm n=16$ the numerical solution is accurate to the second
+decimal place. The effect of a sparsly sampled pressure field is illustrated in \FIG{grid_disp_pics} for a homogeneous block model with stress free surfaces. The dimensions of the FD grid are fixed
+and the central frequency of the source signal is increased systematically. 
+When using a spatial sampling of 16 grid points per minimum wavelength (\FIG{grid_disp_pics}, top) the wavefronts are sharply defined. For $\rm n=4$ 
+grid points a slight numerical dispersion of the wave occurs (\FIG{grid_disp_pics}, center). This effect is obvious when using the Nyquist criterion ($\rm n=2$) 
+(\FIG{grid_disp_pics}, bottom). Since the numerical calculated wavefield seem to be dispersive this numerical artefact is called {\bf{grid dispersion}}. 
+To avoid the occurence of grid dispersion the following criteria for the spatial grid spacing dh has to be satisfied:
+\EQ{grid_disp:4}{{\rm dh \le \frac{\lambda_{min}}{n}} = \frac{{\rm V_{min}}}{{\rm n}\; f_{max}}.}
+Here $\rm{\lambda_{min}}$ denotes the minimum wavelength, $\rm{V_{min}}$ the minimum velocity in the model and $f_{max}$ is the maximum
+frequency of the source signal.  
+Depending on the accuracy of the used FD operator the parameter n is different.  In table \ref{grid_disp.2} n is listed for different FD operator lengths 
+and types (Taylor and Holberg operators). The Holberg coefficients are calculated for a minimum dispersion error of $0.1\%$ at $3 f_{max}$. For short operators n should be choosen relatively large, so the spatial grid spacing is small, while for longer FD operators n is smaller and the grid spacing can be larger. 
 \begin{table}[hbt]
 \begin{center}
 \begin{tabular}{ccc}\hline \hline
 n &  $\Delta x\; [m]$ & $\frac{d v_x}{d x}|_{x=0}\; []$ \\ \hline 
 analytical & - & $2\pi \approx 6.283$ \\ 
-2 & $\lambda/2$ & 0.0 \\ 
-4 & $\lambda/4$ & 4.0 \\ 
-8 & $\lambda/8$ & 5.657 \\ 
-16 & $\lambda/16$ & 6.123 \\ \hline \hline
+2 & $\rm{\lambda}/2$ & 4.0 \\ 
+4 & $\rm{\lambda}/4$ & 5.657 \\ 
+8 & $\rm{\lambda}/8$ & 6.123 \\ 
+16 & $\rm{\lambda}/16$ & 6.2429 \\ 
+32 & $\rm{\lambda}/32$ & 6.2731\\ \hline \hline
 \end{tabular}
-\caption{\label{grid_disp.1} Comparison of the analytical solution of Equation \ER{grid_disp:2} with the numerical solution (Equation \ER{grid_disp:3}) for different grid spacings $\Delta x = \lambda /n$}
+\caption{\label{grid_disp.1} Comparison of the analytical solution Eq. \ER{grid_disp:2} with the numerical solution Eq. \ER{grid_disp:3} 
+for different grid spacings $\Delta x = \rm{\lambda /n}$.}
 \end{center}
 \end{table}
  
@@ -468,36 +469,35 @@ analytical & - & $2\pi \approx 6.283$ \\
 FDORDER & n (Taylor) & n (Holberg) \\ \hline 
 2nd   &   12       &  12         \\
 4th   &   8        &  8.32       \\
-6th   &   7        &  4.77       \\
-8th   &   6        &  3.69       \\
+6th   &   6        &  4.77       \\
+8th   &   5        &  3.69       \\ 
 10th  &   5        &  3.19       \\
-12th  &   4        &  2.91       \\   
+12th  &   4        &  2.91       \\
 \hline \hline
 \end{tabular}
-\caption{\label{grid_disp.2} The number of grid points per minimum wavelength n for different orders (2nd-12th) and types (Taylor and Holberg) of FD operators.}
+\caption{\label{grid_disp.2} The number of grid points per minimum wavelength n for different orders (2nd-12th) and types (Taylor and
+Holberg) of FD operators. For the Holberg coefficients n is calculated for a minimum dispersion error of $0.1\%$ at $3 f_{max}$.}
 \end{center}
 \end{table} 
-
-
-
+\clearpage
 \begin{figure}[ht]
 \begin{center}
-\epsfig{file=eps/homogenous_grid_n_16_5.eps, width=7 cm}\epsfig{file=eps/homogenous_grid_n_16_10.eps, width=7 cm}
-\epsfig{file=eps/homogenous_grid_n_4_5.eps, width=7 cm}\epsfig{file=eps/homogenous_grid_n_4_10.eps, width=7 cm}
-\epsfig{file=eps/homogenous_grid_n_2_5.eps, width=7 cm}\epsfig{file=eps/homogenous_grid_n_2_10.eps, width=7 cm}
-\caption{\label{grid_disp_pics} The influence of grid dispersion in FD modeling: Spatial sampling of the wavefield using  16 (top), 4 (center) and 2 gridpoints (bottom).}
+\epsfig{file=figures/homogenous_grid_n_16_5.pdf, width=6 cm}\epsfig{file=figures/homogenous_grid_n_16_10.pdf, width=6 cm}
+\epsfig{file=figures/homogenous_grid_n_4_5.pdf, width=6 cm}\epsfig{file=figures/homogenous_grid_n_4_10.pdf, width=6 cm}
+\epsfig{file=figures/homogenous_grid_n_2_5.pdf, width=6 cm}\epsfig{file=figures/homogenous_grid_n_2_10.pdf, width=6 cm}
+\caption{\label{grid_disp_pics} The influence of grid dispersion in FD modeling: Spatial sampling of the wavefield using n=16 (top), n=4 (center) and n=2 gridpoints (bottom) per minimum wavelength $\rm{\lambda_{min}}$.}
 \end{center}
 \end{figure}
-
 \clearpage
-\subsection{The Courant Instability}\label{courandt}
-In analogy to the spatial, the temporal discretization has to satisfy a sampling criterion to ensure the stability of the FD code. If a  wave is crossing a discrete grid, then the timestep $dt$ must be less than the time for the wave to travel between two adjacent grid  points with grid spacing $dh$. For a 2-D grid this means mathematically: 
-
-\EQ{courandt:1}{dt \le \frac{dh}{h \cdot \sqrt{2}\cdot v_{p,max}}.}
-
-Where $v_{p,max}$ is the maximum P-wave velocity in the model. The factor h again depends on the order of the spatial FD operator. If a temporal fourth-order accurate FD operator (FDORDER\_TIME=4) is used, the stability limit will be lowered by a factor of 2/3. In table  \ref{courant.1}, h is listed for different FD operator lengths and types (Taylor and Holberg operators). Criterion \ER{courandt:1} is called {\bf{Courant-Friedrichs-Lewy criterion}}. \FIG{courandt_pics} shows the evolution of the pressure field when the Courant 
-criterion is violated. After a few time steps the amplitudes are growing to infinity and the calculation becomes unstable.
-
+\subsection{The Courant Instability}\label{courant}
+Beside the spatial, the temporal discretization has to satisfy a sampling criterion to ensure the stability of the FD code. If a 
+wave is propagating on a discrete grid, then the timestep $dt$ has to be less than the time for the wave to travel between two adjacent grid 
+points with grid spacing dh. For an elastic 2D grid this means mathematically:
+\EQ{courant:1}{\rm{dt \le \frac{dh}{h \sqrt{2} V_{max}},}}
+where $\rm{V_{max}}$ is the maximum velocity in the model. The factor h depends on the order of the FD operator and can easily calculated by summing over the weighting coefficients $\beta_i$
+\EQ{courant:1:1}{{\rm{h} = \sum_i \beta_i.}}
+In table \ref{courant.1} h is listed for different FD operator lengths and types (Taylor and Holberg operators). Criterion \ER{courant:1} 
+is called {\bf{Courant-Friedrichs-Lewy criterion}} (\cite{courant:28}, \cite{courant:67}). \FIG{courant_pics} shows the evolution of the pressure field when the Courant criterion is violated. After a few time steps the amplitudes are growing to infinity and the calculation becomes unstable.
 \begin{table}[hbt]
 \begin{center}
 \begin{tabular}{ccc}\hline \hline
@@ -510,44 +510,28 @@ FDORDER & h (Taylor)      & h (Holberg) \\ \hline
 12th  &   1187803/887040  &  1.417065   \\   
 \hline \hline
 \end{tabular}
-\caption{\label{courant.1} The factor h in the Courant criterion for different orders FDORDER (2nd-12th) and types (Taylor and Holberg) of FD operators.}
+\caption{\label{courant.1} The factor h in the Courant criterion for different orders (2nd-12th) and types (Taylor and Holberg) of FD operators.}
 \end{center}
 \end{table} 
-
-
-
+\clearpage
 \begin{figure}[ht]
 \begin{center}
-\epsfig{file=eps/courandt_1.eps, width=7 cm}\epsfig{file=eps/courandt_2.eps, width=7 cm}
-\epsfig{file=eps/courandt_3.eps, width=7 cm}\epsfig{file=eps/courandt_4.eps, width=7 cm}
-\caption{\label{courandt_pics} Temporal evolution of the Courant instability.}
+\epsfig{file=figures/courandt_1.pdf, width=7 cm}\epsfig{file=figures/courandt_2.pdf, width=7 cm}
+\epsfig{file=figures/courandt_3.pdf, width=7 cm}\epsfig{file=figures/courandt_4.pdf, width=7 cm}
+\caption{\label{courant_pics} Temporal evolution of the Courant instability. In the colored areas the wave amplitudes are extremly large.}
 \end{center}
 \end{figure}
 \clearpage
 
-\section{Parallel Environment}
-The parallelization employs functions of the Message Passing Interface (MPI). MPI has to be installed when compiling and running the sofi2D software. At least two implementations exist for Unix-based networks: OpenMPI and MPICH2. The LAM-MPI implementation is no longer supported by the developers. Currently all three implementation work with sofi2D. OpenMPI and MPICH2 are MPI programming environments and development systems for heterogeneous computers on a network. With OpenMPI or MPICH2, a dedicated cluster or an existing network computing  infrastructure can act as one parallel computer solving one problem. The latest version of OpenMPI can be obtained from \url{http://www.open-mpi.org}. MPICH2 is available at \url{http://www-unix.mcs.anl.gov/mpi/mpich}. LAM-MPI can be still downloaded here: \url{http://www.lam-mpi.org}.
-
-\subsection{LAM}
-Even though outdated, LAM-MPI will be used to illustrate the setting up of the MPI implementation. In order to reproduce the following instructions, you must first install the LAM-MPI software. 
-On SUSE LINUX systems the package can be installed with yast. The software can also be downloaded from \url{http://www.lam-mpi.org}. A good documentation of LAM/MPI is available at this site. Before you can run the sofi2D software on more than one node you must boot LAM. This requires that you can connect to all of your nodes with ssh without a password. To enable ssh connection without a password you must generate authentication keys on each node using the command ssh-keygen -t rsa. These are saved in the file \path{$\sim$/.ssh/id_rsa.pub}. Copy all authentication keys into one file named \path{authorized_keys} and copy this file on all nodes into the directory \path{$\sim$/.ssh}. 
-
-Before you can boot LAM you must specify the IP addresses of the different processing elements in an ASCII file. An example file is par/lamhosts. Each line must contain one IP address. The first IP number corresponds to node 0, the second line to node 1 and so forth. Note that in older LAM-MPI implementations the mpirun command to run the FD programs must always be executed on node 0 !,
-i.e. you must log on node 0 (first line in the file par/lamhosts) and run the software on this node. In the last stable release of LAM-MPI, the node 0 just has to be listed in the lamhosts file (the order does not matter). To boot lam just do \path{lamboot -v par/lamhosts}. To run the software in serial on a single PC just type \path{lamboot} without specifying a lamhosts file. You can still specify more PEs in the FD software but all processes will be executed on the same CPU. Thus this only makes sense if you run the software on a multicore system. In this case, you should boot it without
-a lamhosts file and specify a total number of 2 processing elements (PEs). To shut down LAM again (before logout) use the command \path{lamclean -v}. However, it is not necessary to shut down/restart LAM after each logout/login. 
-
 \section{Installation}
 \label{installation}
-After unpacking the software package (e.g. by \path{tar -zxvf sofi2D.tgz}) and changing to the directory sofi2D (\path{cd sofi2D})  you will find different subdirectories:
-
-\textbf{.svn}\\
-The software is updated using the version control system subversion (SVN). This directory contains internal information on recent software updates etc. You can ignore this directory, a clean release should not have any .svn directories at all. Each subdirectory described below also contains a subdirectory SVN which can be ignored as well.
+In sofi2D package you will find different subdirectories:
 
 \textbf{bin}\\
-This directory contains all executable programs, generally sofi2D and snapmerge. These executables are generated using the command \path{make $<$program$>$} (see below).
+This directory contains all executable programs, generally sofi2D and snapmerge. These executables are generated using the command \texttt{make $<$program$>$} (see below).
 
 \textbf{doc}\\
-This directory contains documentation on the software (this users guide) as well as some important papers in PDF format on which the software is based on. It also contains the full documentation of the SOFI2111D overnight built testing suite (see \textbf{overnightbuilt}).
+This directory contains documentation on the software (this users guide).
 
 \textbf{genmod}\\
 Contains the model and benchmark files for sofi2D.
@@ -557,24 +541,22 @@ Here some Matlab routines (m-files) are stored. These Matlab programs can be use
 certain relaxation frequencies and value of tau (qplot.m). For further details on the theory behind these algorithms we refer to the Phd thesis of T. Bohlen \cite{bohlen:98} and to the paper in which the so-called tau-method is described \cite{blanch:95}. The parameter tau is used in this software to define the level of attenuation.
 
 \textbf{overnightbuilt}\\
-This directory contains a complete bechmarking suite designed to test whether your installed release of SOFI2D works as intended. During the test run, several model scenarios will be simulated and ,afterwards, the created seismogram and snapshot files will be compared with reference values created by the SOFI2D developer team. This benchmarking test can be used as an overnight built check while developing the code, i.e. after modifications to the code, the test evaluates if standard modeling scenarios still result in the same simulation output. For further information we refer to the separate documentation \path{sofi2D_overnight_documentation} located in the folder \textbf{doc}.
+This directory only appears in the overnightbuilt version of SOFI2D.
+This directory contains a complete bechmarking suite designed to test whether your installed release of SOFI2D works as intended. During the test run, several model scenarios will be simulated and ,afterwards, the created seismogram and snapshot files will be compared with reference values created by the SOFI2D developer team. This benchmarking test can be used as an overnight built check while developing the code, i.e. after modifications to the code, the test evaluates if standard modeling scenarios still result in the same simulation output. For further information we refer to the separate documentation \texttt{sofi2D\_overnight\_documentation} located in the folder \textbf{doc}.
 
 \textbf{par}\\
 Parameter files for sofi2D modeling.
 
-\textbf{scripts}\\
-Here, you will find examples of script-files used to submit modeling jobs on cluster-computers.
-
 \textbf{src}\\
-This directory contains the complete source codes.  The following programs are available and my be compiled using make $<$program$>$.
+This directory contains the complete source codes.  The following programs are available and my be compiled using \texttt{make $<$program$>$}.
 
 
 \begin{table}[hbt]
 \begin{tabular}{ll}
 program & purpose \\ \hline
-\path{snapmerge} & program to merge snapshot files \\
-\path{sofi2D} & Viscoelastic/elastic code,  2nd-12th order spatial FD operators, SSG \\
-\path{sofi2D_bench} & Viscoelastic/elastic code,  2nd-12th order spatial FD operators, SSG, \\
+\texttt{snapmerge} & program to merge snapshot files \\
+\texttt{sofi2D} & Viscoelastic/elastic code,  2nd-12th order spatial FD operators, SSG \\
+\texttt{sofi2D\_bench} & Viscoelastic/elastic code,  2nd-12th order spatial FD operators, SSG, \\
 & only used for Overnight built testing suite \\
 \end{tabular}
 \caption{Names of excecutables located in the folder \textbf{bin} and purpose}
@@ -584,11 +566,11 @@ program & purpose \\ \hline
 \section{Example problem: Homogenous block model}
 \label{simple test}
 \subsection{Preliminary Considerations}
-To illustrate the usage of sofi2D we use a homogenous block model adapted from \cite{kang:04} with the dimensions 5400.0 x 5400.0 m. The material parameters of the block are:  P-wave velocity $v_p=3500.0\; \frac{\mathrm{m}}{\mathrm{s}}$, S-wave velocity $v_s=2000.0\; \frac{\mathrm{m}}{\mathrm{s}}$ and density $\rho=2000.0\; \frac{\mathrm{kg}}{\mathrm{m}^3}$. An explosive source is located inside the model at point  $x_s=2592.0\;$m and $y_s=2106.0\;$ km (y denotes the vertical direction). The source function is a Ricker wavelet (see Chapter \ref{sources}) with a center frequency $f_c$ of 5 Hz. To calculate the dimensions of the grid the spatial grid spacing is estimated using the grid dispersion criterion. For an 8th order Holberg FD operator using $v_{s,min}=2000\;$m/s, $f_{max}=2 \cdot f_c=10\;$ Hz and $n=3.69$ we get:
+To illustrate the usage of sofi2D we use a homogenous block model adapted from \cite{kang:04} with the dimensions 5400.0 x 5400.0 m. The material parameters of the block are:  P-wave velocity $v_p=3500.0\; \frac{\mathrm{m}}{\mathrm{s}}$, S-wave velocity $v_s=2000.0\; \frac{\mathrm{m}}{\mathrm{s}}$ and density $\rho=2000.0\; \frac{\mathrm{kg}}{\mathrm{m}^3}$. An explosive source is located inside the model at point  $x_s=2592.0\;$m and $y_s=2106.0\;$ km (y denotes the vertical direction). The source function is a Ricker wavelet (see Chapter \ref{sources}) with a center frequency $f_c$ of 5 Hz. To calculate the dimensions of the grid the spatial grid spacing is estimated using the grid dispersion criterion. For an 8th order Holberg FD operator using $v_{s,min}=2000\;$m/s, $f_{max}=2 \cdot f_c=10\;$ Hz and $\rm n=3.69$ we get:
 
 \EQ{prob1:1}{\rm{dh} \le \frac{V_{s,min}}{n\; f_{max}} = 54.2\;\mathrm{m}.}
 
-The whole model grid has the dimensions 100 x 100 gridpoints. To avoid a violation of the Courant criterion the time step size DT is calculated according to using $v_{p-max}=3500\; m/s$, $h=1.345$ and $dh=54.0\; m$:
+The whole model grid has the dimensions 100 x 100 gridpoints. To avoid a violation of the Courant criterion the time step size DT is calculated according to using $v_{p-max}=3500\; m/s$, $\rm h=1.345$ and $\rm{dh=54.0\; m}$:
 
 \EQ{prob1:2}{\rm{DT} \le \frac{\rm{dh}}{h \sqrt{2} v_{p-max}} = 6.62\times 10^{-3} s \approx 6.6\; \mathrm{ms}.}
 
@@ -596,7 +578,7 @@ The modeling covers a time span of 5.0 s, so about NT=649 time steps are needed.
 
 \subsection{Definition of the Wave Modeling Parameters}
 \label{modelgeom}
-The geometry of the FD grid and all parameters for the wave field simulation have to be defined in a parameter file (which we name in this case {\path{sofi2D/par/in_and_out/sofi2D.json}}). In the following we will first list the full input file and later explain every input parameter section in detail:
+The geometry of the FD grid and all parameters for the wave field simulation have to be defined in a parameter file (which we name in this case {\texttt{sofi2D/par/in\_and\_out/sofi2D.json}}). In the following we will first list the full input file and later explain every input parameter section in detail:
 \input{sofi2D.json}
 All lines in the parameter file are formated according to the JSON standard (\url{http://www.json.org}) and organized as follows: 
 
@@ -615,7 +597,7 @@ where VARNAME denotes the name of the global variable in which the value is save
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=15cm,angle=0]{eps/grid.eps}
+\includegraphics[width=15cm,angle=0]{figures/grid.pdf}
 \end{center}
 \caption{Geometry of the numerical FD grid using 4 processors in x direction (NPROCX=4) and 2 processors in y-direction (NPROCY=2). Each processing element (PE) is updating the wavefield in his domain.
 At the top of the numerical mesh the PEs apply a free surface boundary condition if FREE\_SURF=1, otherwise an absorbing boundary condition is applied. The width of the absorbing frame is FW meters. The size of the total grid is NX grid points in x-direction and NY gridpoints in y-direction. The size of each subgrid thus is NX/NPROCX x NY/NPROCY gridpoints. The source is located at (XSRC,YSRC). The first receiver is at (XREC1,YREC1) and the last receiver at (XREC2,YREC2). The origin of the cartesian coordinate system is at the top left corner of the grid. }
@@ -635,11 +617,10 @@ with
 NPROCX : number of processors in x-direction \newline
 NPROCY : number of processors in y-direction
 
-Parallelization is based on domain decomposition (see Figure \ref{fig_grid}), i.e each processing element (PE) updates the wavefield within his portion of the grid. The model is  decomposed by the program into subgrids. After decomposition each processing elements (PE) saves only his sub-volume of the grid. NPROCX and NPROCY specify the number of processors in x- and y-direction, respectively (Figure  \ref{fig_grid}). The total number of processors thus is NP=NPROCX*NPROCY. This values must be specified when starting the program with the mpirun command: \path{mpirun -np $<$NP$>$ ../bin/sofi2D $<$ sofi2D.json}. If the total number of processors in sofi2D.json and the command line differ the program will terminate immediately with a corresponding error message. Obviously, the total number of PEs (NPROCX*NPROCY) used to decompose the model should be less equal than the total number of CPUs which are available on your parallel machine. If you use LAM and decompose your model in more
+Parallelization is based on domain decomposition (see Figure \ref{fig_grid}), i.e each processing element (PE) updates the wavefield within his portion of the grid. The model is  decomposed by the program into subgrids. After decomposition each processing elements (PE) saves only his sub-volume of the grid. NPROCX and NPROCY specify the number of processors in x- and y-direction, respectively (Figure  \ref{fig_grid}). The total number of processors thus is NP=NPROCX*NPROCY. This values must be specified when starting the program with the mpirun command: \texttt{mpirun -np $<$NP$>$ ../bin/sofi2D $<$ sofi2D.json}. If the total number of processors in sofi2D.json and the command line differ the program will terminate immediately with a corresponding error message. Obviously, the total number of PEs (NPROCX*NPROCY) used to decompose the model should be less equal than the total number of CPUs which are available on your parallel machine. If you use LAM and decompose your model in more
 domains than CPUs are available two or more  domains will be updated on the same CPU (the program will not terminate and will produce the correct results). However, this is only efficient if multi-core processors are installed on your machine. In order to reduce the amount of data transferred between PEs one should try to realize more or less cubic subgrids. In our example, we use 2 PEs in each direction: NPROCX=NPROCY=2. The total number of PEs used by the program is NPROC=NPROCX*NPROCY=4. 
 
 \subsubsection{Order of the FD operator}
-
 \begin{verbatim}
 "FD order" : "comment",
 			"FDORDER" : "2",
@@ -647,8 +628,7 @@ domains than CPUs are available two or more  domains will be updated on the same
 			"MAXRELERROR" : "1",
 \end{verbatim}
 
-with 
-
+with \\ 
 FDORDER : Order of ssg FD coefficients (values: 2, 4, ..., 12)\newline
 FDORDER TIME : Order of temporal FD coefficients (values: 2 and 4)\newline
 MAXRELERROR : Maximum relative group velocity error E and minimum number of grid points per shortest wavelength, values:\newline
@@ -754,7 +734,7 @@ In these equations t denotes time and $f_c=1/TS$ is the center frequency. $t_d$ 
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=8cm,angle=0]{eps/signals.eps}
+\includegraphics[width=8cm,angle=0]{figures/signals.pdf}
 \end{center}
 \caption{Plot of built-in source wavelets (equations \ref{eq_ricker}, \ref{eq_fm}, \ref{eq_s3}) for a center frequency of $f_c=50$ Hz 
 ($TS=1/f_c=0.02$s): Ricker signal (solid), Fuchs-M\"uller signal (dashed), $sin^3$-signal (dotted). a) Time function, b) amplitude
@@ -775,7 +755,7 @@ The parameter SOURCE\_TYPE specifies the type of the source. SOURCE\_TYPE=1 mean
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=9cm,angle=0]{eps/source_azimuth.eps}
+\includegraphics[width=9cm,angle=0]{figures/source_azimuth.pdf}
 \end{center}
 \caption{Scheme for SOURCE\_TYPE=4. The parameter SOURCE\_AZIMUTH denotes the angle between the vertical y- and horizontal x-coordinate.}
 \label{fig_source_azimuth}
@@ -786,7 +766,7 @@ This only makes sense if you continue a previous simulation by reading the wavef
 
 \begin{figure}[htb]
 \begin{center}
-\includegraphics[width=12cm,angle=0]{eps/plane_wave.eps}
+\includegraphics[width=12cm,angle=0]{figures/plane_wave.pdf}
 \end{center}
 \caption{Plane waves are generated by assigned source points along  straight lines (2-D simulation) or planar planes (3-D simulation) with the source wavelet. The parameter PLANE\_WAVE\_DEPTH defines the depth of this line/plane at x=0, and the parameter PLANE\_WAVE\_ANGLE specifies the incidence angle with respect to the vertical direction (PLANE\_WAVE\_ANGLE=0 corresponds to vertical incidence (directly from below)).}
 \label{fig_plane_wave}
@@ -808,12 +788,12 @@ Optional parameter:\newline
 SOURCE\_AZIMUTH if SOURCE\_TYPE is 4, SOURCE\_AZIMUTH is the angle between the y- and x-direction,\newline
 SOURCE\_TYPE if SOURCE\_TYPE is set here, the value of SOURCE\_TYPE in the input file is ignored.
 
-The SOURCE\_FILE = \path{./sources/source.dat} that defines an explosive source at $x_s=2592.0\;$~m and $y_s=2106.0\;$~m (depth) with a center frequency of 5 Hz and an amplitude of 1 (no time delay) reads, for example
+The SOURCE\_FILE = \texttt{./sources/source.dat} that defines an explosive source at $x_s=2592.0\;$~m and $y_s=2106.0\;$~m (depth) with a center frequency of 5 Hz and an amplitude of 1 (no time delay) reads, for example
 \begin{verbatim}
 	2592.0        2106.0        0.0           5.0           1.0
 \end{verbatim}
 
-The parameter RUN\_MULTIPLE\_SHOTS defines if multiple shots are modeled simultaneously or whether each shot is modeled individually. If the parameter is set to 0, multiple sources are modeled together. If more then one source is defined in the SOURCE\_FILE each source is ignited at the same time. For RUN\_MULTIPLE\_SHOTS = 1 every source specified in the SOURCE\_FILE is modeled individually. The SEIS\_FILE name receives the addition of the number of the shot, e.g. \path{test_vx.su.shot1.0}.
+The parameter RUN\_MULTIPLE\_SHOTS defines if multiple shots are modeled simultaneously or whether each shot is modeled individually. If the parameter is set to 0, multiple sources are modeled together. If more then one source is defined in the SOURCE\_FILE each source is ignited at the same time. For RUN\_MULTIPLE\_SHOTS = 1 every source specified in the SOURCE\_FILE is modeled individually. The SEIS\_FILE name receives the addition of the number of the shot, e.g. \texttt{test\_vx.su.shot1.0}.
 
 \subsubsection{Generation of models}
 \label{gen_of_mod}
@@ -828,15 +808,15 @@ with
 
 READMOD : read model parameters from MFILE (yes=1)\newline
 MFILE : String for the model file names, used to read from file and/or to write model for validation \newline
-WRITE\_MODELFILES : switch to decide whether all models RHO, U, Pi (and Taup, Taus) models (=1) or only the density model (=2) are written to file. In case of WRITE\_MODELFILES=0, no model file is written to file. \newline
+WRITE\_MODELFILES : switch to decide whether all models RHO, U, Pi (and Taup, Taus) models (WRITE\_MODELFILES=1) or only the density model (WRITE\_MODELFILES=2) are written to file. In case of WRITE\_MODELFILES=0, no model file is written to file. \newline
 
 If READMOD=1, the P-wave, S-wave, density model grid (if L=0, see chapter \ref{Q-approximation}) and additionally the attenuation grids (if L=1) are read from external binary files. MFILE defines the basic file name that is expanded by the following extensions: P-wave model: ''.vp'', S-wave model: ''.vs'', density model: ''.rho'', P-wave attenuation model: ''.qp'', S-wave attenuation model: ''.qs''.  In the example above, the model files thus are: ''model/test.vp'' (P-wave velocity model), ''model/test.vs'' (S-wave velocity model), ''model/test.rho'' (density model), ''model/test.qp'' (P-wave attenuation model), ''model/test.qs'' (S-wave attenuation model). 
 
-In these files, each material parameter value must be saved as 32 bit (4 byte) native float. Velocities must be in meter/second, density values in $kg/m^3$. The fast dimension is the y direction. See src/readmod.c. The number of samples for the entire model in the x-direction is NX and the number of values in the y-direction is always NY. The file size of each model file thus must be NX*NY*4 bytes. You may check the model structure using the SU command ximage: ximage n1=$<$NX$>$ n2=$<$NY$>$ $<$ model/test.vp .
+In these files, each material parameter value must be saved as 32 bit (4 byte) native float. Velocities must be in meter/second, density values in $kg/m^3$. The fast dimension is the y direction. See src/readmod.c. The number of samples for the entire model in the x-direction is NX and the number of values in the y-direction is always NY. The file size of each model file thus must be NX*NY*4 bytes. You may check the model structure using the SU command ximage: \texttt{ximage n1=$<$NX$>$ n2=$<$NY$>$ $<$ model/test.vp}.
 
-If READMOD=0 the model is generated ''on the fly'' by sofi2D, i.e. it is generated internally before the time loop starts (see chapter \ref{model_def_func}). We would prefer this way of generating the model grids because this way the size and the discretization intervals (DH) can be controlled by the parameter file sofi2D.json. Furthermore, it is not necessary to generate (large) files by an external program. See section \ref{model_def_func} for an example function that generates the simple block model ''on the fly''. If READMOD=0 this function is called in sofi2D.c and therefore must be specified in \path{src/Makefile} (at the top of \path{src/Makefile}, see section \ref{compexec}). If you change this file, for example to change the model structure, you need to re-compile sofi2D by changing to the src directory and \path{make sofi2D}.
+If READMOD=0 the model is generated ''on the fly'' by sofi2D, i.e. it is generated internally before the time loop starts (see chapter \ref{model_def_func}). We would prefer this way of generating the model grids because this way the size and the discretization intervals (DH) can be controlled by the parameter file sofi2D.json. Furthermore, it is not necessary to generate (large) files by an external program. See section \ref{model_def_func} for an example function that generates the simple block model ''on the fly''. If READMOD=0 this function is called in sofi2D.c and therefore must be specified in \texttt{src/Makefile} (at the top of \texttt{src/Makefile}, see section \ref{compexec}). If you change this file, for example to change the model structure, you need to re-compile sofi2D by changing to the src directory and \texttt{make sofi2D}.
 
-Due to the fact that the variable MFILE is also used to write the model - expanded by the string ''SOFI2D'' to file for verification (also see the output file, section ''MODEL CREATION AND OUTPUT''), you can specify, whether only the density model is written (WRITE\_MODELFILES=0) or the U, Pi, density as well as Qp and Qs models (WRITE\_MODELFILES=1). BE AWARE that the output of additional models besides density cause extra but temporal memory allocation of the size of the local subgrid times the number of models! To give an example, the file name of the density models written for verification looks like this \path{model/test.SOFI2D.rho}. The actual Vp and Vs models can be easily calculated from the relationship:
+Due to the fact that the variable MFILE is also used to write the model - expanded by the string ''SOFI2D'' to file for verification (also see the output file, section ''MODEL CREATION AND OUTPUT''), you can specify, whether only the density model is written (WRITE\_MODELFILES=0) or the U, Pi, density as well as Qp and Qs models (WRITE\_MODELFILES=1). BE AWARE that the output of additional models besides density cause extra but temporal memory allocation of the size of the local subgrid times the number of models! To give an example, the file name of the density models written for verification looks like this \texttt{model/test.SOFI2D.rho}. The actual Vp and Vs models can be easily calculated from the relationship:
 
 \begin{equation}
 U = V_s \cdot V_s \cdot Rho
@@ -934,7 +914,7 @@ SNAP\_FORMAT : data-format (ASCII(2);BINARY(3))\\
 SNAP\_FILE : basic filename\\
 
 
-If SNAP$>0$, wavefield information (particle velocities, pressure, or curl and divergence of particle velocities) for the entire model is saved on the hard disk (assure that enough free space is on disk!). Each PE is writing his sub-volume to disk. The filenames have the basic filename SNAP\_FILE plus an extension that indicates the PE number in the logical processor array (see Figure \ref{fig_grid}), i.e. the PE with number PEno writes his wavefield to SNAPFILE.PEno. The first snapshot is written at TSNAP1 seconds of seismic wave traveltime to the output files, the second at TSNAP1+TSNAPINC seconds etc. The last snapshots contains wavefield at TSNAP2 seconds. Note that the file sizes increase during the simulation. The snapshot files might become quite LARGE. It may therefore be necessary to reduce the amount of snapshot data by increasing IDX and IDY and/or TSNAPINC. In order to merge the separate snapshot of each PE after the comletion of the wave modeling, you can use the program snapmerge (see Chapter \ref{installation}, section \textbf{src}). The bash command line to merge the snapshot files can look like this: \path{../bin/snapmerge ./in_and_out/sofi2D.json}.
+If SNAP$>0$, wavefield information (particle velocities, pressure, or curl and divergence of particle velocities) for the entire model is saved on the hard disk (assure that enough free space is on disk!). Each PE is writing his sub-volume to disk. The filenames have the basic filename SNAP\_FILE plus an extension that indicates the PE number in the logical processor array (see Figure \ref{fig_grid}), i.e. the PE with number PEno writes his wavefield to SNAPFILE.PEno. The first snapshot is written at TSNAP1 seconds of seismic wave traveltime to the output files, the second at TSNAP1+TSNAPINC seconds etc. The last snapshots contains wavefield at TSNAP2 seconds. Note that the file sizes increase during the simulation. The snapshot files might become quite LARGE. It may therefore be necessary to reduce the amount of snapshot data by increasing IDX and IDY and/or TSNAPINC. In order to merge the separate snapshot of each PE after the comletion of the wave modeling, you can use the program snapmerge (see Chapter \ref{installation}, section \textbf{src}). The bash command line to merge the snapshot files can look like this: \texttt{../bin/snapmerge ./in\_and\_out/sofi2D.json}.
 
 
 \subsubsection{Receivers}
@@ -992,7 +972,7 @@ to output seismograms for arbitrary receiver locations since this would require 
 
 \textbf{It is important to note that the actual receiver positions defined in REC\_FILE or in sofi2D.json may vary by DH/2 due to the staggered positions of the particle velocities and stress tensor components. }
 
-In our example, we specify 100 receiver location. Due to the small size of the model, most of the specified receiver positions will be located inside this absorbing boundary (see Chapter \ref{abs}). A corresponding warning message will appear. If you choose to read the receiver location from REC\_FILE \path{./receiver/receiver.dat} (READREC=1), only 10 receivers locations are considered. The list of receivers specified in file \path{./receiver/receiver.dat} is equivalent to the parameters in the input file with only a larger distance between adjacent receivers (NGEOPH = 10.)
+In our example, we specify 100 receiver location. Due to the small size of the model, most of the specified receiver positions will be located inside this absorbing boundary (see Chapter \ref{abs}). A corresponding warning message will appear. If you choose to read the receiver location from REC\_FILE \texttt{./receiver/receiver.dat} (READREC=1), only 10 receivers locations are considered. The list of receivers specified in file \texttt{./receiver/receiver.dat} is equivalent to the parameters in the input file with only a larger distance between adjacent receivers (NGEOPH = 10.)
 
 \subsubsection{Receiver array}
 \begin{verbatim}
@@ -1020,14 +1000,14 @@ with
 
 NDT : samplingrate (in timesteps!)\\
 SEIS\_FORMAT : data output format (SU (native 4-byte-floats (IEEE on PC)/little endian on PC)=1; TEXTUAL (native ASCII)=2; BINARY (IEEE-4-byte-floats on PC/little endian on PC)=3)\\
-SEIS\_FILE : basic filename according to output of seismograms (SEISMO), separate seismogram files are outputted and will look like \path{SEIS_FILE_vz.su} or \path{SEIS_FILE_div.bin.0}\\
+SEIS\_FILE : basic filename according to output of seismograms (SEISMO), separate seismogram files are outputted and will look like \texttt{SEIS\_FILE\_vz.su} or \texttt{SEIS\_FILE\_div.bin.0}\\
 
 
 If SEISMO$>$0 seismograms recorded at the receiver positions are written to the corresponding output files. The sampling rate of the seismograms is NDT*DT seconds. In case of a small time step interval and a high number of time steps, it might be useful to choose a high NDT in order to avoid a unnecessary detailed sampling of the seismograms and consequently large files of seismogram data. Possible output formats of the seismograms are SU, ASCII or BINARY. It is recommended to use SU format for saving the seismograms. The main advantage of this format is that the time step interval (NDT*DT) and the acquisition geometry (shot and receiver locations) are stored in the corresponding SU header words. Also additional header words like offset are set by sofi2D. This format thus facilitates a further visualization and processing of the synthetic seismograms.
 
 Note, however, that SU cannot handle sampling rates smaller than 1.0e-6 seconds and the number of samples is limited to about 32.000. In such cases, you should increase the sampling rate by increasing NDT. If this is impossible (for example because the Nyquist criterion is violated) you must choose a different output format (ASCII or binary).
 
-Each PE internally stores seismograms which are recorded in his portion of the grid. After finishing the time step loop, the seismogram parts are internally exchanged and the merged seismograms are collectively saved to file. The filenames are expanded according to basic file name SEIS\_FILE and the SEISMO option (pressure, particle velocity, curl, divergence). To give an example, PE0 writes the merged seismograms of the x-component of particle velocity to \path{SEIS_FILE_vx.su}. 
+Each PE internally stores seismograms which are recorded in his portion of the grid. After finishing the time step loop, the seismogram parts are internally exchanged and the merged seismograms are collectively saved to file. The filenames are expanded according to basic file name SEIS\_FILE and the SEISMO option (pressure, particle velocity, curl, divergence). To give an example, PE0 writes the merged seismograms of the x-component of particle velocity to \texttt{SEIS\_FILE\_vx.su}. 
 
 %If SU-files are output these can be merged together by using the Unix command cat. For example to merge seismograms of the vx-component of particle velocity into one single SU-file use:
 %\emph{cat SEIS\_FILE\_VR.* $>$ SEIS\_FILE\_VR} 
@@ -1049,7 +1029,7 @@ LOG\_FILE : log-file for information about progress of program (each PE is print
 
 
 sofi2D can output a lot of useful and possibly not useful information about the modeling parameters and the status of the modeling process etc. The major part of this information is output by PE 0.
-If LOG=1, PE 0 writes this info to stdout, i.e. on the screen of your shell. This is generally recommended  to monitor the modeling process. You may want to save this screen info to a output file by adding \path{$>$ sofi2D.jout} or \path{|tee sofi2D.jout}. to your starting command. If LOG=1 all other processes with PE number (PEno) greater than zero will write their information to LOG\_FILE.PEno. If you specify LOG=2 also PE 0 will output his information to LOG\_FILE.0. As a consequence only little information is written directly to the screen of your shell. On supercomputers where you submit modeling jobs to a queuing system as batch jobs LOG=2 may be advantageous. In case of LOG=2, you may still watch the simulation by checking the content of LOG\_FILE.0 for example by using the Unix commands more or tail. After finishing the program the timing information is written to the ASCII file log/test.log.0.timings. This feature is useful to benchmark your local PC cluster or supercomputer. If LOG=0 no output from node 0 will be written, neither to stdout nor to an LOG file. There will be also no output of timing information to the ASCII file log/test.log.0.timings. 
+If LOG=1, PE 0 writes this info to stdout, i.e. on the screen of your shell. This is generally recommended  to monitor the modeling process. You may want to save this screen info to a output file by adding \texttt{$>$ sofi2D.jout} or \texttt{|tee sofi2D.jout}. to your starting command. If LOG=1 all other processes with PE number (PEno) greater than zero will write their information to LOG\_FILE.PEno. If you specify LOG=2 also PE 0 will output his information to LOG\_FILE.0. As a consequence only little information is written directly to the screen of your shell. On supercomputers where you submit modeling jobs to a queuing system as batch jobs LOG=2 may be advantageous. In case of LOG=2, you may still watch the simulation by checking the content of LOG\_FILE.0 for example by using the Unix commands more or tail. After finishing the program the timing information is written to the ASCII file log/test.log.0.timings. This feature is useful to benchmark your local PC cluster or supercomputer. If LOG=0 no output from node 0 will be written, neither to stdout nor to an LOG file. There will be also no output of timing information to the ASCII file log/test.log.0.timings. 
 
 Due to the fact that the output of information on the update and exchange via fprint can be both slowing down the computation for very small models and producing large output files, you can choose by OUTNTIMESTEPINFO after how many time steps such intermediate information are given.
 
@@ -1072,7 +1052,7 @@ On most supercomputers with a queuing system the run time of job is limited. Som
 
 \subsection{''On the fly'' definition of material parameters}
 \label{model_def_func}
-If you choose to create the model ``on the fly'', the distribution of the material parameters P-wave velocity $v_p$, S-wave velocity $v-s$ and density $\rho$ for the simple block model has to be defined in the function \path{hh_elastic.c} that can be found in the \path{src} folder.
+If you choose to create the model ``on the fly'', the distribution of the material parameters P-wave velocity $v_p$, S-wave velocity $v-s$ and density $\rho$ for the simple block model has to be defined in the function \texttt{hh\_elastic.c} that can be found in the \texttt{src} folder.
 
 \begin{verbatim}
 /* -------------------------------------------------------------
@@ -1214,26 +1194,38 @@ the density model is written to file to be displayed as described in Chapter \re
 
 \subsection{Compilation of sofi2D}
 \label{compexec}
-The source codes are located in the directory src. To compile sofi2D the name of the model function has to be entered in the MAKEFILE. Depending on your MPI environment (MPI distribution) you may need to modify the compiler options in src/Makefile. For a few typical platforms the compiler options are available in src/Makefile. It is often usefull to enable the highest level of optimization (typically -03 or -04). For example the optimization option -04 of the hcc LAM compiler leads to a speedup of sofi2D of approximately 30 per cent. No other changes in the Makefile should be necessary. 
+The source codes are located in the directory src. To compile sofi2D the name of the model function has to be entered in the MAKEFILE. Depending on your MPI environment (MPI distribution) you may need to modify the compiler options in src/Makefile. For a few typical platforms the compiler options are available in src/Makefile. It is often usefull to enable the highest level of optimization (typically -03 or -04). 
 \begin{verbatim}
-# Makefile for sofi2D
+# Makefile for SOFI2D
 
 #--------------------------------------------------------
 # edit here:
 
 # source code for model generation
+# model file for viscoelastic modeling L>0
+MODEL_V = hh_visco.c
+# model file for elastic modeling L=0
+MODEL_E = hh_elastic.c
+# model file for viscoelastic modeling (overnight built)
+MODEL_BV = benchmod.c
+# model file for elastic modeling L=0 (overnight built)
+MODEL_BE = benchmod_el.c
+EXEC= ../bin
 
-MODEL = hh.c
-MODEL_EL = hh_el.c
 EXEC= ../bin
 
 
 # Compiler (LAM: CC=hcc, CRAY T3E: CC=cc)
 
 # ON Linux cluster running LAM
-CC=hcc
+#CC=hcc
+#LFLAGS=-lm -lmpi 
+#CFLAGS=-Wall -O4
+
+# ON Linux cluster running OpenMPI and ON MAC
+CC=mpicc
 LFLAGS=-lm -lmpi 
-CFLAGS=-Wall -O4
+CFLAGS=-Wall -O3 
 
 # On CRAY T3E
 # CC=cc
@@ -1255,64 +1247,26 @@ CFLAGS=-Wall -O4
 # --------------------------------------------------------
 \end{verbatim}
 
-To compile the program sofi2D you must change to the \path{src} directory and execute:
+To compile the program sofi2D you must change to the \texttt{src} directory and execute:
 
-\path{make all}  
+\texttt{make all}  
 or
-\path{make sofi2D}  
-
-The following (or a similar) output should occur:
-
-\begin{verbatim}
- find . -name "*.o" -exec rm {} \;
-find . -name "*.c%" -exec rm {} \;
-find . -name "*.bck" -exec rm {} \;
-hcc -Wall -O4 -c hh.c
-hcc -Wall -O4 -c hh_el.c
-hcc -Wall -O4 -c absorb.c
-hcc -Wall -O4 -c av_mue.c
-hcc -Wall -O4 -c av_rho.c
-hcc -Wall -O4 -c av_tau.c
-hcc -Wall -O4 -c check_fs.c
-hcc -Wall -O4 -c checkfd_ssg_elastic.c
-hcc -Wall -O4 -c checkfd_ssg_visc.c
-hcc -Wall -O4 -c comm_ini.c
-hcc -Wall -O4 -c exchange_par.c
-hcc -Wall -O4 -c exchange_s.c
-hcc -Wall -O4 -c exchange_v.c
-[...]
-hcc -Wall -O4 -c update_s_elastic_ssg.c
-hcc -Wall -O4 -c update_s_visc_ssg.c
-hcc -Wall -O4 -c update_v_ssg.c
-hcc -Wall -O4 -c util.c
-hcc -Wall -O4 -c wavelet.c
-hcc -Wall -O4 -c write_par.c
-hcc -Wall -O4 -c writedsk.c
-hcc -Wall -O4 -c writemod.c
-hcc -lm -lmpi  hh.o hh_el.o absorb.o av_mue.o av_rho.o av_tau.o check_fs.o 
-checkfd_ssg_elastic.o checkfd_ssg_visc.o comm_ini.o exchange_par.o exchange_s.o 
-exchange_v.o sofi2D_ssg.o holbergcoeff.o info.o initproc.o matcopy.o matcopy_elastic.o 
-merge2.o mergemod.o note.o outseis.o prepare_update_s.o psource.o rd_sour.o 
-read_checkpoint.o read_par.o read_par_auto.o readdsk.o readmod.o readmod_elastic.o 
-receiver.o save_checkpoint.o saveseis.o seismo_ssg.o snap_ssg.o sources.o splitrec.o 
-splitsrc.o surface.o surface_elastic.o update_s_elastic_ssg.o update_s_visc_ssg.o 
-update_v_ssg.o util.o wavelet.o write_par.o writedsk.o writemod.o -o ../bin/sofi2D
-\end{verbatim}
+\texttt{make sofi2D}  
 
 The program snapmerge that is used to merge the snapshots (see below) can be compiled with ''make snapmerge''. Since this is not a MPI program (no MPI functions are called) the MPI libraries are not required and any standard compiler (like gcc and cc) can be used to compile this program. The executables sofi2D and snapmerge are located the directory bin.
 
 \subsection{Running the program}\label{compexec1} 
-Each sofi2D run reads the required parameters from a parameter file. An example parameter file was defined in section \ref{modelgeom} \path{par/in_and_out/sofi2D.json}. The command to start a simulation on 4 processor with the lowest priority of -19 (in order to allow working on the a workstation while running a simulation) is as follows. Please note, that we assume you have navigated to the folder sofi2D/par.
+Each sofi2D run reads the required parameters from a parameter file. An example parameter file was defined in section \ref{modelgeom} \texttt{par/in\_and\_out/sofi2D.json}. The command to start a simulation on 4 processor with the lowest priority of -19 (in order to allow working on the a workstation while running a simulation) is as follows. Please note, that we assume you have navigated to the folder sofi2D/par.
 
-\path{mpirun -np 8 nice -19 ../bin/sofi2D ./in_and_out/sofi2D.json }
+\texttt{mpirun -np 8 nice -19 ../bin/sofi2D ./in\_and\_out/sofi2D.json }
 
-If you use LAMMPI the command \path{lamboot -v lamhost} must be executed on node 0 which is the PE where ./par/lamhosts is the file containing IP addresses of all computing nodes. It if often useful to save the standard output of the program for later reference. The screen output may be saved to \path{sofi2D.jout} using 
+If you use LAMMPI the command \texttt{lamboot -v lamhost} must be executed on node 0 which is the PE where ./par/lamhosts is the file containing IP addresses of all computing nodes. It if often useful to save the standard output of the program for later reference. The screen output may be saved to \texttt{sofi2D.jout} using 
 
-\path{mpirun -np 8 nice -19 ../bin/sofi2D ./in_and_out/sofi2D.json > ./in_and_out/sofi2D.jout}
+\texttt{mpirun -np 8 nice -19 ../bin/sofi2D ./in\_and\_out/sofi2D.json > ./in\_and\_out/sofi2D.jout}
 
-Combining both the screen and the file output you can execute the following line (this is used in the shell script \path{startSOFI2D.sh})
+Combining both the screen and the file output you can execute the following line (this is used in the shell script \texttt{startSOFI2D.sh})
 
-\path{mpirun -np 8 nice -19 ../bin/sofi2D ./in_and_out/sofi2D.json | tee ./in_and_out/sofi2D.jout}
+\texttt{mpirun -np 8 nice -19 ../bin/sofi2D ./in\_and\_out/sofi2D.json | tee ./in\_and\_out/sofi2D.jout}
 
 After the output of geometry and model parameters the code starts the time stepping and displaying timing information:
 
@@ -1405,9 +1359,9 @@ After some waiting time - depending on the model problem and computer performanc
 
 \subsection{Postprocessing}
 
-The wavefield snapshots can be merged using the program \path{snapmerge}. The program snapmerge is not a MPI program. Therefore, it can be executed without MPI and the mpirun command. You can run snapmerge on any PC since a MPI environment (e.g. LAM) is not required. You may therefore copy the snapshot outputs of the different nodes to another non-MPI computer to merge the files together. \path{snapmerge} reads the required information from the sofi2D parameter file. Simply type
+The wavefield snapshots can be merged using the program \texttt{snapmerge}. The program snapmerge is not a MPI program. Therefore, it can be executed without MPI and the mpirun command. You can run snapmerge on any PC since a MPI environment (e.g. LAM) is not required. You may therefore copy the snapshot outputs of the different nodes to another non-MPI computer to merge the files together. \texttt{snapmerge} reads the required information from the sofi2D parameter file. Simply type
 
-\path{../bin/snapmerge ./in_and_out/sofi2D.json }
+\texttt{../bin/snapmerge ./in\_and\_out/sofi2D.json }
 
 Depending on the model size the merge process may take a few seconds or hours. For the simple block model it only takes a few seconds. The output should read like this:
 
