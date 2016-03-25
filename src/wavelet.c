@@ -85,7 +85,7 @@ float ** wavelet(float ** srcpos_loc, int nsrc){
 					break;  /* source wavelet from file SOURCE_FILE */
 					case 4 : 
 						if ((t<tshift) || (t>(tshift+ts))) amp=0.0;
-						else amp=pow(sin(PI*(t+tshift)/ts),3.0);
+						else amp=pow(sin(PI*(t-tshift)/ts),3.0);
 						break; /* sinus raised to the power of three */
 					default : 
 						err("No valid source-wavelet (SOURCE_SHAPE) specified! ");
