@@ -1,10 +1,3 @@
-#-----------------------------------------------------------------
-#      JSON PARAMETER FILE FOR SOFI2D
-#-----------------------------------------------------------------
-# description:
-# description/name of the model: 
-#
-
 {
 "Domain Decomposition" : "comment",
 			"NPROCX" : "2",
@@ -34,7 +27,7 @@
 			"SOURCE_TYPE values (point_source): explosive=1;force_in_x=2;force_in_y=3;custom_force=4" : "comment",
 
 			"SRCREC" : "1",
-			"SRCREC values :  read from SOURCE_FILE=1, PLANE_WAVE=2 (internal)" : "comment"
+			"SRCREC values :  read from SOURCE_FILE=1, PLANE_WAVE=2 (internal)" : "comment",
 			
 			"SOURCE_FILE" : "./sources/source.dat", 
 			"RUN_MULTIPLE_SHOTS" : "0",
@@ -110,5 +103,5 @@
 "Checkpoints" : "comment",
 			"CHECKPTREAD" : "0",
 			"CHECKPTWRITE" : "0",
-			"CHECKPT_FILE" : "tmp/checkpoint_sofi2D",
+			"CHECKPT_FILE" : "tmp/checkpoint_sofi2D"
 }

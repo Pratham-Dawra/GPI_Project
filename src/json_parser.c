@@ -57,8 +57,8 @@ int read_objects_from_intputfile(FILE *fp, char *input_file,char **varname_list,
 		lineno++;
 
 		/* tests if line is NOT a comment line*/
-		/* tests if line contains at least a colon, double quote and comma sign per line*/
-		if (((strstr(cline,":"))&&((strstr(cline,","))&&(strstr(cline,"\"")))) && (!(strstr(cline,"comment")) && !(strstr(cline,"Comment"))))  {
+		/* tests if line contains at least a colon, double quote per line*/
+		if (((strstr(cline,":"))&&((strstr(cline,"\"")))) && (!(strstr(cline,"comment")) && !(strstr(cline,"Comment"))))  {
 
 			//count number of double quoates and colon signs
 			occurence_doublequotes=count_occure_charinstring(cline,"\"");
@@ -70,6 +70,21 @@ int read_objects_from_intputfile(FILE *fp, char *input_file,char **varname_list,
 
 					//up to 5 objects can be defined per line, more can be implemented here
 					switch (occurence_commas) {
+						case 0: //only a single object (name+value) in line
+							//remove old data from strings
+							memset(value_tmp1, '\0', sizeof(value_tmp1));
+							memset(varname_tmp1, '\0', sizeof(varname_tmp1));
+
+							//extract object name + object value from the line-string
+							if (sscanf(cline," \"%[^\"]\" : \"%[^\"]\"",varname_tmp1,value_tmp1) != 2) {
+								sprintf(errormessage,"Error in Input file, line %i, cannot read object name and object value !",lineno);
+								err(errormessage);
+							}
+
+							//add extracted strings to object list
+							add_object_tolist(varname_tmp1, value_tmp1,&number_readobject, varname_list, value_list);
+							break;
+
 						case 1: //only a single object (name+value) in line
 
 							//remove old data from strings
@@ -193,7 +208,7 @@ int read_objects_from_intputfile(FILE *fp, char *input_file,char **varname_list,
 							break;
 
 						default:
-							sprintf(errormessage,"Error in Input file, line %i, only 1, 3, 5, 7 or 9 commas are allowed per line, but found %i !",lineno,occurence_commas);
+							sprintf(errormessage,"Error in Input file, line %i, only 0, 1, 3, 5, 7 or 9 commas are allowed per line, but found %i !",lineno,occurence_commas);
 							err(errormessage);
 							break;
 					}
@@ -280,7 +295,7 @@ int get_int_from_objectlist(char string_in[STRING_SIZE], int number_readobject, 
 			err(errormessage);
 		}
 
-		memset(&string_buffer, '\0', sizeof(&string_buffer));
+		memset(&string_buffer, '\0', sizeof(*string_buffer));
 		double_buffer = strtod(value_list[ii],&string_buffer);
 
 		//printf("From string: -%s- double %f exctracted \n",value_list[ii],double_buffer);
@@ -335,7 +350,7 @@ int get_float_from_objectlist(char string_in[STRING_SIZE], int number_readobject
 			err(errormessage);
 		}
 
-		memset(&string_buffer, '\0', sizeof(&string_buffer));
+		memset(&string_buffer, '\0', sizeof(*string_buffer));
 		double_dummy = strtod(value_list[ii],&string_buffer);
 
 		//printf("From string: -%s- double %f exctracted \n",value_list[ii],double_dummy);
@@ -377,7 +392,7 @@ int get_string_from_objectlist(char string_in[STRING_SIZE], int number_readobjec
 			err(errormessage);
 
 		} else {
-			memset(string_buffer, '\0', sizeof(string_buffer));
+			memset(string_buffer, '\0', sizeof(&string_buffer));
 			strcpy(string_buffer,value_list[ii]);
 			checkifstringfound=0;
 			//printf("\nfunc: string %s found with value -%s- \n",string_in,string_buffer);
@@ -417,7 +432,7 @@ void remove_blankspaces_around_string(char string_in[STRING_SIZE]) {
 	//copy string content from input string (ignoring blank spaces before and afer string)
 	sscanf(string_in,"%s",string_dummy);
 	//erase string content
-	memset(string_in, '\0', sizeof(string_in));
+	memset(string_in, '\0', sizeof(&string_in));
 	//copy dummy information withou blank spaces in original string
 	strcpy(string_in,string_dummy);
 
