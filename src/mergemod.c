@@ -54,7 +54,7 @@ void mergemod(char modfile[STRING_SIZE], int format){
   	for (jp=0;jp<=NPROCY-1; jp++){
       		sprintf(file,"%s.%i.%i",modfile,ip,jp);
       		fp[jp][ip]=fopen(file,"r");
-      		if (fp[jp][ip]==NULL) err("merge: can't read model file !"); 
+      		if (fp[jp][ip]==NULL) declare_error("merge: can't read model file !"); 
       	}
 
 	fprintf(FP," ... finished. \n");

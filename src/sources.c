@@ -45,7 +45,7 @@ float **sources(int *nsrc){
 			*nsrc=0;
 			fprintf(FP,"\n ------------------ READING SOURCE PARAMETERS ------------------- \n");
 			fprintf(FP,"\n Reading source parameters from file: %s (SOFI2D source format)\n",SOURCE_FILE);
-			if ((fpsrc=fopen(SOURCE_FILE,"r"))==NULL) err(" Source file could not be opened !");
+			if ((fpsrc=fopen(SOURCE_FILE,"r"))==NULL) declare_error(" Source file could not be opened !");
 			while(fgets(buffer, STRING_SIZE, fpsrc))
 			{
 				sscanf(buffer,"%s",bufferstring);
@@ -75,11 +75,11 @@ float **sources(int *nsrc){
 				case 0: xsrc=0.0;
 				case 1: ysrc=0.0;
 				case 2: if (MYID==0) fprintf(FP," No time shift defined for source %i in %s!\n",l, SOURCE_FILE);
-				err("Missing parameter in SOURCE_FILE!");
+				declare_error("Missing parameter in SOURCE_FILE!");
 				case 3: if (MYID==0) fprintf(FP," No frequency defined for source %i in %s!\n",l, SOURCE_FILE);
-				err("Missing parameter in SOURCE_FILE!");
+				declare_error("Missing parameter in SOURCE_FILE!");
 				case 4: if (MYID==0) fprintf(FP," No amplitude defined for source %i in %s!\n",l, SOURCE_FILE);
-				err("Missing parameter in SOURCE_FILE!");
+				declare_error("Missing parameter in SOURCE_FILE!");
 				case 5: srcpos[7][l]=0.0;
 				case 6: srcpos[8][l]=SOURCE_TYPE;
 				}
@@ -156,11 +156,11 @@ float **sources(int *nsrc){
 						srcpos[8][isrc]=SOURCE_TYPE;
 					}
 				}
-				else err(" Maximum depth of plane wave exceeds model depth. ");
+				else declare_error(" Maximum depth of plane wave exceeds model depth. ");
 			}
-			else err("SRCREC parameter specifies PLANE_WAVE excitation, but PLANE_WAVE_DEPTH<=0!");
+			else declare_error("SRCREC parameter specifies PLANE_WAVE excitation, but PLANE_WAVE_DEPTH<=0!");
 		}
-		else err("SRCREC parameter is invalid (SRCREC!=1 or SRCREC!=2)! No source parameters specified!");
+		else declare_error("SRCREC parameter is invalid (SRCREC!=1 or SRCREC!=2)! No source parameters specified!");
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);

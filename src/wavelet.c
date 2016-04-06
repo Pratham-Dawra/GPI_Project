@@ -88,7 +88,7 @@ float ** wavelet(float ** srcpos_loc, int nsrc){
 						else amp=pow(sin(PI*(t-tshift)/ts),3.0);
 						break; /* sinus raised to the power of three */
 					default : 
-						err("No valid source-wavelet (SOURCE_SHAPE) specified! ");
+						declare_error("No valid source-wavelet (SOURCE_SHAPE) specified! ");
 						break;
 					}
 					

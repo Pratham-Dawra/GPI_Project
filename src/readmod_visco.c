@@ -72,28 +72,28 @@ float **  taus, float **  taup, float *  eta){
 	   fprintf(FP,"\t P-wave velocities:\n\t %s.vp\n\n",MFILE);
 	   sprintf(filename,"%s.vp",MFILE);
 	   fp_vp=fopen(filename,"r");
-	   if ((fp_vp==NULL) && (MYID==0)) err(" Could not open model file for P velocities ! ");
+	   if ((fp_vp==NULL) && (MYID==0)) declare_error(" Could not open model file for P velocities ! ");
 
 
 	   fprintf(FP,"\t Shear wave velocities:\n\t %s.vs\n\n",MFILE);
 	   sprintf(filename,"%s.vs",MFILE);
 	   fp_vs=fopen(filename,"r");
-	   if ((fp_vs==NULL) && (MYID==0)) err(" Could not open model file for shear velocities ! ");
+	   if ((fp_vs==NULL) && (MYID==0)) declare_error(" Could not open model file for shear velocities ! ");
 
 	   fprintf(FP,"\t Density:\n\t %s.rho\n\n",MFILE);
 	   sprintf(filename,"%s.rho",MFILE);
 	   fp_rho=fopen(filename,"r");
-	   if ((fp_rho==NULL) && (MYID==0)) err(" Could not open model file for densities ! ");
+	   if ((fp_rho==NULL) && (MYID==0)) declare_error(" Could not open model file for densities ! ");
 
 	   fprintf(FP,"\t Qp:\n\t %s.qp\n\n",MFILE);
 	   sprintf(filename,"%s.qp",MFILE);
 	   fp_qp=fopen(filename,"r");
-	   if ((fp_qp==NULL) && (MYID==0)) err(" Could not open model file for Qp-values ! ");
+	   if ((fp_qp==NULL) && (MYID==0)) declare_error(" Could not open model file for Qp-values ! ");
 
 	   fprintf(FP,"\t Qs:\n\t %s.qs\n\n",MFILE);
 	   sprintf(filename,"%s.qs",MFILE);
 	   fp_qs=fopen(filename,"r");
-	   if ((fp_qs==NULL) && (MYID==0)) err(" Could not open model file for Qs-values ! ");
+	   if ((fp_qs==NULL) && (MYID==0)) declare_error(" Could not open model file for Qs-values ! ");
 	   
 
 	/* loop over global grid */
@@ -106,19 +106,19 @@ float **  taus, float **  taup, float *  eta){
 			fread(&qs, sizeof(float), 1, fp_qs);
 				
 		if ((isnan(vp)) && (MYID==0)) {
-                	err(" Found NaN-Values in Vp-Model !");}
+                	declare_error(" Found NaN-Values in Vp-Model !");}
 
                 if ((isnan(vs)) && (MYID==0)) {
-                	err(" Found NaN-Values in Vs-Model !");}
+                	declare_error(" Found NaN-Values in Vs-Model !");}
 
                 if ((isnan(rhov)) && (MYID==0)) {
-                	err(" Found NaN-Values in Rho-Model !");}
+                	declare_error(" Found NaN-Values in Rho-Model !");}
 
 		if ((isnan(qp)) && (MYID==0)) {
-                        err(" Found NaN-Values in Vs-Model !");}
+                        declare_error(" Found NaN-Values in Vs-Model !");}
 
                 if ((isnan(qs)) && (MYID==0)) {
-                        err(" Found NaN-Values in Rho-Model !");}
+                        declare_error(" Found NaN-Values in Rho-Model !");}
 
 
 			muv=vs*vs*rhov/(1.0+sumu);

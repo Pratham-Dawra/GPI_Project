@@ -48,7 +48,7 @@ printf(" Syntax example if excecuted from ./par directory: ../bin/snapmerge in_a
 printf(" Input file for the snapmerge process from command line : %s \n",fileinp);
 
 //FP = fopen(fileinp,"r");
-if ((FP=fopen(fileinp,"r"))==NULL) err(" Opening input file failed.");
+if ((FP=fopen(fileinp,"r"))==NULL) declare_error(" Opening input file failed.");
 else printf(" Opening input file was successful.\n\n");
 fclose(FP);
 //fscanf(FP, "%s %s = %i", infostr, modestr, &RUNMODE);

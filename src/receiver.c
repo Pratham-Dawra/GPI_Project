@@ -54,7 +54,7 @@ int **receiver(FILE *fp, int *ntr){
 		if (READREC){ /* read receiver positions from file */
 			fprintf(fp," Reading receiver positions from file: '%s'\n",REC_FILE);
 			fpr=fopen(REC_FILE,"r");
-			if (fpr==NULL) err(" Receiver file could not be opened !");
+			if (fpr==NULL) declare_error(" Receiver file could not be opened !");
 			*ntr=0;
 
 			/* counts the number of receivers in the receiver file */
@@ -180,7 +180,7 @@ int **receiver(FILE *fp, int *ntr){
 				/* arbitrary geophone-line */
 				fprintf(fp," No horizontal or vertical receiver line is specified in the input file. \n");
 				fprintf(fp," In order to define an arbitrary receiver line, please make use of an external receiver file (READREC=1). \n");
-				err(" Error in specifying receiver coordinates in the input file !");
+				declare_error(" Error in specifying receiver coordinates in the input file !");
 			}
 		} /* end of if receivers specified in input file */
 		fprintf(fp," Number of receiver positions found: %i\n",*ntr);

@@ -43,7 +43,7 @@ float **  vx, float ** vy, float ** sxx, float ** syy, float ** sxy){
 
 
 	fp=fopen(checkptfile,"rb");
-	if (fp==NULL) err("CHECKPTFILE can't be opened !");
+	if (fp==NULL) declare_error("CHECKPTFILE can't be opened !");
 	
 	for (j=ny1;j<=ny2;j++){
 		for (i=nx1;i<=nx2;i++){

@@ -112,7 +112,7 @@ void write_par(FILE *fp){
 		fprintf(fp," sinus raised to the power of 3.0 \n");
 		break;
 	default :
-		err(" Sorry, incorrect specification of source wavelet ! ");
+		declare_error(" Sorry, incorrect specification of source wavelet ! ");
 		break;
 	}
 
@@ -131,7 +131,7 @@ void write_par(FILE *fp){
 		fprintf(fp," point source with directive force in  z-direction\n");
 		break;
 	default :
-		err(" Sorry, wrong source type specification ! ");
+		declare_error(" Sorry, wrong source type specification ! ");
 		break;
 	}
 	
@@ -239,7 +239,7 @@ void write_par(FILE *fp){
 			fprintf(fp," x- and y-component of particle velocity.\n");
 			break;
 		default:
-			err(" sorry, incorrect value for SNAP ! \n");
+			declare_error(" sorry, incorrect value for SNAP ! \n");
 			break;
 		}
 
@@ -251,7 +251,7 @@ void write_par(FILE *fp){
 		fprintf(fp," \n name of output-file (SNAP_FILE):\n\t %s\n",SNAP_FILE);
 		switch (SNAP_FORMAT){
 		case 1 :
-			err(" SU-Format not yet available !!");
+			declare_error(" SU-Format not yet available !!");
 			break;
 		case 2 :
 			fprintf(fp," The data is written in ASCII. \n");
@@ -260,7 +260,7 @@ void write_par(FILE *fp){
 			fprintf(fp," The data is written binary (IEEE) (4 byte per float)");
 			break;
 		default:
-			err(" Don't know the format for the Snapshot-data ! \n");
+			declare_error(" Don't know the format for the Snapshot-data ! \n");
 			break;
 		}
 	
@@ -304,7 +304,7 @@ void write_par(FILE *fp){
 			fprintf(fp," The data is written binary IEEE (4 byte per float)");
 			break;
 		default:
-			err(" Sorry. I don't know the format for the seismic data ! \n");
+			declare_error(" Sorry. I don't know the format for the seismic data ! \n");
 			break;
 		}
 		fprintf(fp," samplingrate of seismic data: %f s\n",NDT*DT);

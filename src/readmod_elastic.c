@@ -47,18 +47,18 @@ void readmod_elastic(float  **  rho, float **  pi, float **  u){
 	   fprintf(FP,"\t P-wave velocities:\n\t %s.vp\n\n",MFILE);
 	   sprintf(filename,"%s.vp",MFILE);
 	   fp_vp=fopen(filename,"r");
-	   if ((fp_vp==NULL) && (MYID==0)) err(" Could not open model file for P velocities ! ");
+	   if ((fp_vp==NULL) && (MYID==0)) declare_error(" Could not open model file for P velocities ! ");
 
 
 	   fprintf(FP,"\t Shear wave velocities:\n\t %s.vs\n\n",MFILE);
 	   sprintf(filename,"%s.vs",MFILE);
 	   fp_vs=fopen(filename,"r");
-	   if ((fp_vs==NULL) && (MYID==0)) err(" Could not open model file for shear velocities ! ");
+	   if ((fp_vs==NULL) && (MYID==0)) declare_error(" Could not open model file for shear velocities ! ");
 
 	   fprintf(FP,"\t Density:\n\t %s.rho\n\n",MFILE);
 	   sprintf(filename,"%s.rho",MFILE);
 	   fp_rho=fopen(filename,"r");
-	   if ((fp_rho==NULL) && (MYID==0)) err(" Could not open model file for densities ! ");
+	   if ((fp_rho==NULL) && (MYID==0)) declare_error(" Could not open model file for densities ! ");
 
 	   
 
@@ -70,13 +70,13 @@ void readmod_elastic(float  **  rho, float **  pi, float **  u){
 			fread(&rhov, sizeof(float), 1, fp_rho);
 				
 		if ((isnan(vp)) && (MYID==0)) {
-           	err(" Found NaN-Values in Vp-Model !");}
+           	declare_error(" Found NaN-Values in Vp-Model !");}
 
 		if ((isnan(vs)) && (MYID==0)) {
-                err(" Found NaN-Values in Vs-Model !");}
+                declare_error(" Found NaN-Values in Vs-Model !");}
 
 		if ((isnan(rhov)) && (MYID==0)) {
-                err(" Found NaN-Values in Rho-Model !");}
+                declare_error(" Found NaN-Values in Rho-Model !");}
 
 
 			muv=vs*vs*rhov;

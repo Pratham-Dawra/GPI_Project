@@ -33,11 +33,11 @@ void initproc(void)	{
 	
 	if ((NPROC != NP)  && (MYID==0)) {
 		fprintf(FP,"You specified NPROC =  %d (in parameter file) and NP = %d (command line) \n",NPROC,NP);
-		err("NP and NPROC differ !");
+		declare_error("NP and NPROC differ !");
 	}
 
 	/*if (NPROC != NP)
-		err("Number of processors specified in the parameter file \n and at command line (NP) differ !");*/
+		declare_error("Number of processors specified in the parameter file \n and at command line (NP) differ !");*/
 
 
 	/*C-- determine the length of the subarray on this processor*/
@@ -47,9 +47,9 @@ void initproc(void)	{
 	/* POS(1) indicates x POSition of the processor in the 
 		     logical 3D processor array*/
 	if ((NX%NPROCX)>0)
-		err(" NX%NPROX (modulus) must be zero  !");
+		declare_error(" NX%NPROX (modulus) must be zero  !");
 	if ((NY%NPROCY)>0)
-		err(" NY%NPROY (modulus) must be zero  !");
+		declare_error(" NY%NPROY (modulus) must be zero  !");
 
 
 	if (MYID==0){

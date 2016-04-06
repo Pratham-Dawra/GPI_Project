@@ -219,7 +219,7 @@ void check_fs(FILE *fp, int argc, char *fileinp)
 	{
 		fprintf(fp, "\n");
 		sprintf(errmsg, "\n  in: <check_fs.c> \n");
-		err(errmsg);
+		declare_error(errmsg);
 	}	
 
 }

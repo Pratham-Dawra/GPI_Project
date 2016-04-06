@@ -75,7 +75,7 @@ void merge(int nsnap, int type){
 		strcat(ext,".p");
 		break;
 	default:
-		err(" merge: cannot find snapfiles! ");
+		declare_error(" merge: cannot find snapfiles! ");
 		break;
 	}
 
@@ -93,7 +93,7 @@ void merge(int nsnap, int type){
 		for (jp=0;jp<=NPROCY-1; jp++){
 			sprintf(file,"%s.%i.%i",mfile,ip,jp);
 			fp[jp][ip]=fopen(file,"r");
-			if (fp[jp][ip]==NULL) err("merge: can't read snapfile !");
+			if (fp[jp][ip]==NULL) declare_error("merge: can't read snapfile !");
 		}
 
 	fprintf(FP," ... finished. \n");
