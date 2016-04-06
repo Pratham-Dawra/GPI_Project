@@ -2,7 +2,6 @@ To compile the program do:
 cd sofi2D/src
 then
 "make sofi2D"  to compile the standard staggered grid version (SSG)
-or "make sofi2D_rsg" to compile the rotated staggered grid version (RSG)
 
 (you probably need to change the compiler options in soif2D/src/Makefile)
 
