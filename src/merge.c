@@ -91,7 +91,7 @@ void merge(int nsnap, int type){
 
 	for (ip=0;ip<=NPROCX-1; ip++)
 		for (jp=0;jp<=NPROCY-1; jp++){
-			sprintf(file,"%s.%i%i",mfile,ip,jp);
+			sprintf(file,"%s.%i.%i",mfile,ip,jp);
 			fp[jp][ip]=fopen(file,"r");
 			if (fp[jp][ip]==NULL) err("merge: can't read snapfile !");
 		}

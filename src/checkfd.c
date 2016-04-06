@@ -98,40 +98,40 @@ void checkfd ( FILE *fp, float ** prho, float ** ppi, float ** pu,
 
 		switch ( SNAP ) {
 		case 1 :
-			sprintf ( xfile,"%s%s.vx.%i%i",SNAP_FILE,file_ext,POS[1],POS[2] );
+			sprintf ( xfile,"%s%s.vx.%i.%i",SNAP_FILE,file_ext,POS[1],POS[2] );
 			fprintf ( fp,"    Check accessibility for snapshot file %s... \n",xfile );
 			if ( ( fpcheck=fopen ( xfile,xmod ) ) ==NULL ) err2 ( " PE0  cannot write snapshots to %s!",xfile );
 			else fclose ( fpcheck );
-			sprintf ( xfile,"%s%s.vy.%i%i",SNAP_FILE,file_ext,POS[1],POS[2] );
+			sprintf ( xfile,"%s%s.vy.%i.%i",SNAP_FILE,file_ext,POS[1],POS[2] );
 			fprintf ( fp,"    Check accessibility for snapshot file %s... \n",xfile );
 			if ( ( fpcheck=fopen ( xfile,xmod ) ) ==NULL ) err2 ( " PE0 cannot write snapshots to %s!",xfile );
 			else fclose ( fpcheck );
 			break;
 		case 2 :
-			sprintf ( xfile,"%s%s.p.%i%i",SNAP_FILE,file_ext,POS[1],POS[2] );
+			sprintf ( xfile,"%s%s.p.%i.%i",SNAP_FILE,file_ext,POS[1],POS[2] );
 			fprintf ( fp,"    Check accessibility for snapshot file %s... \n",xfile );
 			if ( ( fpcheck=fopen ( xfile,xmod ) ) ==NULL ) err2 ( " PE0 cannot write snapshots to %s!",xfile );
 			else fclose ( fpcheck );
 			break;
 		case 4 :
-			sprintf ( xfile,"%s%s.vx.%i%i",SNAP_FILE,file_ext,POS[1],POS[2] );
+			sprintf ( xfile,"%s%s.vx.%i.%i",SNAP_FILE,file_ext,POS[1],POS[2] );
 			fprintf ( fp,"    Check accessibility for snapshot file %s... \n",xfile );
 			if ( ( fpcheck=fopen ( xfile,xmod ) ) ==NULL ) err2 ( " PE0 cannot write snapshots to %s!",xfile );
 			else fclose ( fpcheck );
-			sprintf ( xfile,"%s%s.vy.%i%i",SNAP_FILE,file_ext,POS[1],POS[2] );
+			sprintf ( xfile,"%s%s.vy.%i.%i",SNAP_FILE,file_ext,POS[1],POS[2] );
 			fprintf ( fp,"    Check accessibility for snapshot file %s... \n",xfile );
 			if ( ( fpcheck=fopen ( xfile,xmod ) ) ==NULL ) err2 ( " PE0 cannot write snapshots to %s!",xfile );
 			else fclose ( fpcheck );
-			sprintf ( xfile,"%s%s.p.%i%i",SNAP_FILE,file_ext,POS[1],POS[2] );
+			sprintf ( xfile,"%s%s.p.%i.%i",SNAP_FILE,file_ext,POS[1],POS[2] );
 			fprintf ( fp,"    Check accessibility for snapshot file %s... \n",xfile );
 			if ( ( fpcheck=fopen ( xfile,xmod ) ) ==NULL ) err2 ( " PE0 cannot write snapshots to %s!",xfile );
 			else fclose ( fpcheck );
 		case 3 :
-			sprintf ( xfile,"%s%s.div.%i%i",SNAP_FILE,file_ext,POS[1],POS[2] );
+			sprintf ( xfile,"%s%s.div.%i.%i",SNAP_FILE,file_ext,POS[1],POS[2] );
 			fprintf ( fp,"    Check accessibility for snapshot file %s... \n",xfile );
 			if ( ( fpcheck=fopen ( xfile,xmod ) ) ==NULL ) err2 ( " PE0 cannot write snapshots to %s!",xfile );
 			else fclose ( fpcheck );
-			sprintf ( xfile,"%s%s.curl.%i%i",SNAP_FILE,file_ext,POS[1],POS[2] );
+			sprintf ( xfile,"%s%s.curl.%i.%i",SNAP_FILE,file_ext,POS[1],POS[2] );
 			fprintf ( fp,"    Check accessibility for snapshot file %s... \n",xfile );
 			if ( ( fpcheck=fopen ( xfile,xmod ) ) ==NULL ) err2 ( " PE0 cannot write snapshots to %s!",xfile );
 			else fclose ( fpcheck );

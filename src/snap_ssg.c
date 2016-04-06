@@ -69,11 +69,11 @@ void snap(FILE *fp,int nt, int nsnap, float **vx, float **vy, float **sxx,
 		sprintf(ext,".bin");
 		break;
 	}
-	sprintf(snapfile_x,"%s%s.vx.%i%i",SNAP_FILE,ext,POS[1],POS[2]);
-	sprintf(snapfile_y,"%s%s.vy.%i%i",SNAP_FILE,ext,POS[1],POS[2]);
-	sprintf(snapfile_div,"%s%s.div.%i%i",SNAP_FILE,ext,POS[1],POS[2]);
-	sprintf(snapfile_rot,"%s%s.curl.%i%i",SNAP_FILE,ext,POS[1],POS[2]);
-	sprintf(snapfile_p,"%s%s.p.%i%i",SNAP_FILE,ext,POS[1],POS[2]);
+	sprintf(snapfile_x,"%s%s.vx.%i.%i",SNAP_FILE,ext,POS[1],POS[2]);
+	sprintf(snapfile_y,"%s%s.vy.%i.%i",SNAP_FILE,ext,POS[1],POS[2]);
+	sprintf(snapfile_div,"%s%s.div.%i.%i",SNAP_FILE,ext,POS[1],POS[2]);
+	sprintf(snapfile_rot,"%s%s.curl.%i.%i",SNAP_FILE,ext,POS[1],POS[2]);
+	sprintf(snapfile_p,"%s%s.p.%i.%i",SNAP_FILE,ext,POS[1],POS[2]);
 
 	fprintf(fp,"\n\n PE %d is writing snapshot-data at T=%fs to \n",MYID,nt*DT);
 	
