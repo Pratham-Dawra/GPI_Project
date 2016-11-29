@@ -11,7 +11,7 @@ or can be downloaded [here](https://git.scc.kit.edu/GPIAG-Software/SOFI2D/wikis/
 
 # Download and Newsletter
 
-You can Download the [**latest stable Release**](https://git.scc.kit.edu/GPIAG-Software/SOFI2D/tree/Release) or the current [**beta-version**](https://git.scc.kit.edu/GPIAG-Software/SOFI2D/tree/master).
+You can Download the [**latest stable Release**](https://git.scc.kit.edu/GPIAG-Software/SOFI2D/tree/master) or the current [**beta-version**](https://git.scc.kit.edu/GPIAG-Software/SOFI2D/tree/develop).
 Additional a SOFI2D branch with benchmarks is available: [**overnightbuilt**](https://git.scc.kit.edu/GPIAG-Software/SOFI2D/tree/overnightbuilt).
 
 To receive news and updates please [**register**](http://www.gpi.kit.edu/Software-WS.php) on the email list [sofi@lists.kit.edu](http://www.gpi.kit.edu/Software-WS.php).  
