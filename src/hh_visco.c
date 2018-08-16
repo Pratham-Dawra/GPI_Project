@@ -28,7 +28,7 @@ void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, floa
 	/*--------------------------------------------------------------------------*/
 	/* extern variables */
 
-	extern float DT, *FL, TAU, DH;
+	extern float DT, *FL, DH;
 	extern int NX, NY, NXG, NYG,  POS[3], L, MYID;
 	extern int WRITE_MODELFILES;
 	extern char  MFILE[STRING_SIZE];	
@@ -43,10 +43,10 @@ void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, floa
 	/*-----------------material property definition -------------------------*/	
 
 	/* parameters for layer 1 */
-	const float vp1=3500.0, vs1=2000.0, rho1=2000.0, h=10000.0;
+	const float vp1=3500.0, vs1=2000.0, rho1=2000.0, tp1=0.1, ts1=0.1, h=2000.0;
 
 	/* parameters for layer 2 */
-	const float vp2=5400.0, vs2=3700.0, rho2=2500.0;
+	const float vp2=4550.0, vs2=2600.0, rho2=2600.0,tp2=0.1, ts2=0.1;
 
 
 	/*-----------------------------------------------------------------------*/
@@ -63,17 +63,10 @@ void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, floa
 		eta[l]=DT/pts[l];
 	}
 
-	ts=TAU;  
-	tp=TAU;
 
 	ws=2.0*PI*FL[1];
 
-	sumu=0.0; 
-	sumpi=0.0;
-	for (l=1;l<=L;l++){
-		sumu=sumu+((ws*ws*pts[l]*pts[l]*ts)/(1.0+ws*ws*pts[l]*pts[l]));
-		sumpi=sumpi+((ws*ws*pts[l]*pts[l]*tp)/(1.0+ws*ws*pts[l]*pts[l]));
-	}
+
 
 
 
@@ -86,12 +79,18 @@ void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, floa
 
 			/* two layer case */
 			if (y<=h){
-				Vp=vp1; Vs=vs1; Rhov=rho1; }
+				Vp=vp1; Vs=vs1; Rhov=rho1; tp=tp1; ts=ts1;}
 
 
 			else{
-				Vp=vp2; Vs=vs2; Rhov=rho2; }
+				Vp=vp2; Vs=vs2; Rhov=rho2; tp=tp2;ts=ts2;}
 
+			sumu=0.0; 
+			sumpi=0.0;
+			for (l=1;l<=L;l++){
+				sumu=sumu+((ws*ws*pts[l]*pts[l]*ts)/(1.0+ws*ws*pts[l]*pts[l]));
+				sumpi=sumpi+((ws*ws*pts[l]*pts[l]*tp)/(1.0+ws*ws*pts[l]*pts[l]));
+			}
 
 			muv=Vs*Vs*Rhov/(1.0+sumu);
 			piv=Vp*Vp*Rhov/(1.0+sumpi);
