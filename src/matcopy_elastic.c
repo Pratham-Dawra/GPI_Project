@@ -147,6 +147,6 @@ void matcopy_elastic(float ** rho, float ** pi, float ** u){
 
 	free_matrix(bufferlef_to_rig,0,NY+1,1,3);
 	free_matrix(bufferrig_to_lef,0,NY+1,1,3);
-	free_matrix(buffertop_to_bot,0,NX+1,1,3);
-	free_matrix(bufferbot_to_top,0,NX+1,1,3);
+	free_matrix(buffertop_to_bot,1,NX,1,3);
+	free_matrix(bufferbot_to_top,1,NX,1,3);
 }
