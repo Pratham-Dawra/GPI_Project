@@ -248,13 +248,13 @@ SOFI2D_OBJ = $(SOFI2D_SRC:%.c=%.o)
 SOFI2D_BENCH_OBJ = $(SOFI2D_BENCH_SRC:%.c=%.o)
 
 snapmerge:	$(SNAPMERGE_OBJ)
-	$(CC) $(LFLAGS) $(SNAPMERGE_OBJ) -o ../bin/snapmerge
+	$(CC)  $(SNAPMERGE_OBJ) -o ../bin/snapmerge $(LFLAGS)
 
 sofi2D:		$(SOFI2D_OBJ)
-	$(CC) $(LFLAGS) $(SOFI2D_OBJ) -o $(EXEC)/sofi2D
+	$(CC)  $(SOFI2D_OBJ) -o $(EXEC)/sofi2D $(LFLAGS)
 	
 sofi2D_bench:		$(SOFI2D_BENCH_OBJ)
-	$(CC) $(LFLAGS) $(SOFI2D_BENCH_OBJ) -o $(EXEC)/sofi2D_bench
+	$(CC) $(SOFI2D_BENCH_OBJ) -o $(EXEC)/sofi2D_bench $(LFLAGS)
 
 
 clean:
