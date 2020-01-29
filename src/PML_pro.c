@@ -295,7 +295,7 @@ void PML_pro(float * d_x, float * K_x, float * alpha_prime_x, float * a_x, float
 
             if(abscissa_in_PML >= 0.0){
                abscissa_normalized = abscissa_in_PML / thickness_PML_y;
-               d_y_half[h] = d0_x * pow(abscissa_normalized,NPOWER);
+               d_y_half[h] = d0_y * pow(abscissa_normalized,NPOWER);
 
                /* this taken from Gedney page 8.2 */
                K_y_half[h] = 1.0 + (K_MAX_CPML - 1.0) * pow(abscissa_normalized,NPOWER);
