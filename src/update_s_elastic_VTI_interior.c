@@ -78,8 +78,7 @@ void update_s_elastic_VTI_interior ( int nx1, int nx2, int ny1, int ny2, int * g
 				c13=pc13[j][i]*DT;
 
 				sxy[j][i]+= ( c55ipjp* ( vxy+vyx ) );
-
-				sxx[j][i]+= ( (c11* vxx)+ (c13*vyy) );
+                sxx[j][i]+= ( (c11* vxx)+ (c13*vyy) );
 				syy[j][i]+= ( (c13* vxx)+ (c33*vyy) );
 
 /*				sxy[j][i]+= ( fipjp* ( vxy+vyx ) );

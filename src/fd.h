@@ -303,6 +303,11 @@ void update_s_elastic_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, 
                           float    **sxy, float **pi, float **u, float **uipjp,
                           float **absorb_coeff, float *hc);
 
+void update_s_elastic_vti_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
+                            float **  vx, float **   vy, float **   sxx, float **   syy,
+                            float **   sxy, float ** pc11, float ** pc55ipjp,
+                               float ** pc13, float ** pc33, float ** absorb_coeff, float *hc );
+
 void update_s_elastic_abs_4(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
                             float   **vx, float    **vy, float    **sxx, float    **syy,
                             float    **sxy, float **pi, float **u, float **uipjp,
@@ -405,6 +410,9 @@ void update_v_PML_4(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt
 
 void wavefield_update_s_el(int i, int j,float   vxx, float  vyx,float vxy,float  vyy, float **sxy,
                            float **sxx, float **syy, float **pi, float **u, float **uipjp);
+
+void wavefield_update_s_el_vti ( int i, int j,float   vxx, float  vyx,float vxy,float  vyy, float **sxy, float **sxx, float ** syy, float ** pc11, float ** pc55ipjp,
+                                float ** pc13, float ** pc33);
 
 void wavefield_update_s_visc(int i, int j,float   vxx, float  vyx,float vxy,float  vyy, float **sxy,
                              float **sxx, float **syy, float ***r, float ***p,

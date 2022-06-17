@@ -124,6 +124,7 @@ SOFI2D_SRC= \
 	surface.c \
 	surface_elastic.c \
 	update_s_elastic_abs.c \
+	update_s_elastic_VTI_abs.c \
 	update_s_elastic_abs_4.c \
 	update_s_elastic_interior.c \
 	update_s_elastic_VTI_interior.c \
@@ -144,6 +145,7 @@ SOFI2D_SRC= \
 	update_v_PML_4.c \
 	util.c \
 	wavefield_update_s_el.c \
+	wavefield_update_s_el_vti.c \
 	wavefield_update_s_el_4.c \
 	wavefield_update_s_visc.c \
 	wavefield_update_s_visc_4.c \

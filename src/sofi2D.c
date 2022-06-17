@@ -840,7 +840,7 @@ int main ( int argc, char **argv )
                                                absorb_coeff,hc );
                     }
                     break;
-                   case 5: /* elastic */
+                   case 5: /* elastic VTI */
                         update_s_elastic_VTI_interior ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pc11, pc55ipjp, pc13, pc33, hc );
                     
                     if ( FW ) {
@@ -848,8 +848,8 @@ int main ( int argc, char **argv )
                             update_s_elastic_PML ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pc11, pc55, pc55ipjp, hc,
                                                   K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx );
                         if ( ABS_TYPE !=1 )
-                            update_s_elastic_abs ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
-                                                  pc11, pc55, pc55ipjp, absorb_coeff, hc );
+                            update_s_elastic_vti_abs ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
+                                                  pc11, pc55ipjp, pc13, pc33, absorb_coeff, hc );
                     }
                     break;
 
