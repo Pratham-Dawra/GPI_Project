@@ -14,13 +14,15 @@ EXE_SF := $(strip $(EXEC))/sofi2D
 EXE_SB := $(strip $(EXEC))/sofi2D_bench
 
 # source code for model generation
-# model file for viscoelastic modeling L>0
+# model file for isotropic viscoelastic modeling L>0
 MODEL_V := hh_visco.c
-# model file for elastic modeling L=0
+# model file for isotropic elastic modeling L=0
 MODEL_E := hh_elastic.c
-# model file for viscoelastic modeling (overnight built)
+# model file for VTI elastic modeling L=0
+MODEL_E_VTI := hh_elastic_VTI.c
+# model file for isotropic viscoelastic modeling (overnight built)
 MODEL_BV := benchmod.c
-# model file for elastic modeling L=0 (overnight built)
+# model file for isotropic elastic modeling L=0 (overnight built)
 MODEL_BE := benchmod_el.c
 
 # Compiler
@@ -70,6 +72,7 @@ SNAPMERGE_SCR = \
 SOFI2D_SRC= \
 	$(MODEL_V) \
 	$(MODEL_E) \
+	$(MODEL_E_VTI) \
 	abs_update.c \
 	absorb.c \
 	av_mue.c\
@@ -123,6 +126,7 @@ SOFI2D_SRC= \
 	update_s_elastic_abs.c \
 	update_s_elastic_abs_4.c \
 	update_s_elastic_interior.c \
+	update_s_elastic_VTI_interior.c \
 	update_s_elastic_interior_4.c \
 	update_s_elastic_PML.c \
 	update_s_elastic_PML_4.c \

@@ -104,8 +104,8 @@ void read_par_json(FILE *fp, char *fileinp){
         if (get_int_from_objectlist("WEQ",number_readobjects,&WEQ,varname_list, value_list)) {
             WEQ=3;}
         else {
-        if(WEQ!=3 && WEQ!=4)
-            declare_error("Only WEQ=3 (elastic) or WEQ=4 (viscoelastic) are supported!");
+        if(WEQ!=3 && WEQ!=4 && WEQ!=5)
+            declare_error("Only WEQ=3 (elastic) or WEQ=4 (viscoelastic) or WEQ=5 (elastic VTI)are supported!");
         }
 
 		/*=================================
@@ -275,7 +275,17 @@ void read_par_json(FILE *fp, char *fileinp){
 			declare_error("Variable TAU could not be retrieved from the json input file!");
 		if (get_int_from_objectlist("L",number_readobjects,&L,varname_list, value_list))
 			declare_error("Variable L could not be retrieved from the json input file!");
-        else {
+
+		if ((L==0) && ((WEQ==4) || (WEQ==6)))
+			declare_error("L>0 for viscoelastic simulations (WEQ=4 or WEQ=6)!");
+
+		if ((L>0) && ((WEQ==3) || (WEQ==5))){
+			fprintf(fp, " L is set to zero for elastic simulation (WEQ=3 or WEQ=5) ! \n\n\n");
+			L=0;
+		}
+
+
+        if (L) {
             FL=vector(1,L);
             switch(L) {
 			case 0:
@@ -301,6 +311,8 @@ void read_par_json(FILE *fp, char *fileinp){
 				break;
 			}
 		}
+
+		
 
 		/********************************************/
 		/* Check files and directories if necessary */

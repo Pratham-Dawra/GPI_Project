@@ -18,7 +18,7 @@
 			"DT" : "1.0e-4",
 
 "Wave Equation" : "comment",
-			"WEQ" : "3",
+			"WEQ" : "5",
 			"WEQ values : 1:acoustic, 2:viscoacoustic, 3:elastic, " : "comment",
 			"WEQ values : 4:viscoelastic, 5:elastic VTI, 6:viscoelastic VTI, " : "comment",
 			"WEQ values : 7:elastic TTI, 8:viscoelastic TTI, " : "comment",
@@ -45,7 +45,7 @@
 "Model" : "comment",
 			"READMOD" : "0",
 			"MFILE" : "model/test",
-			"WRITE_MODELFILES" : "2",
+			"WRITE_MODELFILES" : "0",
 
 "Q-approximation" : "comment",
 			"L" : "0",

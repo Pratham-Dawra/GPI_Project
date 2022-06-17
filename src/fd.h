@@ -112,6 +112,8 @@ void model_visco(float    **rho, float   **pi, float   **u,
 
 void model_elastic(float    **rho, float   **pi, float   **u);
 
+void model_elastic_VTI(float    **rho, float   **pc11, float   **pc33, float   **pc13, float   **pc55);
+
 void model_ani(float    **rho, float   **c11, float   **c15, float   **c13,
                float   **c35, float   **c33, float   **c55,
                float   **taus, float   **taup, float   *eta);
@@ -291,6 +293,10 @@ void update_s_elastic(int nx1, int nx2, int ny1, int ny2, int nt,
                       float   **vx, float    **vy, float    **sxx, float    **syy,
                       float    **sxy, float **pi, float **u, float **uipjp, float **absorb_coeff,
                       float *hc);
+
+void update_s_elastic_VTI_interior ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
+                        float **  vx, float **   vy, float **   sxx, float **   syy,
+                        float **   sxy, float ** pc11, float ** pc55ipjp, float ** pc13, float ** pc33, float *hc );
 
 void update_s_elastic_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
                           float   **vx, float    **vy, float    **sxx, float    **syy,

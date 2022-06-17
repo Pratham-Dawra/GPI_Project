@@ -72,7 +72,7 @@ int main ( int argc, char **argv )
     float **prho = NULL, **prip = NULL, **prjp = NULL, **ppi = NULL;
     
     float **pc11=NULL, **pc33=NULL, **pc13=NULL, **pc55=NULL, **pc55ipjp=NULL;
-    float **ptau11=NULL, **ptau33=NULL, **ptau13=NULL, **ptau55=NULL, **ptau55ipjp=NULL;
+    /* float **ptau11=NULL, **ptau33=NULL, **ptau13=NULL, **ptau55=NULL, **ptau55ipjp=NULL;*/
 
     /* Save old spatial derivations of velocity for Adam Bashforth */
     float ** vxx_1=NULL,** vxx_2=NULL,** vxx_3=NULL,** vxx_4=NULL;
@@ -453,7 +453,15 @@ int main ( int argc, char **argv )
         cjm = vector ( 1, L );
     }
     
-    if ( WEQ==6 ) {/*elastic VTI wave equation */
+    if ( WEQ==5 ) {/*elastic VTI wave equation */
+        pc11 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc33 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc13 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc55 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc55ipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+    }   
+
+  /*  if ( WEQ==6 ) {
         pc11 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
         pc33 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
         pc13 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
@@ -464,7 +472,7 @@ int main ( int argc, char **argv )
         ptau13 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
         ptau55 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
         ptau55ipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
-    }
+    }*/
     
     /* memory allocation for buffer arrays in which the wavefield
      information to be exchanged between neighboring PEs is stored */
@@ -552,17 +560,29 @@ int main ( int argc, char **argv )
             case 4: /* viscoelastic */
                 model_visco ( prho, ppi, pu, ptaus, ptaup, peta );
                 break;
-            /*case 6: */ /* viscoelastic VTI */
-  /*              model_visco_VTI ( prho, ppi, pu, ptaus, ptaup, peta );
+            case 5 : /* elastic VTI */
+               model_elastic_VTI ( prho, pc11, pc33, pc13, pc55 );
                 break;
-   */
+   
         }
     }
     
     
     /* check if the FD run will be stable and free of numerical dispersion */
-    checkfd ( FP, prho, ppi, pu, ptaus, ptaup, peta, hc, srcpos, nsrc, recpos,
-             ntr_glob );
+    switch ( WEQ) {
+            case 3: /* elastic */
+                 checkfd ( FP, prho, ppi, pu, ptaus, ptaup, peta, hc, srcpos, nsrc, recpos, ntr_glob );
+                break;
+            case 4: /* viscoelastic */
+                 checkfd ( FP, prho, ppi, pu, ptaus, ptaup, peta, hc, srcpos, nsrc, recpos, ntr_glob );
+                break;
+            case 5 : /* elastic VTI */
+                checkfd ( FP, prho, pc11, pc55, ptaus, ptaup, peta, hc, srcpos, nsrc, recpos, ntr_glob );
+                break;
+   
+        }
+    
+
     
     /* calculate damping coefficients for CPMLs*/
     if ( ABS_TYPE==1 ) {
@@ -583,15 +603,28 @@ int main ( int argc, char **argv )
      the have to be averaged. For this, values lying at 0 and NX+1,
      for example, are required on the local grid. These are now copied from the
      neighbouring grids */
-    if ( L )
-        matcopy ( prho, ppi, pu, ptaus, ptaup ); /* viscoelastic */
-    else
-        matcopy_elastic ( prho, ppi, pu ); /* elastic */
     
-    av_mue ( pu, puipjp );
-    av_rho ( prho, prip, prjp );
-    if ( L )
-        av_tau ( ptaus, ptausipjp );
+
+   switch ( WEQ) {
+            case 3: /* elastic */
+                 matcopy_elastic (prho, ppi, pu);
+                 av_mue ( pu, puipjp );
+                 av_rho ( prho, prip, prjp );
+                break;
+            case 4: /* viscoelastic */
+                 matcopy ( prho, ppi, pu, ptaus, ptaup );
+                 av_mue ( pu, puipjp );
+                 av_rho ( prho, prip, prjp );
+                 av_tau ( ptaus, ptausipjp );
+                break;
+            case 5 : /* elastic VTI */
+                matcopy_elastic ( prho, pc11, pc55 );
+                av_mue ( pc55, pc55ipjp );
+                av_rho ( prho, prip, prjp );
+                break;
+   
+        }
+
     
     /* Preparing memory variables for update_s (viscoelastic) */
     if ( L && FDORDER_TIME==2) {
@@ -667,7 +700,6 @@ int main ( int argc, char **argv )
         /* calculate wavelet for each source point */
         signals = wavelet ( srcpos_loc, nsrc_loc );
         
-        /* initialize wavefield with zero */
         /* initialize wavefield with zero */
         
         if ( ABS_TYPE == 1 ) {
@@ -751,7 +783,7 @@ int main ( int argc, char **argv )
                     }
                 }
                 
-                /* Shift spartial derivations of the stress one time step back */
+                /* Shift spatial derivations of the stress one time step back */
                 shift_s1=svx_4;svx_4=svx_3;svx_3=svx_2;svx_2=svx_1;svx_1=shift_s1;
                 shift_s2=svy_4;svy_4=svy_3;svy_3=svy_2;svy_2=svy_1;svy_1=shift_s2;
             }
@@ -779,7 +811,22 @@ int main ( int argc, char **argv )
             /* stress update ------------------------------------------------*/
             /*---------------------------------------------------------------*/
             if(FDORDER_TIME==2){
-                if ( L ) { /* viscoelastic */
+
+                switch ( WEQ) {
+                     case 3: /* elastic */
+                        update_s_elastic_interior ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, ppi, pu, puipjp, hc );
+                    
+                    if ( FW ) {
+                        if ( ABS_TYPE ==1 )
+                            update_s_elastic_PML ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, ppi, pu, puipjp, hc,
+                                                  K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx );
+                        if ( ABS_TYPE !=1 )
+                            update_s_elastic_abs ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
+                                                  ppi, pu, puipjp, absorb_coeff, hc );
+                    }
+                    break;
+
+                case 4:  /* viscoelastic */
                     update_s_visc_interior ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq, fipjp,
                                             f, g, bip, bjm, cip, cjm, d, e, dip, hc );
                     if ( FW ) {
@@ -792,17 +839,20 @@ int main ( int argc, char **argv )
                                                pp, pq, ppi, fipjp, f, g, bip, bjm, cip, cjm, d, e, dip,
                                                absorb_coeff,hc );
                     }
-                } else { /* elastic */
-                    update_s_elastic_interior ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, ppi, pu, puipjp, hc );
+                    break;
+                   case 5: /* elastic */
+                        update_s_elastic_VTI_interior ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pc11, pc55ipjp, pc13, pc33, hc );
                     
                     if ( FW ) {
                         if ( ABS_TYPE ==1 )
-                            update_s_elastic_PML ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, ppi, pu, puipjp, hc,
+                            update_s_elastic_PML ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pc11, pc55, pc55ipjp, hc,
                                                   K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx );
                         if ( ABS_TYPE !=1 )
                             update_s_elastic_abs ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
-                                                  ppi, pu, puipjp, absorb_coeff, hc );
+                                                  pc11, pc55, pc55ipjp, absorb_coeff, hc );
                     }
+                    break;
+
                 }
             }
             
