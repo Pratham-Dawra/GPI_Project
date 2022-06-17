@@ -31,6 +31,7 @@ float REFREC[4]={0.0, 0.0, 0.0, 0.0};
 float NGEOPH; /*in auto mode NGEOPH will be calculated from model dimensions, type integer is incorrect*/
 int   RUNMODE, WRITE_MODELFILES=0, ABS_TYPE;
 int   OUTNTIMESTEPINFO=1; /*every OUTNTIMESTEPINFO th timestep, information on the time step will be given to screen/file */
+int   WEQ=0;
 int   SEISMO=0, NDT=1, NSRC=1, SEIS_FORMAT=0, FREE_SURF=0, READMOD=0, READREC=0, SRCREC=0, RSG=0, FW=0;
 int   NX=1, NY=1, NT=0, SOURCE_TYPE=0, SOURCE_SHAPE=0, SNAP=0, SNAP_FORMAT=0, LOG=0, REC_ARRAY=0;
 int   L=0, BOUNDARY=0, DC=0, DRX=0, NXG=0, NYG=0, IDX=1, IDY=1, CHECKPTREAD=0, CHECKPTWRITE=0, FDORDER=0, FDORDER_TIME=0, MAXRELERROR=0;

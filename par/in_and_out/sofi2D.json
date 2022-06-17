@@ -4,18 +4,24 @@
 			"NPROCY" : "2",
 
 "FD order" : "comment",
-			"FDORDER" : "4",
-			"FDORDER_TIME" : "4",
+			"FDORDER" : "2",
+			"FDORDER_TIME" : "2",
 			"MAXRELERROR" : "0",
 
 "2-D Grid" : "comment",
-			"NX" : "300",
-			"NY" : "200",
-			"DH" : "27.0",
+			"NX" : "400",
+			"NY" : "400",
+			"DH" : "2.0",
 
 "Time Stepping" : "comment",
-			"TIME" : "1.00",
-			"DT" : "3.0e-4",
+			"TIME" : "0.4",
+			"DT" : "1.0e-4",
+
+"Wave Equation" : "comment",
+			"WEQ" : "3",
+			"WEQ values : 1:acoustic, 2:viscoacoustic, 3:elastic, " : "comment",
+			"WEQ values : 4:viscoelastic, 5:elastic VTI, 6:viscoelastic VTI, " : "comment",
+			"WEQ values : 7:elastic TTI, 8:viscoelastic TTI, " : "comment",
 
 "Source" : "comment",
 
@@ -23,7 +29,7 @@
 			"SOURCE_SHAPE values: ricker=1;fumue=2;from_SIGNAL_FILE=3;SIN**3=4" : "comment",
 			"SIGNAL_FILE" : "signal_mseis.tz",
 
-			"SOURCE_TYPE" : "1",
+			"SOURCE_TYPE" : "3",
 			"SOURCE_TYPE values (point_source): explosive=1;force_in_x=2;force_in_y=3;custom_force=4" : "comment",
 
 			"SRCREC" : "1",
@@ -42,16 +48,16 @@
 			"WRITE_MODELFILES" : "2",
 
 "Q-approximation" : "comment",
-			"L" : "1",
-			"FL1" : "5.0", 
-			"TAU" : "0.00001",
+			"L" : "0",
+			"FL1" : "30.0", 
+			"TAU" : "0.5",
 
 "Boundary Conditions" : "comment",
-                        "FREE_SURF" : "1",
+                        "FREE_SURF" : "0",
                         "BOUNDARY" : "0",
 
-			"FW" : "10",
-			"ABS_TYPE" : "1",
+			"FW" : "50",
+			"ABS_TYPE" : "2",
 			"ABS_TYPE values : CPML-Boundary=1; Damping-Boundary=2" : "comment",
 			
 			"Parameter for CPML (ABS_TYPE=1)" : "comment",
@@ -65,23 +71,23 @@
 
 
 "Snapshots" : "comment",
-			"SNAP" : "0",
-			"TSNAP1" : "3e-4",
-			"TSNAP2" : "1.0",
+			"SNAP" : "1",
+			"TSNAP1" : "0.01",
+			"TSNAP2" : "0.4",
 			"TSNAPINC" : "0.01",
-			"IDX" : "1",
-			"IDY" : "1",
+			"IDX" : "2",
+			"IDY" : "2",
 			"SNAP_FORMAT" : "3",
 			"SNAP_FILE" : "./snap/test",
 
 "Receiver" : "comment",
-			"SEISMO" : "4",
+			"SEISMO" : "0",
 			"READREC" : "0",
 			"REC_FILE" : "./receiver/receiver.dat",
 			"REFRECX, REFRECY" : "0.0 , 0.0",
-			"XREC1,YREC1" : "270.0 , 27.0",
-			"XREC2,YREC2" : "2000.0 , 27.0",
-			"NGEOPH" : "1",
+			"XREC1,YREC1" : "50.0 , 1.0",
+			"XREC2,YREC2" : "350.0 , 1.0",
+			"NGEOPH" : "5",
 
 "Receiver array" : "comment",
 
@@ -91,14 +97,14 @@
 			"DRX" : "4",
 
 "Seismograms" : "comment",
-			"NDT" : "1",
+			"NDT" : "5",
 			"SEIS_FORMAT" : "1",
 			"SEIS_FILE" : "./su/test",
 
 "Monitoring the simulation" : "comment",
 			"LOG_FILE" : "log/test.log",
 			"LOG" : "1",
-			"OUT_TIMESTEP_INFO" : "10000",
+			"OUT_TIMESTEP_INFO" : "100",
 
 "Checkpoints" : "comment",
 			"CHECKPTREAD" : "0",

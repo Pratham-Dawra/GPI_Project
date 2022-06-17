@@ -413,7 +413,7 @@ float ****f4tensor(int nrl, int nrh, int ncl, int nch,int ndl, int ndh, int nvl,
 	for (i=nrl;i<=nrh;i++)
 		for (j=ncl;j<=nch;j++)
 			for (d=ndl;d<=ndh;d++)
-				for (v=nvl;d<=nvh;v++) t[i][j][d][v]=0.0;
+				for (v=nvl;v<=nvh;v++) t[i][j][d][v]=0.0;
 
 	/* return pointer to array of pointer to rows */
 	return t;

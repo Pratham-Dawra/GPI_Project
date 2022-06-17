@@ -34,7 +34,7 @@ void read_par_json(FILE *fp, char *fileinp){
 	extern int SEISMO, NDT, SEIS_FORMAT, FREE_SURF, READMOD, READREC, SRCREC;
 	extern int BOUNDARY, REC_ARRAY, DRX, LOG,  WRITE_MODELFILES; //RSG
 	extern int  NPROCX, NPROCY, MYID, IDX, IDY, CHECKPTREAD, CHECKPTWRITE, RUN_MULTIPLE_SHOTS, ABS_TYPE, FW;
-	extern int OUTNTIMESTEPINFO;
+	extern int OUTNTIMESTEPINFO, WEQ;
 	/*extern int NGEOPH;*/
 	extern float NGEOPH;
 	extern float DH, TIME, DT, TS, *FL, TAU, DAMPING, PLANE_WAVE_DEPTH, PLANE_WAVE_ANGLE, FPML, VPPML,NPOWER, K_MAX_CPML;
@@ -100,6 +100,13 @@ void read_par_json(FILE *fp, char *fileinp){
 			declare_error("Variable TIME could not be retrieved from the json input file!");
 		if (get_float_from_objectlist("DT",number_readobjects,&DT,varname_list, value_list))
 			declare_error("Variable DT could not be retrieved from the json input file!");
+
+        if (get_int_from_objectlist("WEQ",number_readobjects,&WEQ,varname_list, value_list)) {
+            WEQ=3;}
+        else {
+        if(WEQ!=3 && WEQ!=4)
+            declare_error("Only WEQ=3 (elastic) or WEQ=4 (viscoelastic) are supported!");
+        }
 
 		/*=================================
 		 	 section source parameters

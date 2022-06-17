@@ -42,7 +42,7 @@ void write_par(FILE *fp){
 	extern char SEIS_FILE[STRING_SIZE];
 	extern char SIGNAL_FILE[STRING_SIZE];
 	extern char  MFILE[STRING_SIZE];
-	extern int NP, NPROCX, NPROCY, MYID,FDORDER_TIME;
+	extern int NP, NPROCX, NPROCY, MYID,FDORDER_TIME, WEQ;
 
 	/* definition of local variables */
 	int l;
@@ -72,6 +72,41 @@ void write_par(FILE *fp){
 	}
 	fprintf(fp,"\n");
 
+    fprintf(fp,"----------------------- Wave Equation ------------------------\n");
+
+    switch (WEQ){
+        case 1 :
+            fprintf(fp," Acoustic wave equation\n");
+            break;
+        case 2 :
+            fprintf(fp," Viscoacoustic wave equation\n");
+            break;
+        case 3 :
+            fprintf(fp," Elastic wave equation\n");
+            break;
+        case 4 :
+            fprintf(fp," Viscoelastic wave equation\n");
+            break;
+        case 5 :
+            fprintf(fp," Elastic VTI wave equation\n");
+            break;
+        case 6 :
+            fprintf(fp," Viscoelastic VTI wave equation\n");
+            break;
+        case 7 :
+            fprintf(fp," Elastic TTI wave equation\n");
+            break;
+        case 8 :
+            fprintf(fp," Viscoelastic TTI wave equation\n");
+            break;
+            
+        default :
+            declare_error(" Sorry, incorrect specification of type of wave equation (WEQ) ! ");
+            break;
+    }
+
+    fprintf(fp,"\n");
+    
 
 	fprintf(fp," ----------------------- Discretization  ---------------------\n");
 	fprintf(fp," Number of gridpoints in x-direction (NX): %i\n", NX);

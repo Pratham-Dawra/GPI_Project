@@ -32,7 +32,7 @@ format=3  :  BINARY (IEEE)
 
 
 float readdsk(FILE *fp_in, int format){
-	float amp;
+	float amp=0.0;
 
 
 

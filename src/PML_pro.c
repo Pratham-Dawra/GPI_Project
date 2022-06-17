@@ -167,8 +167,8 @@ void PML_pro(float * d_x, float * K_x, float * alpha_prime_x, float * a_x, float
        
 
        /* avoid division by zero outside the PML */
-       if(abs(d_x[i]) > 1.0e-6){ a_x[i] = d_x[i] * (b_x[i] - 1.0) / (K_x[i] * (d_x[i] + K_x[i] * alpha_prime_x[i]));}
-       if(abs(d_x_half[i]) > 1.0e-6){ a_x_half[i] = d_x_half[i] * (b_x_half[i] - 1.0) / (K_x_half[i] * (d_x_half[i] + K_x_half[i] * alpha_prime_x_half[i]));}
+       if(fabsf(d_x[i]) > 1.0e-6){ a_x[i] = d_x[i] * (b_x[i] - 1.0) / (K_x[i] * (d_x[i] + K_x[i] * alpha_prime_x[i]));}
+       if(fabsf(d_x_half[i]) > 1.0e-6){ a_x_half[i] = d_x_half[i] * (b_x_half[i] - 1.0) / (K_x_half[i] * (d_x_half[i] + K_x_half[i] * alpha_prime_x_half[i]));}
 
       } /* end of left boundary */ 
 
@@ -214,8 +214,8 @@ void PML_pro(float * d_x, float * K_x, float * alpha_prime_x, float * a_x, float
                b_x_half[h] = exp(- (d_x_half[h] / K_x_half[h] + alpha_prime_x_half[h]) * DT);
 
             /* avoid division by zero outside the PML */
-               if(abs(d_x[h]) > 1.0e-6){ a_x[h] = d_x[h] * (b_x[h] - 1.0) / (K_x[h] * (d_x[h] + K_x[h] * alpha_prime_x[h]));}
-               if(abs(d_x_half[h]) > 1.0e-6){ a_x_half[h] = d_x_half[h] * (b_x_half[h] - 1.0) / (K_x_half[h] * (d_x_half[h] + K_x_half[h] * alpha_prime_x_half[h]));}
+               if(fabsf(d_x[h]) > 1.0e-6){ a_x[h] = d_x[h] * (b_x[h] - 1.0) / (K_x[h] * (d_x[h] + K_x[h] * alpha_prime_x[h]));}
+               if(fabsf(d_x_half[h]) > 1.0e-6){ a_x_half[h] = d_x_half[h] * (b_x_half[h] - 1.0) / (K_x_half[h] * (d_x_half[h] + K_x_half[h] * alpha_prime_x_half[h]));}
 
        } /* end of right boundary */   
 
@@ -264,8 +264,8 @@ void PML_pro(float * d_x, float * K_x, float * alpha_prime_x, float * a_x, float
           b_y_half[i] = exp(- (d_y_half[i] / K_y_half[i] + alpha_prime_y_half[i]) * DT);
 
           /* avoid division by zero outside the PML */
-          if(abs(d_y[i]) > 1.0e-6){ a_y[i] = d_y[i] * (b_y[i] - 1.0) / (K_y[i] * (d_y[i] + K_y[i] * alpha_prime_y[i]));}
-          if(abs(d_y_half[i]) > 1.0e-6){ a_y_half[i] = d_y_half[i] * (b_y_half[i] - 1.0) / (K_y_half[i] * (d_y_half[i] + K_y_half[i] * alpha_prime_y_half[i]));}
+          if(fabsf(d_y[i]) > 1.0e-6){ a_y[i] = d_y[i] * (b_y[i] - 1.0) / (K_y[i] * (d_y[i] + K_y[i] * alpha_prime_y[i]));}
+          if(fabsf(d_y_half[i]) > 1.0e-6){ a_y_half[i] = d_y_half[i] * (b_y_half[i] - 1.0) / (K_y_half[i] * (d_y_half[i] + K_y_half[i] * alpha_prime_y_half[i]));}
 
       } /* end of left boundary */ 
 
@@ -306,8 +306,8 @@ void PML_pro(float * d_x, float * K_x, float * alpha_prime_x, float * a_x, float
           b_y_half[h] = exp(- (d_y_half[h] / K_y_half[h] + alpha_prime_y_half[h]) * DT);
 
           /* avoid division by zero outside the PML */
-          if(abs(d_y[h]) > 1.0e-6){ a_y[h] = d_y[h] * (b_y[h] - 1.0) / (K_y[h] * (d_y[h] + K_y[h] * alpha_prime_y[h]));}
-          if(abs(d_y_half[h]) > 1.0e-6){ a_y_half[h] = d_y_half[h] * (b_y_half[h] - 1.0) / (K_y_half[h] * (d_y_half[h] + K_y_half[h] * alpha_prime_y_half[h]));}
+          if(fabsf(d_y[h]) > 1.0e-6){ a_y[h] = d_y[h] * (b_y[h] - 1.0) / (K_y[h] * (d_y[h] + K_y[h] * alpha_prime_y[h]));}
+          if(fabsf(d_y_half[h]) > 1.0e-6){ a_y_half[h] = d_y_half[h] * (b_y_half[h] - 1.0) / (K_y_half[h] * (d_y_half[h] + K_y_half[h] * alpha_prime_y_half[h]));}
       
        } /* end of top boundary */   
 

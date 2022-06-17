@@ -71,6 +71,9 @@ int main ( int argc, char **argv )
     *cjm = NULL, ***d = NULL, ***e = NULL, **f = NULL, **g = NULL;
     float **prho = NULL, **prip = NULL, **prjp = NULL, **ppi = NULL;
     
+    float **pc11=NULL, **pc33=NULL, **pc13=NULL, **pc55=NULL, **pc55ipjp=NULL;
+    float **ptau11=NULL, **ptau33=NULL, **ptau13=NULL, **ptau55=NULL, **ptau55ipjp=NULL;
+
     /* Save old spatial derivations of velocity for Adam Bashforth */
     float ** vxx_1=NULL,** vxx_2=NULL,** vxx_3=NULL,** vxx_4=NULL;
     float ** vyy_1=NULL,** vyy_2=NULL,** vyy_3=NULL,** vyy_4=NULL;
@@ -419,17 +422,19 @@ int main ( int argc, char **argv )
         pq_4 = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
     }
     
-    /* static (model) arrays (elastic + viscoelastic) */
-    prho = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
-    prip = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
-    prjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
-    ppi = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
-    pu = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
-    puipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
-    absorb_coeff = matrix ( 1, NY, 1, NX );
+    /* static (model) arrays (isotropic elastic + viscoelastic) */
+    if (WEQ>2){
+        prho = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        prip = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        prjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        ppi = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pu = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        puipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        absorb_coeff = matrix ( 1, NY, 1, NX );
+    }
     
     /* static (model) arrays (viscoelastic) */
-    if ( L > 0 ) {
+    if ( WEQ==4 ) { /*viscoelastic wave equation */
         dip = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
         d = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
         e = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
@@ -446,6 +451,19 @@ int main ( int argc, char **argv )
         bjm = vector ( 1, L );
         cip = vector ( 1, L );
         cjm = vector ( 1, L );
+    }
+    
+    if ( WEQ==6 ) {/*elastic VTI wave equation */
+        pc11 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc33 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc13 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc55 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc55ipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        ptau11 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        ptau33 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        ptau13 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        ptau55 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        ptau55ipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
     }
     
     /* memory allocation for buffer arrays in which the wavefield
@@ -513,21 +531,34 @@ int main ( int argc, char **argv )
     
     /* create model grids */
     
-    /* viscoelastic model */
-    if ( L ) {
-        if ( READMOD )
-            readmod_visco ( prho, ppi, pu, ptaus, ptaup, peta );
-        else
-            
-            model_visco ( prho, ppi, pu, ptaus, ptaup, peta );
+    if ( READMOD ){
+        switch ( WEQ) {
+            case 3: /* elastic */
+                readmod_elastic ( prho, ppi, pu );
+                break;
+            case 4: /* viscoelastic */
+                readmod_visco ( prho, ppi, pu, ptaus, ptaup, peta );
+                break;
+            /*case 6:*/ /* viscoelastic VTI */
+/*                readmod_visco_VTI ( prho, ppi, pu, ptaus, ptaup, peta );
+                break;
+ */
+        }
+    }else {
+        switch ( WEQ) {
+            case 3: /* elastic */
+                model_elastic ( prho, ppi, pu );
+                break;
+            case 4: /* viscoelastic */
+                model_visco ( prho, ppi, pu, ptaus, ptaup, peta );
+                break;
+            /*case 6: */ /* viscoelastic VTI */
+  /*              model_visco_VTI ( prho, ppi, pu, ptaus, ptaup, peta );
+                break;
+   */
+        }
     }
-    /* elastic model */
-    else {
-        if ( READMOD )
-            readmod_elastic ( prho, ppi, pu );
-        else
-            model_elastic ( prho, ppi, pu );
-    }
+    
     
     /* check if the FD run will be stable and free of numerical dispersion */
     checkfd ( FP, prho, ppi, pu, ptaus, ptaup, peta, hc, srcpos, nsrc, recpos,

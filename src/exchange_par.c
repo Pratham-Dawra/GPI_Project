@@ -38,7 +38,7 @@ void exchange_par(void){
 	extern char  MFILE[STRING_SIZE], SIGNAL_FILE[STRING_SIZE], LOG_FILE[STRING_SIZE];
 	extern char SNAP_FILE[STRING_SIZE], SOURCE_FILE[STRING_SIZE], REC_FILE[STRING_SIZE];
 	extern char SEIS_FILE[STRING_SIZE], CHECKPTFILE[STRING_SIZE];
-	extern int NPROC, NPROCX, NPROCY, MYID, IDX, IDY, CHECKPTREAD, CHECKPTWRITE, RUN_MULTIPLE_SHOTS, ABS_TYPE, FW; 
+	extern int NPROC, NPROCX, NPROCY, MYID, IDX, IDY, CHECKPTREAD, CHECKPTWRITE, RUN_MULTIPLE_SHOTS, ABS_TYPE, FW, WEQ; 
 
 	/* definition of local variables */
 	int idum[NPAR];
@@ -110,7 +110,7 @@ void exchange_par(void){
 		idum[19]  = IDX;
 		idum[20]  = IDY;
 		idum[21]  = 0;
-		idum[22]  = 0;
+		idum[22]  = WEQ;
 		idum[23]  = SNAP_FORMAT;
 		idum[24]  = SEISMO;
 		idum[25]  = READREC;
@@ -204,7 +204,8 @@ void exchange_par(void){
 	REC_ARRAY = idum[17];
 	SRCREC = idum[18];
 	IDX = idum[19];
-	IDY = idum[20];
+    IDY = idum[20];
+    WEQ= idum[22];
 
 
 	SNAP_FORMAT = idum[23];
