@@ -72,7 +72,7 @@ int main ( int argc, char **argv )
     float **prho = NULL, **prip = NULL, **prjp = NULL, **ppi = NULL;
     
     float **pc11=NULL, **pc33=NULL, **pc13=NULL, **pc55=NULL, **pc55ipjp=NULL;
-    /* float **ptau11=NULL, **ptau33=NULL, **ptau13=NULL, **ptau55=NULL, **ptau55ipjp=NULL;*/
+     float **ptau11=NULL, **ptau33=NULL, **ptau13=NULL, **ptau55=NULL, **ptau55ipjp=NULL;
 
     /* Save old spatial derivations of velocity for Adam Bashforth */
     float ** vxx_1=NULL,** vxx_2=NULL,** vxx_3=NULL,** vxx_4=NULL;
@@ -454,25 +454,40 @@ int main ( int argc, char **argv )
     }
     
     if ( WEQ==5 ) {/*elastic VTI wave equation */
-        pc11 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc11 = ppi;
         pc33 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
         pc13 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
-        pc55 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
-        pc55ipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc55 = pu;
+        pc55ipjp = puipjp;
     }   
 
-  /*  if ( WEQ==6 ) {
-        pc11 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+    if ( WEQ==6 ) { /*viscoelastic VTI wave equation */
+        pc11 = ppi;
         pc33 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
         pc13 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
-        pc55 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
-        pc55ipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc55 = pu;
+        pc55ipjp = puipjp;
         ptau11 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
         ptau33 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
         ptau13 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
         ptau55 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
         ptau55ipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
-    }*/
+
+        dip = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+        d = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+        e = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+        fipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        f = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        g = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        peta = vector ( 1, L );
+        etaip = vector ( 1, L );
+        etajm = vector ( 1, L );
+        bip = vector ( 1, L );
+        bjm = vector ( 1, L );
+        cip = vector ( 1, L );
+        cjm = vector ( 1, L );
+
+    }
     
     /* memory allocation for buffer arrays in which the wavefield
      information to be exchanged between neighboring PEs is stored */
@@ -547,10 +562,9 @@ int main ( int argc, char **argv )
             case 4: /* viscoelastic */
                 readmod_visco ( prho, ppi, pu, ptaus, ptaup, peta );
                 break;
-            /*case 6:*/ /* viscoelastic VTI */
-/*                readmod_visco_VTI ( prho, ppi, pu, ptaus, ptaup, peta );
+            case 5: /* elastic VTI */
+              readmod_elastic_vti ( prho, pc11, pc33, pc13, pc55 );
                 break;
- */
         }
     }else {
         switch ( WEQ) {
@@ -562,6 +576,10 @@ int main ( int argc, char **argv )
                 break;
             case 5 : /* elastic VTI */
                model_elastic_VTI ( prho, pc11, pc33, pc13, pc55 );
+                break;
+
+            case 6 : /* viscoelastic VTI */
+               model_visco_vti ( prho, pc11, pc33, pc13, pc55, ptau11, ptau33, ptau13, ptau55, peta );
                 break;
    
         }
@@ -578,6 +596,9 @@ int main ( int argc, char **argv )
                 break;
             case 5 : /* elastic VTI */
                 checkfd ( FP, prho, pc11, pc55, ptaus, ptaup, peta, hc, srcpos, nsrc, recpos, ntr_glob );
+                break;
+             case 6 : /* elastic VTI */
+                checkfd ( FP, prho, pc11, pc55, ptau55, ptau11, peta, hc, srcpos, nsrc, recpos, ntr_glob );
                 break;
    
         }
@@ -622,7 +643,12 @@ int main ( int argc, char **argv )
                 av_mue ( pc55, pc55ipjp );
                 av_rho ( prho, prip, prjp );
                 break;
-   
+              case 6 : /* viscoelastic VTI */
+                matcopy_elastic ( prho, ptau55, pc55 );
+                av_mue ( pc55, pc55ipjp );
+                av_rho ( prho, prip, prjp );
+                av_tau (ptau55, ptau55ipjp);
+                break;
         }
 
     

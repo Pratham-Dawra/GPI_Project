@@ -38,7 +38,6 @@ void update_s_elastic_vti_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, in
 	extern int MYID, FDORDER;
 	extern FILE *FP;
 	extern int OUTNTIMESTEPINFO;
-	double time1=0.0, time2=0.0;
 
 
 	fdoh=FDORDER/2;
@@ -52,12 +51,7 @@ void update_s_elastic_vti_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, in
 	FD_op_s[5] = &operator_s_fd10;
 	FD_op_s[6] = &operator_s_fd12;
 
-	if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
-		time1=MPI_Wtime();
-		fprintf ( FP,"\n **Message from update_s_PML (printed by PE %d):\n",MYID );
-		fprintf ( FP," Updating stress components ..." );
-	}
-
+	
 
 
 	/* left boundary */
@@ -153,12 +147,4 @@ void update_s_elastic_vti_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, in
 	}
 
 
-
-
-
-
-	if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
-		time2=MPI_Wtime();
-		fprintf ( FP," finished (real time: %4.3f s).\n",time2-time1 );
-	}
 }

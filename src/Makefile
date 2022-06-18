@@ -20,6 +20,8 @@ MODEL_V := hh_visco.c
 MODEL_E := hh_elastic.c
 # model file for VTI elastic modeling L=0
 MODEL_E_VTI := hh_elastic_VTI.c
+# model file for VTI elastic modeling L=0
+MODEL_V_VTI := hh_visco_VTI.c
 # model file for isotropic viscoelastic modeling (overnight built)
 MODEL_BV := benchmod.c
 # model file for isotropic elastic modeling L=0 (overnight built)
@@ -73,6 +75,7 @@ SOFI2D_SRC= \
 	$(MODEL_V) \
 	$(MODEL_E) \
 	$(MODEL_E_VTI) \
+	$(MODEL_V_VTI) \
 	abs_update.c \
 	absorb.c \
 	av_mue.c\
@@ -111,6 +114,7 @@ SOFI2D_SRC= \
 	readdsk.c \
 	readmod_visco.c \
 	readmod_elastic.c \
+	readmod_elastic_vti.c \
 	receiver.c \
 	save_checkpoint.c\
 	saveseis.c \

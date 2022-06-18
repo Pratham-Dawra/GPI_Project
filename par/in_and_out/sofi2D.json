@@ -44,11 +44,11 @@
 
 "Model" : "comment",
 			"READMOD" : "0",
-			"MFILE" : "model/test",
+			"MFILE" : "model/VTI",
 			"WRITE_MODELFILES" : "0",
 
 "Q-approximation" : "comment",
-			"L" : "0",
+			"L" : "1",
 			"FL1" : "30.0", 
 			"TAU" : "0.5",
 
@@ -75,8 +75,8 @@
 			"TSNAP1" : "0.01",
 			"TSNAP2" : "0.4",
 			"TSNAPINC" : "0.01",
-			"IDX" : "2",
-			"IDY" : "2",
+			"IDX" : "1",
+			"IDY" : "1",
 			"SNAP_FORMAT" : "3",
 			"SNAP_FILE" : "./snap/test",
 

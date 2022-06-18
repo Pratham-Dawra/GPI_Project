@@ -39,6 +39,9 @@ void mergemod(char modfile[STRING_SIZE], int format){
 	int i, j, ip, jp;
 	float a;
 
+	int remove(const char * filename);
+
+
 
 	fprintf(FP,"\n **Message from mergemod (printed by PE %d):\n",MYID);
 	fprintf(FP," PE %d starts merge of %d model files \n",MYID,NPROC);	
@@ -87,7 +90,14 @@ void mergemod(char modfile[STRING_SIZE], int format){
 	fprintf(FP," to visualize model. \n");
 
 
+	fprintf(FP," Removing model files produced by PEs \n");
+	for (ip=0;ip<=NPROCX-1; ip++)
+  	for (jp=0;jp<=NPROCY-1; jp++){
+  		sprintf(file,"%s.%i.%i",modfile,ip,jp);
 
+  		if (remove(file) == 0)
+        fprintf(FP, "The file %s is deleted successfully.",file);
+		else 
+        printf("The file %s is not deleted.",file);
+	}
 }
-
-

@@ -38,8 +38,6 @@ void update_v_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int 
 	int i, j, fdoh;
 	float sxx_x, syy_y, sxy_y, sxy_x;
 
-	extern int OUTNTIMESTEPINFO;
-	double time1=0.0, time2=0.0;
 	extern int MYID, FDORDER; 
 	extern FILE *FP;
 
@@ -56,11 +54,6 @@ void update_v_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int 
 	FD_op_v[5] = &operator_v_fd10;
 	FD_op_v[6] = &operator_v_fd12;
 
-	if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
-		time1=MPI_Wtime();
-		fprintf ( FP,"\n **Message from update_v_abs2 (printed by PE %d):\n",MYID );
-		fprintf ( FP," Updating particle velocities ..." );
-	}
 
 	/* ------------------------------------------------------------
 	 * Important!
@@ -199,8 +192,4 @@ void update_v_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int 
 		}
 	}
 	
-	if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
-		time2=MPI_Wtime();
-		fprintf ( FP," finished (real time: %4.3f s).\n",time2-time1 );
-	}
 }

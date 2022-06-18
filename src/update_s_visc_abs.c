@@ -42,8 +42,6 @@ void update_s_visc_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int
 	float  vxx, vyy, vxy, vyx;
 	extern int MYID, FDORDER;
 	extern FILE *FP;
-	extern int OUTNTIMESTEPINFO;
-	double time1=0.0, time2=0.0;
 
 	
 
@@ -58,11 +56,7 @@ void update_s_visc_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int
 	FD_op_s[5] = &operator_s_fd10;
 	FD_op_s[6] = &operator_s_fd12;
 	
-	if ((MYID==0) && ((nt+(OUTNTIMESTEPINFO-1))%OUTNTIMESTEPINFO)==0) {
-		time1=MPI_Wtime();
-		fprintf(FP,"\n **Message from update_s (printed by PE %d):\n",MYID);
-		fprintf(FP," Updating stress components ...");
-	}	
+	
 
 
 	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
@@ -163,9 +157,4 @@ void update_s_visc_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int
 		}
 	}
 
-
-	if ((MYID==0) && ((nt+(OUTNTIMESTEPINFO-1))%OUTNTIMESTEPINFO)==0) {
-		time2=MPI_Wtime();
-		fprintf(FP," finished (real time: %4.3f s).\n",time2-time1);
-	}
 }

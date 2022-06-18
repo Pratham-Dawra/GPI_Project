@@ -36,69 +36,45 @@ void update_s_elastic_VTI_interior ( int nx1, int nx2, int ny1, int ny2, int * g
 {
 
 
-	int i,j;
-	float c55ipjp, c33, c11, c13;
+	int i,j, fdoh;
 	float  vxx, vyy, vxy, vyx;
-	float  dhi;
-	extern float DT, DH;
 	extern int MYID, FDORDER;
 	extern FILE *FP;
 	extern int OUTNTIMESTEPINFO;
 	double time1=0.0, time2=0.0;
 
+    fdoh=FDORDER/2;
 
-	dhi = 1.0/DH;
-
-	if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
-		time1=MPI_Wtime();
-		fprintf ( FP,"\n **Message from update_s_interior (printed by PE %d):\n",MYID );
-		fprintf ( FP," Updating stress components ..." );
-	}
-
-	if (FDORDER>2) declare_error("FDORDER>2 not available !");
-	
-	switch ( FDORDER ) {
-
-	case 2:
-		for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-
-
-				/* spatial derivatives of the components of the velocities */
-				/* using Holberg coefficients */
-				vxx = hc[1]* ( vx[j][i]  -vx[j][i-1] ) *dhi;
-				vyy = hc[1]* ( vy[j][i]  -vy[j-1][i] ) *dhi;
-				vyx = hc[1]* ( vy[j][i+1]-vy[j][i] ) *dhi;
-				vxy = hc[1]* ( vx[j+1][i]-vx[j][i] ) *dhi;
-
-				/* updating components of the stress tensor, partially */
-				c55ipjp=pc55ipjp[j][i]*DT;
-				c11=pc11[j][i]*DT;
-				c33=pc33[j][i]*DT;
-				c13=pc13[j][i]*DT;
-
-				sxy[j][i]+= ( c55ipjp* ( vxy+vyx ) );
-                sxx[j][i]+= ( (c11* vxx)+ (c13*vyy) );
-				syy[j][i]+= ( (c13* vxx)+ (c33*vyy) );
-
-/*				sxy[j][i]+= ( fipjp* ( vxy+vyx ) );
-				sxx[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vyy );
-				syy[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vxx );*/
-
-			}
-		}
-		break;
+    /*Pointer array to the locations of the fd-operator functions*/
+    void ( *FD_op_s[7] ) ();
+    FD_op_s[1] = &operator_s_fd2;
+    FD_op_s[2] = &operator_s_fd4;
+    FD_op_s[3] = &operator_s_fd6;
+    FD_op_s[4] = &operator_s_fd8;
+    FD_op_s[5] = &operator_s_fd10;
+    FD_op_s[6] = &operator_s_fd12;
 
 
 
-	} /* end of switch(FDORDER) */
-
-
-
-	if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
-		time2=MPI_Wtime();
-		fprintf ( FP," finished (real time: %4.3f s).\n",time2-time1 );
-	}
+    if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
+        time1=MPI_Wtime();
+        fprintf ( FP,"\n **Message from update_s_vti_interior (printed by PE %d):\n",MYID );
+        fprintf ( FP," Updating stress components ..." );
+    }
+    
+    
+    for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+        for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+            FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+            wavefield_update_s_el_vti (i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33);
+        }
+    }
+    
+    
+    if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
+        time2=MPI_Wtime();
+        fprintf ( FP," finished (real time: %4.3f s).\n",time2-time1 );
+    }
 }
 
 

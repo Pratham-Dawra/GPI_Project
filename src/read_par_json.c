@@ -101,12 +101,19 @@ void read_par_json(FILE *fp, char *fileinp){
 		if (get_float_from_objectlist("DT",number_readobjects,&DT,varname_list, value_list))
 			declare_error("Variable DT could not be retrieved from the json input file!");
 
-        if (get_int_from_objectlist("WEQ",number_readobjects,&WEQ,varname_list, value_list)) {
-            WEQ=3;}
-        else {
-        if(WEQ!=3 && WEQ!=4 && WEQ!=5)
-            declare_error("Only WEQ=3 (elastic) or WEQ=4 (viscoelastic) or WEQ=5 (elastic VTI)are supported!");
-        }
+		if (get_int_from_objectlist("WEQ",number_readobjects,&WEQ,varname_list, value_list)) {
+			WEQ=3;}
+			else {
+				if(WEQ!=3 && WEQ!=4 && WEQ!=5 && WEQ!=6){
+					fprintf(fp, " Only the following wave equations are supported: \n");
+					fprintf(fp, " WEQ=3 (isotropic elastic) \n");
+					fprintf(fp, " WEQ=4 (isotropic viscoelastic) \n");
+					fprintf(fp, " WEQ=5 (elastic VTI) \n");
+					fprintf(fp, " WEQ=6 (viscoelastic VTI) \n");
+
+					declare_error("Stop.");
+				}
+			}
 
 		/*=================================
 		 	 section source parameters
