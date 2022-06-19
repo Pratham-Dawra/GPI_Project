@@ -23,10 +23,11 @@
 
 #include "fd.h"
 
-void wavefield_update_s_visc ( int i, int j,float   vxx, float  vyx,float vxy,float  vyy, float **sxy,
-                               float **sxx, float ** syy, float ***r, float ***p,
-                               float ***q,float **fipjp, float **f, float **g, float *bip, 
-			       float *bjm,float *cip, float *cjm, float ***d, float ***e, float ***dip )
+void wavefield_update_s_visc_VTI ( int i, int j,float   vxx, float  vyx,float vxy,float  vyy,
+                              float **sxy, float **sxx, float ** syy, float ***p, float ***r,float ***q,
+                              float ** pc55ipjpu, float ** pc13u, float **pc11u, float **pc33u,
+                              float *** pc55ipjpd, float *** pc13d, float ***pc11d, float ***pc33d,
+                              float *bip, float *cip)
 {
 	int l;
 	float  dthalbe;
@@ -46,18 +47,18 @@ void wavefield_update_s_visc ( int i, int j,float   vxx, float  vyx,float vxy,fl
 
 
 	/* updating components of the stress tensor, partially */
-	sxy[j][i] += ( fipjp[j][i]* ( vxy+vyx ) ) + ( dthalbe*sumr );
-	sxx[j][i] += ( g[j][i]* ( vxx+vyy ) )- ( 2.0*f[j][i]*vyy ) + ( dthalbe*sump );
-	syy[j][i] += ( g[j][i]* ( vxx+vyy ) )- ( 2.0*f[j][i]*vxx ) + ( dthalbe*sumq );
+	sxy[j][i] += ( pc55ipjpu[j][i]* ( vxy+vyx ) ) + ( dthalbe*sumr );
+	sxx[j][i] += (pc11u[j][i]*vxx) + (pc13u[j][i]*vyy)+ ( dthalbe*sump );
+	syy[j][i] += (pc13u[j][i]*vxx) + (pc33u[j][i]*vyy)+ ( dthalbe*sumq );
 
 
 
 	/* now updating the memory-variables and sum them up*/
 	sumr=sump=sumq=0.0;
 	for ( l=1; l<=L; l++ ) {
-		r[j][i][l] = bip[l]* ( r[j][i][l]*cip[l]- ( dip[j][i][l]* ( vxy+vyx ) ) );
-		p[j][i][l] = bjm[l]* ( p[j][i][l]*cjm[l]- ( e[j][i][l]* ( vxx+vyy ) ) + ( 2.0*d[j][i][l]*vyy ) );
-		q[j][i][l] = bjm[l]* ( q[j][i][l]*cjm[l]- ( e[j][i][l]* ( vxx+vyy ) ) + ( 2.0*d[j][i][l]*vxx ) );
+		r[j][i][l] = bip[l]* ( r[j][i][l]*cip[l]- ( pc55ipjpd[j][i][l]* ( vxy+vyx ) ) );
+		p[j][i][l] = bip[l]* ( p[j][i][l]*cip[l]- ( pc11d[j][i][l]*vxx ) -  ( pc13d[j][i][l]*vyy ) );
+		q[j][i][l] = bip[l]* ( q[j][i][l]*cip[l]- ( pc13d[j][i][l]*vxx ) -  ( pc33d[j][i][l]*vyy ) );
 		sumr += r[j][i][l];
 		sump += p[j][i][l];
 		sumq += q[j][i][l];

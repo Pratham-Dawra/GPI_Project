@@ -73,6 +73,9 @@ int main ( int argc, char **argv )
     
     float **pc11=NULL, **pc33=NULL, **pc13=NULL, **pc55=NULL, **pc55ipjp=NULL;
      float **ptau11=NULL, **ptau33=NULL, **ptau13=NULL, **ptau55=NULL, **ptau55ipjp=NULL;
+    float ***pc11d=NULL, ***pc33d=NULL, ***pc13d=NULL, ***pc55ipjpd=NULL;
+    float **pc11u=NULL, **pc33u=NULL, **pc13u=NULL, **pc55ipjpu=NULL;
+
 
     /* Save old spatial derivations of velocity for Adam Bashforth */
     float ** vxx_1=NULL,** vxx_2=NULL,** vxx_3=NULL,** vxx_4=NULL;
@@ -473,19 +476,19 @@ int main ( int argc, char **argv )
         ptau55 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
         ptau55ipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
 
-        dip = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
-        d = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
-        e = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
-        fipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
-        f = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
-        g = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc55ipjpd = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+        pc13d = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+        pc33d = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+        pc11d = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+        
+        pc55ipjpu = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc13u = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc11u = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc33u = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+
         peta = vector ( 1, L );
-        etaip = vector ( 1, L );
-        etajm = vector ( 1, L );
         bip = vector ( 1, L );
-        bjm = vector ( 1, L );
         cip = vector ( 1, L );
-        cjm = vector ( 1, L );
 
     }
     
@@ -652,12 +655,29 @@ int main ( int argc, char **argv )
         }
 
     
-    /* Preparing memory variables for update_s (viscoelastic) */
-    if ( L && FDORDER_TIME==2) {
-        prepare_update_s ( etajm, etaip, peta, fipjp, pu, puipjp, ppi, ptaus,
-                          ptaup, ptausipjp, f, g, bip, bjm, cip, cjm, dip, d, e );
+    /* Preparing memory variables for update_s (viscoelastic only) */
+   
+    
+    if (FDORDER_TIME==2) {
+        switch ( WEQ) {
+            case 4:  /* viscoelastic */
+                prepare_update_s ( etajm, etaip, peta, fipjp, pu, puipjp, ppi, ptaus,
+                                  ptaup, ptausipjp, f, g, bip, bjm, cip, cjm, dip, d, e );
+                break;
+            case 6:  /* viscoelastic VTI*/
+                
+                prepare_update_s_vti(peta, pc11, pc13, pc33,  pc55ipjp,
+                                     ptau11, ptau13, ptau33,  ptau55ipjp,
+                                     pc55ipjpu, pc13u, pc11u,  pc33u,
+                                     pc55ipjpd,  pc13d, pc11d,  pc33d,
+                                     bip,  cip);
+                
+                break;
+        }
     }
-    if ( L && FDORDER_TIME==4) {
+    
+    
+    if ( (WEQ==4) && FDORDER_TIME==4) {
         prepare_update_s_4 ( etajm, etaip, peta, fipjp, pu, puipjp, ppi, ptaus,
                           ptaup, ptausipjp, f, g, bip, bjm, cip, cjm, dip, d, e );
     }
@@ -867,15 +887,34 @@ int main ( int argc, char **argv )
                     }
                     break;
                    case 5: /* elastic VTI */
-                        update_s_elastic_VTI_interior ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pc11, pc55ipjp, pc13, pc33, hc );
+                        update_s_elastic_VTI_interior ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
+                                                       pc11, pc55ipjp, pc13, pc33, hc );
                     
                     if ( FW ) {
                         if ( ABS_TYPE ==1 )
-                            update_s_elastic_PML ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pc11, pc55, pc55ipjp, hc,
+                            update_s_elastic_VTI_PML ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pc11, pc13, pc33, pc55ipjp, hc,
                                                   K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx );
                         if ( ABS_TYPE !=1 )
                             update_s_elastic_vti_abs ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
                                                   pc11, pc55ipjp, pc13, pc33, absorb_coeff, hc );
+                    }
+                    break;
+
+                    case 6: /* viscoelastic VTI */
+                        update_s_visc_VTI_interior ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq,
+                                                            pc55ipjpu, pc13u, pc11u,  pc33u, pc55ipjpd,  pc13d, pc11d,  pc33d,
+                                                            bip,  cip, hc);
+                    if ( FW ) {
+                        if ( ABS_TYPE ==1 )
+                            update_s_visc_VTI_PML ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq,
+                                                            pc55ipjpu, pc13u, pc11u,  pc33u, pc55ipjpd,  pc13d, pc11d,  pc33d,
+                                                            bip,  cip, hc, 
+                                                            K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half, 
+                                                            b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx );
+                        if ( ABS_TYPE !=1 )
+                            update_s_visc_vti_abs ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq,
+                                                            pc55ipjpu, pc13u, pc11u,  pc33u, pc55ipjpd,  pc13d, pc11d,  pc33d,
+                                                            bip,  cip, absorb_coeff, hc );
                     }
                     break;
 
@@ -1077,6 +1116,7 @@ int main ( int argc, char **argv )
         free_matrix (svy_4, -nd + 1, NY + nd, -nd + 1, NX + nd );
     }
 
+   if (WEQ>2){ 
     free_matrix ( prho, -nd + 1, NY + nd, -nd + 1, NX + nd );
     free_matrix ( prip, -nd + 1, NY + nd, -nd + 1, NX + nd );
     free_matrix ( prjp, -nd + 1, NY + nd, -nd + 1, NX + nd );
@@ -1084,6 +1124,7 @@ int main ( int argc, char **argv )
     free_matrix ( pu, -nd + 1, NY + nd, -nd + 1, NX + nd );
     free_matrix ( puipjp, -nd + 1, NY + nd, -nd + 1, NX + nd );
     free_matrix ( absorb_coeff, 1, NY, 1, NX );
+}
     
     free_ivector ( gx,1,4 );
     free_ivector ( gy,1,4 );
@@ -1092,6 +1133,10 @@ int main ( int argc, char **argv )
         free_f3tensor ( pr, -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
         free_f3tensor ( pp, -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
         free_f3tensor ( pq, -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+    }
+
+
+if ( WEQ==4 ) { /*viscoelastic wave equation */
         free_matrix ( ptaus, -nd + 1, NY + nd, -nd + 1, NX + nd );
         free_matrix ( ptausipjp, -nd + 1, NY + nd, -nd + 1, NX + nd );
         free_matrix ( ptaup, -nd + 1, NY + nd, -nd + 1, NX + nd );
@@ -1110,6 +1155,33 @@ int main ( int argc, char **argv )
         free_f3tensor ( e, -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
     }
     
+   if ( WEQ==6 ) { /*viscoelastic VTI wave equation */
+
+            free_matrix ( pc33, -nd + 1, NY + nd, -nd + 1, NX + nd );
+            free_matrix ( pc13, -nd + 1, NY + nd, -nd + 1, NX + nd );
+            free_matrix ( ptau11, -nd + 1, NY + nd, -nd + 1, NX + nd );
+            free_matrix ( ptau33, -nd + 1, NY + nd, -nd + 1, NX + nd );
+            free_matrix ( ptau13, -nd + 1, NY + nd, -nd + 1, NX + nd );
+            free_matrix ( ptau55, -nd + 1, NY + nd, -nd + 1, NX + nd );
+            free_matrix ( ptau55ipjp, -nd + 1, NY + nd, -nd + 1, NX + nd );
+
+            free_f3tensor ( pc55ipjpd, -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+            free_f3tensor ( pc13d, -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+            free_f3tensor ( pc33d, -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+            free_f3tensor ( pc11d, -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+
+
+            free_matrix ( pc55ipjpu, -nd + 1, NY + nd, -nd + 1, NX + nd );
+            free_matrix ( pc13u, -nd + 1, NY + nd, -nd + 1, NX + nd );
+            free_matrix ( pc11u, -nd + 1, NY + nd, -nd + 1, NX + nd );
+            free_matrix ( pc33u, -nd + 1, NY + nd, -nd + 1, NX + nd );
+
+            free_vector ( peta, 1, L );
+            free_vector ( bip, 1, L );
+            free_vector ( cip, 1, L );
+}
+
+
     if(L>0 && FDORDER_TIME==4){
         free_f3tensor ( pr_2, -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
         free_f3tensor ( pr_3, -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );

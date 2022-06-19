@@ -106,6 +106,7 @@ SOFI2D_SRC= \
 	operators_v.c \
 	PML_pro.c \
 	prepare_update_s.c \
+	prepare_update_s_vti.c \
 	prepare_update_s_4.c \
 	psource.c \
 	rd_sour.c \
@@ -134,10 +135,14 @@ SOFI2D_SRC= \
 	update_s_elastic_VTI_interior.c \
 	update_s_elastic_interior_4.c \
 	update_s_elastic_PML.c \
+	update_s_elastic_VTI_PML.c \
 	update_s_elastic_PML_4.c \
 	update_s_visc_abs.c \
 	update_s_visc_interior.c \
+	update_s_visc_VTI_interior.c \
 	update_s_visc_PML.c \
+	update_s_visc_VTI_PML.c \
+	update_s_visc_VTI_abs.c \
 	update_s_visc_abs_4.c \
 	update_s_visc_interior_4.c \
 	update_s_visc_PML_4.c \
@@ -152,6 +157,7 @@ SOFI2D_SRC= \
 	wavefield_update_s_el_vti.c \
 	wavefield_update_s_el_4.c \
 	wavefield_update_s_visc.c \
+	wavefield_update_s_visc_VTI.c \
 	wavefield_update_s_visc_4.c \
 	wavefield_update_v.c \
 	wavefield_update_v_4.c \

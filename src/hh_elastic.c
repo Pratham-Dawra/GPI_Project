@@ -44,11 +44,11 @@ void model_elastic(float  **  rho, float **  pi, float **  u){
 	/*-----------------material property definition -------------------------*/	
 
 	/* parameters for layer 1 */
-	const float vp1=3500.0, vs1=2000.0, rho1=2000.0, h=100000.0;
+	const float vp1=0.0, vs1=1.0, rho1=1.0, h=100.0;
 
 
 	/* parameters for layer 2 */
-	const float vp2=5400.0, vs2=3700.0, rho2=2500.0;
+	const float vp2=3500.0, vs2=2000.0, rho2=2000.0;
 
 
 	/*-----------------------------------------------------------------------*/

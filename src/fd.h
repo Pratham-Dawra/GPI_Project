@@ -14,8 +14,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SOFI2D. See file COPYING and/or
-  * <http://www.gnu.org/licenses/gpl-2.0.html>.
---------------------------------------------------------------------------*/
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ --------------------------------------------------------------------------*/
 /* $Id: fd.h 865 2015-09-22 12:57:11Z tmetz $ */
 /*------------------------------------------------------------------------
  *  fd.h - include file for viscoelastic FD program sofi2D
@@ -115,7 +115,7 @@ void model_elastic(float    **rho, float   **pi, float   **u);
 void model_elastic_VTI(float    **rho, float   **pc11, float   **pc33, float   **pc13, float   **pc55);
 
 void model_visco_vti(float  **  rho, float **  pc11, float **  pc33, float **  pc13, float **  pc55,
-   float **  ptau11, float **  ptau33, float **  ptau13, float **  ptau55, float *  eta);
+                     float **  ptau11, float **  ptau33, float **  ptau13, float **  ptau55, float *  eta);
 
 void model_ani(float    **rho, float   **c11, float   **c15, float   **c13,
                float   **c35, float   **c33, float   **c55,
@@ -189,6 +189,14 @@ void psource(int nt, float **sxx, float **syy,
 
 void psource_rsg(int nt, float **sxx, float **syy,
                  float   **srcpos_loc, float **signals, int nsrc);
+
+
+
+void prepare_update_s_vti(float *peta, float ** pc11, float **pc13, float ** pc33, float **pc55ipjp,
+                          float **ptau11, float **ptau13, float ** ptau33, float **ptau55ipjp,
+                          float ** pc55ipjpu, float ** pc13u, float **pc11u, float **pc33u,
+                          float *** pc55ipjpd, float *** pc13d, float ***pc11d, float ***pc33d,
+                          float *bip, float *cip);
 
 
 float *rd_sour(int *nts,FILE *fp_source);
@@ -301,8 +309,16 @@ void update_s_elastic(int nx1, int nx2, int ny1, int ny2, int nt,
                       float *hc);
 
 void update_s_elastic_VTI_interior ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
-                        float **  vx, float **   vy, float **   sxx, float **   syy,
-                        float **   sxy, float ** pc11, float ** pc55ipjp, float ** pc13, float ** pc33, float *hc );
+                                    float **  vx, float **   vy, float **   sxx, float **   syy,
+                                    float **   sxy, float ** pc11, float ** pc55ipjp, float ** pc13, float ** pc33, float *hc );
+
+
+void update_s_visc_VTI_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+                              float **vx, float **vy, float **sxx, float **syy, float **sxy,
+                              float ***pr, float ***pp, float ***pq,
+                             float ** pc55ipjpu, float ** pc13u, float **pc11u, float **pc33u,
+                             float *** pc55ipjpd, float *** pc13d, float ***pc11d, float ***pc33d,
+                             float *bip, float *cip, float *hc);
 
 void update_s_elastic_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
                           float   **vx, float    **vy, float    **sxx, float    **syy,
@@ -310,9 +326,34 @@ void update_s_elastic_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, 
                           float **absorb_coeff, float *hc);
 
 void update_s_elastic_vti_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
-                            float **  vx, float **   vy, float **   sxx, float **   syy,
-                            float **   sxy, float ** pc11, float ** pc55ipjp,
+                               float **  vx, float **   vy, float **   sxx, float **   syy,
+                               float **   sxy, float ** pc11, float ** pc55ipjp,
                                float ** pc13, float ** pc33, float ** absorb_coeff, float *hc );
+
+void update_s_visc_vti_abs ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+                              float **vx, float **vy, float **sxx, float **syy, float **sxy,
+                              float ***pr, float ***pp, float ***pq,
+                             float ** pc55ipjpu, float ** pc13u, float **pc11u, float **pc33u,
+                             float *** pc55ipjpd, float *** pc13d, float ***pc11d, float ***pc33d,
+                             float *bip, float *cip, float ** absorb_coeff, float *hc );
+
+
+void update_s_elastic_VTI_PML ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
+                            float **  vx, float **   vy, float **   sxx, float **   syy,
+                            float **   sxy, float ** pc11, float ** pc13, float **pc33, float ** pc55ipjp, float *hc,
+                            float * K_x, float * a_x, float * b_x, float * K_x_half, float * a_x_half, float * b_x_half,
+                            float * K_y, float * a_y, float * b_y, float * K_y_half, float * a_y_half, float * b_y_half,
+                            float ** psi_vxx, float ** psi_vyy, float ** psi_vxy, float ** psi_vyx );
+
+void update_s_visc_VTI_PML ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+                              float **vx, float **vy, float **sxx, float **syy, float **sxy,
+                              float ***pr, float ***pp, float ***pq,
+                             float ** pc55ipjpu, float ** pc13u, float **pc11u, float **pc33u,
+                             float *** pc55ipjpd, float *** pc13d, float ***pc11d, float ***pc33d,
+                             float *bip, float *cip, float *hc,
+                            float * K_x, float * a_x, float * b_x, float * K_x_half, float * a_x_half, float * b_x_half,
+                            float * K_y, float * a_y, float * b_y, float * K_y_half, float * a_y_half, float * b_y_half,
+                            float ** psi_vxx, float ** psi_vyy, float ** psi_vxy, float ** psi_vyx );
 
 void update_s_elastic_abs_4(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
                             float   **vx, float    **vy, float    **sxx, float    **syy,
@@ -356,6 +397,9 @@ void update_s_visc_PML(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,int 
                        float *K_x, float *a_x, float *b_x, float *K_x_half, float *a_x_half, float *b_x_half,
                        float *K_y, float *a_y, float *b_y, float *K_y_half, float *a_y_half, float *b_y_half,
                        float **psi_vxx, float **psi_vyy, float **psi_vxy, float **psi_vyx);
+
+
+
 
 void update_s_visc_interior_4(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
                               float **vx, float **vy, float **sxx, float **syy,
@@ -424,6 +468,12 @@ void wavefield_update_s_visc(int i, int j,float   vxx, float  vyx,float vxy,floa
                              float **sxx, float **syy, float ***r, float ***p,
                              float ***q,float **fipjp, float **f, float **g, float *bip,
                              float *bjm,float *cip, float *cjm, float ***d, float ***e, float ***dip);
+
+void wavefield_update_s_visc_VTI ( int i, int j,float   vxx, float  vyx,float vxy,float  vyy,
+                              float **sxy, float **sxx, float ** syy, float ***pp, float ***pr,float ***pq,
+                              float ** pc55ipjpu, float ** pc13u, float **pc11u, float **pc33u,
+                              float *** pc55ipjpd, float *** pc13d, float ***pc11d, float ***pc33d,
+                              float *bip, float *cip);
 
 void wavefield_update_s_visc_4(int i, int j,float   vxx, float  vyx,float vxy,float  vyy, float **sxy,
                                float **sxx, float **syy, float ***r, float ***p,

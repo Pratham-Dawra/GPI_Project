@@ -55,7 +55,7 @@ void model_elastic_VTI(float  **  rho, float **  pc11, float **  pc33, float ** 
 	for (i=1;i<=NXG;i++){
 		for (j=1;j<=NYG;j++){
 
-			if (j<jh){ c11=0.0; c33=0.0; c13=0.0; c55=0.0; Rho=1.0;}
+			if (j<jh){ c11=0.0; c33=0.0; c13=0.0; c55=1.0; Rho=1.0;}
 			else { c11=C11; c33=C33; c13=C13; c55=C55; Rho=RHO;}
 		
 

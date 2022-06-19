@@ -42,12 +42,16 @@ void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, floa
 
 	/*-----------------material property definition -------------------------*/	
 
+
+
 	/* parameters for layer 1 */
-	const float vp1=3500.0, vs1=2000.0, rho1=2000.0, tp1=0.1, ts1=0.1, h=2000.0;
+	const float vp1=0.0, vs1=1.0, rho1=1.0, tp1=0.01, ts1=0.01, h=100.0;
+
 
 	/* parameters for layer 2 */
-	const float vp2=4550.0, vs2=2600.0, rho2=2600.0,tp2=0.1, ts2=0.1;
-
+	const float vp2=3500.0, vs2=2000.0, rho2=2000.0, tp2=0.01, ts2=0.01;;
+	const float h1=95.0, h2=110.0, tlp=2.0, tls=2.0;
+	/*const float h1=95.0, h2=110.0, tlp=2.0, tls=2.0;*/
 
 	/*-----------------------------------------------------------------------*/
 
@@ -84,6 +88,8 @@ void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, floa
 
 			else{
 				Vp=vp2; Vs=vs2; Rhov=rho2; tp=tp2;ts=ts2;}
+
+			if ((y>=h1) && (y<=h2)){tp=tlp; ts=tls;}
 
 			sumu=0.0; 
 			sumpi=0.0;
