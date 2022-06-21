@@ -72,7 +72,9 @@ int main ( int argc, char **argv )
     float **prho = NULL, **prip = NULL, **prjp = NULL, **ppi = NULL;
     
     float **pc11=NULL, **pc33=NULL, **pc13=NULL, **pc55=NULL, **pc55ipjp=NULL;
-     float **ptau11=NULL, **ptau33=NULL, **ptau13=NULL, **ptau55=NULL, **ptau55ipjp=NULL;
+    float **pc15=NULL, **pc35=NULL, **pc15ipjp=NULL, **pc35ipjp=NULL;
+
+    float **ptau11=NULL, **ptau33=NULL, **ptau13=NULL, **ptau55=NULL, **ptau55ipjp=NULL;
     float ***pc11d=NULL, ***pc33d=NULL, ***pc13d=NULL, ***pc55ipjpd=NULL;
     float **pc11u=NULL, **pc33u=NULL, **pc13u=NULL, **pc55ipjpu=NULL;
 
@@ -437,7 +439,7 @@ int main ( int argc, char **argv )
     }
     
     /* static (model) arrays (viscoelastic) */
-    if ( WEQ==4 ) { /*viscoelastic wave equation */
+    if ( WEQ==4 ) { /*viscoelastic  isotropic wave equation */
         dip = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
         d = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
         e = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
@@ -490,6 +492,20 @@ int main ( int argc, char **argv )
         bip = vector ( 1, L );
         cip = vector ( 1, L );
 
+    }
+    
+    if ( WEQ==7 ) {/*elastic TTI wave equation */
+        pc11 = ppi;
+        pc33 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc13 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc55 = pu;
+        pc55ipjp = puipjp;
+        pc15 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc15ipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc35 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc35ipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        
+        
     }
     
     /* memory allocation for buffer arrays in which the wavefield
@@ -584,11 +600,17 @@ int main ( int argc, char **argv )
             case 6 : /* viscoelastic VTI */
                model_visco_vti ( prho, pc11, pc33, pc13, pc55, ptau11, ptau33, ptau13, ptau55, peta );
                 break;
+                
+            case 7 : /* elastic TTI */
+               model_elastic_TTI ( prho, pc11, pc33, pc13, pc55, pc15, pc35 );
+                break;
+
    
         }
     }
     
-    
+    MPI_Barrier ( MPI_COMM_WORLD );
+
     /* check if the FD run will be stable and free of numerical dispersion */
     switch ( WEQ) {
             case 3: /* elastic */
@@ -603,6 +625,9 @@ int main ( int argc, char **argv )
              case 6 : /* elastic VTI */
                 checkfd ( FP, prho, pc11, pc55, ptau55, ptau11, peta, hc, srcpos, nsrc, recpos, ntr_glob );
                 break;
+            case 7 : /* elastic TTI */
+                checkfd ( FP, prho, pc11, pc55, ptaus, ptaup, peta, hc, srcpos, nsrc, recpos, ntr_glob );
+            break;
    
         }
     
@@ -629,30 +654,40 @@ int main ( int argc, char **argv )
      neighbouring grids */
     
 
-   switch ( WEQ) {
-            case 3: /* elastic */
-                 matcopy_elastic (prho, ppi, pu);
-                 av_mue ( pu, puipjp );
-                 av_rho ( prho, prip, prjp );
-                break;
-            case 4: /* viscoelastic */
-                 matcopy ( prho, ppi, pu, ptaus, ptaup );
-                 av_mue ( pu, puipjp );
-                 av_rho ( prho, prip, prjp );
-                 av_tau ( ptaus, ptausipjp );
-                break;
-            case 5 : /* elastic VTI */
-                matcopy_elastic ( prho, pc11, pc55 );
-                av_mue ( pc55, pc55ipjp );
-                av_rho ( prho, prip, prjp );
-                break;
-              case 6 : /* viscoelastic VTI */
-                matcopy_elastic ( prho, ptau55, pc55 );
-                av_mue ( pc55, pc55ipjp );
-                av_rho ( prho, prip, prjp );
-                av_tau (ptau55, ptau55ipjp);
-                break;
-        }
+    switch ( WEQ) {
+        case 3: /* elastic */
+            matcopy_elastic (prho, ppi, pu);
+            av_mue ( pu, puipjp );
+            av_rho ( prho, prip, prjp );
+            break;
+        case 4: /* viscoelastic */
+            matcopy ( prho, ppi, pu, ptaus, ptaup );
+            av_mue ( pu, puipjp );
+            av_rho ( prho, prip, prjp );
+            av_tau ( ptaus, ptausipjp );
+            break;
+        case 5 : /* elastic VTI */
+            matcopy_elastic ( prho, pc11, pc55 );
+            av_mue ( pc55, pc55ipjp );
+            av_rho ( prho, prip, prjp );
+            break;
+        case 6 : /* viscoelastic VTI */
+            matcopy_elastic ( prho, ptau55, pc55 );
+            av_mue ( pc55, pc55ipjp );
+            av_rho ( prho, prip, prjp );
+            av_tau (ptau55, ptau55ipjp);
+            break;
+            
+        case 7 : /* elastic TTI */
+            matcopy_elastic ( prho, pc11, pc55 );
+            matcopy_elastic ( prho, pc15, pc35 );
+            av_mue ( pc55, pc55ipjp );
+            av_mue ( pc15, pc15ipjp );
+            av_mue ( pc35, pc35ipjp );
+            av_rho ( prho, prip, prjp );
+            break;
+            
+    }
 
     
     /* Preparing memory variables for update_s (viscoelastic only) */
@@ -673,8 +708,26 @@ int main ( int argc, char **argv )
                                      bip,  cip);
                 
                 break;
-        }
-    }
+            case 5:
+                dt_mult(NX,NY,DT,pc11);
+                dt_mult(NX,NY,DT,pc33);
+                dt_mult(NX,NY,DT,pc13);
+                dt_mult(NX,NY,DT,pc55ipjp);
+                break;
+                
+            case 7:
+                dt_mult(NX,NY,DT,pc11);
+                dt_mult(NX,NY,DT,pc33);
+                dt_mult(NX,NY,DT,pc13);
+                dt_mult(NX,NY,DT,pc15);
+                dt_mult(NX,NY,DT,pc35);
+                dt_mult(NX,NY,DT,pc55ipjp);
+                dt_mult(NX,NY,DT,pc35ipjp);
+                dt_mult(NX,NY,DT,pc15ipjp);
+                break;
+                
+            }
+}
     
     
     if ( (WEQ==4) && FDORDER_TIME==4) {
@@ -866,7 +919,7 @@ int main ( int argc, char **argv )
                         if ( ABS_TYPE ==1 )
                             update_s_elastic_PML ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, ppi, pu, puipjp, hc,
                                                   K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx );
-                        if ( ABS_TYPE !=1 )
+                        if ( ABS_TYPE ==2 )
                             update_s_elastic_abs ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
                                                   ppi, pu, puipjp, absorb_coeff, hc );
                     }
@@ -880,7 +933,7 @@ int main ( int argc, char **argv )
                             update_s_visc_PML ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, hc, pr, pp, pq, fipjp,
                                                f, g, bip, bjm, cip, cjm, d, e, dip,K_x, a_x, b_x, K_x_half, a_x_half, b_x_half,
                                                K_y, a_y, b_y, K_y_half, a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx );
-                        if ( ABS_TYPE !=1 )
+                        if ( ABS_TYPE ==2 )
                             update_s_visc_abs ( 1, NX, 1, NY, gx,gy, nt, pvx, pvy, psxx, psyy, psxy, pr,
                                                pp, pq, ppi, fipjp, f, g, bip, bjm, cip, cjm, d, e, dip,
                                                absorb_coeff,hc );
@@ -894,7 +947,7 @@ int main ( int argc, char **argv )
                         if ( ABS_TYPE ==1 )
                             update_s_elastic_VTI_PML ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pc11, pc13, pc33, pc55ipjp, hc,
                                                   K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx );
-                        if ( ABS_TYPE !=1 )
+                        if ( ABS_TYPE ==2 )
                             update_s_elastic_vti_abs ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
                                                   pc11, pc55ipjp, pc13, pc33, absorb_coeff, hc );
                     }
@@ -911,12 +964,29 @@ int main ( int argc, char **argv )
                                                             bip,  cip, hc, 
                                                             K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half, 
                                                             b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx );
-                        if ( ABS_TYPE !=1 )
+                        if ( ABS_TYPE ==2 )
                             update_s_visc_vti_abs ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq,
                                                             pc55ipjpu, pc13u, pc11u,  pc33u, pc55ipjpd,  pc13d, pc11d,  pc33d,
                                                             bip,  cip, absorb_coeff, hc );
                     }
                     break;
+                        
+                    case 7: /* elastic TTI */
+                         update_s_elastic_TTI_interior ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
+                                                        pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp, hc );
+                     
+                     if ( FW ) {
+                         if ( ABS_TYPE ==1 )
+                             update_s_elastic_TTI_PML ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
+                                                       pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp, hc,
+                                                   K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx );
+                         if ( ABS_TYPE ==2 )
+                             update_s_elastic_tti_abs ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
+                                                       pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp, absorb_coeff, hc );
+                     }
+                     break;
+
+                        
 
                 }
             }

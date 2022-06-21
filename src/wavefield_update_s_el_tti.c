@@ -23,24 +23,32 @@
 
 #include "fd.h"
 
-void wavefield_update_s_el_vti ( int i, int j,float   vxx, float  vyx,float vxy,float  vyy, float **sxy, float **sxx, float ** syy, float ** pc11, float ** pc55ipjp,
-                            float ** pc13, float ** pc33)
+void wavefield_update_s_el_tti ( int i, int j,float   vxx, float  vyx,float vxy,float  vyy, float **sxy, float **sxx, float ** syy, float ** pc11, float ** pc55ipjp,
+                            float ** pc13, float ** pc33,
+                            float ** pc15, float ** pc35, float ** pc15ipjp, float ** pc35ipjp)
 {
 
 	extern float DT;
     float c55ipjp, c33, c11, c13;
+    float c15ipjp, c35ipjp, c15, c35, v;
 
 
     c55ipjp=pc55ipjp[j][i];
+    c35ipjp=pc35ipjp[j][i];
+    c15ipjp=pc15ipjp[j][i];
+
     c11=pc11[j][i];
     c33=pc33[j][i];
     c13=pc13[j][i];
+    c15=pc15[j][i];
+    c35=pc35[j][i];
 
+    v=vxy+vyx;
 
 	/*Update  */
-    sxy[j][i]+= ( c55ipjp* ( vxy+vyx ) );
-    sxx[j][i]+= ( (c11* vxx)+ (c13*vyy) );
-    syy[j][i]+= ( (c13* vxx)+ (c33*vyy) );
+    sxy[j][i]+= ( (c55ipjp*v) + (c15ipjp*vxx)+(c35ipjp*vyy));
+    sxx[j][i]+= ( (c11* vxx)+ (c13*vyy) + (c15*v));
+    syy[j][i]+= ( (c13* vxx)+ (c33*vyy) + (c35*v));
     
 
 }

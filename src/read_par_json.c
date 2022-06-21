@@ -104,12 +104,14 @@ void read_par_json(FILE *fp, char *fileinp){
 		if (get_int_from_objectlist("WEQ",number_readobjects,&WEQ,varname_list, value_list)) {
 			WEQ=3;}
 			else {
-				if(WEQ!=3 && WEQ!=4 && WEQ!=5 && WEQ!=6){
+				if(WEQ!=3 && WEQ!=4 && WEQ!=5 && WEQ!=6 && WEQ!=7){
 					fprintf(fp, " Only the following wave equations are supported: \n");
 					fprintf(fp, " WEQ=3 (isotropic elastic) \n");
 					fprintf(fp, " WEQ=4 (isotropic viscoelastic) \n");
-					fprintf(fp, " WEQ=5 (elastic VTI) \n");
+                    fprintf(fp, " WEQ=5 (elastic VTI) \n");
 					fprintf(fp, " WEQ=6 (viscoelastic VTI) \n");
+                    fprintf(fp, " WEQ=7 (elastic TTI) \n");
+
 
 					declare_error("Stop.");
 				}
@@ -286,7 +288,7 @@ void read_par_json(FILE *fp, char *fileinp){
 		if ((L==0) && ((WEQ==4) || (WEQ==6)))
 			declare_error("L>0 for viscoelastic simulations (WEQ=4 or WEQ=6)!");
 
-		if ((L>0) && ((WEQ==3) || (WEQ==5))){
+		if ((L>0) && ((WEQ==3) || (WEQ==5) || (WEQ==7) )){
 			fprintf(fp, " L is set to zero for elastic simulation (WEQ=3 or WEQ=5) ! \n\n\n");
 			L=0;
 		}

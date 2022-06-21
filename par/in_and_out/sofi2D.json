@@ -18,7 +18,7 @@
 			"DT" : "1.0e-4",
 
 "Wave Equation" : "comment",
-			"WEQ" : "6",
+			"WEQ" : "5",
 			"WEQ values : 1:acoustic, 2:viscoacoustic, 3:elastic, " : "comment",
 			"WEQ values : 4:viscoelastic, 5:elastic VTI, 6:viscoelastic VTI, " : "comment",
 			"WEQ values : 7:elastic TTI, 8:viscoelastic TTI, " : "comment",
@@ -29,7 +29,7 @@
 			"SOURCE_SHAPE values: ricker=1;fumue=2;from_SIGNAL_FILE=3;SIN**3=4" : "comment",
 			"SIGNAL_FILE" : "signal_mseis.tz",
 
-			"SOURCE_TYPE" : "3",
+			"SOURCE_TYPE" : "4",
 			"SOURCE_TYPE values (point_source): explosive=1;force_in_x=2;force_in_y=3;custom_force=4" : "comment",
 
 			"SRCREC" : "1",
@@ -44,8 +44,8 @@
 
 "Model" : "comment",
 			"READMOD" : "0",
-			"MFILE" : "model/VTI",
-			"WRITE_MODELFILES" : "0",
+			"MFILE" : "/Users/tbohlen/tmp/model/TTI",
+			"WRITE_MODELFILES" : "1",
 
 "Q-approximation" : "comment",
 			"L" : "1",
@@ -78,7 +78,7 @@
 			"IDX" : "1",
 			"IDY" : "1",
 			"SNAP_FORMAT" : "3",
-			"SNAP_FILE" : "./snap/test",
+			"SNAP_FILE" : "/Users/tbohlen/tmp/snap/test",
 
 "Receiver" : "comment",
 			"SEISMO" : "0",
@@ -99,15 +99,15 @@
 "Seismograms" : "comment",
 			"NDT" : "5",
 			"SEIS_FORMAT" : "1",
-			"SEIS_FILE" : "./su/test",
+			"SEIS_FILE" : "/Users/tbohlen/tmp/su/test",
 
 "Monitoring the simulation" : "comment",
-			"LOG_FILE" : "log/test.log",
+			"LOG_FILE" : "/Users/tbohlen/tmp/log/test.log",
 			"LOG" : "1",
 			"OUT_TIMESTEP_INFO" : "100",
 
 "Checkpoints" : "comment",
 			"CHECKPTREAD" : "0",
 			"CHECKPTWRITE" : "0",
-			"CHECKPT_FILE" : "tmp/checkpoint_sofi2D"
+			"CHECKPT_FILE" : "/Users/tbohlen/tmp/checkpoint_sofi2D"
 }

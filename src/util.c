@@ -53,6 +53,16 @@ void warning(char warn_text[]){
 	fprintf(stdout,"%s\n",warn_text);
 }
 
+void dt_mult(int nx, int ny, float dt, float  **  a ){
+    int i, j;
+   
+    for (i=1;i<=nx;i++){
+        for (j=1;j<=ny;j++){
+            a[j][i]=a[j][i]*dt;
+        }
+    }
+}
+
 
 double maximum(float **a, int nx, int ny){
 	/* find absolute maximum of array a[1...nx][1...ny] */
