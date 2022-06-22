@@ -48,7 +48,7 @@ void model_elastic_TTI(float  **  rho, float **  pc11, float **  pc33, float ** 
                  Jones, Wang, 1981, Geophysics, 46, 3, 288-297*/
                 
       const float C11=34.3e9, C33=22.7e9, C55=5.4e9, C13=10.7e9, RHO=2000.0;
-      const float THETA=30.0; /* rotation angle in degrees */
+      const float THETA=0.0; /* rotation angle in degrees */
       const int jh=-1;
 
 

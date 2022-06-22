@@ -36,7 +36,7 @@ void model_visco_vti(float  **  rho, float **  pc11, float **  pc33, float **  p
 
 	/* local variables */
 	float c11, c33, c55, c13, Rho, tau11, tau13, tau33, tau55;
-	float *pts, sumc11, sumc13, sumc33, sumc55, ws, y;
+	float *pts, sumc11, sumc13, sumc33, sumc55, ws, x, y, h, k;
 	int i, j, l, ii, jj;
 	char modfile[STRING_SIZE];	
 
@@ -47,9 +47,13 @@ void model_visco_vti(float  **  rho, float **  pc11, float **  pc33, float **  p
                  Jones, Wang, 1981, Geophysics, 46, 3, 288-297*/
                 
       const float C11=34.3e9, C33=22.7e9, C55=5.4e9, C13=10.7e9, RHO=2000.0;
-      const float TAU11=TAU, TAU33=TAU, TAU55=TAU, TAU13=TAU, H=-1.0;
+      const float TAU11=TAU, TAU33=TAU, TAU55=TAU, TAU13=TAU;
 
 
+      const int H=100;
+      const float hd=4.0, tlp=5.01, tls=5.01;
+      const float l_topo=400.0; /* wavelength of topography*/
+      const float Hight=50.0;  /* Hight of Hills */
 
 	/*-----------------------------------------------------------------------*/
 
@@ -67,19 +71,25 @@ void model_visco_vti(float  **  rho, float **  pc11, float **  pc33, float **  p
 
 
 
+	k=2.0*PI/l_topo;
+
 	/* loop over global grid */
 	for (i=1;i<=NXG;i++){
 		for (j=1;j<=NYG;j++){
 
+			x=(float)i*DH;
 			y=(float)j*DH;
 
 			
-			if (y<H){ c11=0.0; c33=0.0; c13=0.0; c55=1.0;
+			h=Hight*sin(k*x)+H;
+
+			if (y<h){ c11=0.0; c33=0.0; c13=0.0; c55=1.0; 
 				       Rho=1.0; tau11=0.0; tau33=0.0; tau55=0.0; tau13=0.0;}
 			else { c11=C11; c33=C33; c13=C13; c55=C55; Rho=RHO;
 				tau11=TAU11; tau33=TAU33; tau55=TAU55; tau13=TAU13;
 			}
 	
+			if ((y>=h-hd) && (y<=h+hd)){tau11=tlp; tau33=tlp; tau55=tls; tau13=tls;}
 
 			sumc11=0.0;  sumc33=0.0; sumc55=0.0;
 			for (l=1;l<=L;l++){

@@ -18,7 +18,7 @@
 			"DT" : "1.0e-4",
 
 "Wave Equation" : "comment",
-			"WEQ" : "5",
+			"WEQ" : "6",
 			"WEQ values : 1:acoustic, 2:viscoacoustic, 3:elastic, " : "comment",
 			"WEQ values : 4:viscoelastic, 5:elastic VTI, 6:viscoelastic VTI, " : "comment",
 			"WEQ values : 7:elastic TTI, 8:viscoelastic TTI, " : "comment",
@@ -50,7 +50,7 @@
 "Q-approximation" : "comment",
 			"L" : "1",
 			"FL1" : "50.0", 
-			"TAU" : "0.01",
+			"TAU" : "0.1",
 
 "Boundary Conditions" : "comment",
                         "FREE_SURF" : "0",

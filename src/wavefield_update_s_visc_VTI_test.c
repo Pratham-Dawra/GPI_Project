@@ -29,40 +29,68 @@ void wavefield_update_s_visc_VTI ( int i, int j,float   vxx, float  vyx,float vx
                               float *** pc55ipjpd, float *** pc13d, float ***pc11d, float ***pc33d,
                               float *bip, float *cip)
 {
-	int l;
+    extern float DT;
+    extern int L;
+    
+    int l;
 	float  dthalbe;
-	extern float DT;
-	extern int L;
+    float rv[L+1], pv[L+1], qv[L+1];
+    float c55ipjpu, c11u, c13u, c33u;
+    float c55ipjpd[L+1], c11d[L+1], c13d[L+1], c33d[L+1];
+
+	
 	float sumr=0.0, sump=0.0, sumq=0.0;
 	/* computing sums of the old memory variables */
 	
 	dthalbe = DT/2.0;
+    
 	
 	sumr=sump=sumq=0.0;
 	for ( l=1; l<=L; l++ ) {
-		sumr+=r[j][i][l];
-		sump+=p[j][i][l];
-		sumq+=q[j][i][l];
+        rv[l]=r[j][i][l];
+        pv[l]=p[j][i][l];
+        qv[l]=q[j][i][l];
+
+		sumr+=rv[l];
+		sump+=pv[l];
+		sumq+=qv[l];
+        
+        c11d[l]=pc11d[j][i][l];
+        c13d[l]=pc13d[j][i][l];
+        c33d[l]=pc33d[j][i][l];
+        c55ipjpd[l]=pc55ipjpd[j][i][l];
+
 	}
 
+    c55ipjpu=pc55ipjpu[j][i];
+    c11u=pc11u[j][i];
+    c13u=pc13u[j][i];
+    c33u=pc33u[j][i];
+    
 
     
+
+    
+
 	/* updating components of the stress tensor, partially */
-	sxy[j][i] += ( pc55ipjpu[j][i]* ( vxy+vyx ) ) + ( dthalbe*sumr );
-	sxx[j][i] += (pc11u[j][i]*vxx) + (pc13u[j][i]*vyy)+ ( dthalbe*sump );
-	syy[j][i] += (pc13u[j][i]*vxx) + (pc33u[j][i]*vyy)+ ( dthalbe*sumq );
+	sxy[j][i] += ( c55ipjpu* ( vxy+vyx ) ) + ( dthalbe*sumr );
+	sxx[j][i] += (c11u*vxx) + (c13u*vyy)+ ( dthalbe*sump );
+	syy[j][i] += (c13u*vxx) + (c33u*vyy)+ ( dthalbe*sumq );
 
 
 
 	/* now updating the memory-variables and sum them up*/
 	sumr=sump=sumq=0.0;
 	for ( l=1; l<=L; l++ ) {
-		r[j][i][l] = bip[l]* ( r[j][i][l]*cip[l]- ( pc55ipjpd[j][i][l]* ( vxy+vyx ) ) );
-		p[j][i][l] = bip[l]* ( p[j][i][l]*cip[l]- ( pc11d[j][i][l]*vxx ) -  ( pc13d[j][i][l]*vyy ) );
-		q[j][i][l] = bip[l]* ( q[j][i][l]*cip[l]- ( pc13d[j][i][l]*vxx ) -  ( pc33d[j][i][l]*vyy ) );
-		sumr += r[j][i][l];
-		sump += p[j][i][l];
-		sumq += q[j][i][l];
+		rv[l] = bip[l]* ( rv[l]*cip[l]- ( c55ipjpd[l]* ( vxy+vyx ) ) );
+		pv[l] = bip[l]* ( pv[l]*cip[l]- ( c11d[l]*vxx ) -  ( c13d[l]*vyy ) );
+		qv[l] = bip[l]* ( qv[l]*cip[l]- ( c13d[l]*vxx ) -  ( c33d[l]*vyy ) );
+		sumr += rv[l];
+		sump += pv[l];
+		sumq += qv[l];
+        r[j][i][l]=rv[l];
+        p[j][i][l]=pv[l];
+        q[j][i][l]=qv[l];
 	}
 
 
@@ -71,5 +99,7 @@ void wavefield_update_s_visc_VTI ( int i, int j,float   vxx, float  vyx,float vx
 	sxy[j][i]+= ( dthalbe*sumr );
 	sxx[j][i]+= ( dthalbe*sump );
 	syy[j][i]+= ( dthalbe*sumq );
+    
+    
 
 }
