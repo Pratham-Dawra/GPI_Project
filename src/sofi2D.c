@@ -71,12 +71,15 @@ int main ( int argc, char **argv )
     *cjm = NULL, ***d = NULL, ***e = NULL, **f = NULL, **g = NULL;
     float **prho = NULL, **prip = NULL, **prjp = NULL, **ppi = NULL;
     
-    float **pc11=NULL, **pc33=NULL, **pc13=NULL, **pc55=NULL, **pc55ipjp=NULL;
-    float **pc15=NULL, **pc35=NULL, **pc15ipjp=NULL, **pc35ipjp=NULL;
+    float **pc11=NULL, **pc33=NULL, **pc13=NULL, **pc55=NULL, **pc15=NULL, **pc35=NULL;
+    float **pc55ipjp=NULL, **pc15ipjp=NULL, **pc35ipjp=NULL;
+    float **pc11u=NULL, **pc33u=NULL, **pc13u=NULL, **pc55u=NULL, **pc15u=NULL, **pc35u=NULL;
+    float **pc55ipjpu=NULL, **pc15ipjpu=NULL, **pc35ipjpu=NULL;
+    float ***pc11d=NULL, ***pc33d=NULL, ***pc13d=NULL, ***pc55d=NULL, ***pc15d=NULL, ***pc35d=NULL;
+    float ***pc55ipjpd=NULL, ***pc15ipjpd=NULL, ***pc35ipjpd=NULL;
 
-    float **ptau11=NULL, **ptau33=NULL, **ptau13=NULL, **ptau55=NULL, **ptau55ipjp=NULL;
-    float ***pc11d=NULL, ***pc33d=NULL, ***pc13d=NULL, ***pc55ipjpd=NULL;
-    float **pc11u=NULL, **pc33u=NULL, **pc13u=NULL, **pc55ipjpu=NULL;
+    float **ptau11=NULL, **ptau33=NULL, **ptau13=NULL, **ptau55=NULL, **ptau15=NULL, **ptau35=NULL;
+    float **ptau55ipjp=NULL, **ptau15ipjp=NULL, **ptau35ipjp=NULL;
 
 
     /* Save old spatial derivations of velocity for Adam Bashforth */
@@ -472,9 +475,11 @@ int main ( int argc, char **argv )
         pc13 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
         pc55 = pu;
         pc55ipjp = puipjp;
+ 
         ptau11 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
         ptau33 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
         ptau13 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        ptau15 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
         ptau55 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
         ptau55ipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
 
@@ -506,6 +511,57 @@ int main ( int argc, char **argv )
         pc35ipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
         
         
+    }
+    
+    if ( WEQ==8 ) { /*viscoelastic TTI wave equation */
+        pc11 = ppi;
+        pc33 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc13 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc55 = pu;
+        pc15 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc35 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        
+        pc55ipjp = puipjp;
+        pc15ipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc35ipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+
+ 
+        ptau11 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        ptau33 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        ptau13 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        ptau55 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        ptau15 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        ptau35 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        ptau55ipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        ptau15ipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        ptau35ipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+  
+
+        pc11d = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+        pc33d = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+        pc13d = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+        pc55d = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+        pc15d = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+        pc35d = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+        pc55ipjpd = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+        pc15ipjpd = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+        pc35ipjpd = f3tensor ( -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );
+ 
+        pc11u = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc33u = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc13u = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc55u = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc15u = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc35u = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        
+        pc55ipjpu = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc15ipjpu = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pc35ipjpu = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+ 
+        peta = vector ( 1, L );
+        bip = vector ( 1, L );
+        cip = vector ( 1, L );
+
     }
     
     /* memory allocation for buffer arrays in which the wavefield
@@ -584,6 +640,10 @@ int main ( int argc, char **argv )
             case 5: /* elastic VTI */
               readmod_elastic_vti ( prho, pc11, pc33, pc13, pc55 );
                 break;
+                
+            case 6: /* viscoelastic VTI */
+              readmod_visco_vti ( prho, pc11, pc33, pc13, pc55, ptau11, ptau33, ptau13, ptau55, peta );
+                break;
         }
     }else {
         switch ( WEQ) {
@@ -605,6 +665,11 @@ int main ( int argc, char **argv )
                model_elastic_TTI ( prho, pc11, pc33, pc13, pc55, pc15, pc35 );
                 break;
 
+            case 8 : /* viscoelastic VTI */
+               model_visco_tti ( prho, pc11, pc33, pc13, pc55, pc15, pc35, ptau11,
+                                ptau33, ptau13, ptau55, ptau15, ptau35, peta );
+                break;
+
    
         }
     }
@@ -622,12 +687,16 @@ int main ( int argc, char **argv )
             case 5 : /* elastic VTI */
                 checkfd ( FP, prho, pc11, pc55, ptaus, ptaup, peta, hc, srcpos, nsrc, recpos, ntr_glob );
                 break;
-             case 6 : /* elastic VTI */
+             case 6 : /* viscoelastic VTI */
                 checkfd ( FP, prho, pc11, pc55, ptau55, ptau11, peta, hc, srcpos, nsrc, recpos, ntr_glob );
                 break;
             case 7 : /* elastic TTI */
                 checkfd ( FP, prho, pc11, pc55, ptaus, ptaup, peta, hc, srcpos, nsrc, recpos, ntr_glob );
             break;
+            case 8 : /* viscoelastic TTI */
+                checkfd ( FP, prho, pc11, pc55, ptau55, ptau11, peta, hc, srcpos, nsrc, recpos, ntr_glob );
+            break;
+
    
         }
     
@@ -686,6 +755,22 @@ int main ( int argc, char **argv )
             av_mue ( pc35, pc35ipjp );
             av_rho ( prho, prip, prjp );
             break;
+           
+        case 8 : /* viscoelastic TTI */
+            matcopy_elastic ( prho, ptau55, pc55 );
+            matcopy_elastic ( prho, ptau15, pc15 );
+            matcopy_elastic ( prho, ptau35, pc35 );
+
+            av_mue ( pc55, pc55ipjp );
+            av_mue ( pc15, pc15ipjp );
+            av_mue ( pc35, pc35ipjp );
+            av_rho ( prho, prip, prjp );
+            
+            av_tau (ptau55, ptau55ipjp);
+            av_tau (ptau15, ptau15ipjp);
+            av_tau (ptau35, ptau35ipjp);
+
+            
             
     }
 
@@ -699,6 +784,12 @@ int main ( int argc, char **argv )
                 prepare_update_s ( etajm, etaip, peta, fipjp, pu, puipjp, ppi, ptaus,
                                   ptaup, ptausipjp, f, g, bip, bjm, cip, cjm, dip, d, e );
                 break;
+            case 5:
+                dt_mult(NX,NY,DT,pc11);
+                dt_mult(NX,NY,DT,pc33);
+                dt_mult(NX,NY,DT,pc13);
+                dt_mult(NX,NY,DT,pc55ipjp);
+                break;
             case 6:  /* viscoelastic VTI*/
                 
                 prepare_update_s_vti(peta, pc11, pc13, pc33,  pc55ipjp,
@@ -707,12 +798,6 @@ int main ( int argc, char **argv )
                                      pc55ipjpd,  pc13d, pc11d,  pc33d,
                                      bip,  cip);
                 
-                break;
-            case 5:
-                dt_mult(NX,NY,DT,pc11);
-                dt_mult(NX,NY,DT,pc33);
-                dt_mult(NX,NY,DT,pc13);
-                dt_mult(NX,NY,DT,pc55ipjp);
                 break;
                 
             case 7:
@@ -725,6 +810,18 @@ int main ( int argc, char **argv )
                 dt_mult(NX,NY,DT,pc35ipjp);
                 dt_mult(NX,NY,DT,pc15ipjp);
                 break;
+                
+            case 8:  /* viscoelastic TTI*/
+                
+                prepare_update_s_tti(peta, pc11, pc33, pc13, pc55, pc15, pc35, pc55ipjp, pc15ipjp, pc35ipjp,
+                                     ptau11, ptau33, ptau13, ptau55, ptau15, ptau35, ptau55ipjp, ptau15ipjp, ptau35ipjp,
+                                     pc11u, pc33u,  pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                     pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                     bip,  cip);
+                
+                break;
+
+                
                 
             }
 }
@@ -985,6 +1082,28 @@ int main ( int argc, char **argv )
                                                        pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp, absorb_coeff, hc );
                      }
                      break;
+                        
+                    case 8: /* viscoelastic TTI */
+                        update_s_visc_TTI_interior ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq,
+                                                                         pc11u, pc33u,  pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                                                         pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                                                            bip,  cip, hc);
+                   if ( FW ) {
+                        if ( ABS_TYPE ==1 )
+                            update_s_visc_TTI_PML ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq,
+                                                   pc11u, pc33u,  pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                                   pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                                   bip,  cip, hc,
+                                                            K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half,
+                                                            b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx );
+                        if ( ABS_TYPE ==2 )
+                            update_s_visc_tti_abs ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq,
+                                                   pc11u, pc33u,  pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                                   pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                                            bip,  cip, absorb_coeff, hc );
+                    }
+
+                        
 
                         
 

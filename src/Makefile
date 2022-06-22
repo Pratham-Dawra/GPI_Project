@@ -24,7 +24,8 @@ MODEL_E_VTI := hh_elastic_VTI.c
 MODEL_V_VTI := hh_visco_VTI.c
 # model file for TTI elastic modeling (WEQ=7)
 MODEL_E_TTI := hh_elastic_TTI.c
-
+# model file for TTI elastic modeling (WEQ=8)
+MODEL_V_TTI := hh_visco_TTI.c
 
 # model file for isotropic viscoelastic modeling (overnight built)
 MODEL_BV := benchmod.c
@@ -81,6 +82,7 @@ SOFI2D_SRC= \
 	$(MODEL_E_VTI) \
 	$(MODEL_E_TTI) \
 	$(MODEL_V_VTI) \
+	$(MODEL_V_TTI) \
 	abs_update.c \
 	absorb.c \
 	av_mue.c\
@@ -112,6 +114,7 @@ SOFI2D_SRC= \
 	PML_pro.c \
 	prepare_update_s.c \
 	prepare_update_s_vti.c \
+	prepare_update_s_tti.c \
 	prepare_update_s_4.c \
 	psource.c \
 	rd_sour.c \
@@ -148,9 +151,12 @@ SOFI2D_SRC= \
 	update_s_visc_abs.c \
 	update_s_visc_interior.c \
 	update_s_visc_VTI_interior.c \
+	update_s_visc_TTI_interior.c \
 	update_s_visc_PML.c \
 	update_s_visc_VTI_PML.c \
+	update_s_visc_TTI_PML.c \
 	update_s_visc_VTI_abs.c \
+	update_s_visc_TTI_abs.c \
 	update_s_visc_abs_4.c \
 	update_s_visc_interior_4.c \
 	update_s_visc_PML_4.c \
@@ -167,6 +173,7 @@ SOFI2D_SRC= \
 	wavefield_update_s_el_4.c \
 	wavefield_update_s_visc.c \
 	wavefield_update_s_visc_VTI.c \
+	wavefield_update_s_visc_TTI.c \
 	wavefield_update_s_visc_4.c \
 	wavefield_update_v.c \
 	wavefield_update_v_4.c \
