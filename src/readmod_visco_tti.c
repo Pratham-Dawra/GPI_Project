@@ -26,11 +26,11 @@
 
 #include "fd.h"
 
-void readmod_visco_vti (float  **  rho,
-                            float **  pc11, float **  pc33, float **  pc13,float **  pc55,
-                            float **  ptau11, float **  ptau33, float **  ptau13, float **  ptau55,
-                        float *  eta){
-    
+void readmod_visco_tti (float  **  rho, float **  pc11, float **  pc33, float **  pc13, float **  pc55,
+                        float **  pc15, float **  pc35,
+                        float **  ptau11, float **  ptau33, float **  ptau13, float **  ptau55,
+                        float ** ptau15, float ** ptau35, float *  eta){
+
     extern float DT, *FL, TS, TAU;
     extern int NX, NY, NXG, NYG,  POS[3], L, MYID;
 	extern char  MFILE[STRING_SIZE];
@@ -39,12 +39,15 @@ void readmod_visco_vti (float  **  rho,
 
 		
 	/* local variables */
-    float rhov, c11, c33, c13, c55, tau11, tau33, tau13, tau55;
+    float rhov, c11, c33, c13, c55, tau11, tau33, tau13, tau55, tau15, tau35;
     float *pts, sumc11, sumc13, sumc33, sumc55, ws, fc;
- 
+    float l1, l2, l12, l22, l14, l24, l13, l23;
+    float a1, a3, a4, a5, a6, t;
+    float c11t, c33t, c55t, c13t, c15t, c35t;
+
 	int i, j, l, ii, jj;
     FILE *fp_c11, *fp_c33, *fp_c13, *fp_c55, *fp_rho;
-    FILE *fp_t11, *fp_t33, *fp_t13, *fp_t55;
+    FILE *fp_t11, *fp_t33, *fp_t13, *fp_t55, *fp_theta;
 
 	char filename[STRING_SIZE];
 
@@ -91,6 +94,11 @@ void readmod_visco_vti (float  **  rho,
         fp_t55=fopen(filename,"r");
         if ((fp_t55==NULL) && (MYID==0)) declare_error(" Could not open model file with elastic constants TAU55 ! ");
 
+        fprintf(FP,"\t Theta:\n\t %s.theta\n\n",MFILE);
+        sprintf(filename,"%s.theta",MFILE);
+        fp_theta=fopen(filename,"r");
+        if ((fp_theta==NULL) && (MYID==0)) declare_error(" Could not open model file with elastic constants Theta ! ");
+
 	   fprintf(FP,"\t Density:\n\t %s.rho\n\n",MFILE);
 	   sprintf(filename,"%s.rho",MFILE);
 	   fp_rho=fopen(filename,"r");
@@ -126,6 +134,7 @@ void readmod_visco_vti (float  **  rho,
             fread(&tau33, sizeof(float), 1, fp_t33);
             fread(&tau13, sizeof(float), 1, fp_t13);
             fread(&tau55, sizeof(float), 1, fp_t55);
+            fread(&t, sizeof(float), 1, fp_theta);
 
 				
 		if ((isnan(c11)) && (MYID==0)) {
@@ -146,6 +155,8 @@ void readmod_visco_vti (float  **  rho,
                         declare_error(" Found NaN-Values in TAU33-Model !");}
                 if ((isnan(tau55)) && (MYID==0)) {
                         declare_error(" Found NaN-Values in TAU55-Model !");}
+                if ((isnan(t)) && (MYID==0)) {
+                                declare_error(" Found NaN-Values in Theta-Model !");}
 
 
                 sumc11=0.0;  sumc33=0.0; sumc55=0.0;
@@ -161,7 +172,7 @@ void readmod_visco_vti (float  **  rho,
 
 
                 /* isotropic attenuation*/
-                tau13=(c11*L*tau11-2.0*c55*L*tau55)/(c11-2.0*c55);
+                tau13=tau15=tau35=(c11*L*tau11-2.0*c55*L*tau55)/(c11-2.0*c55);
 
                 sumc13=0.0;
                 for (l=1;l<=L;l++){
@@ -170,6 +181,24 @@ void readmod_visco_vti (float  **  rho,
                 c13=c13/(1.0+sumc13);
                 
                 
+                /* Bond transformation (Oh et al, 2020, GJI, doi: 10.1093/gji/ggaa295 */
+                t=t*PI/180.0;
+                l1=cos(t); l2=sin(t); l12=l1*l1; l22=l2*l2; l14=l12*l12; l24=l22*l22; l13=l1*l12; l23=l2*l22;
+               
+                
+                a1=2.0*c13+4.0*c55;
+                a3=c11+c33-4.0*c55;
+                a4=c11+c33-2.0*c13;
+                a5=c13-c11+2.0*c55;
+                a6=c13-c33+2.0*c55;
+                
+                c11t=c11*l14+c33*l24+a1*l12*l22;
+                c33t=c11*l24+c33*l14+a1*l12*l22;
+                c13t=a3*l12*l22+c13*(l14+l24);
+                c55t=a4*l12*l22+c55*(l12-l22)*(l12-l22);
+                c15t=a5*l13*l2-a6*l1*l23;
+                c35t=a5*l23*l1-a6*l2*l13;
+
                 
                 
 
@@ -179,16 +208,21 @@ void readmod_visco_vti (float  **  rho,
 				    (POS[2]==((j-1)/NY))){
 					ii=i-POS[1]*NX;
 					jj=j-POS[2]*NY;
-
-					pc11[jj][ii]=c11;
-					pc13[jj][ii]=c13;
-					pc33[jj][ii]=c33;
-					pc55[jj][ii]=c55;
-					rho[jj][ii]=rhov;
+                    
+                    pc11[jj][ii]=c11t;
+                    rho[jj][ii]=rhov;
+                    pc33[jj][ii]=c33t;
+                    pc13[jj][ii]=c13t;
+                    pc55[jj][ii]=c55t;
+                    pc15[jj][ii]=c15t;
+                    pc35[jj][ii]=c35t;
+                    
                     ptau11[jj][ii]=tau11;
                     ptau33[jj][ii]=tau33;
                     ptau13[jj][ii]=tau13;
                     ptau55[jj][ii]=tau55;
+                    ptau15[jj][ii]=tau15;
+                    ptau35[jj][ii]=tau35;
 
 				}
 			}

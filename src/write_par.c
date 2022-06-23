@@ -234,16 +234,6 @@ void write_par(FILE *fp){
 		break;
 	}
 
-	if (READMOD){
-		fprintf(fp," ------------------------- MODEL-FILES -------------------------\n");
-		fprintf(fp," names of model-files: \n");
-		fprintf(fp,"\t shear wave velocities:\n\t %s.vs\n",MFILE);
-		fprintf(fp,"\t tau for shear waves:\n\t %s.ts\n",MFILE);
-		fprintf(fp,"\t density:\n\t %s.rho\n",MFILE);
-		fprintf(fp,"\t compressional wave velocities:\n\t %s.vp\n",MFILE);
-		fprintf(fp,"\t tau for P-waves:\n\t %s.tp\n",MFILE);
-		for (l=1;l<=L;l++) fprintf(fp,"\t %1i. relaxation frequencies: %s.f%1i\n",l,MFILE,l);
-	}
 
 	fprintf(fp,"\n");
 	fprintf(fp," ------------------------- Q-APROXIMATION --------------------\n");

@@ -28,14 +28,15 @@ void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, floa
 	/*--------------------------------------------------------------------------*/
 	/* extern variables */
 
-	extern float DT, *FL, DH;
+	extern float DT, *FL, TS, DH;
 	extern int NX, NY, NXG, NYG,  POS[3], L, MYID;
 	extern int WRITE_MODELFILES;
 	extern char  MFILE[STRING_SIZE];	
+    extern FILE *FP;
 
 	/* local variables */
 	float Rhov, muv, piv, Vp, Vs, y;
-	float *pts, ts, tp, sumu, sumpi, ws;
+	float *pts, ts, tp, sumu, sumpi, ws, fc;
 	int i, j, l, ii, jj;
 	char modfile[STRING_SIZE];	
 	float ** pwavemod=NULL, ** swavemod=NULL;
@@ -68,8 +69,14 @@ void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, floa
 	}
 
 
-	ws=2.0*PI*FL[1];
-
+    fc=1.0/TS;
+    if (MYID==0){
+        fprintf(FP," Message from readmod_visco_vti:\n");
+        fprintf(FP," Center source frequency of %5.2f Hz applied for calculation of relaxed moduli ! \n",fc);
+       
+    }
+    
+    ws=2.0*PI*fc;
 
 
 

@@ -29,15 +29,16 @@ void model_visco_tti(float  **  rho, float **  pc11, float **  pc33, float **  p
 	/*--------------------------------------------------------------------------*/
 	/* extern variables */
 
-	extern float DT, *FL, DH, TAU;
+	extern float DT, *FL, DH, TS, TAU;
 	extern int NX, NY, NXG, NYG,  POS[3], L, MYID;
 	extern int WRITE_MODELFILES;
-	extern char  MFILE[STRING_SIZE];	
+	extern char  MFILE[STRING_SIZE];
+    extern FILE *FP;
 
 	/* local variables */
     float c11, c33, c55, c13, Rho;
     float tau11, tau13, tau33, tau55, tau15, tau35;
-	float *pts, sumc11, sumc13, sumc33, sumc55, ws;
+	float *pts, sumc11, sumc13, sumc33, sumc55, ws, fc;
     float l1, l2, l12, l22, l14, l24, l13, l23;
     float a1, a3, a4, a5, a6, t;
     float c11t, c33t, c55t, c13t, c15t, c35t;
@@ -72,8 +73,14 @@ void model_visco_tti(float  **  rho, float **  pc11, float **  pc33, float **  p
 		eta[l]=DT/pts[l];
 	}
 
-
-	ws=2.0*PI*FL[1];
+    fc=1.0/TS;
+   if (MYID==0){
+        fprintf(FP," Message from readmod_visco_vti:\n");
+        fprintf(FP," Center source frequency of %5.2f Hz applied for calculation of relaxed moduli ! \n",fc);
+       
+   }
+    
+    ws=2.0*PI*fc;
 
 
 

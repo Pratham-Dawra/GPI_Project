@@ -44,6 +44,7 @@
 
 #include "globvar.h"      /* definition of global variables  */
 
+
 int main ( int argc, char **argv )
 {
     /* variables in main */
@@ -105,8 +106,7 @@ int main ( int argc, char **argv )
     float **sectionvx = NULL, **sectionvy = NULL, **sectionp = NULL,
     **sectioncurl = NULL, **sectiondiv = NULL;
     float **absorb_coeff = NULL;
-    float **srcpos = NULL, **srcpos_loc = NULL, **signals = NULL, *hc = NULL,
-    **srcpos_current = NULL;
+    float **srcpos = NULL, **srcpos_loc = NULL, **signals = NULL, *hc = NULL, **srcpos_current = NULL;
     int **recpos = NULL, **recpos_loc = NULL;
     
     float **bufferlef_to_rig = NULL, **bufferrig_to_lef = NULL,
@@ -640,10 +640,18 @@ int main ( int argc, char **argv )
             case 5: /* elastic VTI */
               readmod_elastic_vti ( prho, pc11, pc33, pc13, pc55 );
                 break;
-                
             case 6: /* viscoelastic VTI */
               readmod_visco_vti ( prho, pc11, pc33, pc13, pc55, ptau11, ptau33, ptau13, ptau55, peta );
                 break;
+            case 7: /* elastic TTI */
+              readmod_elastic_tti ( prho, pc11, pc33, pc13, pc55, pc15, pc35 );
+                break;
+            case 8: /* viscoelastic TTI */
+              readmod_visco_tti ( prho, pc11, pc33, pc13, pc55, pc15, pc35,
+                                 ptau11, ptau33, ptau13, ptau55, ptau15, ptau35, peta );
+                break;
+
+                
         }
     }else {
         switch ( WEQ) {
@@ -665,7 +673,7 @@ int main ( int argc, char **argv )
                model_elastic_TTI ( prho, pc11, pc33, pc13, pc55, pc15, pc35 );
                 break;
 
-            case 8 : /* viscoelastic VTI */
+            case 8 : /* viscoelastic TTI */
                model_visco_tti ( prho, pc11, pc33, pc13, pc55, pc15, pc35, ptau11,
                                 ptau33, ptau13, ptau55, ptau15, ptau35, peta );
                 break;

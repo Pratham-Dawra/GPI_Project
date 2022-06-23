@@ -242,6 +242,18 @@ void readmod_elastic(float    **rho, float   **pi, float   **u);
 
 void readmod_elastic_vti (float  **  rho, float **  pc11, float **  pc33, float **  pc13,float **  pc55 );
 
+void readmod_visco_vti (float  **  rho,
+                        float **  pc11, float **  pc33, float **  pc13,float **  pc55,
+                        float **  ptau11, float **  ptau33, float **  ptau13, float **  ptau55,
+                        float *  eta);
+
+void readmod_visco_tti (float  **  rho, float **  pc11, float **  pc33, float **  pc13, float **  pc55,
+                        float **  pc15, float **  pc35,
+                        float **  ptau11, float **  ptau33, float **  ptau13, float **  ptau55,
+                        float ** ptau15, float ** ptau35, float *  eta);
+
+
+void readmod_elastic_tti (float  **  rho, float **  pc11, float **  pc33, float **  pc13,float **  pc55, float **  pc15,float **  pc35 );
 
 int **receiver(FILE *fp, int *ntr);
 

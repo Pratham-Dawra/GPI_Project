@@ -29,14 +29,16 @@ void model_visco_vti(float  **  rho, float **  pc11, float **  pc33, float **  p
 	/*--------------------------------------------------------------------------*/
 	/* extern variables */
 
-	extern float DT, *FL, DH, TAU;
+	extern float DT, *FL, DH, TS, TAU;
 	extern int NX, NY, NXG, NYG,  POS[3], L, MYID;
 	extern int WRITE_MODELFILES;
-	extern char  MFILE[STRING_SIZE];	
+	extern char  MFILE[STRING_SIZE];
+    extern FILE *FP;
+
 
 	/* local variables */
-	float c11, c33, c55, c13, Rho, tau11, tau13, tau33, tau55;
-	float *pts, sumc11, sumc13, sumc33, sumc55, ws, y;
+	float c11, c33, c55, c13, Rho, tau11, tau33, tau55, tau13;
+	float *pts, sumc11, sumc13, sumc33, sumc55, ws, fc, y;
 	int i, j, l, ii, jj;
 	char modfile[STRING_SIZE];	
 
@@ -47,7 +49,7 @@ void model_visco_vti(float  **  rho, float **  pc11, float **  pc33, float **  p
                  Jones, Wang, 1981, Geophysics, 46, 3, 288-297*/
                 
       const float C11=34.3e9, C33=22.7e9, C55=5.4e9, C13=10.7e9, RHO=2000.0;
-      const float TAU11=TAU, TAU33=TAU, TAU55=TAU, TAU13=TAU, H=-1.0;
+      const float TAU11=TAU, TAU33=TAU, TAU55=TAU, H=-1.0;
 
 
 
@@ -63,8 +65,15 @@ void model_visco_vti(float  **  rho, float **  pc11, float **  pc33, float **  p
 	}
 
 
-	ws=2.0*PI*FL[1];
-
+    fc=1.0/TS;
+   if (MYID==0){
+        fprintf(FP," Message from readmod_visco_vti:\n");
+        fprintf(FP," Center source frequency of %5.2f Hz applied for calculation of relaxed moduli ! \n",fc);
+       
+   }
+    
+    ws=2.0*PI*fc;
+ 
 
 
 	/* loop over global grid */
@@ -75,9 +84,9 @@ void model_visco_vti(float  **  rho, float **  pc11, float **  pc33, float **  p
 
 			
 			if (y<H){ c11=0.0; c33=0.0; c13=0.0; c55=1.0;
-				       Rho=1.0; tau11=0.0; tau33=0.0; tau55=0.0; tau13=0.0;}
+				       Rho=1.0; tau11=0.0; tau33=0.0; tau55=0.0;}
 			else { c11=C11; c33=C33; c13=C13; c55=C55; Rho=RHO;
-				tau11=TAU11; tau33=TAU33; tau55=TAU55; tau13=TAU13;
+				tau11=TAU11; tau33=TAU33; tau55=TAU55;
 			}
 	
 
@@ -94,7 +103,7 @@ void model_visco_vti(float  **  rho, float **  pc11, float **  pc33, float **  p
 
 
 			/* isotropic attenuation*/
-			/*tau13=(c11*L*tau11-2.0*c55*L*tau55)/(c11-2.0*c55);*/
+			tau13=(c11*L*tau11-2.0*c55*L*tau55)/(c11-2.0*c55);
 
 			sumc13=0.0;
 			for (l=1;l<=L;l++){

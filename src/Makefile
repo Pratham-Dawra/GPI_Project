@@ -124,6 +124,9 @@ SOFI2D_SRC= \
 	readmod_visco.c \
 	readmod_elastic.c \
 	readmod_elastic_vti.c \
+	readmod_elastic_tti.c \
+	readmod_visco_vti.c \
+	readmod_visco_tti_thomsen.c \
 	receiver.c \
 	save_checkpoint.c\
 	saveseis.c \

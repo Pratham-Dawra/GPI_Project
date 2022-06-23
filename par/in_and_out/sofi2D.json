@@ -17,6 +17,7 @@
 			"TIME" : "0.4",
 			"DT" : "1.0e-4",
 
+            
 "Wave Equation" : "comment",
 			"WEQ" : "8",
 			"WEQ values : 1:acoustic, 2:viscoacoustic, 3:elastic, " : "comment",
@@ -43,14 +44,14 @@
 			"TS" : "0.2",
 
 "Model" : "comment",
-			"READMOD" : "0",
-			"MFILE" : "/Users/tbohlen/tmp/model/TTI",
-			"WRITE_MODELFILES" : "1",
+			"READMOD" : "1",
+			"MFILE" : "./model/TTI_Thomsen_1",
+			"WRITE_MODELFILES" : "0",
 
 "Q-approximation" : "comment",
 			"L" : "1",
 			"FL1" : "50.0", 
-			"TAU" : "0.1",
+			"TAU" : "0.0001",
 
 "Boundary Conditions" : "comment",
                         "FREE_SURF" : "0",
@@ -78,7 +79,7 @@
 			"IDX" : "1",
 			"IDY" : "1",
 			"SNAP_FORMAT" : "3",
-			"SNAP_FILE" : "/Users/tbohlen/tmp/snap/test",
+			"SNAP_FILE" : "./snap/test",
 
 "Receiver" : "comment",
 			"SEISMO" : "0",
@@ -99,15 +100,15 @@
 "Seismograms" : "comment",
 			"NDT" : "5",
 			"SEIS_FORMAT" : "1",
-			"SEIS_FILE" : "/Users/tbohlen/tmp/su/test",
+			"SEIS_FILE" : "./su/test",
 
 "Monitoring the simulation" : "comment",
-			"LOG_FILE" : "/Users/tbohlen/tmp/log/test.log",
+			"LOG_FILE" : "./log/test.log",
 			"LOG" : "1",
 			"OUT_TIMESTEP_INFO" : "100",
 
 "Checkpoints" : "comment",
 			"CHECKPTREAD" : "0",
 			"CHECKPTWRITE" : "0",
-			"CHECKPT_FILE" : "/Users/tbohlen/tmp/checkpoint_sofi2D"
+			"CHECKPT_FILE" : "./checkpoint_sofi2D"
 }
