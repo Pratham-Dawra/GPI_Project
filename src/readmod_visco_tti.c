@@ -16,13 +16,6 @@
  * along with SOFI2D. See file COPYING and/or 
   * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
-/*------------------------------------------------------------------------
- *   Read elastic model properties (vp,vs,density) from files
- *   This file contains function readmod, which has the purpose
- *   to read data from model-files for viscoelastic simulation
- *
- *  ----------------------------------------------------------------------*/
-
 
 #include "fd.h"
 
@@ -44,65 +37,58 @@ void readmod_visco_tti (float  **  rho, float **  pc11, float **  pc33, float **
     float l1, l2, l12, l22, l14, l24, l13, l23;
     float a1, a3, a4, a5, a6, t;
     float c11t, c33t, c55t, c13t, c15t, c35t;
+    float vp, vs, qp, qs, epsilon, delta, theta;
 
 	int i, j, l, ii, jj;
-    FILE *fp_c11, *fp_c33, *fp_c13, *fp_c55, *fp_rho;
-    FILE *fp_t11, *fp_t33, *fp_t13, *fp_t55, *fp_theta;
+    FILE *fp_epsilon, *fp_delta, *fp_vp, *fp_vs, *fp_theta;
+    FILE *fp_qp, *fp_qs, *fp_rho;
 
 	char filename[STRING_SIZE];
 
 
     
-	   fprintf(FP,"\n...reading VTI viscoelastic constants and density from model-files...\n");
-	   fprintf(FP,"\t C11:\n\t %s.c11\n\n",MFILE);
-	   sprintf(filename,"%s.c11",MFILE);
-	   fp_c11=fopen(filename,"r");
-	   if ((fp_c11==NULL) && (MYID==0)) declare_error(" Could not open model file with elastic constants C11 ! ");
-
- 		fprintf(FP,"\t C33:\n\t %s.c33\n\n",MFILE);
-	   sprintf(filename,"%s.c33",MFILE);
-	   fp_c33=fopen(filename,"r");
-	   if ((fp_c33==NULL) && (MYID==0)) declare_error(" Could not open model file with elastic constants C33 ! ");
-
-		fprintf(FP,"\t C13:\n\t %s.c13\n\n",MFILE);
-	   sprintf(filename,"%s.c13",MFILE);
-	   fp_c13=fopen(filename,"r");
-	   if ((fp_c13==NULL) && (MYID==0)) declare_error(" Could not open model file with elastic constants C13 ! ");
-
-		fprintf(FP,"\t C55:\n\t %s.c55\n\n",MFILE);
-	   sprintf(filename,"%s.c55",MFILE);
-	   fp_c55=fopen(filename,"r");
-	   if ((fp_c55==NULL) && (MYID==0)) declare_error(" Could not open model file with elastic constants C55 ! ");
-
-        fprintf(FP,"\t TAU11:\n\t %s.tau11\n\n",MFILE);
-        sprintf(filename,"%s.tau11",MFILE);
-        fp_t11=fopen(filename,"r");
-        if ((fp_t11==NULL) && (MYID==0)) declare_error(" Could not open model file with elastic constants TAU11 ! ");
+	   fprintf(FP,"\n...reading viscoelastic TTI Thomsen parameters from model-files...\n");
+	   fprintf(FP,"\t Vp:\n\t %s.vp\n\n",MFILE);
+	   sprintf(filename,"%s.vp",MFILE);
+	   fp_vp=fopen(filename,"r");
+	   if ((fp_vp==NULL) && (MYID==0)) declare_error(" Could not open model file VP ! ");
+    
+        fprintf(FP,"\t Vs:\n\t %s.vs\n\n",MFILE);
+        sprintf(filename,"%s.vs",MFILE);
+        fp_vs=fopen(filename,"r");
+        if ((fp_vs==NULL) && (MYID==0)) declare_error(" Could not open model file VS ! ");
         
-        fprintf(FP,"\t TAU33:\n\t %s.tau33\n\n",MFILE);
-        sprintf(filename,"%s.tau33",MFILE);
-        fp_t33=fopen(filename,"r");
-        if ((fp_t33==NULL) && (MYID==0)) declare_error(" Could not open model file with elastic constants TAU33 ! ");
-        
-        fprintf(FP,"\t TAU13:\n\t %s.tau13\n\n",MFILE);
-        sprintf(filename,"%s.tau13",MFILE);
-        fp_t13=fopen(filename,"r");
-        if ((fp_t13==NULL) && (MYID==0)) declare_error(" Could not open model file with elastic constants TAU13 ! ");
-        
-        fprintf(FP,"\t TAU55:\n\t %s.tau55\n\n",MFILE);
-        sprintf(filename,"%s.tau55",MFILE);
-        fp_t55=fopen(filename,"r");
-        if ((fp_t55==NULL) && (MYID==0)) declare_error(" Could not open model file with elastic constants TAU55 ! ");
+        fprintf(FP,"\t Density:\n\t %s.rho\n\n",MFILE);
+        sprintf(filename,"%s.rho",MFILE);
+        fp_rho=fopen(filename,"r");
+        if ((fp_rho==NULL) && (MYID==0)) declare_error(" Could not open model file for densities ! ");
 
         fprintf(FP,"\t Theta:\n\t %s.theta\n\n",MFILE);
         sprintf(filename,"%s.theta",MFILE);
         fp_theta=fopen(filename,"r");
         if ((fp_theta==NULL) && (MYID==0)) declare_error(" Could not open model file with elastic constants Theta ! ");
 
-	   fprintf(FP,"\t Density:\n\t %s.rho\n\n",MFILE);
-	   sprintf(filename,"%s.rho",MFILE);
-	   fp_rho=fopen(filename,"r");
-	   if ((fp_rho==NULL) && (MYID==0)) declare_error(" Could not open model file for densities ! ");
+        fprintf(FP,"\t Epsilon:\n\t %s.epsilon\n\n",MFILE);
+        sprintf(filename,"%s.epsilon",MFILE);
+        fp_epsilon=fopen(filename,"r");
+        if ((fp_epsilon==NULL) && (MYID==0)) declare_error(" Could not open model file with elastic constants Epsilon ! ");
+
+        fprintf(FP,"\t Delta:\n\t %s.delta\n\n",MFILE);
+        sprintf(filename,"%s.delta",MFILE);
+        fp_delta=fopen(filename,"r");
+        if ((fp_delta==NULL) && (MYID==0)) declare_error(" Could not open model file with elastic constants Delta ! ");
+
+        fprintf(FP,"\t Qp:\n\t %s.qp\n\n",MFILE);
+        sprintf(filename,"%s.qp",MFILE);
+        fp_qp=fopen(filename,"r");
+        if ((fp_qp==NULL) && (MYID==0)) declare_error(" Could not open model file with elastic constants Qp ! ");
+
+        fprintf(FP,"\t Qs:\n\t %s.qs\n\n",MFILE);
+        sprintf(filename,"%s.qs",MFILE);
+        fp_qs=fopen(filename,"r");
+        if ((fp_qs==NULL) && (MYID==0)) declare_error(" Could not open model file with elastic constants Qs ! ");
+
+
 
 	   
     /* vector for maxwellbodies */
@@ -125,39 +111,26 @@ void readmod_visco_tti (float  **  rho, float **  pc11, float **  pc33, float **
 	/* loop over global grid */
 		for (i=1;i<=NXG;i++){
 			for (j=1;j<=NYG;j++){
-			fread(&c11, sizeof(float), 1, fp_c11);
-			fread(&c33, sizeof(float), 1, fp_c33);
-			fread(&c13, sizeof(float), 1, fp_c13);
-			fread(&c55, sizeof(float), 1, fp_c55);
+			fread(&vp, sizeof(float), 1, fp_vp);
+			fread(&vs, sizeof(float), 1, fp_vs);
+			fread(&qp, sizeof(float), 1, fp_qp);
+			fread(&qs, sizeof(float), 1, fp_qs);
 			fread(&rhov, sizeof(float), 1, fp_rho);
-            fread(&tau11, sizeof(float), 1, fp_t11);
-            fread(&tau33, sizeof(float), 1, fp_t33);
-            fread(&tau13, sizeof(float), 1, fp_t13);
-            fread(&tau55, sizeof(float), 1, fp_t55);
-            fread(&t, sizeof(float), 1, fp_theta);
+            fread(&epsilon, sizeof(float), 1, fp_epsilon);
+            fread(&delta, sizeof(float), 1, fp_delta);
+            fread(&theta, sizeof(float), 1, fp_theta);
 
 				
-		if ((isnan(c11)) && (MYID==0)) {
-           	declare_error(" Found NaN-Values in C11-Model !");}
-        if ((isnan(c13)) && (MYID==0)) {
-           	declare_error(" Found NaN-Values in C13-Model !");}
-        if ((isnan(c33)) && (MYID==0)) {
-           	declare_error(" Found NaN-Values in C33-Model !");}
-        if ((isnan(c55)) && (MYID==0)) {
-           	declare_error(" Found NaN-Values in C55-Model !");}
-		if ((isnan(rhov)) && (MYID==0)) {
-                declare_error(" Found NaN-Values in Rho-Model !");}
-                if ((isnan(tau11)) && (MYID==0)) {
-                        declare_error(" Found NaN-Values in TAU11-Model !");}
-                if ((isnan(tau13)) && (MYID==0)) {
-                        declare_error(" Found NaN-Values in TAU13-Model !");}
-                if ((isnan(tau33)) && (MYID==0)) {
-                        declare_error(" Found NaN-Values in TAU33-Model !");}
-                if ((isnan(tau55)) && (MYID==0)) {
-                        declare_error(" Found NaN-Values in TAU55-Model !");}
-                if ((isnan(t)) && (MYID==0)) {
-                                declare_error(" Found NaN-Values in Theta-Model !");}
-
+                /* calculation of required elastic constants:
+                 c11, c33, c13, c55, tau11, tau33, tau55*/
+                
+                c33=rhov*vp*vp;
+                c55=rhov*vs*vs;
+                c11=c33*(2.0*epsilon+1.0);
+                c13=sqrt((2.0*delta*c33*(c33-c55))+((c33-c55)*(c33-c55)))-c55;
+                tau11=tau33=2.0/(qp*L); tau55=2.0/(qs*L);
+                
+                
 
                 sumc11=0.0;  sumc33=0.0; sumc55=0.0;
                 for (l=1;l<=L;l++){
@@ -182,7 +155,7 @@ void readmod_visco_tti (float  **  rho, float **  pc11, float **  pc33, float **
                 
                 
                 /* Bond transformation (Oh et al, 2020, GJI, doi: 10.1093/gji/ggaa295 */
-                t=t*PI/180.0;
+                t=theta*PI/180.0;
                 l1=cos(t); l2=sin(t); l12=l1*l1; l22=l2*l2; l14=l12*l12; l24=l22*l22; l13=l1*l12; l23=l2*l22;
                
                 
@@ -232,15 +205,14 @@ void readmod_visco_tti (float  **  rho, float **  pc11, float **  pc33, float **
 
 
 
-	fclose(fp_c11);
-	fclose(fp_c13);
-	fclose(fp_c33);
-	fclose(fp_c55);
+	fclose(fp_vp);
+	fclose(fp_vs);
+	fclose(fp_qp);
+	fclose(fp_qs);
 	fclose(fp_rho);
-    fclose(fp_t11);
-    fclose(fp_t13);
-    fclose(fp_t33);
-    fclose(fp_t55);
+    fclose(fp_epsilon);
+    fclose(fp_delta);
+    fclose(fp_theta);
     
     
     

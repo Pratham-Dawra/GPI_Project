@@ -68,16 +68,6 @@ void readmod_elastic(float  **  rho, float **  pi, float **  u){
 			fread(&vp, sizeof(float), 1, fp_vp);
 			fread(&vs, sizeof(float), 1, fp_vs);
 			fread(&rhov, sizeof(float), 1, fp_rho);
-				
-		if ((isnan(vp)) && (MYID==0)) {
-           	declare_error(" Found NaN-Values in Vp-Model !");}
-
-		if ((isnan(vs)) && (MYID==0)) {
-                declare_error(" Found NaN-Values in Vs-Model !");}
-
-		if ((isnan(rhov)) && (MYID==0)) {
-                declare_error(" Found NaN-Values in Rho-Model !");}
-
 
 			muv=vs*vs*rhov;
 			piv=vp*vp*rhov;
@@ -104,18 +94,7 @@ void readmod_elastic(float  **  rho, float **  pi, float **  u){
 	fclose(fp_vs);
 	fclose(fp_rho);
 	
-	
-	/* each PE writes his model to disk */
 	   
-	   
-	sprintf(filename,"%s.sofi2D.rho",MFILE);
-
-	writemod(filename,rho,3);
-
-	MPI_Barrier(MPI_COMM_WORLD);
-
-	if (MYID==0) mergemod(filename,3);
-
 }
 
 

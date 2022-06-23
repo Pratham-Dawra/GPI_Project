@@ -16,12 +16,6 @@
  * along with SOFI2D. See file COPYING and/or 
   * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
-/*------------------------------------------------------------------------
- * Read elastic model properties (vp,vs,density) from files
- * This file contains function readmod, which has the purpose
- * to read data from model-files for viscoelastic simulation
- *
- * ----------------------------------------------------------------------*/
 
 #include "fd.h"
 
@@ -52,22 +46,12 @@ float **  taus, float **  taup, float *  eta){
 		eta[l]=DT/pts[l];
 	}
 
-	ts=TAU;  
-	tp=TAU;
-
-	//previously : ws=2.0*PI*FL[1];
 	ws=2.0*PI/TS;
 	
-	sumu=0.0; 
-	sumpi=0.0;
-	for (l=1;l<=L;l++){
-		sumu=sumu+((ws*ws*pts[l]*pts[l]*ts)/(1.0+ws*ws*pts[l]*pts[l]));
-		sumpi=sumpi+((ws*ws*pts[l]*pts[l]*tp)/(1.0+ws*ws*pts[l]*pts[l]));
-	}
 
 		
 
-	   fprintf(FP,"\n...reading model information from model-files...\n");
+	   fprintf(FP,"\n...reading viscoelastic isotropic model from model-files...\n");
 
 	   fprintf(FP,"\t P-wave velocities:\n\t %s.vp\n\n",MFILE);
 	   sprintf(filename,"%s.vp",MFILE);
@@ -105,24 +89,20 @@ float **  taus, float **  taup, float *  eta){
 			fread(&qp, sizeof(float), 1, fp_qp);
 			fread(&qs, sizeof(float), 1, fp_qs);
 				
-		if ((isnan(vp)) && (MYID==0)) {
-                	declare_error(" Found NaN-Values in Vp-Model !");}
+            tp=2.0/(qp*L); ts=2.0/(qs*L);
+			muv=vs*vs*rhov;
+			piv=vp*vp*rhov;
+                
+                sumu=0.0;
+                sumpi=0.0;
+                for (l=1;l<=L;l++){
+                    sumu=sumu+((ws*ws*pts[l]*pts[l]*ts)/(1.0+ws*ws*pts[l]*pts[l]));
+                    sumpi=sumpi+((ws*ws*pts[l]*pts[l]*tp)/(1.0+ws*ws*pts[l]*pts[l]));
+                }
 
-                if ((isnan(vs)) && (MYID==0)) {
-                	declare_error(" Found NaN-Values in Vs-Model !");}
+                muv=muv/(1.0+sumu);
+                piv=piv/(1.0+sumpi);
 
-                if ((isnan(rhov)) && (MYID==0)) {
-                	declare_error(" Found NaN-Values in Rho-Model !");}
-
-		if ((isnan(qp)) && (MYID==0)) {
-                        declare_error(" Found NaN-Values in Vs-Model !");}
-
-                if ((isnan(qs)) && (MYID==0)) {
-                        declare_error(" Found NaN-Values in Rho-Model !");}
-
-
-			muv=vs*vs*rhov/(1.0+sumu);
-			piv=vp*vp*rhov/(1.0+sumpi);
 
 			/* only the PE which belongs to the current global gridpoint 
 			is saving model parameters in his local arrays */
@@ -131,8 +111,8 @@ float **  taus, float **  taup, float *  eta){
 					ii=i-POS[1]*NX;
 					jj=j-POS[2]*NY;
 
-					taus[jj][ii]=2.0/qs;
-					taup[jj][ii]=2.0/qp;
+					taus[jj][ii]=ts;
+					taup[jj][ii]=tp;
 					u[jj][ii]=muv;
 					rho[jj][ii]=rhov;
 					pi[jj][ii]=piv;
@@ -150,17 +130,7 @@ float **  taus, float **  taup, float *  eta){
 	fclose(fp_qp);
 	fclose(fp_qs);
 	
-	
-	/* each PE writes his model to disk */
-	   
-	   
-	sprintf(filename,"%s.sofi2D.rho",MFILE);
-
-	writemod(filename,rho,3);
-
-	MPI_Barrier(MPI_COMM_WORLD);
-
-	if (MYID==0) mergemod(filename,3);
+		   
 
 	free_vector(pts,1,L);
 }
