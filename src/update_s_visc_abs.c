@@ -40,10 +40,7 @@ void update_s_visc_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int
 
 	int i,j,fdoh;
 	float  vxx, vyy, vxy, vyx;
-	extern int MYID, FDORDER;
-	extern FILE *FP;
-
-	
+	extern int FDORDER;
 
 	fdoh = FDORDER/2;
 	

@@ -29,7 +29,7 @@ void model_visco_tti(float  **  rho, float **  pc11, float **  pc33, float **  p
 	/*--------------------------------------------------------------------------*/
 	/* extern variables */
 
-	extern float DT, *FL, DH, TS, TAU;
+	extern float DT, *FL, TS, TAU;
 	extern int NX, NY, NXG, NYG,  POS[3], L, MYID;
 	extern int WRITE_MODELFILES;
 	extern char  MFILE[STRING_SIZE];

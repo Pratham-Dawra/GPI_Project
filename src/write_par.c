@@ -36,12 +36,12 @@ void write_par(FILE *fp){
 	/*extern int NGEOPH;*/
 	extern float NGEOPH;
 	extern int SEISMO, NDT, SEIS_FORMAT, FREE_SURF, ABS_TYPE, FW;
-	extern int  READMOD, READREC, BOUNDARY, REC_ARRAY, DRX, FDORDER, RSG;
+	extern int  READREC, BOUNDARY, REC_ARRAY, DRX, FDORDER, RSG;
 	extern float TSNAP1, TSNAP2, TSNAPINC, REFREC[4];
 	extern char SNAP_FILE[STRING_SIZE], SOURCE_FILE[STRING_SIZE], REC_FILE[STRING_SIZE];
 	extern char SEIS_FILE[STRING_SIZE];
 	extern char SIGNAL_FILE[STRING_SIZE];
-	extern char  MFILE[STRING_SIZE];
+	/*extern char  MFILE[STRING_SIZE];*/
 	extern int NP, NPROCX, NPROCY, MYID,FDORDER_TIME, WEQ;
 
 	/* definition of local variables */

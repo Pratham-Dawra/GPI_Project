@@ -39,8 +39,7 @@ void update_s_elastic_VTI_PML ( int nx1, int nx2, int ny1, int ny2, int * gx, in
 {
 	int i,j, h1,fdoh;
 	float  vxx, vyy, vxy, vyx;
-	extern int MYID, FDORDER, FW;
-	extern FILE *FP;
+	extern int FDORDER, FW;
 
 	fdoh=FDORDER/2;
 	

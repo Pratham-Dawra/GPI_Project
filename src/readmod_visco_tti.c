@@ -24,10 +24,9 @@ void readmod_visco_tti (float  **  rho, float **  pc11, float **  pc33, float **
                         float **  ptau11, float **  ptau33, float **  ptau13, float **  ptau55,
                         float ** ptau15, float ** ptau35, float *  eta){
 
-    extern float DT, *FL, TS, TAU;
+    extern float DT, *FL, TS;
     extern int NX, NY, NXG, NYG,  POS[3], L, MYID;
 	extern char  MFILE[STRING_SIZE];
-    extern int WRITE_MODELFILES;
     extern FILE *FP;
 
 		

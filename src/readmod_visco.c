@@ -24,7 +24,7 @@
 void readmod_visco(float  **  rho, float **  pi, float **  u,
 float **  taus, float **  taup, float *  eta){
 
-	extern float DT, *FL, TAU, TS;
+	extern float DT, *FL, TS;
 	extern int NX, NY, NXG, NYG,  POS[3], L, MYID;
 	extern char  MFILE[STRING_SIZE];	
 	extern FILE *FP;

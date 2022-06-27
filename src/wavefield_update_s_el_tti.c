@@ -28,7 +28,6 @@ void wavefield_update_s_el_tti ( int i, int j,float   vxx, float  vyx,float vxy,
                             float ** pc15, float ** pc35, float ** pc15ipjp, float ** pc35ipjp)
 {
 
-	extern float DT;
     float c55ipjp, c33, c11, c13;
     float c15ipjp, c35ipjp, c15, c35, v;
 

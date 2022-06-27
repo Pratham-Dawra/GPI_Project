@@ -45,8 +45,7 @@ void update_s_visc_TTI_PML ( int nx1, int nx2, int ny1, int ny2, int *gx, int *g
 {
 	int i,j, h1,fdoh;
 	float  vxx, vyy, vxy, vyx;
-	extern int MYID, FDORDER, FW;
-	extern FILE *FP;
+	extern int FDORDER, FW;
 
 	fdoh=FDORDER/2;
 	
