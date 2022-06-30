@@ -99,7 +99,7 @@ void readmod_visco_tti (float  **  rho, float **  pc11, float **  pc33, float **
    
     fc=1.0/TS;
    if (MYID==0){
-        fprintf(FP," Message from readmod_visco_vti:\n");
+        fprintf(FP," Message from readmod_visco_tti:\n");
         fprintf(FP," Center source frequency of %5.2f Hz applied for calculation of relaxed moduli ! \n",fc);
     }
     
