@@ -63,7 +63,7 @@ void update_s_visc_TTI_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, i
 
 	if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
 		time1=MPI_Wtime();
-		fprintf ( FP,"\n **Message from update_s_visc_VTI_interior (printed by PE %d):\n",MYID );
+		fprintf ( FP,"\n **Message from update_s_visc_TTI_interior (printed by PE %d):\n",MYID );
 		fprintf ( FP," Updating stress components ..." );
 	}
 
