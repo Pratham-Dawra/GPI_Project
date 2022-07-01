@@ -22,6 +22,9 @@
  *
  *  ---------------------------------------------------------------------*/
 
+#ifndef FD_H_INCLUDED
+#define FD_H_INCLUDED
+
 /* files to include */
 #include <stdio.h>
 #include <math.h>
@@ -663,3 +666,4 @@ void free_imatrix(int **m, int nrl, int nrh, int ncl, int nch);
 void free_f3tensor(float ***t, int nrl, int nrh, int ncl, int nch, int ndl,
                    int ndh);
 
+#endif

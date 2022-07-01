@@ -22,6 +22,10 @@
  *
  * ----------------------------------------------------------------------*/
 
+#ifndef GLOBVAR_H_INCLUDED
+#define GLOBVAR_H_INCLUDED
+
+#include "fd.h"
 
 float XS, YS, DH=0.0, TIME=0.0, DT=0.0, TS=0.0, DAMPING=0.0, PLANE_WAVE_DEPTH=0.0, PLANE_WAVE_ANGLE=0.0, SRCPOSXYZ[3]={0.0, 0.0, 0.0};
 float TSNAP1=0.0, TSNAP2=0.0, TSNAPINC=0.0, *FL=NULL, TAU=0.0;
@@ -54,3 +58,4 @@ float DH1;
 /* PML-Parameters */
 float NPOWER, K_MAX_CPML, FPML, VPPML;
 
+#endif
