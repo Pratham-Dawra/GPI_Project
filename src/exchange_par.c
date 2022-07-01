@@ -85,7 +85,6 @@ void exchange_par(void){
 		fdum[32]  = NPOWER;
 		fdum[33]  = K_MAX_CPML;
 
-
 		/*************************************/
 
 		idum[1]  = NPROCX;
@@ -131,7 +130,6 @@ void exchange_par(void){
 
 	} /** if (MYID == 0) **/
 
-	if (MYID != 0) FL=vector(1,L);
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	MPI_Bcast(&idum,NPAR,MPI_INT,0,MPI_COMM_WORLD);
@@ -148,29 +146,29 @@ void exchange_par(void){
 
 	MPI_Barrier(MPI_COMM_WORLD);
 
-	DH=fdum[1];
-	TIME=fdum[2];
-	DT=fdum[3];
-	TS=fdum[4];
+	DH = fdum[1];
+	TIME = fdum[2];
+	DT = fdum[3];
+	TS = fdum[4];
 
-	TAU=fdum[8];
+	TAU = fdum[8];
 	
-	TSNAP1=fdum[10];
-	TSNAP2=fdum[11];
-	TSNAPINC=fdum[12];
-	REFREC[1]=fdum[13];
-	REFREC[2]=fdum[14];
-	PLANE_WAVE_ANGLE=fdum[15];
-	XREC1=fdum[16];
-	YREC1=fdum[17];
+	TSNAP1 = fdum[10];
+	TSNAP2 = fdum[11];
+	TSNAPINC = fdum[12];
+	REFREC[1] = fdum[13];
+	REFREC[2] = fdum[14];
+	PLANE_WAVE_ANGLE = fdum[15];
+	XREC1 = fdum[16];
+	YREC1 = fdum[17];
 
-	XREC2=fdum[19];
-	YREC2=fdum[20];
+	XREC2 = fdum[19];
+	YREC2 = fdum[20];
 
-	DAMPING=fdum[22];
-	REC_ARRAY_DEPTH=fdum[23];
-	REC_ARRAY_DIST=fdum[24];
-	PLANE_WAVE_DEPTH=fdum[25];
+	DAMPING = fdum[22];
+	REC_ARRAY_DEPTH = fdum[23];
+	REC_ARRAY_DIST = fdum[24];
+	PLANE_WAVE_DEPTH = fdum[25];
 
 	NGEOPH = fdum[26];
 
@@ -204,9 +202,8 @@ void exchange_par(void){
 	REC_ARRAY = idum[17];
 	SRCREC = idum[18];
 	IDX = idum[19];
-    IDY = idum[20];
-    WEQ= idum[22];
-
+	IDY = idum[20];
+	WEQ= idum[22];
 
 	SNAP_FORMAT = idum[23];
 	SEISMO = idum[24];
@@ -224,9 +221,15 @@ void exchange_par(void){
 	
 	ABS_TYPE = idum[35];
     
-    FDORDER_TIME = idum[36];
+	FDORDER_TIME = idum[36];
 
-
-	MPI_Bcast(&FL[1],L,MPI_FLOAT,0,MPI_COMM_WORLD);
-
+	if (L>0) { 
+	  if (MYID != 0) {
+	    FL = vector(1,L); 
+	  }
+	  MPI_Barrier(MPI_COMM_WORLD);
+	  MPI_Bcast(&FL[1],L,MPI_FLOAT,0,MPI_COMM_WORLD); 
+	} else {
+	  FL = NULL;
+	}
 }
