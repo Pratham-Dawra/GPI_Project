@@ -1405,7 +1405,7 @@ if ( WEQ==4 ) { /*viscoelastic wave equation */
     
     
     if ( nsrc_loc > 0 ) {
-        free_matrix ( signals, 1, nsrc_loc, 1, NT );
+        if (signals) free_matrix ( signals, 1, nsrc_loc, 1, NT );
         free_matrix ( srcpos_loc, 1, 8, 1, nsrc_loc );
     }
     
