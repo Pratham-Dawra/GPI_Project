@@ -81,13 +81,13 @@ void read_par_json(FILE *fp, char *fileinp){
 			declare_error("Variable RSG could not be retrieved from the json input file!");*/
 		if (get_int_from_objectlist("FDORDER",number_readobjects,&FDORDER,varname_list, value_list))
 			declare_error("Variable FDORDER could not be retrieved from the json input file!");
-        if (get_int_from_objectlist("FDORDER_TIME",number_readobjects,&FDORDER_TIME,varname_list, value_list)) {
-            FDORDER_TIME=2;
-        } else {
-            if(FDORDER_TIME!=2 && FDORDER_TIME!=4) {
-                declare_error("Only FDORDER_TIME 2 or 4 are supported!");
-            }
-        }
+		if (get_int_from_objectlist("FDORDER_TIME",number_readobjects,&FDORDER_TIME,varname_list, value_list)) {
+		  FDORDER_TIME=2;
+		} else {
+		  if(FDORDER_TIME!=2 && FDORDER_TIME!=4) {
+		    declare_error("Only FDORDER_TIME 2 or 4 are supported!");
+		  }
+		}
 		if (get_int_from_objectlist("MAXRELERROR",number_readobjects,&MAXRELERROR,varname_list, value_list))
 			declare_error("Variable MAXRELERROR could not be retrieved from the json input file!");
 		if (get_int_from_objectlist("NX",number_readobjects,&NX,varname_list, value_list))
@@ -108,12 +108,10 @@ void read_par_json(FILE *fp, char *fileinp){
 					fprintf(fp, " Only the following wave equations are supported: \n");
 					fprintf(fp, " WEQ=3 (isotropic elastic) \n");
 					fprintf(fp, " WEQ=4 (isotropic viscoelastic) \n");
-                    fprintf(fp, " WEQ=5 (elastic VTI) \n");
+					fprintf(fp, " WEQ=5 (elastic VTI) \n");
 					fprintf(fp, " WEQ=6 (viscoelastic VTI) \n");
-                    fprintf(fp, " WEQ=7 (elastic TTI) \n");
-                    fprintf(fp, " WEQ=8 (viscoelastic TTI) \n");
-
-
+					fprintf(fp, " WEQ=7 (elastic TTI) \n");
+					fprintf(fp, " WEQ=8 (viscoelastic TTI) \n");
 					declare_error("Stop.");
 				}
 			}
@@ -295,34 +293,34 @@ void read_par_json(FILE *fp, char *fileinp){
 		}
 
 
-        if (L) {
-            FL=vector(1,L);
-            switch(L) {
-			case 0:
-				break;
-			case 5:
-				if (get_float_from_objectlist("FL5",number_readobjects,&FL[5],varname_list, value_list))
-					declare_error("Variable FL5 could not be retrieved from the json input file!");
-			case 4:
-				if (get_float_from_objectlist("FL4",number_readobjects,&FL[4],varname_list, value_list))
-					declare_error("Variable FL4 could not be retrieved from the json input file!");
-			case 3:
-				if (get_float_from_objectlist("FL3",number_readobjects,&FL[3],varname_list, value_list))
-					declare_error("Variable FL3 could not be retrieved from the json input file!");
-			case 2:
-				if (get_float_from_objectlist("FL2",number_readobjects,&FL[2],varname_list, value_list))
-					declare_error("Variable FL2 could not be retrieved from the json input file!");
-			case 1:
-				if (get_float_from_objectlist("FL1",number_readobjects,&FL[1],varname_list, value_list))
-					declare_error("Variable FL1 could not be retrieved from the json input file!");
-				break;
-			default:
-				declare_error("More than four relaxation Parameter (L>5) are not implemented yet!");
-				break;
-			}
+		if (L>0) {
+		  FL = vector(1,L);
+		  switch(L) {
+		  case 0:
+		    break;
+		  case 5:
+		    if (get_float_from_objectlist("FL5",number_readobjects,&FL[5],varname_list, value_list))
+		      declare_error("Variable FL5 could not be retrieved from the json input file!");
+		  case 4:
+		    if (get_float_from_objectlist("FL4",number_readobjects,&FL[4],varname_list, value_list))
+		      declare_error("Variable FL4 could not be retrieved from the json input file!");
+		  case 3:
+		    if (get_float_from_objectlist("FL3",number_readobjects,&FL[3],varname_list, value_list))
+		      declare_error("Variable FL3 could not be retrieved from the json input file!");
+		  case 2:
+		    if (get_float_from_objectlist("FL2",number_readobjects,&FL[2],varname_list, value_list))
+		      declare_error("Variable FL2 could not be retrieved from the json input file!");
+		  case 1:
+		    if (get_float_from_objectlist("FL1",number_readobjects,&FL[1],varname_list, value_list))
+		      declare_error("Variable FL1 could not be retrieved from the json input file!");
+		    break;
+		  default:
+		    declare_error("More than five relaxation parameters (L>5) not implemented yet!");
+		    break;
+		  }
+		} else {
+		  FL = NULL;
 		}
-
-		
 
 		/********************************************/
 		/* Check files and directories if necessary */
