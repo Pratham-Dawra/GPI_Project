@@ -69,8 +69,8 @@ void  outseis_glob(FILE *fp, FILE *fpdata, float **section,
 			/* angle between receiver position and reference point
                            (sperical coordinate system: swdep=theta, gwdep=phi) */
 			tr.swdep=iround(((360.0/(2.0*PI))*atan2(x-xshift,y-yshift))*1000.0);
-			tr.scalel=(signed short)-3;
-			tr.scalco=(signed short)-3;
+			tr.scalel=(signed short)-1000;
+			tr.scalco=(signed short)-1000;
 			tr.sx=(signed int)iround(XS*1000.0);  /* X source coordinate */
 
 			/* group coordinates */
