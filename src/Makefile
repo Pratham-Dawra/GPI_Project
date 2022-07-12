@@ -93,6 +93,7 @@ SOFI2D_SRC= \
 	checkfd.c \
 	comm_ini.c\
 	cpml_update.c \
+        debug_buffers.c \
 	exchange_par.c \
 	exchange_s_rsg.c \
 	exchange_s.c \
@@ -189,7 +190,7 @@ SOFI2D_SRC= \
 	zero_visco_4.c \
 	zero_visc.c \
 	zero_PML_elastic.c \
-	zero_PML_visc.c 
+	zero_PML_visc.c
 
 SOFI2D_BENCH_SRC= \
 	$(MODEL_BV) \

@@ -43,7 +43,9 @@
 #include "fd.h"           /* general include file for viscoelastic FD programs */
 
 #include "globvar.h"      /* definition of global variables  */
-
+#ifdef EBUG
+#include "debug_buffers.h"
+#endif
 
 int main ( int argc, char **argv )
 {
@@ -639,19 +641,61 @@ int main ( int argc, char **argv )
                 break;
             case 5: /* elastic VTI */
               readmod_elastic_vti ( prho, pc11, pc33, pc13, pc55 );
+#ifdef EBUG
+	      debug_check_matrix(prho, 0, NX, NY, 5, 0, "prho");
+	      debug_check_matrix(pc11, 0, NX, NY, 5, 0, "pc11");
+	      debug_check_matrix(pc33, 0, NX, NY, 5, 0, "pc33");
+	      debug_check_matrix(pc13, 0, NX, NY, 5, 0, "pc13");
+	      debug_check_matrix(pc55, 0, NX, NY, 5, 0, "pc55");
+#endif
                 break;
             case 6: /* viscoelastic VTI */
               readmod_visco_vti ( prho, pc11, pc33, pc13, pc55, ptau11, ptau33, ptau13, ptau55, peta );
+#ifdef EBUG
+	      debug_check_matrix(prho, 0, NX, NY, 6, 0, "prho");
+	      debug_check_matrix(pc11, 0, NX, NY, 6, 0, "pc11");
+	      debug_check_matrix(pc33, 0, NX, NY, 6, 0, "pc33");
+	      debug_check_matrix(pc13, 0, NX, NY, 6, 0, "pc13");
+	      debug_check_matrix(pc55, 0, NX, NY, 6, 0, "pc55");
+	      debug_check_matrix(ptau11, 0, NX, NY, 6, 0, "ptau11");
+	      debug_check_matrix(ptau33, 0, NX, NY, 6, 0, "ptau33");
+	      debug_check_matrix(ptau13, 0, NX, NY, 6, 0, "ptau13");
+	      debug_check_matrix(ptau55, 0, NX, NY, 6, 0, "ptau55");
+	      debug_check_vector(peta, 0, L, 6, 0, "peta");
+#endif
                 break;
             case 7: /* elastic TTI */
               readmod_elastic_tti ( prho, pc11, pc33, pc13, pc55, pc15, pc35 );
+#ifdef EBUG
+	      debug_check_matrix(prho, 0, NX, NY, 7, 0, "prho");
+	      debug_check_matrix(pc11, 0, NX, NY, 7, 0, "pc11");
+	      debug_check_matrix(pc33, 0, NX, NY, 7, 0, "pc33");
+	      debug_check_matrix(pc13, 0, NX, NY, 7, 0, "pc13");
+	      debug_check_matrix(pc55, 0, NX, NY, 7, 0, "pc55");
+	      debug_check_matrix(pc15, 0, NX, NY, 7, 0, "pc15");
+	      debug_check_matrix(pc35, 0, NX, NY, 7, 0, "pc35");
+#endif
                 break;
             case 8: /* viscoelastic TTI */
               readmod_visco_tti ( prho, pc11, pc33, pc13, pc55, pc15, pc35,
                                  ptau11, ptau33, ptau13, ptau55, ptau15, ptau35, peta );
-                break;
-
-                
+#ifdef EBUG
+	      debug_check_matrix(prho, 0, NX, NY, 8, 0, "prho");
+	      debug_check_matrix(pc11, 0, NX, NY, 8, 0, "pc11");
+	      debug_check_matrix(pc33, 0, NX, NY, 8, 0, "pc33");
+	      debug_check_matrix(pc13, 0, NX, NY, 8, 0, "pc13");
+	      debug_check_matrix(pc55, 0, NX, NY, 8, 0, "pc55");
+	      debug_check_matrix(pc15, 0, NX, NY, 8, 0, "pc15");
+	      debug_check_matrix(pc35, 0, NX, NY, 8, 0, "pc35");
+	      debug_check_matrix(ptau11, 0, NX, NY, 8, 0, "ptau11");
+	      debug_check_matrix(ptau33, 0, NX, NY, 8, 0, "ptau33");
+	      debug_check_matrix(ptau13, 0, NX, NY, 8, 0, "ptau13");
+	      debug_check_matrix(ptau55, 0, NX, NY, 8, 0, "ptau55");
+	      debug_check_matrix(ptau15, 0, NX, NY, 8, 0, "ptau15");
+	      debug_check_matrix(ptau35, 0, NX, NY, 8, 0, "ptau35");
+	      debug_check_vector(peta, 0, L, 8, 0, "peta");
+#endif
+	      break;
         }
     }else {
         switch ( WEQ) {
@@ -677,8 +721,6 @@ int main ( int argc, char **argv )
                model_visco_tti ( prho, pc11, pc33, pc13, pc55, pc15, pc35, ptau11,
                                 ptau33, ptau13, ptau55, ptau15, ptau35, peta );
                 break;
-
-   
         }
     }
     
@@ -700,12 +742,10 @@ int main ( int argc, char **argv )
                 break;
             case 7 : /* elastic TTI */
                 checkfd ( FP, prho, pc11, pc55, ptaus, ptaup, peta, hc, srcpos, nsrc, recpos, ntr_glob );
-            break;
+		break;
             case 8 : /* viscoelastic TTI */
                 checkfd ( FP, prho, pc11, pc55, ptau55, ptau11, peta, hc, srcpos, nsrc, recpos, ntr_glob );
-            break;
-
-   
+		break;
         }
     
 
@@ -747,14 +787,24 @@ int main ( int argc, char **argv )
             matcopy_elastic ( prho, pc11, pc55 );
             av_mue ( pc55, pc55ipjp );
             av_rho ( prho, prip, prjp );
+#ifdef EBUG
+	    debug_check_matrix(pc55ipjp, 0, NX, NY, 55, 0, "pc55ipjp");
+	    debug_check_matrix(prip, 0, NX, NY, 55, 0, "prip");
+	    debug_check_matrix(prjp, 0, NX, NY, 55, 0, "prjp");
+#endif
             break;
         case 6 : /* viscoelastic VTI */
             matcopy_elastic ( prho, ptau55, pc55 );
             av_mue ( pc55, pc55ipjp );
             av_rho ( prho, prip, prjp );
             av_tau (ptau55, ptau55ipjp);
+#ifdef EBUG
+	    debug_check_matrix(pc55ipjp, 0, NX, NY, 66, 0, "pc55ipjp");
+	    debug_check_matrix(prip, 0, NX, NY, 66, 0, "prip");
+	    debug_check_matrix(prjp, 0, NX, NY, 66, 0, "prjp");
+	    debug_check_matrix(ptau55ipjp, 0, NX, NY, 66, 0, "ptau55ipjp");
+#endif
             break;
-            
         case 7 : /* elastic TTI */
             matcopy_elastic ( prho, pc11, pc55 );
             matcopy_elastic ( prho, pc15, pc35 );
@@ -762,24 +812,36 @@ int main ( int argc, char **argv )
             av_mue ( pc15, pc15ipjp );
             av_mue ( pc35, pc35ipjp );
             av_rho ( prho, prip, prjp );
+#ifdef EBUG
+	    debug_check_matrix(pc55ipjp, 0, NX, NY, 77, 0, "pc55ipjp");
+	    debug_check_matrix(prip, 0, NX, NY, 77, 0, "prip");
+	    debug_check_matrix(prjp, 0, NX, NY, 77, 0, "prjp");
+	    debug_check_matrix(pc15ipjp, 0, NX, NY, 77, 0, "pc15ipjp");
+	    debug_check_matrix(pc35ipjp, 0, NX, NY, 77, 0, "pc35ipjp");
+#endif
             break;
-           
         case 8 : /* viscoelastic TTI */
             matcopy_elastic ( prho, ptau55, pc55 );
             matcopy_elastic ( prho, ptau15, pc15 );
             matcopy_elastic ( prho, ptau35, pc35 );
-
             av_mue ( pc55, pc55ipjp );
             av_mue ( pc15, pc15ipjp );
             av_mue ( pc35, pc35ipjp );
             av_rho ( prho, prip, prjp );
-            
             av_tau (ptau55, ptau55ipjp);
             av_tau (ptau15, ptau15ipjp);
             av_tau (ptau35, ptau35ipjp);
-
-            
-            
+#ifdef EBUG
+	    debug_check_matrix(pc55ipjp, 0, NX, NY, 88, 0, "pc55ipjp");
+	    debug_check_matrix(prip, 0, NX, NY, 88, 0, "prip");
+	    debug_check_matrix(prjp, 0, NX, NY, 88, 0, "prjp");
+	    debug_check_matrix(pc15ipjp, 0, NX, NY, 88, 0, "pc15ipjp");
+	    debug_check_matrix(pc35ipjp, 0, NX, NY, 88, 0, "pc35ipjp");
+	    debug_check_matrix(ptau55ipjp, 0, NX, NY, 88, 0, "ptau55ipjp");
+	    debug_check_matrix(ptau15ipjp, 0, NX, NY, 88, 0, "ptau15ipjp");
+	    debug_check_matrix(ptau35ipjp, 0, NX, NY, 88, 0, "ptau35ipjp");
+#endif
+	    break;
     }
 
     
@@ -828,11 +890,8 @@ int main ( int argc, char **argv )
                                      bip,  cip);
                 
                 break;
-
-                
-                
             }
-}
+    }
     
     
     if ( (WEQ==4) && FDORDER_TIME==4) {
@@ -958,6 +1017,10 @@ int main ( int argc, char **argv )
             if (FDORDER_TIME==2) {
                 update_v_interior ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, prho, prip, prjp,
                                    srcpos_loc, signals, nsrc_loc, hc );
+#ifdef EBUG
+		debug_check_matrix(pvx, nt, NX, NY, 121, 0, "pvx");
+		debug_check_matrix(pvy, nt, NX, NY, 121, 0, "pvy");
+#endif
                 
                 if ( FW ) {
                     if ( ABS_TYPE==1 ) {
@@ -969,6 +1032,10 @@ int main ( int argc, char **argv )
                     if ( ABS_TYPE != 1 ) {
                         update_v_abs ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, prip, prjp, absorb_coeff, hc );
                     }
+#ifdef EBUG
+		    debug_check_matrix(pvx, nt, NX, NY, 122, 0, "pvx");
+		    debug_check_matrix(pvy, nt, NX, NY, 122, 0, "pvy");
+#endif
                 }
             }
             
@@ -1056,6 +1123,11 @@ int main ( int argc, char **argv )
                             update_s_elastic_vti_abs ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
                                                   pc11, pc55ipjp, pc13, pc33, absorb_coeff, hc );
                     }
+#ifdef EBUG
+		    debug_check_matrix(psxx, nt, NX, NY, 555, 0, "psxx");
+		    debug_check_matrix(psyy, nt, NX, NY, 555, 0, "psyy");
+		    debug_check_matrix(psxy, nt, NX, NY, 555, 0, "psxy");
+#endif
                     break;
 
                     case 6: /* viscoelastic VTI */
@@ -1074,6 +1146,11 @@ int main ( int argc, char **argv )
                                                             pc55ipjpu, pc13u, pc11u,  pc33u, pc55ipjpd,  pc13d, pc11d,  pc33d,
                                                             bip,  cip, absorb_coeff, hc );
                     }
+#ifdef EBUG
+		    debug_check_matrix(psxx, nt, NX, NY, 666, 0, "psxx");
+		    debug_check_matrix(psyy, nt, NX, NY, 666, 0, "psyy");
+		    debug_check_matrix(psxy, nt, NX, NY, 666, 0, "psxy");
+#endif
                     break;
                         
                     case 7: /* elastic TTI */
@@ -1089,6 +1166,11 @@ int main ( int argc, char **argv )
                              update_s_elastic_tti_abs ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
                                                        pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp, absorb_coeff, hc );
                      }
+#ifdef EBUG
+		     debug_check_matrix(psxx, nt, NX, NY, 777, 0, "psxx");
+		     debug_check_matrix(psyy, nt, NX, NY, 777, 0, "psyy");
+		     debug_check_matrix(psxy, nt, NX, NY, 777, 0, "psxy");
+#endif
                      break;
                         
                     case 8: /* viscoelastic TTI */
@@ -1110,11 +1192,12 @@ int main ( int argc, char **argv )
                                                    pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
                                                             bip,  cip, absorb_coeff, hc );
                     }
-
-                        
-
-                        
-
+#ifdef EBUG
+		    debug_check_matrix(psxx, nt, NX, NY, 888, 0, "psxx");
+		    debug_check_matrix(psyy, nt, NX, NY, 888, 0, "psyy");
+		    debug_check_matrix(psxy, nt, NX, NY, 888, 0, "psxy");
+#endif
+                    break;
                 }
             }
             
