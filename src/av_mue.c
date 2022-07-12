@@ -28,7 +28,7 @@ void av_mue(float **u, float **uipjp) {
 
   for (j=1;j<=NY;j++){
     for (i=1;i<=NX;i++){
-      if ((u[j][i]==0.f) || (u[j][i+1]==0.f) || (u[j+1][i]==0.f) || (u[j+1][i+1])) {
+      if ((u[j][i]==0.f) || (u[j][i+1]==0.f) || (u[j+1][i]==0.f) || (u[j+1][i+1]==0.f)) {
 	uipjp[j][i] = 0.f;
       } else {
 	uipjp[j][i] = 4.0/((1.0/u[j][i])+(1.0/u[j][i+1])+(1.0/u[j+1][i])+(1.0/u[j+1][i+1]));
