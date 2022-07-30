@@ -47,6 +47,8 @@
 #include "debug_buffers.h"
 #endif
 
+#include <unistd.h>
+
 int main ( int argc, char **argv )
 {
     /* variables in main */
@@ -60,7 +62,7 @@ int main ( int argc, char **argv )
     
     float memdyn, memmodel, memseismograms, membuffer, memtotal, memcpml=0.0;
     float fac1, fac2, memadd,memadd_L;
-    char *buff_addr, ext[10], *fileinp = "", modestr[10], infostr[70];
+    char *buff_addr, ext[10], *fileinp = "";
     double time1 = 0.0, time2 = 0.0, time3 = 0.0, time4 = 0.0;
     double time5 = 0.0, time6 = 0.0, time7 = 0.0, time8 = 0.0;
     double time_av_v_update = 0.0, time_av_s_update = 0.0,
@@ -84,7 +86,6 @@ int main ( int argc, char **argv )
 
     float **ptau11=NULL, **ptau33=NULL, **ptau13=NULL, **ptau55=NULL, **ptau15=NULL, **ptau35=NULL;
     float **ptau55ipjp=NULL, **ptau15ipjp=NULL, **ptau35ipjp=NULL;
-
 
     /* Save old spatial derivations of velocity for Adam Bashforth */
     float ** vxx_1=NULL,** vxx_2=NULL,** vxx_3=NULL,** vxx_4=NULL;
@@ -126,66 +127,44 @@ int main ( int argc, char **argv )
     float ** psi_sxx_x=NULL, ** psi_syy_y=NULL, ** psi_sxy_y=NULL, ** psi_sxy_x=NULL,
     ** psi_vxx=NULL, ** psi_vyy=NULL, ** psi_vxy=NULL, ** psi_vyx=NULL, ** psi_vxxs=NULL;
     
-    FILE *fpinp;
-    
     MPI_Request *req_send, *req_rec;
     /*	MPI_Status *send_statuses, *rec_statuses; */
     
-    /* Initialize MPI environment */
-    MPI_Init ( &argc, &argv );
-    MPI_Comm_size ( MPI_COMM_WORLD, &NP );
-    MPI_Comm_rank ( MPI_COMM_WORLD, &MYID );
+    /* initialize MPI environment */
+    MPI_Init(&argc, &argv);
+    MPI_Comm_size(MPI_COMM_WORLD, &NP);
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
     
-    if ( MYID == 0 ) {
-        time1 = MPI_Wtime();
-        cpu_time1 = clock();
-    }
-    
-    /* print program name, version etc to stdout*/
-    if ( MYID == 0 )
-        info ( stdout );
-    
-    /* =================================================== */
-    
-    /* check of parameter-file can be opened*/
     fileinp = argv[1];
-    fpinp = fopen ( fileinp, "r" );
-    if ( fpinp == NULL ) {
-        if ( MYID == 0 ) {
-            printf (
-                    "\n==================================================================\n" );
-            printf ( " Cannot open sofi2D input file %s \n", fileinp );
-            printf (
-                    "\n==================================================================\n\n" );
-            declare_error ( " --- " );
-            return 0;
-        }
-    } else {
-        fscanf ( fpinp, "%s %s = %i", infostr, modestr, &RUNMODE );
-        fclose ( fpinp );
+    if (MYID == 0) {
+      time1 = MPI_Wtime();
+      cpu_time1 = clock();
+
+      /* print program name, version etc to stdout */
+      info(stdout);
+
+      /* check if parameter file can be opened */
+      if (access(fileinp, R_OK) != 0) {
+	printf("\n==================================================================\n");
+	printf(" Cannot open/read sofi2D input file %s \n", fileinp);
+	printf("\n==================================================================\n\n");
+	declare_error("---");
+      }
+
+      /* check suffix of parameter file */
+      if (!strstr(fileinp, ".json")) {
+	declare_error("Parameter file has no .json suffix. Old Input files (.inp) are no longer supported.");
+      }
+
+      /* read json parameter file */
+      read_par_json(stdout, fileinp);
     }
     
-    /* Check file system */
-    check_fs ( stdout, argc, fileinp );
-    
-    /* =================================================== */
-    if ( RUNMODE == 0 ) {
-        /* read standard input file */
-        if ( strstr ( fileinp, ".json" ) )
-            //read json formated input file
-            read_par_json ( stdout, fileinp );
-        else   {
-            if ( MYID == 0 )
-                declare_error ( " Old Input files (.inp) are no longer supported. \n Please use .json input files instead. " );
-            
-        }
-    }
-    /*else
-     auto mode: read input files
-     read_par_auto ( stdout, fileinp ); */
-    /* =================================================== */
-    
+    /* exchange parameters between MPI processes */
     exchange_par();
+
+    /* check file system */
+    check_fs(stdout, argc, fileinp);
     
     /* open log-file (each PE is using different file) */
     sprintf ( ext, ".%i", MYID );
@@ -1595,5 +1574,5 @@ if ( WEQ==4 ) { /*viscoelastic wave equation */
     fclose(FP);
     MPI_Finalize();
 
-    return 0;
+    return EXIT_SUCCESS;
 } /*main*/

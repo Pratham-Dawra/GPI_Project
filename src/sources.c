@@ -27,9 +27,9 @@
 float **sources(int *nsrc){
 
 	/* declaration of extern variables */
-	extern float PLANE_WAVE_DEPTH, PLANE_WAVE_ANGLE, TS, DH, SRCPOSXYZ[3];
+	extern float PLANE_WAVE_DEPTH, PLANE_WAVE_ANGLE, TS, DH;
 	extern char SOURCE_FILE[STRING_SIZE];
-	extern int MYID, NXG, NYG, SRCREC, RUNMODE, RUN_MULTIPLE_SHOTS, SOURCE_TYPE;
+	extern int MYID, NXG, NYG, SRCREC, RUN_MULTIPLE_SHOTS, SOURCE_TYPE;
 	extern FILE *FP;
 
 	float **srcpos=NULL;
@@ -60,10 +60,6 @@ float **sources(int *nsrc){
 			if ((nsrc)==0) fprintf(FP,"\n WARNING: Could not determine number of sources parameter sets in input file. Assuming %i.\n",(*nsrc=0));
 			else fprintf(FP," Number of source positions specified in %s : %d \n",SOURCE_FILE,*nsrc);
 
-			/* AUTO MODE: there is only 1 source => read first line, ignore the others */
-			if (RUNMODE == 1)
-				*nsrc = 1;
-
 			/* memory for source position definition */
 			srcpos=matrix(1,8,1,*nsrc);
 
@@ -89,18 +85,9 @@ float **sources(int *nsrc){
 				}
 				/* fscanf(fpsrc,"%f%f%f%f%f",&xsrc, &ysrc, &tshift, &fc, &amp); */
 
-				/* AUTO MODE: use source positions from auto input file */
-				if (RUNMODE == 1) {
-					srcpos[1][l] = SRCPOSXYZ[0];
-					srcpos[2][l] = SRCPOSXYZ[1];
-					srcpos[3][l] = SRCPOSXYZ[2];
-					/* otherwise: from source file */
-				} 
-				else {
-					srcpos[1][l]=xsrc;
-					srcpos[2][l]=ysrc;
-					srcpos[3][l]=0.0;
-				}
+				srcpos[1][l]=xsrc;
+				srcpos[2][l]=ysrc;
+				srcpos[3][l]=0.0;
 				srcpos[4][l]=tshift;
 				fc=srcpos[5][l];
 			}

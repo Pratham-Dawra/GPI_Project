@@ -24,80 +24,70 @@
 #include "fd.h"
 #include "globvar.h"      /* definition of global variables  */
 
-int main(int argc, char **argv){
+int main(int argc, char **argv) {
 
-int  nsnap;
-//char *fileinp="", modestr[10], infostr[70];
-char *fileinp="";
+  int  nsnap;
+  char *fileinp="";
 
-/* ============================================== */
-/* Open parameter-file to check if auto mode or not*/
-fileinp = argv[1];
+  /* ============================================== */
+  /* Open parameter-file to check if auto mode or not*/
+  fileinp = argv[1];
 
-printf(" ***********************************************************\n");
-printf(" This is program SNAPMERGE. \n");
-printf(" Merge of snapshot files from the parallel  \n 2-D Viscoelastic Finite Difference Modeling      \n");
-printf("                                                            \n");
-printf(" written by  T. Bohlen                          \n");
-printf(" Geophysical Institute, Department of Physics,         \n");
-printf(" Institute of Technology, Karlsruhe, Germany         \n");
-printf(" http://www.gpi.kit.edu \n");
-printf(" ***********************************************************\n");
-printf("\n");
-printf(" Syntax example if excecuted from ./par directory: ../bin/snapmerge in_and_out/sofi2D.json \n");
-printf(" Input file for the snapmerge process from command line : %s \n",fileinp);
+  printf(" ***********************************************************\n");
+  printf(" This is program SNAPMERGE. \n");
+  printf(" Merge of snapshot files from the parallel  \n 2-D Viscoelastic Finite Difference Modeling      \n");
+  printf("                                                            \n");
+  printf(" written by  T. Bohlen                          \n");
+  printf(" Geophysical Institute, Department of Physics,         \n");
+  printf(" Institute of Technology, Karlsruhe, Germany         \n");
+  printf(" http://www.gpi.kit.edu \n");
+  printf(" ***********************************************************\n");
+  printf("\n");
+  printf(" Syntax example if excecuted from ./par directory: ../bin/snapmerge in_and_out/sofi2D.json \n");
+  printf(" Input file for the snapmerge process from command line : %s \n",fileinp);
+  
+  if ((FP=fopen(fileinp,"r"))==NULL) declare_error(" Opening input file failed.");
+  else printf(" Opening input file was successful.\n\n");
+  fclose(FP);
 
-//FP = fopen(fileinp,"r");
-if ((FP=fopen(fileinp,"r"))==NULL) declare_error(" Opening input file failed.");
-else printf(" Opening input file was successful.\n\n");
-fclose(FP);
-//fscanf(FP, "%s %s = %i", infostr, modestr, &RUNMODE);
+  /* =================================================== */
+  /* read standard input file */
+  if (strstr(fileinp,".json"))
+    read_par_json(stdout, fileinp);
+  else {
+    printf("Parameter file has no .json suffix.");
+    exit(EXIT_FAILURE);
+  }
 
-/* =================================================== */
-if (RUNMODE == 0)
-	/* read standard input file */
-	if (strstr(fileinp,".json"))
-		//read json formated input file
-		read_par_json(stdout, fileinp);
-/*	else
-		/read "old" input file *.inp, might not work in future
-		read_par(stdout, fileinp);
-else
-	 auto mode: read input files 
-	read_par_auto(stdout, fileinp);*/
-/* =================================================== */
+  NXG=NX;
+  NYG=NY;	
+  NX = NXG/NPROCX;
+  NY = NYG/NPROCY;
 
+  nsnap=1+iround((TSNAP2-TSNAP1)/TSNAPINC);
 
-NXG=NX;
-NYG=NY;	
-NX = NXG/NPROCX;
-NY = NYG/NPROCY;
+  FP=stdout;
 
-nsnap=1+iround((TSNAP2-TSNAP1)/TSNAPINC);
+  switch(SNAP){
+  case 1 : /*particle velocity*/
+    merge(nsnap,1);
+    merge(nsnap,2);
+    break;
+  case 2 : /*pressure */
+    merge(nsnap,6);
+    break;
+  case 4 : /*particle velocity*/
+    merge(nsnap,1);
+    merge(nsnap,2);
+    merge(nsnap,6);
+  case 3 :
+    merge(nsnap,4);
+    merge(nsnap,5);
+    break;
+  default :
+    warning(" snapmerge: cannot identify content of snapshot !");
+    break;
+  }	
 
-FP=stdout;
-
-switch(SNAP){
-case 1 : /*particle velocity*/
-   merge(nsnap,1);
-   merge(nsnap,2);
-   break;
-case 2 : /*pressure */
-   merge(nsnap,6);
-   break;
-case 4 : /*particle velocity*/
-   merge(nsnap,1);
-   merge(nsnap,2);
-   merge(nsnap,6);
-case 3 :
-   merge(nsnap,4);
-   merge(nsnap,5);
-   break;
-default :
-   warning(" snapmerge: cannot identify content of snapshot !");
-   break;
-
-}	
-return 0;	
-
+  return EXIT_SUCCESS;	
 }

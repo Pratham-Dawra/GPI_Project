@@ -33,7 +33,7 @@ float XREC1=0.0, XREC2=0.0, YREC1=0.0, YREC2=0.0;
 float REC_ARRAY_DEPTH=0.0, REC_ARRAY_DIST=0.0;
 float REFREC[4]={0.0, 0.0, 0.0, 0.0};
 float NGEOPH; /*in auto mode NGEOPH will be calculated from model dimensions, type integer is incorrect*/
-int   RUNMODE, WRITE_MODELFILES=0, ABS_TYPE;
+int   WRITE_MODELFILES=0, ABS_TYPE;
 int   OUTNTIMESTEPINFO=1; /*every OUTNTIMESTEPINFO th timestep, information on the time step will be given to screen/file */
 int   WEQ=0;
 int   SEISMO=0, NDT=1, NSRC=1, SEIS_FORMAT=0, FREE_SURF=0, READMOD=0, READREC=0, SRCREC=0, RSG=0, FW=0;
