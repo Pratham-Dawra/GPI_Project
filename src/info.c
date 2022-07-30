@@ -23,16 +23,15 @@
 
 #include "fd.h"
 
-void info(FILE *fp){
-
-	fprintf(fp," ***********************************************************\n");
-	fprintf(fp," This is program SOFI2D. \n");
-	fprintf(fp," Parallel 2-D Viscoelastic Finite Difference Modeling      \n");
-	fprintf(fp,"                                                            \n");
-	fprintf(fp," written by  T. Bohlen                          \n");
-	fprintf(fp," Geophysical Institute, Department of Physics,         \n");
-	fprintf(fp," Institute of Technology, Karlsruhe, Germany         \n");
-	fprintf(fp," http://www.gpi.kit.edu \n");
-	fprintf(fp," ***********************************************************\n");
-	fprintf(fp,"\n");
+void info(FILE *fp) {
+  fprintf(fp," ***********************************************************\n");
+  fprintf(fp," This is program SOFI2D.\n");
+  fprintf(fp," Parallel 2D Viscoelastic Anisotropic Finite-Difference Modeling\n");
+  fprintf(fp," \n");
+  fprintf(fp," written by  T. Bohlen\n");
+  fprintf(fp," Geophysical Institute, KIT Department of Physics\n");
+  fprintf(fp," Karlsruhe Institute of Technology, Karlsruhe, Germany\n");
+  fprintf(fp," http://www.gpi.kit.edu\n");
+  fprintf(fp," ***********************************************************\n");
+  fprintf(fp,"\n");
 }
