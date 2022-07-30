@@ -56,6 +56,7 @@ int main ( int argc, char **argv )
     int ishot, nshots; /* Added ishot and nshots for multiple shots */
     /*Limits for local grids defined in subgrid_bounds.c */
     int * gx=NULL, * gy=NULL;
+    clock_t cpu_time1 = 0, cpu_time = 0;
     
     float memdyn, memmodel, memseismograms, membuffer, memtotal, memcpml=0.0;
     float fac1, fac2, memadd,memadd_L;
@@ -137,7 +138,7 @@ int main ( int argc, char **argv )
     
     if ( MYID == 0 ) {
         time1 = MPI_Wtime();
-        clock();
+        cpu_time1 = clock();
     }
     
     /* print program name, version etc to stdout*/
@@ -1565,48 +1566,34 @@ if ( WEQ==4 ) { /*viscoelastic wave equation */
     }
     
     /* de-allocate buffer for messages */
-    MPI_Buffer_detach ( buff_addr, &buffsize );
-    
-    /* merge snapshot files created by the PEs into one file */
-    /* if ((SNAP) && (MYID==0)){
-     snapmerge(nsnap);
-     }
-     */
-    
-    MPI_Barrier ( MPI_COMM_WORLD );
-    
-    if ( MYID == 0 ) {
-        fprintf ( FP, "\n **Info from main (written by PE %d): \n", MYID );
-        
-        time_av_v_update = time_av_v_update / ( double ) NT;
-        time_av_s_update = time_av_s_update / ( double ) NT;
-        time_av_v_exchange = time_av_v_exchange / ( double ) NT;
-        time_av_s_exchange = time_av_s_exchange / ( double ) NT;
-        time_av_timestep = time_av_timestep / ( double ) NT;
-        fprintf ( FP, " Average times for \n" );
-        fprintf ( FP, "   velocity update:  \t %5.6f seconds  \n",
-                 time_av_v_update );
-        fprintf ( FP, "   stress update:  \t %5.6f seconds  \n",
-                 time_av_s_update );
-        fprintf ( FP, "   velocity exchange:  \t %5.6f seconds  \n",
-                 time_av_v_exchange );
-        fprintf ( FP, "   stress exchange:  \t %5.6f seconds  \n",
-                 time_av_s_exchange );
-        fprintf ( FP, "   timestep:  \t\t %5.6f seconds  \n\n", time_av_timestep );
-        
-        fprintf ( FP, " CPU time of program per PE: %li seconds.\n",
-                 clock() / CLOCKS_PER_SEC );
+    MPI_Buffer_detach(buff_addr, &buffsize);
+
+    MPI_Barrier (MPI_COMM_WORLD);
+
+    if (MYID == 0) {
+        fprintf(FP, "\n **Info from main (written by PE %d): \n", MYID); 
+        time_av_v_update = time_av_v_update / (double)NT;
+        time_av_s_update = time_av_s_update / (double)NT;
+        time_av_v_exchange = time_av_v_exchange / (double)NT;
+        time_av_s_exchange = time_av_s_exchange / (double)NT;
+        time_av_timestep = time_av_timestep / (double)NT;
+        fprintf(FP, " Average times for \n");
+        fprintf(FP, "   velocity update:  \t %5.6f seconds  \n", time_av_v_update);
+        fprintf(FP, "   stress update:  \t %5.6f seconds  \n", time_av_s_update);
+        fprintf(FP, "   velocity exchange:  \t %5.6f seconds  \n", time_av_v_exchange);
+        fprintf(FP, "   stress exchange:  \t %5.6f seconds  \n", time_av_s_exchange);
+        fprintf(FP, "   timestep:  \t\t %5.6f seconds  \n\n", time_av_timestep);
+        cpu_time = clock()-cpu_time1;
+        fprintf(FP, " CPU time of program per PE: %li seconds.\n", cpu_time/CLOCKS_PER_SEC);
         time8 = MPI_Wtime();
-        fprintf ( FP, " Total real time of program: %4.3f seconds.\n\n",
-                 time8 - time1 );
-        fprintf ( FP," ******************************************************\n" );
-        fprintf ( FP," **************** SOFI2D has finished *****************\n" );
-        fprintf ( FP," ******************************************************\n\n" );
-        
+        fprintf(FP, " Total real time of program: %4.3f seconds.\n\n", time8-time1);
+        fprintf(FP," ******************************************************\n" );
+        fprintf(FP," **************** SOFI2D has finished *****************\n" );
+        fprintf(FP," ******************************************************\n\n" );
     }
     
-    fclose ( FP );
+    fclose(FP);
     MPI_Finalize();
+
     return 0;
-    
 } /*main*/
