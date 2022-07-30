@@ -62,7 +62,7 @@ void av_rho(float **rho, float **rip, float **rjp);
 
 void av_tau(float **taus, float **tausipjp);
 
-void check_fs(FILE *fp, int argc, char *fileinp);
+void check_fs(FILE *fp);
 
 void checkfd(FILE *fp, float **prho, float **ppi, float **pu,
              float **ptaus, float **ptaup, float *peta, float *hc, float **srcpos, int nsrc, int **recpos, int ntr);
