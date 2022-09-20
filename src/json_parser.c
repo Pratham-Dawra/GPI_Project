@@ -18,7 +18,7 @@
 --------------------------------------------------------------------------*/
 /* -------------------------------------------------------------
  * function json_parser
- * reads input parameters from input file fomatted according to the json standard
+ * reads input parameters from input file formatted according to the json standard
  * also see www.json.org
  *
  *------------------------------------------------------------- */
@@ -60,7 +60,7 @@ int read_objects_from_intputfile(FILE *fp, char *input_file,char **varname_list,
 		/* tests if line contains at least a colon, double quote per line*/
 		if (((strstr(cline,":"))&&((strstr(cline,"\"")))) && (!(strstr(cline,"comment")) && !(strstr(cline,"Comment"))))  {
 
-			//count number of double quoates and colon signs
+			//count number of double quotes and colon signs
 			occurence_doublequotes=count_occure_charinstring(cline,"\"");
 			occurence_commas=count_occure_charinstring(cline,",");
 

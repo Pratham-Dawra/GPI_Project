@@ -146,6 +146,12 @@ void write_par(FILE *fp){
 	case 4 :
 		fprintf(fp," sinus raised to the power of 3.0 \n");
 		break;
+	case 5 :
+		fprintf(fp," Berlage wavelet \n");
+		break;
+	case 6 :
+		fprintf(fp," Klauder wavelet \n");
+		break;
 	default :
 		declare_error(" Sorry, incorrect specification of source wavelet ! ");
 		break;
@@ -211,7 +217,6 @@ void write_par(FILE *fp){
                 	fprintf(fp," K_MAX: %f \n",K_MAX_CPML);
         	}
 
-		
 		if (ABS_TYPE==2) {
 			fprintf(fp," Exponential damping applied. \n");
 			fprintf(fp," Percentage of amplitude decay: %f .\n",DAMPING);
@@ -288,7 +293,7 @@ void write_par(FILE *fp){
 			declare_error(" Don't know the format for the Snapshot-data ! \n");
 			break;
 		}
-	
+
 		fprintf(fp,"\n\n");
 	}
 	if (SEISMO){
@@ -317,7 +322,7 @@ void write_par(FILE *fp){
 			fprintf(fp,"\t%s_rot.%s \n\t%s_div.%s\n",SEIS_FILE,file_ext,SEIS_FILE,file_ext);
 			
 		}		
-			
+
 		switch (SEIS_FORMAT){
 		case 1 :
 			fprintf(fp," The data is written in IEEE SU-format . \n");
@@ -342,6 +347,5 @@ void write_par(FILE *fp){
 	fprintf(fp,"\n **********************************************************");
 	fprintf(fp,"\n ******* PARAMETERS READ or PROCESSED within SOFI2D ********");
 	fprintf(fp,"\n **********************************************************\n\n");
-
 
 }

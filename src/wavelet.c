@@ -24,6 +24,7 @@
 *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
+#include "complex.h"
 
 
 float **wavelet(float **srcpos_loc, int nsrc) {
@@ -36,7 +37,8 @@ float **wavelet(float **srcpos_loc, int nsrc) {
 
   /*local variables */
   int nts=0, nt, k;
-  float *psource=NULL, tshift, amp=0.0, a, fc, tau, t, ts;
+  float *psource=NULL, tshift, amp=0.0, a, fc, tau, t, ts, f2;
+  float n, alpha, phi0deg, phi0, T, fmin, fmax, width, taper, sigmax;
   /*float a2;*/ /*different Ricker signal used for comparison with analytical solution*/
   float ** signals = NULL;
 
@@ -49,49 +51,95 @@ float **wavelet(float **srcpos_loc, int nsrc) {
   if (nsrc < 1) return signals;
 
   signals=matrix(1,nsrc,1,NT);
-	
-  for (nt=1;nt<=NT;nt++) {
-    t=(float)nt*DT;
 
-    for (k=1;k<=nsrc;k++) {
-      tshift=srcpos_loc[4][k];
-      fc=srcpos_loc[5][k];
-      a=srcpos_loc[6][k];
-      ts=1.0/fc;
+  for (k=1;k<=nsrc;k++) {
+    tshift=srcpos_loc[4][k]; // time shift
+    fc=srcpos_loc[5][k]; // centre frequency [Hz]; in case 5 (Berlage wavelet) lowest frequency
+    a=srcpos_loc[6][k]; // maximum amplitude
+    ts=1.0/fc;
+
+    sigmax=0.0;
+
+    for (nt=1;nt<=NT;nt++) {
+      t=(float)nt*DT;
 
       switch (SOURCE_SHAPE){
       case 1 :
-	/* standard Ricker signal */
-	tau=PI*(t-1.5*ts-tshift)/(ts);
-	amp=(((1.0-2.0*tau*tau)*exp(-tau*tau)));
-	
-	/* different Ricker signal used for comparison with analytical solution */
-	/* tau=t-ts-tshift;
-	   a2=2.0*(PI*fc*PI*fc);
-	   amp=tau*(a2*tau*tau-1.5)*exp(-a2*tau*tau); */
-	break;
+	    /* standard Ricker signal */
+	    tau=PI*(t-1.5*ts-tshift)/(ts);
+	    amp=(((1.0-2.0*tau*tau)*exp(-tau*tau)));
+
+	    /* different Ricker signal used for comparison with analytical solution */
+        /* tau=t-ts-tshift;
+	    a2=2.0*(PI*fc*PI*fc);
+	    amp=tau*(a2*tau*tau-1.5)*exp(-a2*tau*tau); */
+	    break;
       case 2 :
-	if ((t<tshift) || (t>(tshift+ts))) amp=0.0;
-	else amp=((sin(2.0*PI*(t-tshift)*fc)
-		   -0.5*sin(4.0*PI*(t-tshift)*fc)));
-	/*   amp=((sin(2.0*PI*(t+tshift)*fc)
-		   -0.5*sin(4.0*PI*(t+tshift)*fc))); */
-	break;
+        if ((t<tshift) || (t>(tshift+ts))) amp=0.0;
+	    else amp=((sin(2.0*PI*(t-tshift)*fc)
+        -0.5*sin(4.0*PI*(t-tshift)*fc)));
+        /*   amp=((sin(2.0*PI*(t+tshift)*fc)
+        -0.5*sin(4.0*PI*(t+tshift)*fc))); */
+	    break;
       case 3 :
-	if (nt<=nts) amp=psource[nt];
-	else amp=0.0;
-	break;  /* source wavelet from file SOURCE_FILE */
+	    if (nt<=nts) amp=psource[nt];
+	    else amp=0.0;
+	    break;  /* source wavelet from file SOURCE_FILE */
       case 4 :
-	if ((t<tshift) || (t>(tshift+ts))) amp=0.0;
-	else amp=pow(sin(PI*(t-tshift)/ts),3.0);
-	break; /* sinus raised to the power of three */
+	    if ((t<tshift) || (t>(tshift+ts))) amp=0.0;
+	    else amp=pow(sin(PI*(t-tshift)/ts),3.0);
+	    break; /* sinus raised to the power of three */
+      case 5 :
+          /* Berlage wavelet (minimum-phase) (Aldridge, 1990) */
+          n=srcpos_loc[9][k]; // time exponent; >0 (Berlage only)
+          alpha=srcpos_loc[10][k]; // exponential decay factor (Berlage only)
+          phi0deg=srcpos_loc[11][k]; // initial phase angle [°] (Berlage only)
+          phi0=phi0deg*PI/180;
+
+          if (n<=0) declare_error("No valid time exponent for Berlage wavelet (N>0) specified! ");
+          if ((t<tshift)) amp=0.0;
+          else amp=a*pow((t-tshift),n)*exp(-alpha*(t-tshift))*cos(2*PI*fc*(t-tshift)+phi0);
+          //else amp=cos(2*PI*fc*(t-tshift)+phi0);
+          break;
+      case 6 :
+          /* Klauder wavelet */
+          fmin=srcpos_loc[9][k]; // lowest frequency in sweep [Hz] (Klauder only)
+          fmax=srcpos_loc[10][k]; // highest frequency in sweep [Hz] (Klauder only)
+          T=srcpos_loc[11][k]; // sweep duration [s] (Klauder only)
+          width=srcpos_loc[12][k]; // width of the Klauder wavelet in number of centre periods
+
+          f2=(fmax-fmin)/T;
+          tau=(width/fc);   // Klauder wavelet is shifted by "width" centre periods
+          if ((t<tshift) || (t>(tau*2)+tshift)) {
+              amp=0.0;
+          } else if (t<(tau*0.2)+tshift) {
+              amp=creal(sin(PI*f2*(t-tau-tshift)*(T-(t-tau-tshift)))/(PI*f2*(t-tau-tshift))*exp(2*PI*I*fc*(t-tau-tshift)));
+              taper=(1-cos(((t-tshift)/tau/0.2)*PI))/2;   /* linear taper */
+              amp=amp*taper;
+          } else if (t>(tau*1.8)+tshift) {
+              amp=creal(sin(PI*f2*(t-tau-tshift)*(T-(t-tau-tshift)))/(PI*f2*(t-tau-tshift))*exp(2*PI*I*fc*(t-tau-tshift)));
+              taper=(1-cos(((2*tau+tshift-t)/0.2/tau)*PI))/2;   /* linear taper */
+              amp=amp*taper;
+          } else {
+              amp=creal(sin(PI*f2*(t-tau-tshift)*(T-(t-tau-tshift)))/(PI*f2*(t-tau-tshift))*exp(2*PI*I*fc*(t-tau-tshift)));
+          }
+          break;
       default :
-	declare_error("No valid source-wavelet (SOURCE_SHAPE) specified! ");
-	break;
+	    declare_error("No valid source-wavelet (SOURCE_SHAPE) specified! ");
+	    break;
       }
+      if (fabs(amp)>sigmax) sigmax=fabs(amp);
       signals[k][nt]=amp*a;
     }
+    /* Normalization to desired amplitude */
+    if (0.0==sigmax) declare_error("Source signal contains only zeros! ");
+    if (SOURCE_SHAPE==5 || SOURCE_SHAPE==6){
+        for (nt=1;nt<=NT;nt++) {
+            signals[k][nt]=signals[k][nt]/sigmax;
+        }
+    }
   }
+
 
   fprintf(FP," Message from function wavelet written by PE %d \n",MYID);
   fprintf(FP," %d source positions located in subdomain of PE %d \n",nsrc,MYID);

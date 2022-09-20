@@ -57,6 +57,7 @@ int main ( int argc, char **argv )
     int ntr = 0, ntr_loc = 0, ntr_glob = 0, nsrc = 0, nsrc_loc = 0;
     int ishot, nshots; /* Added ishot and nshots for multiple shots */
     /*Limits for local grids defined in subgrid_bounds.c */
+    char sigf[STRING_SIZE], file_ext[5];
     int * gx=NULL, * gy=NULL;
     clock_t cpu_time1 = 0, cpu_time = 0;
     
@@ -607,7 +608,7 @@ int main ( int argc, char **argv )
     }
     
     /* memory for source position definition for saving the current positions */
-    srcpos_current = matrix ( 1, 8, 1, 1 );
+    srcpos_current = matrix ( 1, 12, 1, 1 );
     
     fprintf ( FP, " ... memory allocation for PE %d was successfull.\n\n", MYID );
     
@@ -765,7 +766,7 @@ int main ( int argc, char **argv )
         absorb ( absorb_coeff );
     }
     /* For the calculation of the material parameters beteween gridpoints
-     the have to be averaged. For this, values lying at 0 and NX+1,
+     they have to be averaged. For this, values lying at 0 and NX+1,
      for example, are required on the local grid. These are now copied from the
      neighbouring grids */
     
@@ -923,8 +924,9 @@ int main ( int argc, char **argv )
     
     for ( ishot = 1; ishot <= nshots; ishot++ ) {
         
-        for ( nt = 1; nt <= 8; nt++ )
+        for ( nt = 1; nt <= 12; nt++ ) {
             srcpos_current[nt][1] = srcpos[nt][ishot];
+        }
         
         if ( RUN_MULTIPLE_SHOTS ) {
             fprintf (
@@ -950,18 +952,45 @@ int main ( int argc, char **argv )
             
             /* find this single source positions on subdomains  */
             if ( nsrc_loc > 0 )
-                free_matrix ( srcpos_loc, 1, 8, 1, 1 );
+                free_matrix ( srcpos_loc, 1, 12, 1, 1 );
             srcpos_loc = splitsrc ( srcpos_current, &nsrc_loc, 1 );
         }
-        
-        else
+        else {
             srcpos_loc = splitsrc ( srcpos, &nsrc_loc, nsrc ); /* Distribute source positions on subdomains */
+        }
         
         MPI_Barrier ( MPI_COMM_WORLD );
         
         /* calculate wavelet for each source point */
         signals = wavelet ( srcpos_loc, nsrc_loc );
-        
+
+        /*if (0==MYID && 1==ishot) {
+            const char *debugout = "./sources/source_out.txt";
+            FILE *sig_fp = fopen(debugout, "w");
+            if (!sig_fp) {
+                declare_error("Could not open signal output file. \n");
+            }
+            //int NT_new=7/DT;
+            for (int i=1;i<=NT;i++) {
+                fprintf(sig_fp,"%f\n",signals[1][i]);
+            }
+            // signals=matrix(1,nsrc,1,NT);
+            fclose(sig_fp);
+        }*/
+
+        /* write source wavelet to file */
+        if (0==MYID && 1==SIGOUT) {
+            switch (SIGOUT_FORMAT){
+                case 1: sprintf(file_ext,"su");  break;
+                case 2: sprintf(file_ext,"txt"); break;
+                case 3: sprintf(file_ext,"bin"); break;
+            }
+
+            sprintf(sigf,"%s.shot%d.%s",SIGOUT_FILE,ishot,file_ext);
+            fprintf(FP,"\n PE %d is writing source wavelet to %s \n",MYID,sigf);
+            outseis_glob(FP,fopen(sigf,"w"),signals,recpos,recpos_loc,1,srcpos_loc,nsrc,NT,SIGOUT_FORMAT,ishot,0);
+        }
+
         /* initialize wavefield with zero */
         
         if ( ABS_TYPE == 1 ) {
@@ -1488,7 +1517,7 @@ if ( WEQ==4 ) { /*viscoelastic wave equation */
     
     if ( nsrc_loc > 0 ) {
         if (signals) free_matrix ( signals, 1, nsrc_loc, 1, NT );
-        free_matrix ( srcpos_loc, 1, 8, 1, nsrc_loc );
+        free_matrix ( srcpos_loc, 1, 12, 1, nsrc_loc );
     }
     
     if ( ABS_TYPE==1 ) {

@@ -28,8 +28,8 @@
 void read_par_json(FILE *fp, char *fileinp) 
 {
   /* declaration of extern variables */
-  extern int   NX, NY, FDORDER, FDORDER_TIME, MAXRELERROR, SOURCE_TYPE, SOURCE_SHAPE, SNAP, SNAP_FORMAT, L;
-  extern int SEISMO, NDT, SEIS_FORMAT, FREE_SURF, READMOD, READREC, SRCREC;
+  extern int   NX, NY, FDORDER, FDORDER_TIME, MAXRELERROR, SOURCE_TYPE, SOURCE_SHAPE, SIGOUT, SNAP, SNAP_FORMAT, L;
+  extern int SEISMO, NDT, SEIS_FORMAT, SIGOUT_FORMAT, FREE_SURF, READMOD, READREC, SRCREC;
   extern int BOUNDARY, REC_ARRAY, DRX, LOG,  WRITE_MODELFILES; //RSG
   extern int  NPROCX, NPROCY, IDX, IDY, CHECKPTREAD, CHECKPTWRITE, RUN_MULTIPLE_SHOTS, ABS_TYPE, FW;
   extern int OUTNTIMESTEPINFO, WEQ;
@@ -40,7 +40,7 @@ void read_par_json(FILE *fp, char *fileinp)
   extern float TSNAP1, TSNAP2, TSNAPINC, REFREC[4];
   extern char  MFILE[STRING_SIZE], SIGNAL_FILE[STRING_SIZE], LOG_FILE[STRING_SIZE];
   extern char SNAP_FILE[STRING_SIZE], SOURCE_FILE[STRING_SIZE], REC_FILE[STRING_SIZE];
-  extern char SEIS_FILE[STRING_SIZE], CHECKPTFILE[STRING_SIZE];
+  extern char SEIS_FILE[STRING_SIZE], SIGOUT_FILE[STRING_SIZE], CHECKPTFILE[STRING_SIZE];
   
   /* definition of local variables */
   int number_readobjects=0,fserr=0;
@@ -114,6 +114,19 @@ void read_par_json(FILE *fp, char *fileinp)
   
   if (get_int_from_objectlist("SOURCE_TYPE",number_readobjects,&SOURCE_TYPE,varname_list, value_list))
     declare_error("Variable SOURCE_TYPE could not be retrieved from the json input file!");
+  if (get_int_from_objectlist("SIGOUT",number_readobjects,&SIGOUT,varname_list, value_list)) {
+      //declare_error("Variable SIGOUT could not be retrieved from the json input file!");
+      fprintf(fp, " ADDITIONAL VARIABLE OPTIONS: With the variables SIGOUT, SIGOUT_FILE & SIGOUT_FORMAT you can output the source signal to file. \n\n\n");
+  } else {
+    if (SIGOUT==1) {
+      if (get_string_from_objectlist("SIGOUT_FILE",number_readobjects,SIGOUT_FILE,varname_list, value_list)) {
+          declare_error("Variable SIGOUT_FILE could not be retrieved from the json input file!");
+      }
+      if (get_int_from_objectlist("SIGOUT_FORMAT",number_readobjects,&SIGOUT_FORMAT,varname_list, value_list)) {
+        declare_error("Variable SIGOUT_FORMAT could not be retrieved from the json input file!");
+      }
+    }
+  }
   if (get_int_from_objectlist("SOURCE_SHAPE",number_readobjects,&SOURCE_SHAPE,varname_list, value_list))
     declare_error("Variable SOURCE_SHAPE could not be retrieved from the json input file!");
   else {

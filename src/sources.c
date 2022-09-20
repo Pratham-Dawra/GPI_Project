@@ -29,7 +29,7 @@ float **sources(int *nsrc){
 	/* declaration of extern variables */
 	extern float PLANE_WAVE_DEPTH, PLANE_WAVE_ANGLE, TS, DH;
 	extern char SOURCE_FILE[STRING_SIZE];
-	extern int MYID, NXG, NYG, SRCREC, RUN_MULTIPLE_SHOTS, SOURCE_TYPE;
+	extern int MYID, NXG, NYG, SRCREC, RUN_MULTIPLE_SHOTS, SOURCE_TYPE, SOURCE_SHAPE;
 	extern FILE *FP;
 
 	float **srcpos=NULL;
@@ -60,36 +60,146 @@ float **sources(int *nsrc){
 			if ((nsrc)==0) fprintf(FP,"\n WARNING: Could not determine number of sources parameter sets in input file. Assuming %i.\n",(*nsrc=0));
 			else fprintf(FP," Number of source positions specified in %s : %d \n",SOURCE_FILE,*nsrc);
 
-			/* memory for source position definition */
-			srcpos=matrix(1,8,1,*nsrc);
+			srcpos=matrix(1,12,1,*nsrc);
 
-			for (l=1;l<=*nsrc;l++){
+			/* memory for source position definition (Ricker, Fuchs-Mueller, sin**3 & from_File) */
+			if (SOURCE_SHAPE <= 4) {
+				/* srcpos[1][l] = x position
+				   srcpos[2][l] = depth position
+				   srcpos[3][l] = horizontal position (always zero in 2D)
+				   srcpos[4][l] = time delay (source start time)
+				   srcpos[5][l] = centre frequency
+				   srcpos[6][l] = amplitude
+				   srcpos[7][l] = azimuth [°] (optional)
+				   srcpos[8][l] = SOURCE_TYPE (optional)
+				*/
 
-				fgets(cline,255,fpsrc);
-				nvarin=sscanf(cline,"%f%f%f%f%f%f%f",&xsrc, &ysrc, &tshift, &srcpos[5][l], &srcpos[6][l], &srcpos[7][l], &srcpos[8][l]);
-				switch(nvarin){
-				case 0: xsrc=0.0;
-				case 1: ysrc=0.0;
-				case 2: if (MYID==0) fprintf(FP," No time shift defined for source %i in %s!\n",l, SOURCE_FILE);
-				declare_error("Missing parameter in SOURCE_FILE!");
-				case 3: if (MYID==0) fprintf(FP," No frequency defined for source %i in %s!\n",l, SOURCE_FILE);
-				declare_error("Missing parameter in SOURCE_FILE!");
-				case 4: if (MYID==0) fprintf(FP," No amplitude defined for source %i in %s!\n",l, SOURCE_FILE);
-				declare_error("Missing parameter in SOURCE_FILE!");
-				case 5: srcpos[7][l]=0.0;
-				case 6: srcpos[8][l]=SOURCE_TYPE;
+				for (l=1;l<=*nsrc;l++){
+					fgets(cline,255,fpsrc);
+					nvarin=sscanf(cline,"%f%f%f%f%f%f%f",&xsrc, &ysrc, &tshift, &srcpos[5][l], &srcpos[6][l], &srcpos[7][l], &srcpos[8][l]);
+					switch(nvarin){
+					case 0: xsrc=0.0;
+					case 1: ysrc=0.0;
+					case 2: if (MYID==0) fprintf(FP," No time shift defined for source %i in %s!\n",l, SOURCE_FILE);
+						declare_error("Missing parameter in SOURCE_FILE!");
+					case 3: if (MYID==0) fprintf(FP," No frequency defined for source %i in %s!\n",l, SOURCE_FILE);
+						declare_error("Missing parameter in SOURCE_FILE!");
+					case 4: if (MYID==0) fprintf(FP," No amplitude defined for source %i in %s!\n",l, SOURCE_FILE);
+						declare_error("Missing parameter in SOURCE_FILE!");
+					case 5: srcpos[7][l]=0.0;
+					case 6: srcpos[8][l]=SOURCE_TYPE;
+					}
+					if ((srcpos[8][l]!=4) && (nvarin>5)) {
+						current_source=(int)srcpos[8][l];
+						if (MYID==0) fprintf(FP," SOURCE_TYPE of source #%i is specified as %i, SOURCE_AZIMUTH is ignored.\n", l, current_source);
+					}
+					/* fscanf(fpsrc,"%f%f%f%f%f",&xsrc, &ysrc, &tshift, &fc, &amp); */
+
+					srcpos[1][l]=xsrc;
+					srcpos[2][l]=ysrc;
+					srcpos[3][l]=0.0;
+					srcpos[4][l]=tshift;
+					fc=srcpos[5][l];
 				}
-				if ((srcpos[8][l]!=4) && (nvarin>5)) {
+			}
+			/* memory for source position definition (Berlage) */
+			else if (5 == SOURCE_SHAPE) {
+				/* srcpos[1][l] = x position
+				   srcpos[2][l] = depth position
+				   srcpos[3][l] = horizontal position (always zero in 2D)
+				   srcpos[4][l] = time delay (source start time)
+				   srcpos[5][l] = centre frequency
+				   srcpos[6][l] = amplitude
+				   srcpos[7][l] = azimuth [°] (optional)
+				   srcpos[8][l] = SOURCE_TYPE (optional)
+				   srcpos[9][l] = time exponent (Berlage only)
+				   srcpos[10][l] = exponential decay factor (Berlage only)
+				   srcpos[11][l] = initial phase angle [°] (Berlage only)
+				*/
+
+				for (l=1;l<=*nsrc;l++){
+					fgets(cline,255,fpsrc);
+					nvarin=sscanf(cline,"%f%f%f%f%f%f%f%f%f%f",&xsrc, &ysrc, &tshift, &srcpos[5][l], &srcpos[6][l], &srcpos[9][l], &srcpos[10][l], &srcpos[11][l], &srcpos[7][l], &srcpos[8][l]);
+					switch(nvarin){
+					case 0: xsrc=0.0;
+					case 1: ysrc=0.0;
+					case 2: if (MYID==0) fprintf(FP," No time shift defined for source %i in %s!\n",l, SOURCE_FILE);
+						declare_error("Missing parameter in SOURCE_FILE!");
+					case 3: if (MYID==0) fprintf(FP," No frequency defined for source %i in %s!\n",l, SOURCE_FILE);
+						declare_error("Missing parameter in SOURCE_FILE!");
+					case 4: if (MYID==0) fprintf(FP," No amplitude defined for source %i in %s!\n",l, SOURCE_FILE);
+						declare_error("Missing parameter in SOURCE_FILE!");
+					case 5: if (MYID==0) fprintf(FP," No time exponent defined for source %i in %s!\n",l, SOURCE_FILE);
+						declare_error("Missing parameter in SOURCE_FILE!");
+					case 6: if (MYID==0) fprintf(FP," No exponential decay factor defined for source %i in %s!\n",l, SOURCE_FILE);
+						declare_error("Missing parameter in SOURCE_FILE!");
+					case 7: if (MYID==0) fprintf(FP," No initial phase angle [°] defined for source %i in %s!\n",l, SOURCE_FILE);
+						declare_error("Missing parameter in SOURCE_FILE!");
+					case 8: srcpos[7][l]=0.0;
+					case 9: srcpos[8][l]=SOURCE_TYPE;
+					}
+				if ((srcpos[8][l]!=4) && (nvarin>8)) {
 					current_source=(int)srcpos[8][l];
-					if (MYID==0) fprintf(FP," SOURCE_TYPE of source #%i is specified as %i, SOURCE_AZIMUTH is ignored.\n", l, current_source);
+					if (MYID==0) fprintf(FP," SOURCE_TYPE of source #%i is specified as %i,    SOURCE_AZIMUTH is ignored.\n", l, current_source);
 				}
-				/* fscanf(fpsrc,"%f%f%f%f%f",&xsrc, &ysrc, &tshift, &fc, &amp); */
 
 				srcpos[1][l]=xsrc;
 				srcpos[2][l]=ysrc;
 				srcpos[3][l]=0.0;
 				srcpos[4][l]=tshift;
 				fc=srcpos[5][l];
+				}
+			}
+			/* memory for source position definition (Klauder) */
+			else if (6 == SOURCE_SHAPE) {
+				//srcpos=matrix(1,12,1,*nsrc);
+				/* srcpos[1][l] = x position
+				   srcpos[2][l] = depth position
+				   srcpos[3][l] = horizontal position (always zero in 2D)
+				   srcpos[4][l] = time delay (source start time)
+				   srcpos[5][l] = centre frequency
+				   srcpos[6][l] = amplitude
+				   srcpos[7][l] = azimuth [°] (optional)
+				   srcpos[8][l] = SOURCE_TYPE (optional)
+				   srcpos[9][l] = minimum frequency (Klauder only)
+				   srcpos[10][l] = maximum frequency (Klauder only)
+				   srcpos[11][l] = sweep length [s] (Klauder only)
+				   srcpos[12][l] = width of the Klauder wavelet in number of centre periods (Klauder only)
+				*/
+
+				for (l=1;l<=*nsrc;l++){
+					fgets(cline,255,fpsrc);
+					nvarin=sscanf(cline,"%f%f%f%f%f%f%f%f%f%f",&xsrc, &ysrc, &tshift, &srcpos[9][l], &srcpos[10][l], &srcpos[6][l], &srcpos[11][l], &srcpos[12][l], &srcpos[7][l], &srcpos[8][l]);
+					switch(nvarin){
+					case 0: xsrc=0.0;
+					case 1: ysrc=0.0;
+					case 2: if (MYID==0) fprintf(FP," No time shift defined for source %i in %s!\n",l, SOURCE_FILE);
+						declare_error("Missing parameter in SOURCE_FILE!");
+					case 3: if (MYID==0) fprintf(FP," No minimum frequency defined for source %i in %s!\n",l, SOURCE_FILE);
+						declare_error("Missing parameter in SOURCE_FILE!");
+					case 4: if (MYID==0) fprintf(FP," No maximum frequency defined for source %i in %s!\n",l, SOURCE_FILE);
+						declare_error("Missing parameter in SOURCE_FILE!");
+					case 5: if (MYID==0) fprintf(FP," No amplitude defined for source %i in %s!\n",l, SOURCE_FILE);
+						declare_error("Missing parameter in SOURCE_FILE!");
+					case 6: if (MYID==0) fprintf(FP," No sweep length [s] defined for source %i in %s!\n",l, SOURCE_FILE);
+						declare_error("Missing parameter in SOURCE_FILE!");
+					case 7: if (MYID==0) fprintf(FP," No width of the wavelet (in number of centre periods) defined for source %i in %s!\n",l, SOURCE_FILE);
+						declare_error("Missing parameter in SOURCE_FILE!");
+					case 8: srcpos[7][l]=0.0;
+					case 9: srcpos[8][l]=SOURCE_TYPE;
+					}
+					if ((srcpos[8][l]!=4) && (nvarin>8)) {
+						current_source=(int)srcpos[8][l];
+						if (MYID==0) fprintf(FP," SOURCE_TYPE of source #%i is specified as %i,    SOURCE_AZIMUTH is ignored.\n", l, current_source);
+					}
+
+					srcpos[1][l]=xsrc;
+					srcpos[2][l]=ysrc;
+					srcpos[3][l]=0.0;
+					srcpos[4][l]=tshift;
+					fc=(srcpos[9][l]+srcpos[10][l])/2;
+					srcpos[5][l] = fc;
+				}
 			}
 
 			fclose(fpsrc);
@@ -116,6 +226,9 @@ float **sources(int *nsrc){
 		} 
 		else if (SRCREC==2) {
 			if (PLANE_WAVE_DEPTH > 0) {  /* plane wave excitation */
+				if (SOURCE_SHAPE > 4) {
+					declare_error("Plane wave is only implemented for Ricker, Fuchs-Mueller, sin**3 or an external wavelet! Change parameter SOURCE_SHAPE!");
+				}
 
 				fprintf(FP," Computing source nodes for plane wave excitation.\n");
 				fprintf(FP," depth= %5.2f meter, incidence angle= %5.2f degrees.\n",PLANE_WAVE_DEPTH, PLANE_WAVE_ANGLE);
@@ -154,20 +267,43 @@ float **sources(int *nsrc){
 	MPI_Bcast(nsrc,1,MPI_INT,0,MPI_COMM_WORLD);
 	MPI_Bcast(&TS,1,MPI_FLOAT,0,MPI_COMM_WORLD);
 
-	if (MYID!=0) srcpos=matrix(1,8,1,*nsrc);
-	MPI_Bcast(&srcpos[1][1],(*nsrc)*8,MPI_FLOAT,0,MPI_COMM_WORLD);
+	if (MYID!=0) srcpos=matrix(1,12,1,*nsrc);
+	MPI_Bcast(&srcpos[1][1],(*nsrc)*12,MPI_FLOAT,0,MPI_COMM_WORLD);
 
 	if (MYID==0){
 		if (*nsrc>50) fprintf(FP," The following table is quite large (%i lines) and will, thus, be truncated to the first 50 entries! \n\n",*nsrc);
-		fprintf(FP," number\t    x\t\t    y\t\t  tshift\t    fc\t\t   amp\t	source_azimuth\tsource_type\n");
+		if (4 <= SOURCE_SHAPE) {
+			fprintf(FP," number\t    x\t\t    y\t\t  tshift\t    fc\t\t   amp\t	source_azimuth\tsource_type\n");
+		}
+		else if (5 == SOURCE_SHAPE) {
+			fprintf(FP," number\t  x\t\t  y\t\t  tshift\t  fc\t\t  amp\t  n\t  alpha\t  phi0\t  source_azimuth\t  source_type\n");
+		}
+		else if (6 == SOURCE_SHAPE) {
+			fprintf(FP," number\t  x\t\t  y\t\t  tshift\t  fmin\t  fmax\t  fc\t\t  amp\t  dt_sweep\t  dt_wavelet\t  source_azimuth\t  source_type\n");
+		}
 
 		if (*nsrc>50) { for (l=1;l<=50;l++)
-			fprintf(FP,"    %i \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f   \t %6.2f  \t   %1.0f\n",
-					l, srcpos[1][l],srcpos[2][l],srcpos[4][l],srcpos[5][l],srcpos[6][l],srcpos[7][l],srcpos[8][l]);
+			if (4 <= SOURCE_SHAPE) {
+				fprintf(FP,"    %i \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f   \t %6.2f  \t   %1.0f\n", l,srcpos[1][l],srcpos[2][l],srcpos[4][l],srcpos[5][l],srcpos[6][l],srcpos[7][l],srcpos[8][l]);
+			}
+			else if (5 == SOURCE_SHAPE) {
+				fprintf(FP,"    %i \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %1.0f\n", l,srcpos[1][l],srcpos[2][l],srcpos[4][l],srcpos[5][l],srcpos[6][l],srcpos[9][l],srcpos[10][l],srcpos[11][l],srcpos[7][l],srcpos[8][l]);
+			}
+			else if (6 == SOURCE_SHAPE) {
+				fprintf(FP,"    %i \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %1.0f\n", l,srcpos[1][l],srcpos[2][l],srcpos[4][l],srcpos[9][l],srcpos[10][l],srcpos[5][l],srcpos[6][l],srcpos[11][l],srcpos[12][l],srcpos[7][l],srcpos[8][l]);
+			}
 		}
-		else for (l=1;l<=*nsrc;l++)
-					fprintf(FP,"    %i \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f   \t %6.2f  \t   %1.0f\n",
-							l, srcpos[1][l],srcpos[2][l],srcpos[4][l],srcpos[5][l],srcpos[6][l],srcpos[7][l],srcpos[8][l]);
+		else for (l=1;l<=*nsrc;l++) {
+			if (4 <= SOURCE_SHAPE) {
+				fprintf(FP,"    %i \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f   \t %6.2f  \t   %1.0f\n", l,srcpos[1][l],srcpos[2][l],srcpos[4][l],srcpos[5][l],srcpos[6][l],srcpos[7][l],srcpos[8][l]);
+			}
+			else if (5 == SOURCE_SHAPE) {
+				fprintf(FP,"    %i \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %1.0f\n", l,srcpos[1][l],srcpos[2][l],srcpos[4][l],srcpos[5][l],srcpos[6][l],srcpos[9][l],srcpos[10][l],srcpos[11][l],srcpos[7][l],srcpos[8][l]);
+			}
+			else if (6 == SOURCE_SHAPE) {
+				fprintf(FP,"    %i \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %1.0f\n", l,srcpos[1][l],srcpos[2][l],srcpos[4][l],srcpos[9][l],srcpos[10][l],srcpos[5][l],srcpos[6][l],srcpos[11][l],srcpos[12][l],srcpos[7][l],srcpos[8][l]);
+			}
+		}
 	}
 
 	return srcpos;

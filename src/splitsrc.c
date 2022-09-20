@@ -32,7 +32,7 @@ float **splitsrc(float **srcpos,int *nsrc_loc, int nsrc)
 	int a,b,i=0,j,k;
 	//int found=0;
 	float ** srcpos_dummy, **srcpos_local=NULL;
-	srcpos_dummy = matrix(1,8,1,nsrc);
+	srcpos_dummy = matrix(1,12,1,nsrc);
 
 	for (j=1;j<=nsrc;j++) {
 		a=(iround(srcpos[1][j]/DH)-1)/IENDX;
@@ -49,10 +49,14 @@ float **splitsrc(float **srcpos,int *nsrc_loc, int nsrc)
 			srcpos_dummy[6][i] = srcpos[6][j];
 			srcpos_dummy[7][i] = srcpos[7][j];
 			srcpos_dummy[8][i] = srcpos[8][j];
+            srcpos_dummy[9][i] = srcpos[9][j];
+            srcpos_dummy[10][i] = srcpos[10][j];
+            srcpos_dummy[11][i] = srcpos[11][j];
+            srcpos_dummy[12][i] = srcpos[12][j];
 		}
 	}
    
-	if (i>0) srcpos_local = matrix(1,8,1,i);
+	if (i>0) srcpos_local = matrix(1,12,1,i);
 	for (k=1;k<=i;k++){
 		srcpos_local[1][k] = srcpos_dummy[1][k];
 		srcpos_local[2][k] = srcpos_dummy[2][k];
@@ -62,8 +66,12 @@ float **splitsrc(float **srcpos,int *nsrc_loc, int nsrc)
 		srcpos_local[6][k] = srcpos_dummy[6][k];
 		srcpos_local[7][k] = srcpos_dummy[7][k];
 		srcpos_local[8][k] = srcpos_dummy[8][k];
+        srcpos_local[9][k] = srcpos_dummy[9][k];
+        srcpos_local[10][k] = srcpos_dummy[10][k];
+        srcpos_local[11][k] = srcpos_dummy[11][k];
+        srcpos_local[12][k] = srcpos_dummy[12][k];
 	}
-	free_matrix(srcpos_dummy,1,8,1,nsrc);
+	free_matrix(srcpos_dummy,1,12,1,nsrc);
 
 /*	fprintf(FP,"\n **Message from splitsrc:\n");
 	fprintf(FP," Splitting of source positions from global to local grids finished.\n");
