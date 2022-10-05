@@ -41,6 +41,7 @@
 
 #define PI (3.141592653589793238462643383279502884197169)
 #define NPAR 41
+#define NSPAR 12     // number of source parameters (matrix size)
 //#define STRING_SIZE 74 // previous value, sometimes not enough to handle longer file names
 #define STRING_SIZE 256
 #define REQUEST_COUNT 4

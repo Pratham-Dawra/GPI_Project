@@ -964,20 +964,6 @@ int main ( int argc, char **argv )
         /* calculate wavelet for each source point */
         signals = wavelet ( srcpos_loc, nsrc_loc );
 
-        /*if (0==MYID && 1==ishot) {
-            const char *debugout = "./sources/source_out.txt";
-            FILE *sig_fp = fopen(debugout, "w");
-            if (!sig_fp) {
-                declare_error("Could not open signal output file. \n");
-            }
-            //int NT_new=7/DT;
-            for (int i=1;i<=NT;i++) {
-                fprintf(sig_fp,"%f\n",signals[1][i]);
-            }
-            // signals=matrix(1,nsrc,1,NT);
-            fclose(sig_fp);
-        }*/
-
         /* write source wavelet to file */
         if (0==MYID && 1==SIGOUT) {
             switch (SIGOUT_FORMAT){

@@ -32,7 +32,7 @@ float **splitsrc(float **srcpos,int *nsrc_loc, int nsrc)
 	int a,b,i=0,j,k;
 	//int found=0;
 	float ** srcpos_dummy, **srcpos_local=NULL;
-	srcpos_dummy = matrix(1,12,1,nsrc);
+	srcpos_dummy = matrix(1,NSPAR,1,nsrc);
 
 	for (j=1;j<=nsrc;j++) {
 		a=(iround(srcpos[1][j]/DH)-1)/IENDX;
@@ -56,7 +56,7 @@ float **splitsrc(float **srcpos,int *nsrc_loc, int nsrc)
 		}
 	}
    
-	if (i>0) srcpos_local = matrix(1,12,1,i);
+	if (i>0) srcpos_local = matrix(1,NSPAR,1,i);
 	for (k=1;k<=i;k++){
 		srcpos_local[1][k] = srcpos_dummy[1][k];
 		srcpos_local[2][k] = srcpos_dummy[2][k];

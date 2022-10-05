@@ -60,7 +60,7 @@ float **sources(int *nsrc){
 			if ((nsrc)==0) fprintf(FP,"\n WARNING: Could not determine number of sources parameter sets in input file. Assuming %i.\n",(*nsrc=0));
 			else fprintf(FP," Number of source positions specified in %s : %d \n",SOURCE_FILE,*nsrc);
 
-			srcpos=matrix(1,12,1,*nsrc);
+			srcpos=matrix(1,NSPAR,1,*nsrc);
 
 			/* memory for source position definition (Ricker, Fuchs-Mueller, sin**3 & from_File) */
 			if (SOURCE_SHAPE <= 4) {
@@ -152,7 +152,6 @@ float **sources(int *nsrc){
 			}
 			/* memory for source position definition (Klauder) */
 			else if (6 == SOURCE_SHAPE) {
-				//srcpos=matrix(1,12,1,*nsrc);
 				/* srcpos[1][l] = x position
 				   srcpos[2][l] = depth position
 				   srcpos[3][l] = horizontal position (always zero in 2D)
@@ -267,7 +266,7 @@ float **sources(int *nsrc){
 	MPI_Bcast(nsrc,1,MPI_INT,0,MPI_COMM_WORLD);
 	MPI_Bcast(&TS,1,MPI_FLOAT,0,MPI_COMM_WORLD);
 
-	if (MYID!=0) srcpos=matrix(1,12,1,*nsrc);
+	if (MYID!=0) srcpos=matrix(1,NSPAR,1,*nsrc);
 	MPI_Bcast(&srcpos[1][1],(*nsrc)*12,MPI_FLOAT,0,MPI_COMM_WORLD);
 
 	if (MYID==0){

@@ -28,7 +28,8 @@
 void check_fs(FILE *fp) 
 {
   extern char LOG_FILE[STRING_SIZE], SEIS_FILE[STRING_SIZE], SNAP_FILE[STRING_SIZE], MFILE[STRING_SIZE];
-  extern int MYID, LOG, SEISMO, SNAP, WRITE_MODELFILES;
+  extern char SIGOUT_FILE[STRING_SIZE];
+  extern int MYID, LOG, SEISMO, SNAP, WRITE_MODELFILES, SIGOUT;
 
   char errmsg[80];
   int fserr = 0;
@@ -109,6 +110,25 @@ void check_fs(FILE *fp)
     free(dirc);
   }
 
+  if (1 == SIGOUT) {
+    /* check signal output directory */
+    char *dirc = strdup(SIGOUT_FILE);
+    if (!dirc) declare_error("Could not copy string in check_fs.c - memory issue encountered.");
+    char *dname = dirname(dirc);
+    if (access(dname, W_OK) != 0) {
+      fprintf(fp, "\n==================================================================\n");
+      fprintf(fp, "ERROR: PE=%d, cannot write to source output directory %s.\n", MYID, dname);
+      fprintf(fp, "\n==================================================================\n");
+      fserr = 1;
+    } else {
+      if (MYID == 0) {
+	fprintf(fp, "Filesystem check: source output directory %s is writeable.\n", dname); fflush(fp);
+      }
+    }
+    free(dirc);
+  }
+  
+  
   /********************************************/
   /* ERROR                                    */
   /********************************************/
