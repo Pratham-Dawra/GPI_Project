@@ -20,6 +20,7 @@
  *   Read one single amplitude from file                                   
  *
  *  ----------------------------------------------------------------------*/
+#include <stdio.h>
 
 #include "fd.h"
 
@@ -30,28 +31,22 @@ format=2  :  ASCII
 format=3  :  BINARY (IEEE)
 */
 
+float readdsk(FILE *fp_in, int format) {
+    float amp=0.0;
 
-float readdsk(FILE *fp_in, int format){
-	float amp=0.0;
-
-
-
-	switch(format){
-                case 1 : /* SU*/ 
-                        declare_error(" Sorry, SU-format for snapshots not implemented yet. \n");
-                        break;
-		case 2 :  /*ASCII*/
-                        fscanf(fp_in,"%e\n", &amp); 
-                        break;
-		case 3 :   /* BINARY */
-
-			fread(&amp, sizeof(float), 1, fp_in);
-              		break;
-	                
-		default :
-			printf(" Don't know the format for the snapshot-data !\n");
-			declare_error(" No output was written. ");
-	}
-
-	return amp;
+    switch(format) {
+        case 1 : /* SU*/ 
+            declare_error(" Sorry, SU-format for snapshots not implemented yet. \n");
+            break;
+        case 2 :  /*ASCII*/
+            fscanf(fp_in,"%e\n", &amp); 
+            break;
+        case 3 :   /* BINARY */
+            fread(&amp, sizeof(float), 1, fp_in);
+            break;  
+        default :
+            printf(" Don't know the format for the snapshot-data !\n");
+            declare_error(" No output was written. ");
+    }
+    return amp;
 }

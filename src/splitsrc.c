@@ -71,7 +71,7 @@ float **splitsrc(float **srcpos,int *nsrc_loc, int nsrc)
         srcpos_local[11][k] = srcpos_dummy[11][k];
         srcpos_local[12][k] = srcpos_dummy[12][k];
 	}
-	free_matrix(srcpos_dummy,1,12,1,nsrc);
+	free_matrix(srcpos_dummy,1,NSPAR,1,nsrc);
 
 /*	fprintf(FP,"\n **Message from splitsrc:\n");
 	fprintf(FP," Splitting of source positions from global to local grids finished.\n");
