@@ -87,6 +87,8 @@ int main ( int argc, char **argv )
 
     float **ptau11=NULL, **ptau33=NULL, **ptau13=NULL, **ptau55=NULL, **ptau15=NULL, **ptau35=NULL;
     float **ptau55ipjp=NULL, **ptau15ipjp=NULL, **ptau35ipjp=NULL;
+    
+    float **pvxx=NULL, **pvyy=NULL, **pvyx=NULL, **pvxy=NULL;
 
     /* Save old spatial derivations of velocity for Adam Bashforth */
     float ** vxx_1=NULL,** vxx_2=NULL,** vxx_3=NULL,** vxx_4=NULL;
@@ -511,8 +513,12 @@ int main ( int argc, char **argv )
         pc15ipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
         pc35 = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
         pc35ipjp = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
-        
-        
+
+        pvxx = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pvyy = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pvyx = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pvxy = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+
     }
     
     if ( WEQ==8 ) { /*viscoelastic TTI wave equation */
@@ -563,6 +569,12 @@ int main ( int argc, char **argv )
         peta = vector ( 1, L );
         bip = vector ( 1, L );
         cip = vector ( 1, L );
+        
+        pvxx = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pvyy = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pvyx = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+        pvxy = matrix ( -nd + 1, NY + nd, -nd + 1, NX + nd );
+
 
     }
     
@@ -1043,7 +1055,7 @@ int main ( int argc, char **argv )
                                       a_y_half, b_y_half, psi_sxx_x, psi_syy_y, psi_sxy_y, psi_sxy_x );
                     }
                     
-                    if ( ABS_TYPE != 1 ) {
+                    if ( ABS_TYPE == 2 ) {
                         update_v_abs ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, prip, prjp, absorb_coeff, hc );
                     }
 #ifdef EBUG
@@ -1063,7 +1075,7 @@ int main ( int argc, char **argv )
                                            a_y_half, b_y_half, psi_sxx_x, psi_syy_y, psi_sxy_y, psi_sxy_x,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4);
                     }
                     
-                    if ( ABS_TYPE != 1 ) {
+                    if ( ABS_TYPE == 2 ) {
                         update_v_abs_4 ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, prip, prjp, absorb_coeff, hc,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4 );
                     }
                 }
@@ -1084,7 +1096,15 @@ int main ( int argc, char **argv )
             /* ------- exchange of particle velocities between PEs --------------*/
             /*---------------------------------------------------------------*/
             
+            
+            
             exchange_v ( nd, pvx, pvy, bufferlef_to_rig, bufferrig_to_lef, buffertop_to_bot, bufferbot_to_top, req_send, req_rec );
+            
+            if ((WEQ==7) || (WEQ==8)) { /* TTI */
+                v_derivatives(pvx, pvy, pvxx, pvyy, pvyx, pvxy,hc);
+                exchange_v ( nd, pvxx, pvyy, bufferlef_to_rig, bufferrig_to_lef, buffertop_to_bot, bufferbot_to_top, req_send, req_rec );
+                exchange_v ( nd, pvyx, pvxy, bufferlef_to_rig, bufferrig_to_lef, buffertop_to_bot, bufferbot_to_top, req_send, req_rec );
+            }
             
             if ( ( MYID == 0 )
                 && ( ( nt + ( OUTNTIMESTEPINFO - 1 ) ) % OUTNTIMESTEPINFO ) == 0 ) {
@@ -1167,19 +1187,27 @@ int main ( int argc, char **argv )
 #endif
                     break;
                         
+                        
                     case 7: /* elastic TTI */
-                         update_s_elastic_TTI_interior ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
-                                                        pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp, hc );
-                     
+                        update_s_elastic_TTI_interior ( 1, NX, 1, NY, gx, gy, nt, pvxx, pvyy,
+                                                       pvyx, pvxy, psxx, psyy, psxy,
+                                                       pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp, hc );
+                       
                      if ( FW ) {
                          if ( ABS_TYPE ==1 )
-                             update_s_elastic_TTI_PML ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
-                                                       pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp, hc,
-                                                   K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx );
+                       update_s_elastic_TTI_PML ( 1, NX, 1, NY, gx, gy, nt, pvxx, pvyy,
+                                                   pvyx, pvxy, psxx, psyy, psxy,
+                                                   pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp, hc,
+                                               K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx );
+                    
+
+                             
                          if ( ABS_TYPE ==2 )
-                             update_s_elastic_tti_abs ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
+                             update_s_elastic_tti_abs ( 1, NX, 1, NY, gx, gy, nt, pvxx, pvyy,
+                                                       pvyx, pvxy, psxx, psyy, psxy,
                                                        pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp, absorb_coeff, hc );
                      }
+
 #ifdef EBUG
 		     debug_check_matrix(psxx, nt, NX, NY, 777, 0, "psxx");
 		     debug_check_matrix(psyy, nt, NX, NY, 777, 0, "psyy");
@@ -1188,20 +1216,20 @@ int main ( int argc, char **argv )
                      break;
                         
                     case 8: /* viscoelastic TTI */
-                        update_s_visc_TTI_interior ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq,
+                        update_s_visc_TTI_interior ( 1, NX, 1, NY, gx, gy, nt, pvxx, pvyy, pvyx, pvxy, psxx, psyy, psxy, pr, pp, pq,
                                                                          pc11u, pc33u,  pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
                                                                          pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
                                                                             bip,  cip, hc);
                    if ( FW ) {
                         if ( ABS_TYPE ==1 )
-                            update_s_visc_TTI_PML ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq,
+                            update_s_visc_TTI_PML ( 1, NX, 1, NY, gx, gy, nt, pvxx, pvyy, pvyx, pvxy, psxx, psyy, psxy, pr, pp, pq,
                                                    pc11u, pc33u,  pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
                                                    pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
                                                    bip,  cip, hc,
                                                             K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half,
                                                             b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx );
                         if ( ABS_TYPE ==2 )
-                            update_s_visc_tti_abs ( 1, NX, 1, NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq,
+                            update_s_visc_tti_abs ( 1, NX, 1, NY, gx, gy, nt, pvxx, pvyy, pvyx, pvxy, psxx, psyy, psxy, pr, pp, pq,
                                                    pc11u, pc33u,  pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
                                                    pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
                                                             bip,  cip, absorb_coeff, hc );
@@ -1474,7 +1502,14 @@ if ( WEQ==4 ) { /*viscoelastic wave equation */
             free_vector ( bip, 1, L );
             free_vector ( cip, 1, L );
 }
+    /*elastic TTI wave equation */
+/*    if ( WEQ==7 ) {
+        free_matrix ( pvxx, -nd + 1, NY + nd, -nd + 1, NX + nd );
+        free_matrix ( pvyy, -nd + 1, NY + nd, -nd + 1, NX + nd );
+        free_matrix ( pvxy, -nd + 1, NY + nd, -nd + 1, NX + nd );
+        free_matrix ( pvyx, -nd + 1, NY + nd, -nd + 1, NX + nd );
 
+    }*/
 
     if(L>0 && FDORDER_TIME==4){
         free_f3tensor ( pr_2, -nd + 1, NY + nd, -nd + 1, NX + nd, 1, L );

@@ -28,46 +28,36 @@
  *  ----------------------------------------------------------------------*/
 
 
+
 #include "fd.h"
 
 void update_s_elastic_TTI_interior ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
-                        float **  vx, float **   vy, float **   sxx, float **   syy,
+                                    float **  pvxx, float **   pvyy, float **  pvyx, float **   pvxy,
+                                    float **   sxx, float **   syy,
                         float **   sxy, float ** pc11, float ** pc55ipjp, float ** pc13, float ** pc33,
                                     float ** pc15, float ** pc35, float ** pc15ipjp, float ** pc35ipjp, float *hc )
 {
 
 
-	int i,j, fdoh;
-	float  vxx, vyy, vxy, vyx;
-	extern int MYID, FDORDER;
+	int i,j;
+	extern int MYID;
 	extern FILE *FP;
 	extern int OUTNTIMESTEPINFO;
 	double time1=0.0, time2=0.0;
 
-    fdoh=FDORDER/2;
-
-    /*Pointer array to the locations of the fd-operator functions*/
-    void ( *FD_op_s[7] ) ();
-    FD_op_s[1] = &operator_s_fd2;
-    FD_op_s[2] = &operator_s_fd4;
-    FD_op_s[3] = &operator_s_fd6;
-    FD_op_s[4] = &operator_s_fd8;
-    FD_op_s[5] = &operator_s_fd10;
-    FD_op_s[6] = &operator_s_fd12;
-
+  
 
 
     if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
         time1=MPI_Wtime();
-        fprintf ( FP,"\n **Message from update_s_tti_interior (printed by PE %d):\n",MYID );
+        fprintf ( FP,"\n **Message from update_s_elastic_tti_interior (printed by PE %d):\n",MYID );
         fprintf ( FP," Updating stress components ..." );
     }
     
-    
+
     for ( j=gy[2]+1; j<=gy[3]; j++ ) {
         for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-            FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
-            wavefield_update_s_el_tti (i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33, pc15, pc35, pc15ipjp, pc35ipjp);
+            wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33, pc15, pc35, pc15ipjp, pc35ipjp);
         }
     }
     

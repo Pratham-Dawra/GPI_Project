@@ -9,19 +9,19 @@
 % is added to the basic name, e.g. if ten snapshots were computed
 % and the basic name is snap, then the filenames for the snapshots
 % are snap1.bin, snap2.bin, ..., snap10.bin.
-filerot='snap/ktb10.bin.rot';
-filediv='snap/ktb10.bin.div';
+file1='../par/snap/hh_ve_1.bin.vx';
+file2='../par/snap/hh_ve_1.bin.vy';
 
 
 % gridsize and grid spacing (as specified in parameter-file) 
 NX1=1; NX2=400;
-NY1=1; NY2=600; 
+NY1=1; NY2=400; 
 IDX=1; IDY=1;
-dh=0.005;
+dh=2.0;
 
 % time increment for snapshots:
 TSNAPINC=0.01; TSNAP1=0.01;
-FW=0.100;
+FW=40.0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % grid size
@@ -35,73 +35,50 @@ x=xp1:IDX*dh:xp2;
 y=yp1:IDY*dh:yp2;
 
 
-firstframe=1;
-lastframe=50;
+firstframe=13;
+lastframe=13;
 snapno=0;
 
-caxis_value=1.0e-4;
+caxis_value=1.0e-10;
 
 %load /home/tbohlen/util/seismic.map
 colormap(gray)
 
 % load model
- file='model/ktb10.pi';
- disp([' loading file ' file]);
- fid=fopen(file,'r','ieee-le');
- model=fread(fid,[ny,nx],'float');
- fclose(fid);
+%  file='model/ktb10.pi';
+%  disp([' loading file ' file]);
+%  fid=fopen(file,'r','ieee-le');
+%  model=fread(fid,[ny,nx],'float');
+%  fclose(fid);
  %model=model(1:2:size(model,1),1:2:size(model,2));
    
- disp(['opening file ' filerot]);
- fid_rot=fopen(filerot,'r','ieee-le');
+ disp(['opening file ' file1]);
+ fid1=fopen(file1,'r','ieee-le');
  
  disp(['opening file ' filediv]);
- fid_div=fopen(filediv,'r','ieee-le');
+ fid2=fopen(file2,'r','ieee-le');
 
  for i=firstframe:1:lastframe,
  
- hold off
    disp(['loading snapshot no ',int2str(i)]);
    % loading data:
     tsnap=(i-1)*TSNAPINC+TSNAP1;
    offset=4*nx*ny*(i-1);
-   fseek(fid_div,offset,-1);
-   fseek(fid_rot,offset,-1);
-   veldiv=fread(fid_div,[ny,nx],'float');
-   velrot=fread(fid_rot,[ny,nx],'float');
+   fseek(fid1,offset,-1);
+   fseek(fid2,offset,-1);
+   vx=fread(fid_div,[ny,nx],'float');
+   vy=fread(fid_rot,[ny,nx],'float');
    
-%   vmp=max(max(abs(veldiv(30:ny,:))));
-%   vms=max(max(abs(velrot(30:ny,:))));
-   vmp=max(max(abs(veldiv)));
-   vms=max(max(abs(velrot)));
-   disp([' Maximum amplitude of P-snapshots: ', num2str(vmp)]);
-   disp([' Maximum amplitude of S-snapshots: ', num2str(vms)]);
-  % veldiv=veldiv/vmp;
-  % velrot=velrot/vmp;
-	
-
-   % plotting in window:
-   % set(gcf,'Position',[100 400 800 550]);
    subplot(121), 
-      imagesc(x,y,velrot);  
+      imagesc(x,y,vx);  
 		 hold on
-		contour(x,y,model,2,'w-'); 
-	 	%plot(3.0,0.014,'w*','linewidth',4);
-		 xvsp=[1.3, 1.3]; yvsp=[0.002,2.9]; 
-		 plot(xvsp,yvsp,'w:','linewidth',1);
- 		hold off
-    	if (i>0), caxis([-caxis_value caxis_value]); end
+    	caxis([-caxis_value caxis_value]);
 				
 		set(text(1.4,-0.0,['T=',sprintf('%1.2f',tsnap),' s']),...
 		 'FontSize',12,'FontWeight','bold','color','k');
-    
-%		set(text(1000,11000,['Max Amp=',sprintf('%1.2g',vms)]),...
-%		 'FontSize',14,'FontWeight','bold','color','k');    
-       title('S-waves')
-% 		set(text(5000,8000,' x20') ,'FontSize',12,'FontWeight','bold');      
-		%axis off
-       xlabel('Distance [km]')
-       ylabel('Depth [km]')
+       title('Vx');
+       xlabel('X (m)')
+       ylabel('Y (m)')
        set(gca,'DataAspectRatio',[1 1 1]);
        set(get(gca,'title'),'FontSize',12);
        set(get(gca,'title'),'FontWeight','bold');
@@ -113,31 +90,18 @@ colormap(gray)
        set(gca,'FontWeight','bold');
        set(gca,'Linewidth',1.0);
        set(gca,'Box','on');
-       axis([min(x)+FW max(x)-FW min(y) max(y)-FW])
-		 axis ij
-       %set(gca,'YTick',[400 800 1200])
+    
 		 
 	
    subplot(122), 
-	set(gcf,'Color',[1 1 1])
-       %surf(x,y,veldiv); shading interp; 
-       imagesc(x,y,veldiv);  
-		 hold on
-		%contour(x,y,model,'w-'); 
-		 contour(x,y,model,2,'w-'); 
-	 	%plot(3.0,0.014,'w*','linewidth',4);
-		 xvsp=[1.3, 1.3]; yvsp=[0.002,2.9]; 
-		 plot(xvsp,yvsp,'w:','linewidth',1);
- 		hold off
-		 if (i>0), caxis([-caxis_value caxis_value]); end
+	%set(gcf,'Color',[1 1 1])
+       imagesc(x,y,vy);  
+	   caxis([-caxis_value caxis_value]);
 
-%		set(text(1000,11000,['Max Amp=',sprintf('%1.2g',vmp)]),...
-%		 'FontSize',12,'FontWeight','bold');    
-       title('P-waves')
-% 		set(text(5000,8000,' x20') ,'FontSize',12,'FontWeight','bold');      
-       %axis off
-       xlabel('Distance [km]')
-       %ylabel('Depth [m]')
+
+       title('Vy')
+         xlabel('X (m)')
+       %ylabel('Y (m)')
        set(gca,'DataAspectRatio',[1 1 1]);
        set(get(gca,'title'),'FontSize',12);
        set(get(gca,'title'),'FontWeight','bold');
@@ -149,30 +113,20 @@ colormap(gray)
        set(gca,'FontWeight','bold');
        set(gca,'Box','on');
        set(gca,'Linewidth',1.0);
-       axis([min(x)+FW max(x)-FW min(y) max(y)-FW])
-		 axis ij
-
-        %set(gca,'YTick',[400 800 1200])
+     
  
-
-   	pause(0.1);
-	%set(gcf,'Renderer','zbuffer')
-	%M(i-firstframe+1)=getframe(gcf);
-
 	%brighten(0.5)
 	
 
-	snapno=snapno+1;
+	
    % Saving the snapshot:
-     %epsfile=['eps/ktbsnap',int2str(i),'.eps'];
-     %eval(['print -deps ' epsfile]);
-    jpgfile=['eps/ktb11_',int2str(i),'.jpg'];
-    eval(['print -djpeg100 ' jpgfile]);
-%    ppmfile=['eps/ktbsnap',int2str(i),'.ppm'];
-%    eval(['print -dppmraw ' ppmfile]);
+    
+    %jpgfile=['eps/ktb11_',int2str(i),'.jpg'];
+    %eval(['print -djpeg100 ' jpgfile]);
+
  end
-fclose(fid_div);
-fclose(fid_rot);
+fclose(fid1);
+fclose(fid2);
 
 
 

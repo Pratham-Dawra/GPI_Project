@@ -14,12 +14,12 @@
 			"DH" : "2.0",
 
 "Time Stepping" : "comment",
-			"TIME" : "0.05",
+			"TIME" : "0.5",
 			"DT" : "1.0e-4",
 
             
 "Wave Equation" : "comment",
-			"WEQ" : "4",
+			"WEQ" : "8",
 			"WEQ values : 1:acoustic, 2:viscoacoustic, 3:elastic, " : "comment",
 			"WEQ values : 4:viscoelastic, 5:elastic VTI, 6:viscoelastic VTI, " : "comment",
 			"WEQ values : 7:elastic TTI, 8:viscoelastic TTI, " : "comment",
@@ -30,13 +30,13 @@
 			"SOURCE_SHAPE values: ricker=1;fumue=2;from_SIGNAL_FILE=3;SIN**3=4;Berlage=5;Klauder=6" : "comment",
 			"SIGNAL_FILE" : "signal_mseis.tz",
 			
-			"SIGOUT" : "1",
+			"SIGOUT" : "0",
 			"Output source wavelet: yes=1, no=else" : "comment",
 			"SIGOUT_FILE" : "./sources/signal_out01",
 			"SIGOUT_FORMAT" : "1",
 			"Supported output formats for SIGOUT_FORMAT: SU=1, ASCII=2, BINARY=3" : "comment",
 
-			"SOURCE_TYPE" : "1",
+			"SOURCE_TYPE" : "3",
 			"SOURCE_TYPE values (point_source): explosive=1;force_in_x=2;force_in_y=3;custom_force=4" : "comment",
 
 			"SRCREC" : "1",
@@ -56,15 +56,15 @@
 
 "Q-approximation" : "comment",
 			"L" : "1",
-			"FL1" : "50.0", 
-			"TAU" : "0.0001",
+			"FL1" : "50.0",
+			"TAU" : "0.1",
 
 "Boundary Conditions" : "comment",
                         "FREE_SURF" : "0",
                         "BOUNDARY" : "0",
 
 			"FW" : "20",
-			"ABS_TYPE" : "1",
+			"ABS_TYPE" : "2",
 			"ABS_TYPE values : CPML-Boundary=1; Damping-Boundary=2" : "comment",
 			
 			"Parameter for CPML (ABS_TYPE=1)" : "comment",
@@ -80,15 +80,15 @@
 "Snapshots" : "comment",
 			"SNAP" : "1",
 			"TSNAP1" : "0.01",
-			"TSNAP2" : "0.2",
+			"TSNAP2" : "0.5",
 			"TSNAPINC" : "0.01",
 			"IDX" : "1",
 			"IDY" : "1",
 			"SNAP_FORMAT" : "3",
-			"SNAP_FILE" : "./snap/Test_t003",
+			"SNAP_FILE" : "./snap/hh_e_t",
 
 "Receiver" : "comment",
-			"SEISMO" : "4",
+			"SEISMO" : "0",
 			"READREC" : "1",
 			"REC_FILE" : "./receiver/receiver.dat",
 			"REFRECX, REFRECY" : "0.0 , 0.0",

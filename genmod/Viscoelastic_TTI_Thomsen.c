@@ -14,7 +14,7 @@ int main(int argc, char **argv){
         const float DH=2.0;
 
 	/* parameters for layer 1*/
-	const float vp1=3369.0, vs1=1643.0, rho1=2000.0, Qp1=20, Qs1=10;
+	const float vp1=3369.0, vs1=1643.0, rho1=2000.0, Qp1=8, Qs1=8;
     const float epsilon1=0.26, delta1=-0.05, theta1=30.0;
 	
 	/* parameters for layer 2  */
