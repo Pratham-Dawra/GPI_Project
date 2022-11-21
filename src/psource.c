@@ -24,15 +24,10 @@
 #include "fd.h"
 
 void psource(int nt, float ** sxx, float ** syy,
-		float **  srcpos_loc, float ** signals, int nsrc){
+		float **  srcpos_loc, float ** signals, int nsrc, GlobVar *gv){
 
-	extern float DH;
-//	extern int RSG;
-	extern int NT;
 	int i, j, l;
 	float amp=0;
-
-
 
 	/* adding source wavelet to stress components 
 	   (explosive source) at source points */
@@ -43,11 +38,10 @@ void psource(int nt, float ** sxx, float ** syy,
 			j=(int)srcpos_loc[2][l];
 
 			//amp=signals[l][nt]/4.0; //unscaled explosive source
-			//amp=(signals[l][nt])/(4.0*DH*DH); //scaled explosive source, seismic Moment = 1 Nm
-			if(nt==1){amp=signals[l][nt+1]/(2.0*DH*DH);}
-	                if((nt>1)&&(nt<NT)){amp=(signals[l][nt+1]-signals[l][nt-1])/(2.0*DH*DH);}
-        	        if(nt==NT){amp=-signals[l][nt-1]/(2.0*DH*DH);}
-
+			//amp=(signals[l][nt])/(4.0*gv->DH*gv->DH); //scaled explosive source, seismic Moment = 1 Nm
+			if(nt==1){amp=signals[l][nt+1]/(2.0*gv->DH*gv->DH);}
+	                if((nt>1)&&(nt<gv->NT)){amp=(signals[l][nt+1]-signals[l][nt-1])/(2.0*gv->DH*gv->DH);}
+        	        if(nt==gv->NT){amp=-signals[l][nt-1]/(2.0*gv->DH*gv->DH);}
 
 			sxx[j][i]+=amp;
 			sxx[j][i+1]+=amp;
@@ -67,15 +61,13 @@ void psource(int nt, float ** sxx, float ** syy,
 			j=(int)srcpos_loc[2][l];
 
 			//amp=signals[l][nt]; //unscaled explosive source
-			amp=(signals[l][nt])/(DH*DH); //scaled explosive source, seismic Moment = 1 Nm
+			amp=(signals[l][nt])/(gv->DH*gv->DH); //scaled explosive source, seismic Moment = 1 Nm
 			
-			if(nt==1){amp=signals[l][nt+1]/(2.0*DH*DH);}
-                        if((nt>1)&&(nt<NT)){amp=(signals[l][nt+1]-signals[l][nt-1])/(2.0*DH*DH);}
-                        if(nt==NT){amp=-signals[l][nt-1]/(2.0*DH*DH);}
+			if(nt==1){amp=signals[l][nt+1]/(2.0*gv->DH*gv->DH);}
+                        if((nt>1)&&(nt<gv->NT)){amp=(signals[l][nt+1]-signals[l][nt-1])/(2.0*gv->DH*gv->DH);}
+                        if(nt==gv->NT){amp=-signals[l][nt-1]/(2.0*gv->DH*gv->DH);}
 
-			
 			sxx[j][i]+=amp;
 			syy[j][i]+=amp;
-		
 	}
 }

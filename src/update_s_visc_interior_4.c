@@ -34,17 +34,13 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
                                float **sxy, float ***r, float *** p, float ***q,
                                float ** fipjp, float **f, float **g, float *bip, float *bjm, float *cip,
                                float *cjm, float ***d, float ***e, float ***dip,
-                               float *hc ,  float ** vxx_1,float ** vxx_2,float ** vxx_3,float ** vxx_4,float ** vyy_1,float ** vyy_2,float ** vyy_3,float ** vyy_4,float ** vxy_1,float ** vxy_2,float ** vxy_3,float ** vxy_4,float ** vyx_1,float ** vyx_2,float ** vyx_3,float ** vyx_4,float ** svx_1,float ** svx_2,float ** svx_3,float ** svx_4,float ** svy_1,float ** svy_2,float ** svy_3,float ** svy_4,float ***r_2,float ***r_3,float ***r_4, float ***p_2, float ***p_3, float ***p_4, float ***q_2, float ***q_3, float ***q_4)
+                               float *hc ,  float ** vxx_1,float ** vxx_2,float ** vxx_3,float ** vxx_4,float ** vyy_1,float ** vyy_2,float ** vyy_3,float ** vyy_4,float ** vxy_1,float ** vxy_2,float ** vxy_3,float ** vxy_4,float ** vyx_1,float ** vyx_2,float ** vyx_3,float ** vyx_4,float ** svx_1,float ** svx_2,float ** svx_3,float ** svx_4,float ** svy_1,float ** svy_2,float ** svy_3,float ** svy_4,float ***r_2,float ***r_3,float ***r_4, float ***p_2, float ***p_3, float ***p_4, float ***q_2, float ***q_3, float ***q_4, GlobVar *gv)
 {
     
     
     int i,j,l;
     float  sumr=0.0, sump=0.0, sumq=0.0;
     float  dthalbe, dhi,ctemp;// dhi2;
-    extern float DT, DH;
-    extern int L, MYID, FDORDER;
-    extern FILE *FP;
-    extern int OUTNTIMESTEPINFO;
     double time1=0.0, time2=0.0;
     float c1, c2, c3, c4; /* Coefficients for Adam Bashforth */
     c1=13.0/12.0; c2=-5.0/24.0; c3=1.0/6.0; c4=-1.0/24.0;
@@ -59,18 +55,21 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
     
     float sumxx=0.0,sumyy=0.0,sumxy=0.0,sumyx=0.0;
     
-    dthalbe=DT/2.0;
-    dhi = 1.0/DH;
+    int MYID;
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
+
+    dthalbe=gv->DT/2.0;
+    dhi = 1.0/gv->DH;
     
     
-    if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
+    if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
         time1=MPI_Wtime();
-        fprintf ( FP,"\n **Message from update_s_visc_interior_4 (printed by PE %d):\n",MYID );
-        fprintf ( FP," Updating stress components ..." );
+        fprintf ( gv->FP,"\n **Message from update_s_visc_interior_4 (printed by PE %d):\n",MYID );
+        fprintf ( gv->FP," Updating stress components ..." );
     }
     
     
-    switch ( FDORDER ) { /* standard staggered grid (SSG) */
+    switch ( gv->FDORDER ) { /* standard staggered grid (SSG) */
         case 2:
             for ( j=gy[2]+1; j<=gy[3]; j++ ) {
                 r_j=*(r+j);r_2_j=*(r_2+j);r_3_j=*(r_3+j);r_4_j=*(r_4+j);
@@ -97,7 +96,7 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
                     *(vxy_1_j+i) = hc[1]* ( vx[j+1][i]-vx[j][i] );
                     
                     sumr=sump=sumq=0.0;
-                    for ( l=1; l<=L; l++ ) {
+                    for ( l=1; l<=gv->L; l++ ) {
                         sumr+=c1*(*(r_ji+l))+c2*(*(r_2_ji+l))+c3*(*(r_3_ji+l))+c4*(*(r_4_ji+l));
                         sump+=c1*(*(p_ji+l))+c2*(*(p_2_ji+l))+c3*(*(p_3_ji+l))+c4*(*(p_4_ji+l));
                         sumq+=c1*(*(q_ji+l))+c2*(*(q_2_ji+l))+c3*(*(q_3_ji+l))+c4*(*(q_4_ji+l));
@@ -115,7 +114,7 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
                     syy[j][i] += ( g[j][i]* (sumxx+sumyy)*dhi )- ( 2.0*f[j][i]*sumxx*dhi ) + ( dthalbe*sumq );
                     
                     sumr=sump=sumq=0.0;
-                    for ( l=1; l<=L; l++ ) {
+                    for ( l=1; l<=gv->L; l++ ) {
                         ctemp=2*(1-cip[l])/c1;
                         r_4[j][i][l] = bip[l]* ( (*(r_ji+l))*cip[l]-ctemp*c2*((*(r_ji+l))+(*(r_2_ji+l)))-ctemp*c3*((*(r_2_ji+l))+(*(r_3_ji+l)))-ctemp*c4*((*(r_3_ji+l))+(*(r_4_ji+l)))- ( dip[j][i][l]* ( sumxy+sumyx)*dhi ) );
                         p_4[j][i][l] = bjm[l]* ((*(p_ji+l))*cjm[l]-ctemp*c2*((*(p_ji+l))+(*(p_2_ji+l)))-ctemp*c3*((*(p_2_ji+l))+(*(p_3_ji+l)))-ctemp*c4*((*(p_3_ji+l))+(*(p_4_ji+l)))- ( e[j][i][l]* ( sumxx+sumyy )*dhi ) + ( 2.0*d[j][i][l]*sumyy*dhi ) );
@@ -160,7 +159,7 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
                                     );
                     
                     sumr=sump=sumq=0.0;
-                    for ( l=1; l<=L; l++ ) {
+                    for ( l=1; l<=gv->L; l++ ) {
                         sumr+=c1*(*(r_ji+l))+c2*(*(r_2_ji+l))+c3*(*(r_3_ji+l))+c4*(*(r_4_ji+l));
                         sump+=c1*(*(p_ji+l))+c2*(*(p_2_ji+l))+c3*(*(p_3_ji+l))+c4*(*(p_4_ji+l));
                         sumq+=c1*(*(q_ji+l))+c2*(*(q_2_ji+l))+c3*(*(q_3_ji+l))+c4*(*(q_4_ji+l));
@@ -178,7 +177,7 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
                     syy[j][i] += ( g[j][i]* (sumxx+sumyy)*dhi )- ( 2.0*f[j][i]*sumxx*dhi ) + ( dthalbe*sumq );
                     
                     sumr=sump=sumq=0.0;
-                    for ( l=1; l<=L; l++ ) {
+                    for ( l=1; l<=gv->L; l++ ) {
                         ctemp=2*(1-cip[l])/c1;
                         r_4[j][i][l] = bip[l]* ( (*(r_ji+l))*cip[l]-ctemp*c2*((*(r_ji+l))+(*(r_2_ji+l)))-ctemp*c3*((*(r_2_ji+l))+(*(r_3_ji+l)))-ctemp*c4*((*(r_3_ji+l))+(*(r_4_ji+l)))- ( dip[j][i][l]* ( sumxy+sumyx)*dhi ) );
                         p_4[j][i][l] = bjm[l]* ((*(p_ji+l))*cjm[l]-ctemp*c2*((*(p_ji+l))+(*(p_2_ji+l)))-ctemp*c3*((*(p_2_ji+l))+(*(p_3_ji+l)))-ctemp*c4*((*(p_3_ji+l))+(*(p_4_ji+l)))- ( e[j][i][l]* ( sumxx+sumyy )*dhi ) + ( 2.0*d[j][i][l]*sumyy*dhi ) );
@@ -227,7 +226,7 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
                     
                     
                     sumr=sump=sumq=0.0;
-                    for ( l=1; l<=L; l++ ) {
+                    for ( l=1; l<=gv->L; l++ ) {
                         sumr+=c1*(*(r_ji+l))+c2*(*(r_2_ji+l))+c3*(*(r_3_ji+l))+c4*(*(r_4_ji+l));
                         sump+=c1*(*(p_ji+l))+c2*(*(p_2_ji+l))+c3*(*(p_3_ji+l))+c4*(*(p_4_ji+l));
                         sumq+=c1*(*(q_ji+l))+c2*(*(q_2_ji+l))+c3*(*(q_3_ji+l))+c4*(*(q_4_ji+l));
@@ -245,7 +244,7 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
                     syy[j][i] += ( g[j][i]* (sumxx+sumyy)*dhi )- ( 2.0*f[j][i]*sumxx*dhi ) + ( dthalbe*sumq );
                     
                     sumr=sump=sumq=0.0;
-                    for ( l=1; l<=L; l++ ) {
+                    for ( l=1; l<=gv->L; l++ ) {
                         ctemp=2*(1-cip[l])/c1;
                         r_4[j][i][l] = bip[l]* ( (*(r_ji+l))*cip[l]-ctemp*c2*((*(r_ji+l))+(*(r_2_ji+l)))-ctemp*c3*((*(r_2_ji+l))+(*(r_3_ji+l)))-ctemp*c4*((*(r_3_ji+l))+(*(r_4_ji+l)))- ( dip[j][i][l]* ( sumxy+sumyx)*dhi ) );
                         p_4[j][i][l] = bjm[l]* ((*(p_ji+l))*cjm[l]-ctemp*c2*((*(p_ji+l))+(*(p_2_ji+l)))-ctemp*c3*((*(p_2_ji+l))+(*(p_3_ji+l)))-ctemp*c4*((*(p_3_ji+l))+(*(p_4_ji+l)))- ( e[j][i][l]* ( sumxx+sumyy )*dhi ) + ( 2.0*d[j][i][l]*sumyy*dhi ) );
@@ -297,7 +296,7 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
                                     );
                     
                     sumr=sump=sumq=0.0;
-                    for ( l=1; l<=L; l++ ) {
+                    for ( l=1; l<=gv->L; l++ ) {
                         sumr+=c1*(*(r_ji+l))+c2*(*(r_2_ji+l))+c3*(*(r_3_ji+l))+c4*(*(r_4_ji+l));
                         sump+=c1*(*(p_ji+l))+c2*(*(p_2_ji+l))+c3*(*(p_3_ji+l))+c4*(*(p_4_ji+l));
                         sumq+=c1*(*(q_ji+l))+c2*(*(q_2_ji+l))+c3*(*(q_3_ji+l))+c4*(*(q_4_ji+l));
@@ -315,7 +314,7 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
                     syy[j][i] += ( g[j][i]* (sumxx+sumyy)*dhi )- ( 2.0*f[j][i]*sumxx*dhi ) + ( dthalbe*sumq );
                     
                     sumr=sump=sumq=0.0;
-                    for ( l=1; l<=L; l++ ) {
+                    for ( l=1; l<=gv->L; l++ ) {
                         ctemp=2*(1-cip[l])/c1;
                         r_4[j][i][l] = bip[l]* ( (*(r_ji+l))*cip[l]-ctemp*c2*((*(r_ji+l))+(*(r_2_ji+l)))-ctemp*c3*((*(r_2_ji+l))+(*(r_3_ji+l)))-ctemp*c4*((*(r_3_ji+l))+(*(r_4_ji+l)))- ( dip[j][i][l]* ( sumxy+sumyx)*dhi ) );
                         p_4[j][i][l] = bjm[l]* ((*(p_ji+l))*cjm[l]-ctemp*c2*((*(p_ji+l))+(*(p_2_ji+l)))-ctemp*c3*((*(p_2_ji+l))+(*(p_3_ji+l)))-ctemp*c4*((*(p_3_ji+l))+(*(p_4_ji+l)))- ( e[j][i][l]* ( sumxx+sumyy )*dhi ) + ( 2.0*d[j][i][l]*sumyy*dhi ) );
@@ -371,7 +370,7 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
                                     );
                     
                     sumr=sump=sumq=0.0;
-                    for ( l=1; l<=L; l++ ) {
+                    for ( l=1; l<=gv->L; l++ ) {
                         sumr+=c1*(*(r_ji+l))+c2*(*(r_2_ji+l))+c3*(*(r_3_ji+l))+c4*(*(r_4_ji+l));
                         sump+=c1*(*(p_ji+l))+c2*(*(p_2_ji+l))+c3*(*(p_3_ji+l))+c4*(*(p_4_ji+l));
                         sumq+=c1*(*(q_ji+l))+c2*(*(q_2_ji+l))+c3*(*(q_3_ji+l))+c4*(*(q_4_ji+l));
@@ -389,7 +388,7 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
                     syy[j][i] += ( g[j][i]* (sumxx+sumyy)*dhi )- ( 2.0*f[j][i]*sumxx*dhi ) + ( dthalbe*sumq );
                     
                     sumr=sump=sumq=0.0;
-                    for ( l=1; l<=L; l++ ) {
+                    for ( l=1; l<=gv->L; l++ ) {
                         ctemp=2*(1-cip[l])/c1;
                         r_4[j][i][l] = bip[l]* ( (*(r_ji+l))*cip[l]-ctemp*c2*((*(r_ji+l))+(*(r_2_ji+l)))-ctemp*c3*((*(r_2_ji+l))+(*(r_3_ji+l)))-ctemp*c4*((*(r_3_ji+l))+(*(r_4_ji+l)))- ( dip[j][i][l]* ( sumxy+sumyx)*dhi ) );
                         p_4[j][i][l] = bjm[l]* ((*(p_ji+l))*cjm[l]-ctemp*c2*((*(p_ji+l))+(*(p_2_ji+l)))-ctemp*c3*((*(p_2_ji+l))+(*(p_3_ji+l)))-ctemp*c4*((*(p_3_ji+l))+(*(p_4_ji+l)))- ( e[j][i][l]* ( sumxx+sumyy )*dhi ) + ( 2.0*d[j][i][l]*sumyy*dhi ) );
@@ -450,7 +449,7 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
                     
                     
                     sumr=sump=sumq=0.0;
-                    for ( l=1; l<=L; l++ ) {
+                    for ( l=1; l<=gv->L; l++ ) {
                         sumr+=c1*(*(r_ji+l))+c2*(*(r_2_ji+l))+c3*(*(r_3_ji+l))+c4*(*(r_4_ji+l));
                         sump+=c1*(*(p_ji+l))+c2*(*(p_2_ji+l))+c3*(*(p_3_ji+l))+c4*(*(p_4_ji+l));
                         sumq+=c1*(*(q_ji+l))+c2*(*(q_2_ji+l))+c3*(*(q_3_ji+l))+c4*(*(q_4_ji+l));
@@ -468,7 +467,7 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
                     syy[j][i] += ( g[j][i]* (sumxx+sumyy)*dhi )- ( 2.0*f[j][i]*sumxx*dhi ) + ( dthalbe*sumq );
                     
                     sumr=sump=sumq=0.0;
-                    for ( l=1; l<=L; l++ ) {
+                    for ( l=1; l<=gv->L; l++ ) {
                         ctemp=2*(1-cip[l])/c1;
                         r_4[j][i][l] = bip[l]* ( (*(r_ji+l))*cip[l]-ctemp*c2*((*(r_ji+l))+(*(r_2_ji+l)))-ctemp*c3*((*(r_2_ji+l))+(*(r_3_ji+l)))-ctemp*c4*((*(r_3_ji+l))+(*(r_4_ji+l)))- ( dip[j][i][l]* ( sumxy+sumyx)*dhi ) );
                         p_4[j][i][l] = bjm[l]* ((*(p_ji+l))*cjm[l]-ctemp*c2*((*(p_ji+l))+(*(p_2_ji+l)))-ctemp*c3*((*(p_2_ji+l))+(*(p_3_ji+l)))-ctemp*c4*((*(p_3_ji+l))+(*(p_4_ji+l)))- ( e[j][i][l]* ( sumxx+sumyy )*dhi ) + ( 2.0*d[j][i][l]*sumyy*dhi ) );
@@ -512,7 +511,7 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
                     *(vxy_1_j+i) = hc[1]* ( vx[j+1][i]-vx[j][i] );
                     
                     sumr=sump=sumq=0.0;
-                    for ( l=1; l<=L; l++ ) {
+                    for ( l=1; l<=gv->L; l++ ) {
                         sumr+=c1*(*(r_ji+l))+c2*(*(r_2_ji+l))+c3*(*(r_3_ji+l))+c4*(*(r_4_ji+l));
                         sump+=c1*(*(p_ji+l))+c2*(*(p_2_ji+l))+c3*(*(p_3_ji+l))+c4*(*(p_4_ji+l));
                         sumq+=c1*(*(q_ji+l))+c2*(*(q_2_ji+l))+c3*(*(q_3_ji+l))+c4*(*(q_4_ji+l));
@@ -530,7 +529,7 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
                     syy[j][i] += ( g[j][i]* (sumxx+sumyy)*dhi )- ( 2.0*f[j][i]*sumxx*dhi ) + ( dthalbe*sumq );
                     
                     sumr=sump=sumq=0.0;
-                    for ( l=1; l<=L; l++ ) {
+                    for ( l=1; l<=gv->L; l++ ) {
                         ctemp=2*(1-cip[l])/c1;
                         r_4[j][i][l] = bip[l]* ( (*(r_ji+l))*cip[l]-ctemp*c2*((*(r_ji+l))+(*(r_2_ji+l)))-ctemp*c3*((*(r_2_ji+l))+(*(r_3_ji+l)))-ctemp*c4*((*(r_3_ji+l))+(*(r_4_ji+l)))- ( dip[j][i][l]* ( sumxy+sumyx)*dhi ) );
                         p_4[j][i][l] = bjm[l]* ((*(p_ji+l))*cjm[l]-ctemp*c2*((*(p_ji+l))+(*(p_2_ji+l)))-ctemp*c3*((*(p_2_ji+l))+(*(p_3_ji+l)))-ctemp*c4*((*(p_3_ji+l))+(*(p_4_ji+l)))- ( e[j][i][l]* ( sumxx+sumyy )*dhi ) + ( 2.0*d[j][i][l]*sumyy*dhi ) );
@@ -547,12 +546,12 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
             }
             break;
             
-    } /* end of switch(FDORDER) */
+    } /* end of switch(gv->FDORDER) */
     
     
     
-    if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
+    if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
         time2=MPI_Wtime();
-        fprintf ( FP," finished (real time: %4.3f s).\n",time2-time1 );
+        fprintf ( gv->FP," finished (real time: %4.3f s).\n",time2-time1 );
     }
 }

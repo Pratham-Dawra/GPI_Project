@@ -19,7 +19,7 @@
 
             
 "Wave Equation" : "comment",
-			"WEQ" : "4",
+			"WEQ" : "3",
 			"WEQ values : 1:acoustic, 2:viscoacoustic, 3:elastic, " : "comment",
 			"WEQ values : 4:viscoelastic, 5:elastic VTI, 6:viscoelastic VTI, " : "comment",
 			"WEQ values : 7:elastic TTI, 8:viscoelastic TTI, " : "comment",
@@ -32,7 +32,7 @@
 			
 			"SIGOUT" : "1",
 			"Output source wavelet: yes=1, no=else" : "comment",
-			"SIGOUT_FILE" : "./sources/signal_out01",
+			"SIGOUT_FILE" : "./sources/signal_out301",
 			"SIGOUT_FORMAT" : "1",
 			"Supported output formats for SIGOUT_FORMAT: SU=1, ASCII=2, BINARY=3" : "comment",
 
@@ -64,7 +64,7 @@
                         "BOUNDARY" : "0",
 
 			"FW" : "20",
-			"ABS_TYPE" : "1",
+			"ABS_TYPE" : "2",
 			"ABS_TYPE values : CPML-Boundary=1; Damping-Boundary=2" : "comment",
 			
 			"Parameter for CPML (ABS_TYPE=1)" : "comment",
@@ -85,7 +85,7 @@
 			"IDX" : "1",
 			"IDY" : "1",
 			"SNAP_FORMAT" : "3",
-			"SNAP_FILE" : "./snap/Test_t003",
+			"SNAP_FILE" : "./snap/Test_t301",
 
 "Receiver" : "comment",
 			"SEISMO" : "4",
@@ -106,7 +106,7 @@
 "Seismograms" : "comment",
 			"NDT" : "5",
 			"SEIS_FORMAT" : "1",
-			"SEIS_FILE" : "./su/Test_t003",
+			"SEIS_FILE" : "./su/Test_t301",
 
 "Monitoring the simulation" : "comment",
 			"LOG_FILE" : "./log/test.log",

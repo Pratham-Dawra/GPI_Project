@@ -22,12 +22,7 @@
  * ---------------------------------------------------------------------- */
  
  #include "fd.h"
-float **splitsrc(float **srcpos,int *nsrc_loc, int nsrc)
-{
-
-	extern int IENDX, IENDY, POS[3];
-/*	extern int MYID; */ /* for output */
-	extern float DH;
+float **splitsrc(float **srcpos,int *nsrc_loc, int nsrc, GlobVar *gv) {
 
 	int a,b,i=0,j,k;
 	//int found=0;
@@ -35,14 +30,14 @@ float **splitsrc(float **srcpos,int *nsrc_loc, int nsrc)
 	srcpos_dummy = matrix(1,NSPAR,1,nsrc);
 
 	for (j=1;j<=nsrc;j++) {
-		a=(iround(srcpos[1][j]/DH)-1)/IENDX;
-		b=(iround(srcpos[2][j]/DH)-1)/IENDY;
+		a=(iround(srcpos[1][j]/gv->DH)-1)/gv->IENDX;
+		b=(iround(srcpos[2][j]/gv->DH)-1)/gv->IENDY;
 
-		if ((POS[1]==a)&&(POS[2]==b)) {
+		if ((gv->POS[1]==a)&&(gv->POS[2]==b)) {
 			//found = 1;
 			i++;
-			srcpos_dummy[1][i] = (float)(((iround(srcpos[1][j]/DH)-1)%IENDX)+1);
-			srcpos_dummy[2][i] = (float)(((iround(srcpos[2][j]/DH)-1)%IENDY)+1);
+			srcpos_dummy[1][i] = (float)(((iround(srcpos[1][j]/gv->DH)-1)%gv->IENDX)+1);
+			srcpos_dummy[2][i] = (float)(((iround(srcpos[2][j]/gv->DH)-1)%gv->IENDY)+1);
 			srcpos_dummy[3][i] = 0.0;
 			srcpos_dummy[4][i] = srcpos[4][j];
 			srcpos_dummy[5][i] = srcpos[5][j];
@@ -55,7 +50,7 @@ float **splitsrc(float **srcpos,int *nsrc_loc, int nsrc)
             srcpos_dummy[12][i] = srcpos[12][j];
 		}
 	}
-   
+
 	if (i>0) srcpos_local = matrix(1,NSPAR,1,i);
 	for (k=1;k<=i;k++){
 		srcpos_local[1][k] = srcpos_dummy[1][k];

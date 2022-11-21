@@ -34,10 +34,12 @@
 
 #include "fd.h"           /* general include file for viscoelastic FD programs */
 
-float *holbergcoeff() {
+float *holbergcoeff(GlobVar *gv) {
 
 	int nl,i;
-	extern int FDORDER, MAXRELERROR, MYID;
+    int MYID;
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
+    
 	float *hc;
 
 	float hcall[5][6][7] =
@@ -85,21 +87,21 @@ float *holbergcoeff() {
 	};
 
 	if (MYID == 0) {
-		if ((FDORDER!=2) && (FDORDER!=4) && (FDORDER!=6) && (FDORDER!=8) && (FDORDER!=10) && (FDORDER!=12)) {
+		if ((gv->FDORDER!=2) && (gv->FDORDER!=4) && (gv->FDORDER!=6) && (gv->FDORDER!=8) && (gv->FDORDER!=10) && (gv->FDORDER!=12)) {
 			declare_error(" Error in selection of FD coefficients: wrong FDORDER! ");
 		}
 
-		if ((MAXRELERROR<0) || (MAXRELERROR>4)) {
+		if ((gv->MAXRELERROR<0) || (gv->MAXRELERROR>4)) {
 			declare_error(" Error in selection of FD coefficients: wrong choice of maximum relative error! ");
 		}
 	}
 
-	nl = (FDORDER/2) - 1;
+	nl = (gv->FDORDER/2) - 1;
 
 	hc = vector(0,6);
 
 	for (i=0; i<=6; i++) {
-		hc[i] = hcall[MAXRELERROR][nl][i];
+		hc[i] = hcall[gv->MAXRELERROR][nl][i];
 		//printf("hc[%i]= %5.5f \n ",i,hc[i]);
 	}
 

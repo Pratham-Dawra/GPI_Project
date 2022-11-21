@@ -28,13 +28,8 @@
 void exchange_s(int nd, float ** sxx, float ** syy, 
 		float ** sxy, float ** bufferlef_to_rig, float ** bufferrig_to_lef,
 		float ** buffertop_to_bot, float ** bufferbot_to_top,
-		MPI_Request *req_send, MPI_Request *req_rec){
+		MPI_Request *req_send, MPI_Request *req_rec, GlobVar *gv){
 
-
-	extern int NX, NY, POS[3], NPROCX, NPROCY, BOUNDARY;
-//	extern int FDORDER;
-	extern int INDEX[5];
-	extern const int TAG1,TAG2,TAG5,TAG6;
 	MPI_Status  status;
 	int i, j, fdo, fdo2, n, l;
 
@@ -45,8 +40,8 @@ void exchange_s(int nd, float ** sxx, float ** syy,
 
 	/* top - bottom */
 
-	if (POS[2]!=0)	/* no boundary exchange at top of global grid */
-		for (i=1;i<=NX;i++){
+	if (gv->POS[2]!=0)	/* no boundary exchange at top of global grid */
+		for (i=1;i<=gv->NX;i++){
 			/* storage of top of local volume into buffer */
 			n = 1;
 			for (l=1;l<=fdo-1;l++) {
@@ -58,31 +53,31 @@ void exchange_s(int nd, float ** sxx, float ** syy,
 		}
 
 
-	if (POS[2]!=NPROCY-1)	/* no boundary exchange at bottom of global grid */
-		for (i=1;i<=NX;i++){
+	if (gv->POS[2]!=gv->NPROCY-1)	/* no boundary exchange at bottom of global grid */
+		for (i=1;i<=gv->NX;i++){
 			/* storage of bottom of local volume into buffer */
 			n = 1;
 			for (l=1;l<=fdo;l++) {
-				bufferbot_to_top[i][n++]  = sxy[NY-l+1][i];
+				bufferbot_to_top[i][n++]  = sxy[gv->NY-l+1][i];
 			}
 			for (l=1;l<=fdo-1;l++) {
-				bufferbot_to_top[i][n++]  = syy[NY-l+1][i];
+				bufferbot_to_top[i][n++]  = syy[gv->NY-l+1][i];
 			}
 		}
 	/* send and receive values for points at inner boundaries */
 	/* blocking communication */
 	/*
-	MPI_Bsend(&buffertop_to_bot[1][1],NX*fdo2,MPI_FLOAT,INDEX[3],TAG5,MPI_COMM_WORLD);
+	MPI_Bsend(&buffertop_to_bot[1][1],gv->NX*fdo2,MPI_FLOAT,gv->INDEX[3],gv->TAG5,MPI_COMM_WORLD);
 	MPI_Barrier(MPI_COMM_WORLD);
-	MPI_Recv(&buffertop_to_bot[1][1],NX*fdo2,MPI_FLOAT,INDEX[4],TAG5,MPI_COMM_WORLD,&status);
-	MPI_Bsend(&bufferbot_to_top[1][1],NX*fdo2,MPI_FLOAT,INDEX[4],TAG6,MPI_COMM_WORLD);
+	MPI_Recv(&buffertop_to_bot[1][1],gv->NX*fdo2,MPI_FLOAT,gv->INDEX[4],gv->TAG5,MPI_COMM_WORLD,&status);
+	MPI_Bsend(&bufferbot_to_top[1][1],gv->NX*fdo2,MPI_FLOAT,gv->INDEX[4],gv->TAG6,MPI_COMM_WORLD);
 	MPI_Barrier(MPI_COMM_WORLD);
-	MPI_Recv(&bufferbot_to_top[1][1],NX*fdo2,MPI_FLOAT,INDEX[3],TAG6,MPI_COMM_WORLD,&status);   
+	MPI_Recv(&bufferbot_to_top[1][1],gv->NX*fdo2,MPI_FLOAT,gv->INDEX[3],gv->TAG6,MPI_COMM_WORLD,&status);   
 	 */
 	/* alternative communication */
 	/* still blocking communication */
-	MPI_Sendrecv_replace(&buffertop_to_bot[1][1],NX*fdo2,MPI_FLOAT,INDEX[3],TAG5,INDEX[4],TAG5,MPI_COMM_WORLD,&status);
-	MPI_Sendrecv_replace(&bufferbot_to_top[1][1],NX*fdo2,MPI_FLOAT,INDEX[4],TAG6,INDEX[3],TAG6,MPI_COMM_WORLD,&status);
+	MPI_Sendrecv_replace(&buffertop_to_bot[1][1],gv->NX*fdo2,MPI_FLOAT,gv->INDEX[3],gv->TAG5,gv->INDEX[4],gv->TAG5,MPI_COMM_WORLD,&status);
+	MPI_Sendrecv_replace(&bufferbot_to_top[1][1],gv->NX*fdo2,MPI_FLOAT,gv->INDEX[4],gv->TAG6,gv->INDEX[3],gv->TAG6,MPI_COMM_WORLD,&status);
 	/* Initiates a communication with a persistent request handle */
 	/*	for (i=2;i<=3;i++){
 		MPI_Start(&req_send[i]);
@@ -92,19 +87,19 @@ void exchange_s(int nd, float ** sxx, float ** syy,
 	}*/
 
 
-	if (POS[2]!=NPROCY-1)	/* no boundary exchange at bottom of global grid */
-		for (i=1;i<=NX;i++){
+	if (gv->POS[2]!=gv->NPROCY-1)	/* no boundary exchange at bottom of global grid */
+		for (i=1;i<=gv->NX;i++){
 			n = 1;
 			for (l=1;l<=fdo-1;l++) {
-				sxy[NY+l][i] = buffertop_to_bot[i][n++];
+				sxy[gv->NY+l][i] = buffertop_to_bot[i][n++];
 			}
 			for (l=1;l<=fdo;l++) {
-				syy[NY+l][i] = buffertop_to_bot[i][n++];
+				syy[gv->NY+l][i] = buffertop_to_bot[i][n++];
 			}
 		}
 
-	if (POS[2]!=0)	/* no boundary exchange at top of global grid */
-		for (i=1;i<=NX;i++){
+	if (gv->POS[2]!=0)	/* no boundary exchange at top of global grid */
+		for (i=1;i<=gv->NX;i++){
 			n = 1;
 			for (l=1;l<=fdo;l++) {
 				sxy[1-l][i] = bufferbot_to_top[i][n++];
@@ -118,8 +113,8 @@ void exchange_s(int nd, float ** sxx, float ** syy,
 
 	/* left - right */
 
-	if ((BOUNDARY) || (POS[1]!=0))	/* no boundary exchange at left edge of global grid */
-		for (j=1;j<=NY;j++){
+	if ((gv->BOUNDARY) || (gv->POS[1]!=0))	/* no boundary exchange at left edge of global grid */
+		for (j=1;j<=gv->NY;j++){
 			/* storage of left edge of local volume into buffer */
 			n = 1;
 			for (l=1;l<=fdo-1;l++) {
@@ -131,15 +126,15 @@ void exchange_s(int nd, float ** sxx, float ** syy,
 		}
 
 
-	if ((BOUNDARY) || (POS[1]!=NPROCX-1))	/* no boundary exchange at right edge of global grid */
-		for (j=1;j<=NY;j++){
+	if ((gv->BOUNDARY) || (gv->POS[1]!=gv->NPROCX-1))	/* no boundary exchange at right edge of global grid */
+		for (j=1;j<=gv->NY;j++){
 			/* storage of right edge of local volume into buffer */
 			n = 1;
 			for (l=1;l<=fdo;l++) {
-				bufferrig_to_lef[j][n++] =  sxy[j][NX-l+1];
+				bufferrig_to_lef[j][n++] =  sxy[j][gv->NX-l+1];
 			}
 			for (l=1;l<=fdo-1;l++) {
-				bufferrig_to_lef[j][n++] =  sxx[j][NX-l+1];
+				bufferrig_to_lef[j][n++] =  sxx[j][gv->NX-l+1];
 			}
 		}
 
@@ -149,17 +144,17 @@ void exchange_s(int nd, float ** sxx, float ** syy,
 	/* send and receive values for points at inner boundaries */
 
 	/*
- 	MPI_Bsend(&bufferlef_to_rig[1][1],(NY)*fdo3,MPI_FLOAT,INDEX[1],TAG1,MPI_COMM_WORLD);
+ 	MPI_Bsend(&bufferlef_to_rig[1][1],(gv->NY)*fdo3,MPI_FLOAT,gv->INDEX[1],gv->TAG1,MPI_COMM_WORLD);
 	MPI_Barrier(MPI_COMM_WORLD);
-	MPI_Recv(&bufferlef_to_rig[1][1],(NY)*fdo3,MPI_FLOAT,INDEX[2],TAG1,MPI_COMM_WORLD,&status);
-	MPI_Bsend(&bufferrig_to_lef[1][1],(NY)*fdo3,MPI_FLOAT,INDEX[2],TAG2,MPI_COMM_WORLD);
+	MPI_Recv(&bufferlef_to_rig[1][1],(gv->NY)*fdo3,MPI_FLOAT,gv->INDEX[2],gv->TAG1,MPI_COMM_WORLD,&status);
+	MPI_Bsend(&bufferrig_to_lef[1][1],(gv->NY)*fdo3,MPI_FLOAT,gv->INDEX[2],gv->TAG2,MPI_COMM_WORLD);
 	MPI_Barrier(MPI_COMM_WORLD);
-	MPI_Recv(&bufferrig_to_lef[1][1],(NY)*fdo3,MPI_FLOAT,INDEX[1],TAG2,MPI_COMM_WORLD,&status);
+	MPI_Recv(&bufferrig_to_lef[1][1],(gv->NY)*fdo3,MPI_FLOAT,gv->INDEX[1],gv->TAG2,MPI_COMM_WORLD,&status);
 	 */
 	/* alternative communication */
 	/* still blocking communication */
-	MPI_Sendrecv_replace(&bufferlef_to_rig[1][1],NY*fdo2,MPI_FLOAT,INDEX[1],TAG1,INDEX[2],TAG1,MPI_COMM_WORLD,&status);
-	MPI_Sendrecv_replace(&bufferrig_to_lef[1][1],NY*fdo2,MPI_FLOAT,INDEX[2],TAG2,INDEX[1],TAG2,MPI_COMM_WORLD,&status);
+	MPI_Sendrecv_replace(&bufferlef_to_rig[1][1],gv->NY*fdo2,MPI_FLOAT,gv->INDEX[1],gv->TAG1,gv->INDEX[2],gv->TAG1,MPI_COMM_WORLD,&status);
+	MPI_Sendrecv_replace(&bufferrig_to_lef[1][1],gv->NY*fdo2,MPI_FLOAT,gv->INDEX[2],gv->TAG2,gv->INDEX[1],gv->TAG2,MPI_COMM_WORLD,&status);
 	/* send and reveive values at edges of the local grid */
 	/*for (i=0;i<=1;i++){
 		MPI_Start(&req_send[i]);
@@ -169,19 +164,19 @@ void exchange_s(int nd, float ** sxx, float ** syy,
 	}*/
 
 
-	if ((BOUNDARY) || (POS[1]!=NPROCX-1))	/* no boundary exchange at right edge of global grid */
-		for (j=1;j<=NY;j++){
+	if ((gv->BOUNDARY) || (gv->POS[1]!=gv->NPROCX-1))	/* no boundary exchange at right edge of global grid */
+		for (j=1;j<=gv->NY;j++){
 			n = 1;
 			for (l=1;l<=fdo-1;l++) {
-				sxy[j][NX+l] = bufferlef_to_rig[j][n++];
+				sxy[j][gv->NX+l] = bufferlef_to_rig[j][n++];
 			}
 			for (l=1;l<=fdo;l++) {
-				sxx[j][NX+l] = bufferlef_to_rig[j][n++];
+				sxx[j][gv->NX+l] = bufferlef_to_rig[j][n++];
 			}
 		}
 
-	if ((BOUNDARY) || (POS[1]!=0))	/* no boundary exchange at left edge of global grid */
-		for (j=1;j<=NY;j++){
+	if ((gv->BOUNDARY) || (gv->POS[1]!=0))	/* no boundary exchange at left edge of global grid */
+		for (j=1;j<=gv->NY;j++){
 			n = 1;
 			for (l=1;l<=fdo;l++) {
 				sxy[j][1-l] = bufferrig_to_lef[j][n++];

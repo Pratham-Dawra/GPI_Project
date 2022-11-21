@@ -18,7 +18,6 @@
 ---------------------------------------------------------------------------------*/
 
 /* $Id: subgrid_bounds.c 819 2015-04-17 11:07:06Z tmetz $ */
-
 /*---------------------------------------------------------------
 calculate for-loop bounds for each process/subgrid
 
@@ -40,7 +39,7 @@ calculate for-loop bounds for each process/subgrid
 
  gy
 
-Width of Absorbing Boundary is FW Gridpoints.
+Width of Absorbing Boundary is gv->FW Gridpoints.
 nx1,nx2,ny1,ny2 are first are the bounds for each subgrid without
 absorbing boundaries.
 In case of number of processes NPROCX=1 and NPROCY=1 all boundaries are in one
@@ -54,227 +53,223 @@ Free Surface and Periodic Boundary conditions alter the bounds (see end of this 
 #include "fd.h"
 
 
-void subgrid_bounds ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy )
+void subgrid_bounds ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, GlobVar *gv )
 //void subgrid_bounds ( int nx1, int nx2, int ny1, int ny2)
 {
 
-	extern int NPROCX, NPROCY, POS[3], FW;
-	extern int FREE_SURF, BOUNDARY;
-	//extern int gx[5],gy[5];
 	/* GRID */
-	switch ( NPROCY ) {
+	switch ( gv->NPROCY ) {
 
-	case 1: /*case NPROCY=1 */
+	case 1: /*case gv->NPROCY=1 */
 
-		switch ( NPROCX ) {
-		case 1:     /* Case NPROCX=1 */
-			gy[1]=ny1, gy[2]=FW, gy[3]=ny2-FW, gy[4]=ny2;
-			gx[1]=nx1, gx[2]=FW, gx[3]=nx2-FW, gx[4]=nx2;
+		switch ( gv->NPROCX ) {
+		case 1:     /* Case gv->NPROCX=1 */
+			gy[1]=ny1, gy[2]=gv->FW, gy[3]=ny2-gv->FW, gy[4]=ny2;
+			gx[1]=nx1, gx[2]=gv->FW, gx[3]=nx2-gv->FW, gx[4]=nx2;
 			
 			break;
 
-
-		case 2:   /* Case NPROCX=2 */
-			if ( POS[1]==0 ) { /* left */
-				gy[1]=ny1, gy[2]=FW, gy[3]=ny2-FW, gy[4]=ny2;
-				gx[1]=nx1, gx[2]=FW, gx[3]=nx2, gx[4]=nx2-1;
+		case 2:   /* Case gv->NPROCX=2 */
+			if ( gv->POS[1]==0 ) { /* left */
+				gy[1]=ny1, gy[2]=gv->FW, gy[3]=ny2-gv->FW, gy[4]=ny2;
+				gx[1]=nx1, gx[2]=gv->FW, gx[3]=nx2, gx[4]=nx2-1;
 			}
-			if ( POS[1]== NPROCX-1 ) { /* right */
-				gy[1]=ny1, gy[2]=FW, gy[3]=ny2-FW, gy[4]=ny2;
-				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-FW, gx[4]=nx2;
+			if ( gv->POS[1]== gv->NPROCX-1 ) { /* right */
+				gy[1]=ny1, gy[2]=gv->FW, gy[3]=ny2-gv->FW, gy[4]=ny2;
+				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-gv->FW, gx[4]=nx2;
 			}
 			break;
 
-		default: /* Case NPROCX>2 */
+		default: /* Case gv->NPROCX>2 */
 
-			if ( POS[1]==0 ) { /* left */
-				gy[1]=ny1, gy[2]=FW, gy[3]=ny2-FW, gy[4]=ny2;
-				gx[1]=nx1, gx[2]=FW, gx[3]=nx2, gx[4]=nx2-1;
+			if ( gv->POS[1]==0 ) { /* left */
+				gy[1]=ny1, gy[2]=gv->FW, gy[3]=ny2-gv->FW, gy[4]=ny2;
+				gx[1]=nx1, gx[2]=gv->FW, gx[3]=nx2, gx[4]=nx2-1;
 			}
 
-			if ( ( POS[1]!=0 ) && ( POS[1]!= NPROCX-1 ) ) { /* mid */
+			if ( ( gv->POS[1]!=0 ) && ( gv->POS[1]!= gv->NPROCX-1 ) ) { /* mid */
 
-				gy[1]=ny1, gy[2]=FW, gy[3]=ny2-FW, gy[4]=ny2;
+				gy[1]=ny1, gy[2]=gv->FW, gy[3]=ny2-gv->FW, gy[4]=ny2;
 				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2, gx[4]=nx2-1;
 			}
-			if ( POS[1]== NPROCX-1 ) { /* right */
-				gy[1]=ny1, gy[2]=FW, gy[3]=ny2-FW, gy[4]=ny2;
-				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-FW, gx[4]=nx2;
+			if ( gv->POS[1]== gv->NPROCX-1 ) { /* right */
+				gy[1]=ny1, gy[2]=gv->FW, gy[3]=ny2-gv->FW, gy[4]=ny2;
+				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-gv->FW, gx[4]=nx2;
 			}
 			break;
 		}
 		break;
 
-	case 2: /*case NPROCY=2 */
-		switch ( NPROCX ) {
-		case 1:   /* Case NPROCX=1 */
-			if ( POS[2]==0 ) { /* top */
-				gy[1]=ny1, gy[2]=FW, gy[3]=ny2, gy[4]=ny2-1;
-				gx[1]=nx1, gx[2]=FW, gx[3]=nx2-FW, gx[4]=nx2;
+	case 2: /*case gv->NPROCY=2 */
+		switch ( gv->NPROCX ) {
+		case 1:   /* Case gv->NPROCX=1 */
+			if ( gv->POS[2]==0 ) { /* top */
+				gy[1]=ny1, gy[2]=gv->FW, gy[3]=ny2, gy[4]=ny2-1;
+				gx[1]=nx1, gx[2]=gv->FW, gx[3]=nx2-gv->FW, gx[4]=nx2;
 			}
-			if ( POS[2]==NPROCY-1 ) { /* bottom */
-				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-FW, gy[4]=ny2;
-				gx[1]=nx1, gx[2]=FW, gx[3]=nx2-FW, gx[4]=nx2;
+			if ( gv->POS[2]==gv->NPROCY-1 ) { /* bottom */
+				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-gv->FW, gy[4]=ny2;
+				gx[1]=nx1, gx[2]=gv->FW, gx[3]=nx2-gv->FW, gx[4]=nx2;
 			}
 
 			break;
 
-		case 2: /* Case NPROCX=2 */
-			if ( ( POS[1]==0 ) && ( POS[2]==0 ) ) { /* corner left-top */
-				gy[1]=ny1, gy[2]=FW, gy[3]=ny2, gy[4]=ny2-1;
-				gx[1]=nx1, gx[2]=FW, gx[3]=nx2, gx[4]=nx2-1;
+		case 2: /* Case gv->NPROCX=2 */
+			if ( ( gv->POS[1]==0 ) && ( gv->POS[2]==0 ) ) { /* corner left-top */
+				gy[1]=ny1, gy[2]=gv->FW, gy[3]=ny2, gy[4]=ny2-1;
+				gx[1]=nx1, gx[2]=gv->FW, gx[3]=nx2, gx[4]=nx2-1;
 			}
-			if ( ( POS[1]==0 ) && ( POS[2]== NPROCY-1 ) ) { /* corner left-bottom */
-				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-FW, gy[4]=ny2;
-				gx[1]=nx1, gx[2]=FW, gx[3]=nx2, gx[4]=nx2-1;
+			if ( ( gv->POS[1]==0 ) && ( gv->POS[2]== gv->NPROCY-1 ) ) { /* corner left-bottom */
+				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-gv->FW, gy[4]=ny2;
+				gx[1]=nx1, gx[2]=gv->FW, gx[3]=nx2, gx[4]=nx2-1;
 			}
-			if ( ( POS[1]==NPROCX-1 ) && ( POS[2]==0 ) ) { /* corner right-top */
-				gy[1]=ny1, gy[2]=FW, gy[3]=ny2, gy[4]=ny2-1;
-				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-FW, gx[4]=nx2;
+			if ( ( gv->POS[1]==gv->NPROCX-1 ) && ( gv->POS[2]==0 ) ) { /* corner right-top */
+				gy[1]=ny1, gy[2]=gv->FW, gy[3]=ny2, gy[4]=ny2-1;
+				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-gv->FW, gx[4]=nx2;
 			}
-			if ( ( POS[1]==NPROCX-1 ) && ( POS[2]==NPROCY-1 ) ) { /* corner right-bottom */
-				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-FW, gy[4]=ny2;
-				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-FW, gx[4]=nx2;
+			if ( ( gv->POS[1]==gv->NPROCX-1 ) && ( gv->POS[2]==gv->NPROCY-1 ) ) { /* corner right-bottom */
+				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-gv->FW, gy[4]=ny2;
+				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-gv->FW, gx[4]=nx2;
 			}
 			break;
 
-		default: /* Case NPROCX>2 */
+		default: /* Case gv->NPROCX>2 */
 
-			if ( ( POS[1]==0 ) && ( POS[2]==0 ) ) { /* corner left-top */
-				gy[1]=ny1, gy[2]=FW, gy[3]=ny2, gy[4]=ny2-1;
-				gx[1]=nx1, gx[2]=FW, gx[3]=nx2, gx[4]=nx2-1;
+			if ( ( gv->POS[1]==0 ) && ( gv->POS[2]==0 ) ) { /* corner left-top */
+				gy[1]=ny1, gy[2]=gv->FW, gy[3]=ny2, gy[4]=ny2-1;
+				gx[1]=nx1, gx[2]=gv->FW, gx[3]=nx2, gx[4]=nx2-1;
 			}
-			if ( ( POS[1]==0 ) && ( POS[2]== NPROCY-1 ) ) { /* corner left-bottom */
-				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-FW, gy[4]=ny2;
-				gx[1]=nx1, gx[2]=FW, gx[3]=nx2, gx[4]=nx2-1;
+			if ( ( gv->POS[1]==0 ) && ( gv->POS[2]== gv->NPROCY-1 ) ) { /* corner left-bottom */
+				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-gv->FW, gy[4]=ny2;
+				gx[1]=nx1, gx[2]=gv->FW, gx[3]=nx2, gx[4]=nx2-1;
 			}
-			if ( ( POS[1]==NPROCX-1 ) && ( POS[2]==0 ) ) { /* corner right-top */
-				gy[1]=ny1, gy[2]=FW, gy[3]=ny2, gy[4]=ny2-1;
-				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-FW, gx[4]=nx2;
+			if ( ( gv->POS[1]==gv->NPROCX-1 ) && ( gv->POS[2]==0 ) ) { /* corner right-top */
+				gy[1]=ny1, gy[2]=gv->FW, gy[3]=ny2, gy[4]=ny2-1;
+				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-gv->FW, gx[4]=nx2;
 			}
-			if ( ( POS[1]==NPROCX-1 ) && ( POS[2]==NPROCY-1 ) ) { /* corner right-bottom */
-				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-FW, gy[4]=ny2;
-				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-FW, gx[4]=nx2;
+			if ( ( gv->POS[1]==gv->NPROCX-1 ) && ( gv->POS[2]==gv->NPROCY-1 ) ) { /* corner right-bottom */
+				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-gv->FW, gy[4]=ny2;
+				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-gv->FW, gx[4]=nx2;
 			}
 
-			if ( ( POS[1]!=0 ) && ( POS[1]!=NPROCX-1 ) && ( POS[2]==0 ) ) { /*top */
-				gy[1]=ny1, gy[2]=FW, gy[3]=ny2, gy[4]=ny2-1;
+			if ( ( gv->POS[1]!=0 ) && ( gv->POS[1]!=gv->NPROCX-1 ) && ( gv->POS[2]==0 ) ) { /*top */
+				gy[1]=ny1, gy[2]=gv->FW, gy[3]=ny2, gy[4]=ny2-1;
 				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2, gx[4]=nx2-1;
 			}
-			if ( ( POS[1]!=0 ) && ( POS[1]!=NPROCX-1 ) && ( POS[2]==NPROCY-1 ) ) { /* bottom */
-				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-FW, gy[4]=ny2;
+			if ( ( gv->POS[1]!=0 ) && ( gv->POS[1]!=gv->NPROCX-1 ) && ( gv->POS[2]==gv->NPROCY-1 ) ) { /* bottom */
+				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-gv->FW, gy[4]=ny2;
 				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2, gx[4]=nx2-1;
 			}
 
 
 			break;
-		} /* end of switch NPROCX */
+		} /* end of switch gv->NPROCX */
 		break;
 
-	default: /*case NPROCY>2 */
-		switch ( NPROCX ) {
-		case 1:   /* Case NPROCX=1 */
-			if ( POS[2]==0 ) { /* top */
-				gy[1]=ny1, gy[2]=FW, gy[3]=ny2, gy[4]=ny2-1;
-				gx[1]=nx1, gx[2]=FW, gx[3]=nx2-FW, gx[4]=nx2;
+	default: /*case gv->NPROCY>2 */
+		switch ( gv->NPROCX ) {
+		case 1:   /* Case gv->NPROCX=1 */
+			if ( gv->POS[2]==0 ) { /* top */
+				gy[1]=ny1, gy[2]=gv->FW, gy[3]=ny2, gy[4]=ny2-1;
+				gx[1]=nx1, gx[2]=gv->FW, gx[3]=nx2-gv->FW, gx[4]=nx2;
 			}
 
-			if ( ( POS[2]!=0 ) && ( POS[2]!=NPROCY-1 ) ) { /* mid */
+			if ( ( gv->POS[2]!=0 ) && ( gv->POS[2]!=gv->NPROCY-1 ) ) { /* mid */
 				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2, gy[4]=ny2-1;
-				gx[1]=nx1, gx[2]=FW, gx[3]=nx2-FW, gx[4]=nx2;
+				gx[1]=nx1, gx[2]=gv->FW, gx[3]=nx2-gv->FW, gx[4]=nx2;
 			}
 
-			if ( POS[2]==NPROCY-1 ) { /* bottom */
-				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-FW, gy[4]=ny2;
-				gx[1]=nx1, gx[2]=FW, gx[3]=nx2-FW, gx[4]=nx2;
+			if ( gv->POS[2]==gv->NPROCY-1 ) { /* bottom */
+				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-gv->FW, gy[4]=ny2;
+				gx[1]=nx1, gx[2]=gv->FW, gx[3]=nx2-gv->FW, gx[4]=nx2;
 			}
 
 			break;
 
-		case 2: /* Case NPROCX=2 */
-			if ( ( POS[1]==0 ) && ( POS[2]==0 ) ) { /* corner left-top */
-				gy[1]=ny1, gy[2]=FW, gy[3]=ny2, gy[4]=ny2-1;
-				gx[1]=nx1, gx[2]=FW, gx[3]=nx2, gx[4]=nx2-1;
+		case 2: /* Case gv->NPROCX=2 */
+			if ( ( gv->POS[1]==0 ) && ( gv->POS[2]==0 ) ) { /* corner left-top */
+				gy[1]=ny1, gy[2]=gv->FW, gy[3]=ny2, gy[4]=ny2-1;
+				gx[1]=nx1, gx[2]=gv->FW, gx[3]=nx2, gx[4]=nx2-1;
 			}
-			if ( ( POS[1]==0 ) && ( POS[2]== NPROCY-1 ) ) { /* corner left-bottom */
-				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-FW, gy[4]=ny2;
-				gx[1]=nx1, gx[2]=FW, gx[3]=nx2, gx[4]=nx2-1;
+			if ( ( gv->POS[1]==0 ) && ( gv->POS[2]== gv->NPROCY-1 ) ) { /* corner left-bottom */
+				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-gv->FW, gy[4]=ny2;
+				gx[1]=nx1, gx[2]=gv->FW, gx[3]=nx2, gx[4]=nx2-1;
 			}
-			if ( ( POS[1]==NPROCX-1 ) && ( POS[2]==0 ) ) { /* corner right-top */
-				gy[1]=ny1, gy[2]=FW, gy[3]=ny2, gy[4]=ny2-1;
-				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-FW, gx[4]=nx2;
+			if ( ( gv->POS[1]==gv->NPROCX-1 ) && ( gv->POS[2]==0 ) ) { /* corner right-top */
+				gy[1]=ny1, gy[2]=gv->FW, gy[3]=ny2, gy[4]=ny2-1;
+				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-gv->FW, gx[4]=nx2;
 			}
-			if ( ( POS[1]==NPROCX-1 ) && ( POS[2]==NPROCY-1 ) ) { /* corner right-bottom */
-				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-FW, gy[4]=ny2;
-				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-FW, gx[4]=nx2;
+			if ( ( gv->POS[1]==gv->NPROCX-1 ) && ( gv->POS[2]==gv->NPROCY-1 ) ) { /* corner right-bottom */
+				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-gv->FW, gy[4]=ny2;
+				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-gv->FW, gx[4]=nx2;
 			}
-			if ( ( POS[1]==0 ) && ( POS[2]!=0 ) && ( POS[2]!=NPROCY-1 ) ) { /* left */
+			if ( ( gv->POS[1]==0 ) && ( gv->POS[2]!=0 ) && ( gv->POS[2]!=gv->NPROCY-1 ) ) { /* left */
 				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2, gy[4]=ny2-1;
-				gx[1]=nx1, gx[2]=FW, gx[3]=nx2, gx[4]=nx2-1;
+				gx[1]=nx1, gx[2]=gv->FW, gx[3]=nx2, gx[4]=nx2-1;
 			}
-			if ( ( POS[1]==NPROCX-1 ) && ( POS[2]!=0 ) && ( POS[2]!=NPROCY-1 ) ) { /* right */
+			if ( ( gv->POS[1]==gv->NPROCX-1 ) && ( gv->POS[2]!=0 ) && ( gv->POS[2]!=gv->NPROCY-1 ) ) { /* right */
 				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2, gy[4]=ny2-1;
-				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-FW, gx[4]=nx2;
+				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-gv->FW, gx[4]=nx2;
 			}
 
 			break;
 
-		default: /* Case NPROCX>2 */
+		default: /* Case gv->NPROCX>2 */
 
-			if ( ( POS[1]==0 ) && ( POS[2]==0 ) ) { /* corner left-top */
-				gy[1]=ny1, gy[2]=FW, gy[3]=ny2, gy[4]=ny2-1;
-				gx[1]=nx1, gx[2]=FW, gx[3]=nx2, gx[4]=nx2-1;
+			if ( ( gv->POS[1]==0 ) && ( gv->POS[2]==0 ) ) { /* corner left-top */
+				gy[1]=ny1, gy[2]=gv->FW, gy[3]=ny2, gy[4]=ny2-1;
+				gx[1]=nx1, gx[2]=gv->FW, gx[3]=nx2, gx[4]=nx2-1;
 			}
-			if ( ( POS[1]==0 ) && ( POS[2]== NPROCY-1 ) ) { /* corner left-bottom */
-				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-FW, gy[4]=ny2;
-				gx[1]=nx1, gx[2]=FW, gx[3]=nx2, gx[4]=nx2-1;
+			if ( ( gv->POS[1]==0 ) && ( gv->POS[2]== gv->NPROCY-1 ) ) { /* corner left-bottom */
+				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-gv->FW, gy[4]=ny2;
+				gx[1]=nx1, gx[2]=gv->FW, gx[3]=nx2, gx[4]=nx2-1;
 			}
-			if ( ( POS[1]==NPROCX-1 ) && ( POS[2]==0 ) ) { /* corner right-top */
-				gy[1]=ny1, gy[2]=FW, gy[3]=ny2, gy[4]=ny2-1;
-				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-FW, gx[4]=nx2;
+			if ( ( gv->POS[1]==gv->NPROCX-1 ) && ( gv->POS[2]==0 ) ) { /* corner right-top */
+				gy[1]=ny1, gy[2]=gv->FW, gy[3]=ny2, gy[4]=ny2-1;
+				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-gv->FW, gx[4]=nx2;
 			}
-			if ( ( POS[1]==NPROCX-1 ) && ( POS[2]==NPROCY-1 ) ) { /* corner right-bottom */
-				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-FW, gy[4]=ny2;
-				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-FW, gx[4]=nx2;
+			if ( ( gv->POS[1]==gv->NPROCX-1 ) && ( gv->POS[2]==gv->NPROCY-1 ) ) { /* corner right-bottom */
+				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-gv->FW, gy[4]=ny2;
+				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-gv->FW, gx[4]=nx2;
 			}
 
-			if ( ( POS[1]==0 ) && ( POS[2]!=0 ) && ( POS[2]!=NPROCY-1 ) ) { /* left */
+			if ( ( gv->POS[1]==0 ) && ( gv->POS[2]!=0 ) && ( gv->POS[2]!=gv->NPROCY-1 ) ) { /* left */
 				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2, gy[4]=ny2-1;
-				gx[1]=nx1, gx[2]=FW, gx[3]=nx2, gx[4]=nx2-1;
+				gx[1]=nx1, gx[2]=gv->FW, gx[3]=nx2, gx[4]=nx2-1;
 			}
-			if ( ( POS[1]==NPROCX-1 ) && ( POS[2]!=0 ) && ( POS[2]!=NPROCY-1 ) ) { /* right */
+			if ( ( gv->POS[1]==gv->NPROCX-1 ) && ( gv->POS[2]!=0 ) && ( gv->POS[2]!=gv->NPROCY-1 ) ) { /* right */
 				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2, gy[4]=ny2-1;
-				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-FW, gx[4]=nx2;
+				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2-gv->FW, gx[4]=nx2;
 			}
 
-			if ( ( POS[1]!=0 ) && ( POS[1]!=NPROCX-1 ) && ( POS[2]==0 ) ) { /*top */
-				gy[1]=ny1, gy[2]=FW, gy[3]=ny2, gy[4]=ny2-1;
+			if ( ( gv->POS[1]!=0 ) && ( gv->POS[1]!=gv->NPROCX-1 ) && ( gv->POS[2]==0 ) ) { /*top */
+				gy[1]=ny1, gy[2]=gv->FW, gy[3]=ny2, gy[4]=ny2-1;
 				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2, gx[4]=nx2-1;
 			}
-			if ( ( POS[1]!=0 ) && ( POS[1]!=NPROCX-1 ) && ( POS[2]==NPROCY-1 ) ) { /* bottom */
-				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-FW, gy[4]=ny2;
+			if ( ( gv->POS[1]!=0 ) && ( gv->POS[1]!=gv->NPROCX-1 ) && ( gv->POS[2]==gv->NPROCY-1 ) ) { /* bottom */
+				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2-gv->FW, gy[4]=ny2;
 				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2, gx[4]=nx2-1;
 			}
 
-			if ( ( POS[1]!=0 ) && ( POS[1]!=NPROCX-1 ) && ( POS[2]!=0 ) && ( POS[2]!=NPROCY-1 ) ) { /* center */
+			if ( ( gv->POS[1]!=0 ) && ( gv->POS[1]!=gv->NPROCX-1 ) && ( gv->POS[2]!=0 ) && ( gv->POS[2]!=gv->NPROCY-1 ) ) { /* center */
 				gy[1]=ny1, gy[2]=ny1-1, gy[3]=ny2, gy[4]=ny2-1;
 				gx[1]=nx1, gx[2]=nx1-1, gx[3]=nx2, gx[4]=nx2-1;
 			}
 			break;
-		} /*end of switch (NPROCX) */
+		} /*end of switch (gv->NPROCX) */
 		break;
-	} /*end of switch (NPROCY) */
+	} /*end of switch (gv->NPROCY) */
 
-	if ( FREE_SURF==1 )
-		if ( POS[2] == 0 )
+	if ( gv->FREE_SURF==1 )
+		if ( gv->POS[2] == 0 )
 			gy[2]=ny1-1;
 
 		
         /* Periodic Boundary condition */
-	if ( BOUNDARY==1 ) { 
-		if ( POS[1] == 0 )
+	if ( gv->BOUNDARY==1 ) { 
+		if ( gv->POS[1] == 0 )
 			gx[2]=nx1-1;
-		if ( POS[1] == NPROCX-1 )
+		if ( gv->POS[1] == gv->NPROCX-1 )
 			gx[3]=nx2,gx[4]=nx2-1;
 	}
 }

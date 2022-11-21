@@ -32,31 +32,26 @@ void prepare_update_s_tti(float *peta,
                           float *** pc11d, float ***pc33d, float ***pc13d, float *** pc55d,
                           float *** pc15d, float *** pc35d,
                           float *** pc55ipjpd, float *** pc15ipjpd,float *** pc35ipjpd,
-                          float *bip, float *cip) {
+                          float *bip, float *cip, GlobVar *gv) {
 
-	extern int NX, NY, L;
-	extern float DT;
 	int i, j, l;
 
-
-
-	for (j=1;j<=NY;j++){
-		for (i=1;i<=NX;i++){
+	for (j=1;j<=gv->NY;j++){
+		for (i=1;i<=gv->NX;i++){
             /* unrelaxed moduli */
-             
-            pc11u[j][i] = pc11[j][i]*DT*(1.0+L*ptau11[j][i]);
-            pc33u[j][i] = pc33[j][i]*DT*(1.0+L*ptau33[j][i]);
-            pc13u[j][i] = pc13[j][i]*DT*(1.0+L*ptau13[j][i]);
-            pc55u[j][i] = pc55[j][i]*DT*(1.0+L*ptau55[j][i]);
-            pc15u[j][i] = pc15[j][i]*DT*(1.0+L*ptau15[j][i]);
-            pc35u[j][i] = pc35[j][i]*DT*(1.0+L*ptau35[j][i]);
-            
-            pc55ipjpu[j][i] = pc55ipjp[j][i]*DT*(1.0+L*ptau55ipjp[j][i]);
-            pc15ipjpu[j][i] = pc15ipjp[j][i]*DT*(1.0+L*ptau15ipjp[j][i]);
-            pc35ipjpu[j][i] = pc35ipjp[j][i]*DT*(1.0+L*ptau35ipjp[j][i]);
 
-            
-			for (l=1;l<=L;l++){
+            pc11u[j][i] = pc11[j][i]*gv->DT*(1.0+gv->L*ptau11[j][i]);
+            pc33u[j][i] = pc33[j][i]*gv->DT*(1.0+gv->L*ptau33[j][i]);
+            pc13u[j][i] = pc13[j][i]*gv->DT*(1.0+gv->L*ptau13[j][i]);
+            pc55u[j][i] = pc55[j][i]*gv->DT*(1.0+gv->L*ptau55[j][i]);
+            pc15u[j][i] = pc15[j][i]*gv->DT*(1.0+gv->L*ptau15[j][i]);
+            pc35u[j][i] = pc35[j][i]*gv->DT*(1.0+gv->L*ptau35[j][i]);
+
+            pc55ipjpu[j][i] = pc55ipjp[j][i]*gv->DT*(1.0+gv->L*ptau55ipjp[j][i]);
+            pc15ipjpu[j][i] = pc15ipjp[j][i]*gv->DT*(1.0+gv->L*ptau15ipjp[j][i]);
+            pc35ipjpu[j][i] = pc35ipjp[j][i]*gv->DT*(1.0+gv->L*ptau35ipjp[j][i]);
+
+			for (l=1;l<=gv->L;l++){
 				bip[l] = 1.0/(1.0+(peta[l]*0.5));
 				cip[l] = 1.0-(peta[l]*0.5);
                 /* module defects for each relaxation mechanism */
@@ -72,5 +67,4 @@ void prepare_update_s_tti(float *peta,
 			}
 		}
 	}
-
 }

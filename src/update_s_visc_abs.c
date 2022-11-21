@@ -35,14 +35,12 @@ void update_s_visc_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int
 		float **pi,
 		float ** fipjp, float **f, float **g, float *bip, float *bjm, float *cip,
 		float *cjm, float ***d, float ***e, float ***dip,
-		float ** absorb_coeff,float *hc){
-
+		float ** absorb_coeff,float *hc, GlobVar *gv) {
 
 	int i,j,fdoh;
 	float  vxx, vyy, vxy, vyx;
-	extern int FDORDER;
 
-	fdoh = FDORDER/2;
+	fdoh = gv->FDORDER/2;
 	
 	/*Pointer array to the locations of the fd-operator functions*/	
 	void ( *FD_op_s[7] ) ();
@@ -58,10 +56,10 @@ void update_s_visc_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int
 
 	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
 		for ( i=gx[1]; i<=gx[2]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc,gv );
 
 			wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip );
+				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
 			
 			abs_update_s (i,j,sxx,sxy,syy,absorb_coeff );
 		}
@@ -70,10 +68,10 @@ void update_s_visc_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int
 	/* right boundary */
 	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
 		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc,gv );
 
 			wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip );
+				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
 			
 			abs_update_s (i,j,sxx,sxy,syy,absorb_coeff );
 
@@ -83,10 +81,10 @@ void update_s_visc_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int
 	/* top boundary */
 	for ( j=gy[1]; j<=gy[2]; j++ ) {
 		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc,gv );
 
 			wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip );
+				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
 			abs_update_s (i,j,sxx,sxy,syy,absorb_coeff );
 		}
 	}
@@ -94,10 +92,10 @@ void update_s_visc_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int
 	/* bottom boundary */
 	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
 		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc,gv );
 
 			wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip );
+				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
 			
 			abs_update_s (i,j,sxx,sxy,syy,absorb_coeff );
 		}
@@ -108,10 +106,10 @@ void update_s_visc_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int
 	/*left-top*/
 	for ( j=gy[1]; j<=gy[2]; j++ ) {
 		for ( i=gx[1]; i<=gx[2]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc,gv );
 
 			wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip );
+				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
 			
 			abs_update_s (i,j,sxx,sxy,syy,absorb_coeff );
 
@@ -121,10 +119,10 @@ void update_s_visc_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int
 	/*left-bottom*/
 	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
 		for ( i=gx[1]; i<=gx[2]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc,gv );
 
 			wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip );
+				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
 			
 			abs_update_s (i,j,sxx,sxy,syy,absorb_coeff );
 		}
@@ -133,10 +131,10 @@ void update_s_visc_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int
 	/* right-top */
 	for ( j=gy[1]; j<=gy[2]; j++ ) {
 		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc,gv );
 
 			wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip );
+				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
 			
 			abs_update_s (i,j,sxx,sxy,syy,absorb_coeff );
 		}
@@ -145,10 +143,10 @@ void update_s_visc_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int
 	/* right-bottom */
 	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
 		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc,gv );
 
 			wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip );
+				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
 			
 			abs_update_s (i,j,sxx,sxy,syy,absorb_coeff );
 		}

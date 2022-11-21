@@ -22,14 +22,13 @@
 
 #include "fd.h"
 
-void av_tau(float **taus, float **tausipjp){
+void av_tau(float **taus, float **tausipjp, GlobVar *gv) {
 
-	extern int NX, NY;
 	int i, j;
-	for (j=1;j<=NY;j++){
-		for (i=1;i<=NX;i++){
 
-		       tausipjp[j][i] = 0.25*(taus[j][i]+taus[j][i+1]+taus[j+1][i]+taus[j+1][i+1]);
+	for (j=1;j<=gv->NY;j++) {
+		for (i=1;i<=gv->NX;i++) {
+            tausipjp[j][i] = 0.25*(taus[j][i]+taus[j][i+1]+taus[j+1][i]+taus[j+1][i+1]);
 		}
 	}
 }

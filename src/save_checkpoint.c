@@ -25,19 +25,17 @@
 #include "fd.h"
 
 void save_checkpoint(int nx1, int nx2, int ny1, int ny2,
-float **  vx, float ** vy, float ** sxx, float ** syy, float ** sxy){
+float **  vx, float ** vy, float ** sxx, float ** syy, float ** sxy, GlobVar *gv){
 
 	int i,j;
 	char myid[5];
 	char checkptfile[STRING_SIZE];
 	FILE *fp;
 
-	extern int MYID;
-	extern char  CHECKPTFILE[STRING_SIZE];
+    int MYID;
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
 
-
-
-	sprintf(checkptfile,"%s",CHECKPTFILE);
+	sprintf(checkptfile,"%s",gv->CHECKPTFILE);
 	sprintf(myid,".%d",MYID);
 	strcat(checkptfile,myid);
 

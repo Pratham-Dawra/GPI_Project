@@ -24,16 +24,13 @@
 #include "fd.h"
 
 void wavefield_update_s_el ( int i, int j,float   vxx, float  vyx,float vxy,float  vyy, float **sxy,
-                   float **sxx, float ** syy, float ** pi, float ** u, float ** uipjp )
-{
+                   float **sxx, float ** syy, float ** pi, float ** u, float ** uipjp, GlobVar *gv ) {
 
-	extern float DT;
 	float fipjp, f, g;
 
-
-	fipjp=uipjp[j][i]*DT;
-	f = u[j][i]*DT;
-	g = pi[j][i]*DT;
+	fipjp=uipjp[j][i]*gv->DT;
+	f = u[j][i]*gv->DT;
+	g = pi[j][i]*gv->DT;
 
 	/*Update  */
 	sxy[j][i] += fipjp* ( vyx+vxy );

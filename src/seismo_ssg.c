@@ -26,25 +26,23 @@
 
 void seismo_ssg(int lsamp, int ntr, int **recpos, float **sectionvx, 
 float **sectionvy, float **sectionp, float **sectioncurl, float **sectiondiv,
-float **vx, float **vy, float **sxx, float **syy, float **pi, float **u, float *hc){ 
-		
-	extern int NDT, SEISMO, FDORDER;	
-	extern float DH;
+float **vx, float **vy, float **sxx, float **syy, float **pi, float **u, float *hc, GlobVar *gv){ 
+
 	int i,j, itr, ins, nxrec, nyrec, m, fdoh;
 	float dhi, vxx, vyy, vxy, vyx;
 	//float dh24;
 
 
-	dhi = 1.0/DH;
-	//dh24=1.0/(DH*24.0);
-	fdoh = FDORDER/2;
+	dhi = 1.0/gv->DH;
+	//dh24=1.0/(gv->DH*24.0);
+	fdoh = gv->FDORDER/2;
 
 
-	ins=lsamp/NDT;
+	ins=lsamp/gv->NDT;
 	for (itr=1;itr<=ntr;itr++){
 		nxrec=recpos[1][itr];
 		nyrec=recpos[2][itr];
-		switch (SEISMO){
+		switch (gv->SEISMO){
 		case 1 : /* particle velocities */
 			sectionvx[itr][ins]=vx[nyrec][nxrec];
 			sectionvy[itr][ins]=vy[nyrec][nxrec];

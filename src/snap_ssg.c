@@ -25,7 +25,7 @@
 
 
 void snap(FILE *fp,int nt, int nsnap, float **vx, float **vy, float **sxx,
-	float **syy, float **u, float **pi, float *hc){
+	float **syy, float **u, float **pi, float *hc, GlobVar *gv){
 
 	/* 
 		different data formats of output:
@@ -45,20 +45,17 @@ void snap(FILE *fp,int nt, int nsnap, float **vx, float **vy, float **sxx,
 	int i,j, m, fdoh, nd;
 	float amp, vyx, vxy, vxx, vyy, dhi;
 	float **divfield, **curlfield;
-	char snapfile_x[STRING_SIZE], snapfile_y[STRING_SIZE], snapfile_div[STRING_SIZE];
-	char snapfile_rot[STRING_SIZE], snapfile_p[STRING_SIZE], ext[8];
+	char snapfile_x[STRING_SIZE*2], snapfile_y[STRING_SIZE*2], snapfile_div[STRING_SIZE*2];
+	char snapfile_rot[STRING_SIZE*2], snapfile_p[STRING_SIZE*2], ext[8];
 	FILE *fpx1, *fpy1, *fpx2, *fpy2, *fpp;
 
-	extern float DH, DT;
-	extern char SNAP_FILE[STRING_SIZE];
-	extern int NX, NY,  SNAP_FORMAT, SNAP, FDORDER;
-	extern int MYID, POS[3], IDX, IDY;
+    int MYID;
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
 
+	dhi = 1.0/gv->DH;
+	fdoh = gv->FDORDER/2;
 
-	dhi = 1.0/DH;
-	fdoh = FDORDER/2;
-
-	switch(SNAP_FORMAT){
+	switch(gv->SNAP_FORMAT){
 	case 1:
 		sprintf(ext,".su");
 		break;
@@ -69,17 +66,17 @@ void snap(FILE *fp,int nt, int nsnap, float **vx, float **vy, float **sxx,
 		sprintf(ext,".bin");
 		break;
 	}
-	sprintf(snapfile_x,"%s%s.vx.%i.%i",SNAP_FILE,ext,POS[1],POS[2]);
-	sprintf(snapfile_y,"%s%s.vy.%i.%i",SNAP_FILE,ext,POS[1],POS[2]);
-	sprintf(snapfile_div,"%s%s.div.%i.%i",SNAP_FILE,ext,POS[1],POS[2]);
-	sprintf(snapfile_rot,"%s%s.curl.%i.%i",SNAP_FILE,ext,POS[1],POS[2]);
-	sprintf(snapfile_p,"%s%s.p.%i.%i",SNAP_FILE,ext,POS[1],POS[2]);
+	sprintf(snapfile_x,"%s%s.vx.%i.%i",gv->SNAP_FILE,ext,gv->POS[1],gv->POS[2]);
+	sprintf(snapfile_y,"%s%s.vy.%i.%i",gv->SNAP_FILE,ext,gv->POS[1],gv->POS[2]);
+	sprintf(snapfile_div,"%s%s.div.%i.%i",gv->SNAP_FILE,ext,gv->POS[1],gv->POS[2]);
+	sprintf(snapfile_rot,"%s%s.curl.%i.%i",gv->SNAP_FILE,ext,gv->POS[1],gv->POS[2]);
+	sprintf(snapfile_p,"%s%s.p.%i.%i",gv->SNAP_FILE,ext,gv->POS[1],gv->POS[2]);
 
-	fprintf(fp,"\n\n PE %d is writing snapshot-data at T=%fs to \n",MYID,nt*DT);
+	fprintf(fp,"\n\n PE %d is writing snapshot-data at T=%fs to \n",MYID,nt*gv->DT);
 	
 		
 
-	switch(SNAP){
+	switch(gv->SNAP){
 	case 1 :
 		fprintf(fp,"%s\n", snapfile_x);
 		fprintf(fp,"%s\n\n", snapfile_y);
@@ -92,10 +89,10 @@ void snap(FILE *fp,int nt, int nsnap, float **vx, float **vy, float **sxx,
 			fpx1=fopen(snapfile_x,"a");
 			fpy1=fopen(snapfile_y,"a");
 		}
-		for (i=1;i<=NX;i+=IDX)
-			for (j=1;j<=NY;j+=IDY){
-				writedsk(fpx1,vx[j][i],SNAP_FORMAT);
-				writedsk(fpy1,vy[j][i],SNAP_FORMAT);
+		for (i=1;i<=gv->NX;i+=gv->IDX)
+			for (j=1;j<=gv->NY;j+=gv->IDY){
+				writedsk(fpx1,vx[j][i],gv->SNAP_FORMAT);
+				writedsk(fpy1,vy[j][i],gv->SNAP_FORMAT);
 			}
 		fclose(fpx1);
 		fclose(fpy1);
@@ -111,10 +108,10 @@ void snap(FILE *fp,int nt, int nsnap, float **vx, float **vy, float **sxx,
 			fpx1=fopen(snapfile_p,"a");
 		}
 
-		for (i=1;i<=NX;i+=IDX)
-			for (j=1;j<=NY;j+=IDY){
+		for (i=1;i<=gv->NX;i+=gv->IDX)
+			for (j=1;j<=gv->NY;j+=gv->IDY){
 				amp=-sxx[j][i]-syy[j][i];
-				writedsk(fpx1,amp,SNAP_FORMAT);
+				writedsk(fpx1,amp,gv->SNAP_FORMAT);
 			}
 		fclose(fpx1);
 		break;
@@ -135,12 +132,12 @@ void snap(FILE *fp,int nt, int nsnap, float **vx, float **vy, float **sxx,
 			fpp=fopen(snapfile_p,"a");
 		}
 
-		for (i=1;i<=NX;i+=IDX)
-			for (j=1;j<=NY;j+=IDY){
-				writedsk(fpx1,vx[j][i],SNAP_FORMAT);
-				writedsk(fpy1,vy[j][i],SNAP_FORMAT);
+		for (i=1;i<=gv->NX;i+=gv->IDX)
+			for (j=1;j<=gv->NY;j+=gv->IDY){
+				writedsk(fpx1,vx[j][i],gv->SNAP_FORMAT);
+				writedsk(fpy1,vy[j][i],gv->SNAP_FORMAT);
 				amp=-sxx[j][i]-syy[j][i];
-				writedsk(fpp,amp,SNAP_FORMAT);
+				writedsk(fpp,amp,gv->SNAP_FORMAT);
 			}
 		fclose(fpx1);
 		fclose(fpy1);
@@ -149,7 +146,7 @@ void snap(FILE *fp,int nt, int nsnap, float **vx, float **vy, float **sxx,
 	case 3 :
 		/* output of the curl of the velocity field according to Dougherty and
 				                  Stephen (PAGEOPH, 1988) */
-		/*if (NY1<=2) error("NY1 must be greater than 2.");*/
+		/*if (gv->NY1<=2) error("NY1 must be greater than 2.");*/
 		fprintf(fp,"%s\n", snapfile_div);
 		fprintf(fp,"%s\n\n", snapfile_rot);
 		if (nsnap==1){
@@ -161,12 +158,12 @@ void snap(FILE *fp,int nt, int nsnap, float **vx, float **vy, float **sxx,
 			fpy2=fopen(snapfile_rot,"a");
 		}
 		
-		nd = FDORDER/2;
-		curlfield  =  matrix(-nd+1,NY+nd,-nd+1,NX+nd);
+		nd = gv->FDORDER/2;
+		curlfield  =  matrix(-nd+1,gv->NY+nd,-nd+1,gv->NX+nd);
 
 
-		for (i=1;i<=NX;i+=IDX)
-			for (j=1;j<=NY;j+=IDY){
+		for (i=1;i<=gv->NX;i+=gv->IDX)
+			for (j=1;j<=gv->NY;j+=gv->IDY){
 
 				/* spatial derivatives using Holberg coefficients */
 				vyx = 0;
@@ -182,17 +179,17 @@ void snap(FILE *fp,int nt, int nsnap, float **vx, float **vy, float **sxx,
 			}
 
 
-		for (i=1;i<=NX;i+=IDX)
-			for (j=1;j<=NY;j+=IDY){
-				writedsk(fpy2,curlfield[j][i],SNAP_FORMAT);
+		for (i=1;i<=gv->NX;i+=gv->IDX)
+			for (j=1;j<=gv->NY;j+=gv->IDY){
+				writedsk(fpy2,curlfield[j][i],gv->SNAP_FORMAT);
 			}
-		free_matrix(curlfield,-nd+1,NY+nd,-nd+1,NX+nd);
+		free_matrix(curlfield,-nd+1,gv->NY+nd,-nd+1,gv->NX+nd);
 
 		/* output of the divergence of the velocity field according to Dougherty and
 				                  Stephen (PAGEOPH, 1988) */
-		divfield  =  matrix(-nd+1,NY+nd,-nd+1,NX+nd);
-		for (i=1;i<=NX;i+=IDX)
-			for (j=1;j<=NY;j+=IDY){
+		divfield  =  matrix(-nd+1,gv->NY+nd,-nd+1,gv->NX+nd);
+		for (i=1;i<=gv->NX;i+=gv->IDX)
+			for (j=1;j<=gv->NY;j+=gv->IDY){
 
 				/* spatial derivatives using Holberg coefficients */
 				vxx = 0;
@@ -208,12 +205,12 @@ void snap(FILE *fp,int nt, int nsnap, float **vx, float **vy, float **sxx,
 			}
 
 
-		for (i=1;i<=NX;i+=IDX)
-			for (j=1;j<=NY;j+=IDY){
-				writedsk(fpx2,divfield[j][i],SNAP_FORMAT);
+		for (i=1;i<=gv->NX;i+=gv->IDX)
+			for (j=1;j<=gv->NY;j+=gv->IDY){
+				writedsk(fpx2,divfield[j][i],gv->SNAP_FORMAT);
 			}
 
-		free_matrix(divfield,-nd+1,NY+nd,-nd+1,NX+nd);
+		free_matrix(divfield,-nd+1,gv->NY+nd,-nd+1,gv->NX+nd);
 		fclose(fpx2);
 		fclose(fpy2);
 		break;

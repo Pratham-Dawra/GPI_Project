@@ -31,18 +31,17 @@
 
 void update_v_abs_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
                    float **  vx, float ** vy, float ** sxx, float ** syy, float ** sxy,
-                   float  **rip, float **rjp, float ** absorb_coeff,float *hc,float ** svx_1,float ** svx_2,float ** svx_3,float ** svx_4,float ** svy_1,float ** svy_2,float ** svy_3,float ** svy_4)
+                   float  **rip, float **rjp, float ** absorb_coeff,float *hc,float ** svx_1,float ** svx_2,float ** svx_3,float ** svx_4,float ** svy_1,float ** svy_2,float ** svy_3,float ** svy_4, GlobVar *gv)
 {
     
     int i, j, fdoh;
     float sxx_x, syy_y, sxy_y, sxy_x;
-    
-    extern int OUTNTIMESTEPINFO;
     double time1=0.0, time2=0.0;
-    extern int MYID, FDORDER;
-    extern FILE *FP;
-    
-    fdoh=FDORDER/2;
+
+    int MYID;
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
+
+    fdoh=gv->FDORDER/2;
     
     /* Pointer to function */
     void ( *FD_op_v[7] ) ();
@@ -55,10 +54,10 @@ void update_v_abs_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, in
     FD_op_v[5] = &operator_v_fd10;
     FD_op_v[6] = &operator_v_fd12;
     
-    if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
+    if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
         time1=MPI_Wtime();
-        fprintf ( FP,"\n **Message from update_v_abs_4 (printed by PE %d):\n",MYID );
-        fprintf ( FP," Updating particle velocities ..." );
+        fprintf ( gv->FP,"\n **Message from update_v_abs_4 (printed by PE %d):\n",MYID );
+        fprintf ( gv->FP," Updating particle velocities ..." );
     }
     
     /* ------------------------------------------------------------
@@ -76,7 +75,7 @@ void update_v_abs_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, in
             
             FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
             
-            wavefield_update_v_4 ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4);
+            wavefield_update_v_4 ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4, gv);
             
             /* Damping the wavfield */
             abs_update_v (i, j, vx,vy, absorb_coeff);
@@ -93,7 +92,7 @@ void update_v_abs_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, in
             
             FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
             
-            wavefield_update_v_4 ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4);
+            wavefield_update_v_4 ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4, gv);
             
             abs_update_v (i, j, vx,vy, absorb_coeff);
             
@@ -109,7 +108,7 @@ void update_v_abs_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, in
             
             FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
             
-            wavefield_update_v_4 ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4);
+            wavefield_update_v_4 ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4, gv);
             
             abs_update_v (i, j, vx,vy, absorb_coeff);
             
@@ -127,7 +126,7 @@ void update_v_abs_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, in
             
             FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
             
-            wavefield_update_v_4 ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4);
+            wavefield_update_v_4 ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4, gv);
             
             abs_update_v (i, j, vx,vy, absorb_coeff);
         }
@@ -142,7 +141,7 @@ void update_v_abs_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, in
             
             FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
             
-            wavefield_update_v_4 ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4);
+            wavefield_update_v_4 ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4, gv);
             
             abs_update_v (i, j, vx,vy, absorb_coeff);
             
@@ -157,7 +156,7 @@ void update_v_abs_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, in
             
             FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
             
-            wavefield_update_v_4 ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4);
+            wavefield_update_v_4 ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4, gv);
             
             abs_update_v (i, j, vx,vy, absorb_coeff);
             
@@ -174,7 +173,7 @@ void update_v_abs_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, in
             
             FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
             
-            wavefield_update_v_4 ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4);
+            wavefield_update_v_4 ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4, gv);
             
             abs_update_v (i, j, vx,vy, absorb_coeff);
             
@@ -191,15 +190,15 @@ void update_v_abs_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, in
             
             FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
             
-            wavefield_update_v_4 ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4);
+            wavefield_update_v_4 ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4, gv);
             
             abs_update_v (i, j, vx,vy, absorb_coeff);
             
         }
     }
     
-    if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
+    if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
         time2=MPI_Wtime();
-        fprintf ( FP," finished (real time: %4.3f s).\n",time2-time1 );
+        fprintf ( gv->FP," finished (real time: %4.3f s).\n",time2-time1 );
     }
 }

@@ -26,11 +26,7 @@
 
 void  outseis(FILE *fp, FILE *fpdata, float **section,
 		int **recpos, int **recpos_loc, int ntr, float ** srcpos,
-		int nsrc, int ns, int seis_form, int ishot){
-
-	/* declaration of extern variables */
-	extern int NDT;
-	extern float  DH, DT, REFREC[4];
+		int nsrc, int ns, int seis_form, int ishot, GlobVar *gv){
 
 	const float xshift=800.0, yshift=800.0;
 
@@ -52,10 +48,10 @@ void  outseis(FILE *fp, FILE *fpdata, float **section,
 	switch(seis_form){
 	case 1 :
 		for(tracl1=1;tracl1<=ntr;tracl1++){        /*SEGY (without file-header)*/
-			xr=recpos[1][recpos_loc[3][tracl1]]*DH;
-			yr=recpos[2][recpos_loc[3][tracl1]]*DH;
-			x=xr-REFREC[1];
-			y=yr-REFREC[2];
+			xr=recpos[1][recpos_loc[3][tracl1]]*gv->DH;
+			yr=recpos[2][recpos_loc[3][tracl1]]*gv->DH;
+			x=xr-gv->REFREC[1];
+			y=yr-gv->REFREC[2];
 			tr.tracl=(int)recpos_loc[3][tracl1];
 			tr.cdp=(int)recpos_loc[3][tracl1];
 			tr.trid=(short)1;           /* trace identification code: 1=seismic*/
@@ -74,7 +70,7 @@ void  outseis(FILE *fp, FILE *fpdata, float **section,
 			tr.gx=(signed int)iround(xr*1000.0);
 
 			tr.ns=(unsigned short)ns; /* number of samples in this trace */
-			tr.dt=(unsigned short)iround(((float)NDT*DT)*1.0e6); /* sample interval in micro-seconds */
+			tr.dt=(unsigned short)iround(((float)gv->NDT*gv->DT)*1.0e6); /* sample interval in micro-seconds */
 			tr.d1=(float)tr.dt*1.0e-6;        /* sample spacing for non-seismic data */
 
 

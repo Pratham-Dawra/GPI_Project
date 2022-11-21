@@ -31,26 +31,26 @@
 void update_v_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
                         float **  vx, float ** vy, float ** sxx, float ** syy,
                         float ** sxy, float **rho, float  **rip, float **rjp,
-                        float **  srcpos_loc, float ** signals, int nsrc,float *hc,float ** svx_1,float ** svx_2,float ** svx_3,float ** svx_4,float ** svy_1,float ** svy_2,float ** svy_3,float ** svy_4) {
+                        float **  srcpos_loc, float ** signals, int nsrc,float *hc,float ** svx_1,float ** svx_2,float ** svx_3,float ** svx_4,float ** svy_1,float ** svy_2,float ** svy_3,float ** svy_4, GlobVar *gv) {
     
     int i, j,l;
     float amp, dtdh;
     float sxx_x, sxy_x, sxy_y, syy_y;
     float azi_rad;
-    extern float DT, DH;
-    extern int OUTNTIMESTEPINFO;
     double time1=0.0, time2=0.0;
-    extern int MYID, SOURCE_TYPE, CHECKPTREAD, FDORDER;
-    extern FILE *FP;
     float c1, c2, c3, c4; /* Coefficients for Adam Bashforth */
-    dtdh = DT/DH;
+
+    int MYID;
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
+
+    dtdh = gv->DT/gv->DH;
     
     c1=13.0/12.0; c2=-5.0/24.0; c3=1.0/6.0; c4=-1.0/24.0;
     
-    if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
+    if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
         time1=MPI_Wtime();
-        fprintf ( FP,"\n **Message from update_v_interior_4 (printed by PE %d):\n",MYID );
-        fprintf ( FP," Updating particle velocities ..." );
+        fprintf ( gv->FP,"\n **Message from update_v_interior_4 (printed by PE %d):\n",MYID );
+        fprintf ( gv->FP," Updating particle velocities ..." );
     }
     
     float * svx_1_j, *svy_1_j;
@@ -65,20 +65,20 @@ void update_v_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,
     
     
     
-    if ( !CHECKPTREAD )
+    if ( !gv->CHECKPTREAD )
         for ( l=1; l<=nsrc; l++ ) {
             i= ( int ) srcpos_loc[1][l];
             j= ( int ) srcpos_loc[2][l];
             azi_rad=srcpos_loc[7][l]*PI/180;
             
             //amp=signals[l][nt]; // unscaled force amplitude
-            amp= ( DT*signals[l][nt] ) / ( DH*DH ); // scaled force amplitude with F= 1N
+            amp= ( gv->DT*signals[l][nt] ) / ( gv->DH*gv->DH ); // scaled force amplitude with F= 1N
             
-            //fprintf(FP," amp at timestep nt %i = %5.5e with DH=%5.2f  DT=%5.8f\n",nt,amp,DH,DT);
+            //fprintf(gv->FP," amp at timestep nt %i = %5.5e with gv->DH=%5.2f  gv->DT=%5.8f\n",nt,amp,gv->DH,gv->DT);
             
-            SOURCE_TYPE= ( int ) srcpos_loc[8][l];
+            gv->SOURCE_TYPE= ( int ) srcpos_loc[8][l];
             
-            switch ( SOURCE_TYPE ) {
+            switch ( gv->SOURCE_TYPE ) {
                 case 2 : /* single force in x */
                     
                     
@@ -137,7 +137,7 @@ void update_v_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,
     
     
     
-    switch ( FDORDER ) {
+    switch ( gv->FDORDER ) {
         case 2:
             for ( j=gy[2]+1; j<=gy[3]; j++ ) {
                 svx_1_j=*(svx_1+j);svy_1_j=*(svy_1+j);
@@ -377,15 +377,15 @@ void update_v_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,
             }
             break;
             
-    } /* end of switch(FDORDER) */
+    } /* end of switch(gv->FDORDER) */
     
     
     
     
     
-    if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
+    if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
         time2=MPI_Wtime();
-        fprintf ( FP," finished (real time: %4.3f s).\n",time2-time1 );
+        fprintf ( gv->FP," finished (real time: %4.3f s).\n",time2-time1 );
     }
 }
 

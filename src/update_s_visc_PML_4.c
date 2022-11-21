@@ -36,20 +36,19 @@ void update_s_visc_PML_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,
                         float *cip, float *cjm, float ***d, float ***e, float ***dip,
                         float * K_x, float * a_x, float * b_x, float * K_x_half, float * a_x_half, float * b_x_half,
                         float * K_y, float * a_y, float * b_y, float * K_y_half, float * a_y_half, float * b_y_half,
-                        float ** psi_vxx, float ** psi_vyy, float ** psi_vxy, float ** psi_vyx,  float ** vxx_1,float ** vxx_2,float ** vxx_3,float ** vxx_4,float ** vyy_1,float ** vyy_2,float ** vyy_3,float ** vyy_4,float ** vxy_1,float ** vxy_2,float ** vxy_3,float ** vxy_4,float ** vyx_1,float ** vyx_2,float ** vyx_3,float ** vyx_4,float ** svx_1,float ** svx_2,float ** svx_3,float ** svx_4,float ** svy_1,float ** svy_2,float ** svy_3,float ** svy_4,float ***pr_2,float ***pr_3,float ***pr_4, float ***pp_2, float ***pp_3, float ***pp_4, float ***pq_2, float ***pq_3, float ***pq_4 )
+                        float ** psi_vxx, float ** psi_vyy, float ** psi_vxy, float ** psi_vyx,  float ** vxx_1,float ** vxx_2,float ** vxx_3,float ** vxx_4,float ** vyy_1,float ** vyy_2,float ** vyy_3,float ** vyy_4,float ** vxy_1,float ** vxy_2,float ** vxy_3,float ** vxy_4,float ** vyx_1,float ** vyx_2,float ** vyx_3,float ** vyx_4,float ** svx_1,float ** svx_2,float ** svx_3,float ** svx_4,float ** svy_1,float ** svy_2,float ** svy_3,float ** svy_4,float ***pr_2,float ***pr_3,float ***pr_4, float ***pp_2, float ***pp_3, float ***pp_4, float ***pq_2, float ***pq_3, float ***pq_4, GlobVar *gv )
 {
     
     
     int i,j, h1, fdoh;
     float  vxx, vyy, vxy, vyx;
-    extern int MYID, FDORDER, FW;
-    
-    extern FILE *FP;
-    extern int OUTNTIMESTEPINFO;
     double time1=0.0, time2=0.0;
     
+    int MYID;
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
+
     /*Pointer array to the locations of the fd-operator functions*/
-    fdoh=FDORDER/2;
+    fdoh=gv->FDORDER/2;
     void ( *FD_op_s[7] ) ();
     FD_op_s[1] = &operator_s_fd2;
     FD_op_s[2] = &operator_s_fd4;
@@ -60,10 +59,10 @@ void update_s_visc_PML_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,
     
     
     
-    if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
+    if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
         time1=MPI_Wtime();
-        fprintf ( FP,"\n **Message from update_s_visc_PML_4 (printed by PE %d):\n",MYID );
-        fprintf ( FP," Updating stress components ..." );
+        fprintf ( gv->FP,"\n **Message from update_s_visc_PML_4 (printed by PE %d):\n",MYID );
+        fprintf ( gv->FP," Updating stress components ..." );
     }
     
     
@@ -71,37 +70,37 @@ void update_s_visc_PML_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,
     /* interior */
     /*for ( j=gy[2]+1; j<=gy[3]; j++ ) {
      for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-     FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+     FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
      
      wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-     fipjp,f,g,bip,bjm,cip,cjm,d,e,dip );
+     fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
      }
      }*/
     
     /* left boundary */
     for ( j=gy[2]+1; j<=gy[3]; j++ ) {
         for ( i=gx[1]; i<=gx[2]; i++ ) {
-            FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+            FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
             
             cpml_update_s_x ( i,j,&vxx,&vyx,K_x,a_x,
                              b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
             
             wavefield_update_s_visc_4 ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-                                     fipjp,f,g,bip,bjm,cip,cjm,d,e,dip,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4);
+                                     fipjp,f,g,bip,bjm,cip,cjm,d,e,dip,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4, gv);
         }
     }
     
     /* right boundary */
     for ( j=gy[2]+1; j<=gy[3]; j++ ) {
         for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-            FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
-            h1 = ( i-nx2+2*FW );
+            FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
+            h1 = ( i-nx2+2*gv->FW );
             
             cpml_update_s_x ( h1,j,&vxx,&vyx,K_x,a_x,
                              b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
             
             wavefield_update_s_visc_4 ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-                                       fipjp,f,g,bip,bjm,cip,cjm,d,e,dip,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4);
+                                       fipjp,f,g,bip,bjm,cip,cjm,d,e,dip,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4, gv);
             
         }
     }
@@ -109,27 +108,27 @@ void update_s_visc_PML_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,
     /* top boundary */
     for ( j=gy[1]; j<=gy[2]; j++ ) {
         for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-            FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+            FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
             
             cpml_update_s_y ( i,j,&vxy,&vyy,K_y,a_y,
                              b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
             
             wavefield_update_s_visc_4 ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-                                       fipjp,f,g,bip,bjm,cip,cjm,d,e,dip,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4);
+                                       fipjp,f,g,bip,bjm,cip,cjm,d,e,dip,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4, gv);
         }
     }
     
     /* bottom boundary */
     for ( j=gy[3]+1; j<=gy[4]; j++ ) {
         for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-            FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+            FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
             
-            h1 = ( j-ny2+2*FW );
+            h1 = ( j-ny2+2*gv->FW );
             cpml_update_s_y ( i,h1,&vxy,&vyy,K_y,a_y,
                              b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
             
             wavefield_update_s_visc_4 ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-                                       fipjp,f,g,bip,bjm,cip,cjm,d,e,dip,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4);
+                                       fipjp,f,g,bip,bjm,cip,cjm,d,e,dip,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4, gv);
         }
     }
     
@@ -138,7 +137,7 @@ void update_s_visc_PML_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,
     /*left-top*/
     for ( j=gy[1]; j<=gy[2]; j++ ) {
         for ( i=gx[1]; i<=gx[2]; i++ ) {
-            FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+            FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
             
             cpml_update_s_x ( i,j,&vxx,&vyx,K_x,a_x,
                              b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
@@ -147,7 +146,7 @@ void update_s_visc_PML_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,
                              b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
             
             wavefield_update_s_visc_4 ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-                                       fipjp,f,g,bip,bjm,cip,cjm,d,e,dip,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4);
+                                       fipjp,f,g,bip,bjm,cip,cjm,d,e,dip,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4, gv);
             
         }
     }
@@ -155,27 +154,27 @@ void update_s_visc_PML_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,
     /*left-bottom*/
     for ( j=gy[3]+1; j<=gy[4]; j++ ) {
         for ( i=gx[1]; i<=gx[2]; i++ ) {
-            FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+            FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
             
             cpml_update_s_x ( i,j,&vxx,&vyx,K_x,a_x,
                              b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
             
-            h1 = ( j-ny2+2*FW );
+            h1 = ( j-ny2+2*gv->FW );
             
             cpml_update_s_y ( i,h1,&vxy,&vyy,K_y,a_y,
                              b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
             
             wavefield_update_s_visc_4 ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-                                       fipjp,f,g,bip,bjm,cip,cjm,d,e,dip,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4);
+                                       fipjp,f,g,bip,bjm,cip,cjm,d,e,dip,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4, gv);
         }
     }
     
     /* right-top */
     for ( j=gy[1]; j<=gy[2]; j++ ) {
         for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-            FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+            FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
             
-            h1 = ( i-nx2+2*FW );
+            h1 = ( i-nx2+2*gv->FW );
             cpml_update_s_x ( h1,j,&vxx,&vyx,K_x,a_x,
                              b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
             
@@ -183,33 +182,33 @@ void update_s_visc_PML_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,
                              b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
             
             wavefield_update_s_visc_4 ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-                                       fipjp,f,g,bip,bjm,cip,cjm,d,e,dip,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4);
+                                       fipjp,f,g,bip,bjm,cip,cjm,d,e,dip,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4, gv);
         }
     }
     
     /* right-bottom */
     for ( j=gy[3]+1; j<=gy[4]; j++ ) {
         for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-            FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+            FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
             
-            h1 = ( i-nx2+2*FW );
+            h1 = ( i-nx2+2*gv->FW );
             cpml_update_s_x ( h1,j,&vxx,&vyx,K_x,a_x,
                              b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
             
-            h1 = ( j-ny2+2*FW );
+            h1 = ( j-ny2+2*gv->FW );
             cpml_update_s_y ( i,h1,&vxy,&vyy,K_y,a_y,
                              b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
             
             wavefield_update_s_visc_4 ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-                                       fipjp,f,g,bip,bjm,cip,cjm,d,e,dip,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4);
+                                       fipjp,f,g,bip,bjm,cip,cjm,d,e,dip,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4, gv);
         }
     }
     
     
     
-    if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
+    if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
         time2=MPI_Wtime();
-        fprintf ( FP," finished (real time: %4.3f s).\n",time2-time1 );
+        fprintf ( gv->FP," finished (real time: %4.3f s).\n",time2-time1 );
     }
 }
 

@@ -27,13 +27,7 @@
 #include "complex.h"
 
 
-float **wavelet(float **srcpos_loc, int nsrc) {
-
-  /* extern variables */
-  extern int SOURCE_SHAPE, NT, MYID;
-  extern float  DT;
-  extern char SIGNAL_FILE[STRING_SIZE];
-  extern FILE *FP;
+float **wavelet(float **srcpos_loc, int nsrc, GlobVar *gv) {
 
   /*local variables */
   int nts=0, nt, k;
@@ -42,7 +36,10 @@ float **wavelet(float **srcpos_loc, int nsrc) {
   /*float a2;*/ /*different Ricker signal used for comparison with analytical solution*/
   float ** signals = NULL;
 
-  if (SOURCE_SHAPE==3) psource=rd_sour(&nts,fopen(SIGNAL_FILE,"r"));
+  int MYID;
+  MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
+  
+  if (gv->SOURCE_SHAPE==3) psource=rd_sour(&nts,fopen(gv->SIGNAL_FILE,"r"));
 
   /* If there is no source in the current domain, return early as otherwise
      the call to matrix with nsrc=0 will cause memory corruption. It would
@@ -50,7 +47,7 @@ float **wavelet(float **srcpos_loc, int nsrc) {
      to access C-index 1 to start allocating NT columns. */
   if (nsrc < 1) return signals;
 
-  signals=matrix(1,nsrc,1,NT);
+  signals=matrix(1,nsrc,1,gv->NT);
 
   for (k=1;k<=nsrc;k++) {
     tshift=srcpos_loc[4][k]; // time shift
@@ -60,10 +57,10 @@ float **wavelet(float **srcpos_loc, int nsrc) {
 
     sigmax=0.0;
 
-    for (nt=1;nt<=NT;nt++) {
-      t=(float)nt*DT;
+    for (nt=1;nt<=gv->NT;nt++) {
+      t=(float)nt*gv->DT;
 
-      switch (SOURCE_SHAPE){
+      switch (gv->SOURCE_SHAPE){
       case 1 :
 	    /* standard Ricker signal */
 	    tau=PI*(t-1.5*ts-tshift)/(ts);
@@ -125,7 +122,7 @@ float **wavelet(float **srcpos_loc, int nsrc) {
           }
           break;
       default :
-	    declare_error("No valid source-wavelet (SOURCE_SHAPE) specified! ");
+	    declare_error("No valid source-wavelet (gv->SOURCE_SHAPE) specified! ");
 	    break;
       }
       if (fabs(amp)>sigmax) sigmax=fabs(amp);
@@ -133,19 +130,19 @@ float **wavelet(float **srcpos_loc, int nsrc) {
     }
     /* Normalization to desired amplitude */
     if (0.0==sigmax) declare_error("Source signal contains only zeros! ");
-    if (SOURCE_SHAPE==5 || SOURCE_SHAPE==6){
-        for (nt=1;nt<=NT;nt++) {
+    if (gv->SOURCE_SHAPE==5 || gv->SOURCE_SHAPE==6){
+        for (nt=1;nt<=gv->NT;nt++) {
             signals[k][nt]=signals[k][nt]/sigmax;
         }
     }
   }
 
 
-  fprintf(FP," Message from function wavelet written by PE %d \n",MYID);
-  fprintf(FP," %d source positions located in subdomain of PE %d \n",nsrc,MYID);
-  fprintf(FP," have been assigned with a source signal. \n");
+  fprintf(gv->FP," Message from function wavelet written by PE %d \n",MYID);
+  fprintf(gv->FP," %d source positions located in subdomain of PE %d \n",nsrc,MYID);
+  fprintf(gv->FP," have been assigned with a source signal. \n");
 
-  if (SOURCE_SHAPE==3) free_vector(psource,1,nts);
+  if (gv->SOURCE_SHAPE==3) free_vector(psource,1,nts);
 
   return signals;
 }

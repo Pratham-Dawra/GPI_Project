@@ -23,13 +23,10 @@
 
 #include "fd.h"
 
-void zero_elastic(int nx1, int nx2, int ny1, int ny2, float ** vx, float ** vy, float ** sxx, float ** syy, float ** sxy){
-
-
+void zero_elastic(int nx1, int nx2, int ny1, int ny2, float ** vx, float ** vy, float ** sxx, float ** syy, float ** sxy) {
 
 	register int i, j;
 
-	
 		for (j=ny1;j<=ny2;j++){
 			for (i=nx1;i<=nx2;i++){
 				vx[j][i]=0.0;
@@ -39,5 +36,4 @@ void zero_elastic(int nx1, int nx2, int ny1, int ny2, float ** vx, float ** vy, 
                 sxy[j][i]=0.0;
 			}
 		}
-	
 }

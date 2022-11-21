@@ -24,23 +24,19 @@
 #include "fd.h"
 
 void surface_elastic(int ndepth, int * gx, float ** vx, float ** vy, float ** sxx, float ** syy,
-float **sxy, float  **pi, float  **u, float *hc, float * K_x, float * a_x, float * b_x, float ** psi_vxx){
+float **sxy, float  **pi, float  **u, float *hc, float * K_x, float * a_x, float * b_x, float ** psi_vxx, GlobVar *gv){
 
 
 	int i,j,m,fdoh,h1;
 	float fjm, g, dhi;
 	float  vxx, vyy;
-	extern float DT, DH;
-	extern int NX, FDORDER;
-	extern int FW, BOUNDARY;
-        extern int NPROCX, POS[3]; 
-	extern int ABS_TYPE;
-	fdoh = FDORDER/2;
-	dhi = 1.0/DH;
+
+	fdoh = gv->FDORDER/2;
+	dhi = 1.0/gv->DH;
 
 
 	j=ndepth;     /* The free surface is located exactly in y=dh !! */
-	for (i=1;i<=NX;i++){
+	for (i=1;i<=gv->NX;i++){
 		
 		/*Mirroring the components of the stress tensor to make
 			a stress free surface (method of imaging)*/
@@ -64,19 +60,19 @@ float **sxy, float  **pi, float  **u, float *hc, float * K_x, float * a_x, float
 		vxx *= dhi;
 		vyy *= dhi;
 	
-		if (ABS_TYPE==1){
+		if (gv->ABS_TYPE==1){
 	      	/* apply PML boundary */    
              		/* left boundary */
-             		if((!BOUNDARY) && (POS[1]==0) && (i<=FW)){
+             		if((!gv->BOUNDARY) && (gv->POS[1]==0) && (i<=gv->FW)){
                         
                         	psi_vxx[j][i] = b_x[i] * psi_vxx[j][i] + a_x[i] * vxx;
                         	vxx = vxx / K_x[i] + psi_vxx[j][i];                 
              		}
 
              	/* right boundary */
-             		if((!BOUNDARY) && (POS[1]==NPROCX-1) && (i>=NX-FW+1)){
+             		if((!gv->BOUNDARY) && (gv->POS[1]==gv->NPROCX-1) && (i>=gv->NX-gv->FW+1)){
                 
-                        	h1 = (i-NX+2*FW);
+                        	h1 = (i-gv->NX+2*gv->FW);
                         
                         	psi_vxx[j][h1] = b_x[h1] * psi_vxx[j][h1] + a_x[h1] * vxx;
                         	vxx = vxx / K_x[h1] + psi_vxx[j][h1];                                            
@@ -87,10 +83,10 @@ float **sxy, float  **pi, float  **u, float *hc, float * K_x, float * a_x, float
 		g=pi[j][i];
 		
 		 /*Update sxx without vertical derivates (last update will be canceld)
-                 *sxx=sxx_new - sxx =  DT*fjm*(2-fjm/g)vxx   -  ( g* ( vxx+vyy ) - fjm *vyy)
-                 *                  = -(DT*(g-fmj)*(g-fmj)*vxx/g)-(DT*(g-fjm)*vyy) */
+                 *sxx=sxx_new - sxx =  gv->DT*fjm*(2-fjm/g)vxx   -  ( g* ( vxx+vyy ) - fjm *vyy)
+                 *                  = -(gv->DT*(g-fmj)*(g-fmj)*vxx/g)-(gv->DT*(g-fjm)*vyy) */
 
-		sxx[j][i]+= -(DT*(g-fjm)*(g-fjm)*vxx/g)-(DT*(g-fjm)*vyy);
+		sxx[j][i]+= -(gv->DT*(g-fjm)*(g-fjm)*vxx/g)-(gv->DT*(g-fjm)*vyy);
 		
 	}
 	

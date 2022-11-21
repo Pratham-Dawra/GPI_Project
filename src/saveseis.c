@@ -24,77 +24,76 @@
 
 void saveseis(FILE *fp, float **sectionvx, float **sectionvy,float **sectionp,
 		float **sectioncurl, float **sectiondiv, int  **recpos, int  **recpos_loc,
-		int ntr, float ** srcpos_loc, int ishot,int ns){
+		int ntr, float ** srcpos_loc, int ishot,int ns, GlobVar *gv) {
 
-	extern int SEISMO, SEIS_FORMAT, MYID, RUN_MULTIPLE_SHOTS;	
-	extern char SEIS_FILE[STRING_SIZE];
-
-	char vxf[STRING_SIZE], vyf[STRING_SIZE], curlf[STRING_SIZE], divf[STRING_SIZE], pf[STRING_SIZE],file_ext[5];
-
+	char vxf[STRING_SIZE*2], vyf[STRING_SIZE*2], curlf[STRING_SIZE*2], divf[STRING_SIZE*2], pf[STRING_SIZE*2],file_ext[5];
 	int nsrc=1;
+    
+    int MYID;
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
 
 	if (MYID==0) fprintf(fp,"\n **Message from function saveseis (written by PE %d): \n",MYID);
 
-	switch (SEIS_FORMAT){
+	switch (gv->SEIS_FORMAT){
 	case 1: sprintf(file_ext,"su");  break;
 	case 2: sprintf(file_ext,"txt"); break;
 	case 3: sprintf(file_ext,"bin"); break;
 	}
 
-	if (RUN_MULTIPLE_SHOTS){
+	if (gv->RUN_MULTIPLE_SHOTS){
 
-		sprintf(vxf,"%s_vx.%s.shot%d.%d",SEIS_FILE,file_ext,ishot,MYID);
-		sprintf(vyf,"%s_vy.%s.shot%d.%d",SEIS_FILE,file_ext,ishot,MYID);
-		sprintf(curlf,"%s_curl.%s.shot%d.%d",SEIS_FILE,file_ext,ishot,MYID);
-		sprintf(divf,"%s_div.%s.shot%d.%d",SEIS_FILE,file_ext,ishot,MYID);
-		sprintf(pf,"%s_p.%s.shot%d.%d",SEIS_FILE,file_ext,ishot,MYID);
+		sprintf(vxf,"%s_vx.%s.shot%d.%d",gv->SEIS_FILE,file_ext,ishot,MYID);
+		sprintf(vyf,"%s_vy.%s.shot%d.%d",gv->SEIS_FILE,file_ext,ishot,MYID);
+		sprintf(curlf,"%s_curl.%s.shot%d.%d",gv->SEIS_FILE,file_ext,ishot,MYID);
+		sprintf(divf,"%s_div.%s.shot%d.%d",gv->SEIS_FILE,file_ext,ishot,MYID);
+		sprintf(pf,"%s_p.%s.shot%d.%d",gv->SEIS_FILE,file_ext,ishot,MYID);
 	}
 	else{
 
-		sprintf(vxf,"%s_vx.%s.%d",SEIS_FILE,file_ext,MYID);
-		sprintf(vyf,"%s_vy.%s.%d",SEIS_FILE,file_ext,MYID);
-		sprintf(curlf,"%s_curl.%s.%d",SEIS_FILE,file_ext,MYID);
-		sprintf(divf,"%s_div.%s.%d",SEIS_FILE,file_ext,MYID);
-		sprintf(pf,"%s_p.%s.%d",SEIS_FILE,file_ext,MYID);
+		sprintf(vxf,"%s_vx.%s.%d",gv->SEIS_FILE,file_ext,MYID);
+		sprintf(vyf,"%s_vy.%s.%d",gv->SEIS_FILE,file_ext,MYID);
+		sprintf(curlf,"%s_curl.%s.%d",gv->SEIS_FILE,file_ext,MYID);
+		sprintf(divf,"%s_div.%s.%d",gv->SEIS_FILE,file_ext,MYID);
+		sprintf(pf,"%s_p.%s.%d",gv->SEIS_FILE,file_ext,MYID);
 
 	}
 
 
-	switch (SEISMO){
+	switch (gv->SEISMO){
 	case 1 : /* particle velocities only */
 
 		fprintf(fp,"\n PE %d is writing %d seismogram traces (vx)   to %s ",MYID,ntr,vxf);
-		outseis(fp,fopen(vxf,"w"),sectionvx,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,SEIS_FORMAT, ishot);
+		outseis(fp,fopen(vxf,"w"),sectionvx,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,gv->SEIS_FORMAT, ishot, gv);
 		fprintf(fp,"\n PE %d is writing %d seismogram traces (vy)   to %s ",MYID,ntr,vyf);
-		outseis(fp,fopen(vyf,"w"),sectionvy,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,SEIS_FORMAT, ishot);
+		outseis(fp,fopen(vyf,"w"),sectionvy,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,gv->SEIS_FORMAT, ishot, gv);
 
 		break;
 	case 2 : /* pressure only */
 		fprintf(fp,"\n PE %d is writing %d seismogram traces (p)    to %s \n",MYID,ntr,pf);
-		outseis(fp,fopen(pf,"w"),sectionp,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,SEIS_FORMAT, ishot);
+		outseis(fp,fopen(pf,"w"),sectionp,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,gv->SEIS_FORMAT, ishot, gv);
 
 		break;
 	case 3 : /* curl and div only */
 
 		fprintf(fp,"\n PE %d is writing %d seismogram traces (div)  to %s ",MYID,ntr,divf);
-		outseis(fp,fopen(divf,"w"),sectiondiv,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,SEIS_FORMAT, ishot);
+		outseis(fp,fopen(divf,"w"),sectiondiv,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,gv->SEIS_FORMAT, ishot, gv);
 		fprintf(fp,"\n PE %d is writing %d seismogram traces (curl) to %s ",MYID,ntr,curlf);
-		outseis(fp,fopen(curlf,"w"),sectioncurl,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,SEIS_FORMAT, ishot);
+		outseis(fp,fopen(curlf,"w"),sectioncurl,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,gv->SEIS_FORMAT, ishot, gv);
 
 		break;
 	case 4 : /* everything */
 		fprintf(fp,"\n PE %d is writing %d seismogram traces (vx)   to %s ",MYID,ntr,vxf);
-		outseis(fp,fopen(vxf,"w"),sectionvx,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,SEIS_FORMAT, ishot);
+		outseis(fp,fopen(vxf,"w"),sectionvx,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,gv->SEIS_FORMAT, ishot, gv);
 		fprintf(fp,"\n PE %d is writing %d seismogram traces (vy)   to %s ",MYID,ntr,vyf);
-		outseis(fp,fopen(vyf,"w"),sectionvy,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,SEIS_FORMAT, ishot);
+		outseis(fp,fopen(vyf,"w"),sectionvy,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,gv->SEIS_FORMAT, ishot, gv);
 
 		fprintf(fp,"\n PE %d is writing %d seismogram traces (p)    to %s ",MYID,ntr,pf);
-		outseis(fp,fopen(pf,"w"),sectionp,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,SEIS_FORMAT, ishot);
+		outseis(fp,fopen(pf,"w"),sectionp,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,gv->SEIS_FORMAT, ishot, gv);
 
 		fprintf(fp,"\n PE %d is writing %d seismogram traces (div)  to %s ",MYID,ntr,divf);
-		outseis(fp,fopen(divf,"w"),sectiondiv,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,SEIS_FORMAT, ishot);
+		outseis(fp,fopen(divf,"w"),sectiondiv,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,gv->SEIS_FORMAT, ishot, gv);
 		fprintf(fp,"\n PE %d is writing %d seismogram traces (curl) to %s \n",MYID,ntr,curlf);
-		outseis(fp,fopen(curlf,"w"),sectioncurl,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,SEIS_FORMAT, ishot);
+		outseis(fp,fopen(curlf,"w"),sectioncurl,recpos,recpos_loc,ntr,srcpos_loc,nsrc,ns,gv->SEIS_FORMAT, ishot, gv);
 		break;
 
 	}

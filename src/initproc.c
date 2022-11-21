@@ -25,62 +25,54 @@
 
 #include "fd.h"
 
-void initproc(void)	{
+void initproc(GlobVar *gv)	{
 
-	extern int NX, NY, IENDX, IENDY, POS[3], INDEX[5];
-	extern int NP, NPROC, NPROCX, NPROCY, MYID;
-	extern FILE *FP;
-	
-	if ((NPROC != NP)  && (MYID==0)) {
-		fprintf(FP,"You specified NPROC =  %d (in parameter file) and NP = %d (command line) \n",NPROC,NP);
+    int MYID;
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
+
+	if ((gv->NPROC != gv->NP)  && (MYID==0)) {
+		fprintf(gv->FP,"You specified NPROC =  %d (in parameter file) and NP = %d (command line) \n",gv->NPROC,gv->NP);
 		declare_error("NP and NPROC differ !");
 	}
 
-	/*if (NPROC != NP)
-		declare_error("Number of processors specified in the parameter file \n and at command line (NP) differ !");*/
-
-
 	/*C-- determine the length of the subarray on this processor*/
-	IENDX = NX/NPROCX;
-	IENDY = NY/NPROCY;
+	gv->IENDX = gv->NX/gv->NPROCX;
+	gv->IENDY = gv->NY/gv->NPROCY;
 
 	/* POS(1) indicates x POSition of the processor in the 
 		     logical 3D processor array*/
-	if ((NX%NPROCX)>0)
+	if ((gv->NX%gv->NPROCX)>0)
 		declare_error(" NX%NPROX (modulus) must be zero  !");
-	if ((NY%NPROCY)>0)
+	if ((gv->NY%gv->NPROCY)>0)
 		declare_error(" NY%NPROY (modulus) must be zero  !");
 
-
 	if (MYID==0){
-		fprintf(FP,"\n **Message from initprocs (printed by PE %d):\n",MYID);
-		fprintf(FP," Size of subarrays in gridpoints:\n");
-		fprintf(FP," IENDX= %d\n",IENDX);
-		fprintf(FP," IENDY (vertical) = %d\n",IENDY);
+		fprintf(gv->FP,"\n **Message from initprocs (printed by PE %d):\n",MYID);
+		fprintf(gv->FP," Size of subarrays in gridpoints:\n");
+		fprintf(gv->FP," IENDX= %d\n",gv->IENDX);
+		fprintf(gv->FP," IENDY (vertical) = %d\n",gv->IENDY);
 	}
 
-
-
 	/*---------------   index is indicating neighbouring processes	--------------------*/
-	INDEX[1]=MYID-1;  		 /* left	*/
-	INDEX[2]=MYID+1;  		 /* right	*/
-	INDEX[3]=MYID-NPROCX;  		 /* upper	*/
-	INDEX[4]=MYID+NPROCX;  		 /* lower	*/
+	gv->INDEX[1]=MYID-1;           /* left	*/
+	gv->INDEX[2]=MYID+1;           /* right	*/
+	gv->INDEX[3]=MYID-gv->NPROCX;  /* upper	*/
+	gv->INDEX[4]=MYID+gv->NPROCX;  /* lower	*/
 	
 	/*---------------   POS indicates the processor location in the 3D logical processor array	---------*/
-	POS[1] = MYID % NPROCX;			/*  x coordinate */
-	POS[2] = (MYID/NPROCX); 	/*  y coordinate */
+	gv->POS[1] = MYID%gv->NPROCX;  /*  x coordinate */
+	gv->POS[2] = (MYID/gv->NPROCX);/*  y coordinate */
 
-	if (POS[1] == 0)        INDEX[1]=INDEX[1] + NPROCX;        	  
-	if (POS[1] == NPROCX-1) INDEX[2]=INDEX[2] - NPROCX;          	 
-	if (POS[2] == 0)        INDEX[3]=(NPROCX*NPROCY)+MYID-NPROCX; 	 
-	if (POS[2] == NPROCY-1) INDEX[4]=MYID+NPROCX-(NPROCX*NPROCY);	 
+	if (gv->POS[1] == 0)        gv->INDEX[1]=gv->INDEX[1] + gv->NPROCX;        	  
+	if (gv->POS[1] == gv->NPROCX-1) gv->INDEX[2]=gv->INDEX[2] - gv->NPROCX;          	 
+	if (gv->POS[2] == 0)        gv->INDEX[3]=(gv->NPROCX*gv->NPROCY)+MYID-gv->NPROCX; 	 
+	if (gv->POS[2] == gv->NPROCY-1) gv->INDEX[4]=MYID+gv->NPROCX-(gv->NPROCX*gv->NPROCY);	 
 
-	fprintf(FP,"\n");
-	fprintf(FP," **Message from initprocs (written by PE %d):\n",MYID);
-	fprintf(FP," Processor locations in the 2D logical processor array\n");
-	fprintf(FP," MYID \t POS(1):left,right \t POS(2): top, bottom\n");
-	
-	fprintf(FP," %d \t\t %d: %d,%d \t\t %d: %d,%d \n",
-	    MYID,POS[1],INDEX[1],INDEX[2], POS[2], INDEX[3],INDEX[4]);
+	fprintf(gv->FP,"\n");
+	fprintf(gv->FP," **Message from initprocs (written by PE %d):\n",MYID);
+	fprintf(gv->FP," Processor locations in the 2D logical processor array\n");
+	fprintf(gv->FP," MYID \t POS(1):left,right \t POS(2): top, bottom\n");
+
+	fprintf(gv->FP," %d \t\t %d: %d,%d \t\t %d: %d,%d \n",
+	    MYID,gv->POS[1],gv->INDEX[1],gv->INDEX[2],gv->POS[2],gv->INDEX[3],gv->INDEX[4]);
 }

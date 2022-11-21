@@ -22,12 +22,12 @@
 
 #include "fd.h"
 
-void av_mue(float **u, float **uipjp) {
-  extern int NX, NY;
+void av_mue(float **u, float **uipjp, GlobVar *gv) {
+
   int i, j;
 
-  for (j=1;j<=NY;j++){
-    for (i=1;i<=NX;i++){
+  for (j=1;j<=gv->NY;j++) {
+    for (i=1;i<=gv->NX;i++) {
       if ((u[j][i]==0.f) || (u[j][i+1]==0.f) || (u[j+1][i]==0.f) || (u[j+1][i+1]==0.f)) {
 	uipjp[j][i] = 0.f;
       } else {

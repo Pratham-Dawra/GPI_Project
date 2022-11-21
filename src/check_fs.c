@@ -25,22 +25,20 @@
 
 #include "fd.h"
 
-void check_fs(FILE *fp) 
-{
-  extern char LOG_FILE[STRING_SIZE], SEIS_FILE[STRING_SIZE], SNAP_FILE[STRING_SIZE], MFILE[STRING_SIZE];
-  extern char SIGOUT_FILE[STRING_SIZE];
-  extern int MYID, LOG, SEISMO, SNAP, WRITE_MODELFILES, SIGOUT;
-
+void check_fs(FILE *fp, GlobVar *gv) {
+  
   char errmsg[80];
-  int fserr = 0;
+  int fserr = 0, MYID;
+  
+  MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
 
   /********************************************/
   /* Check output directories as required     */
   /********************************************/
 
-  if (LOG > 1) {
+  if (gv->LOG > 1) {
     /* check log file directory */
-    char *dirc = strdup(LOG_FILE);
+    char *dirc = strdup(gv->LOG_FILE);
     if (!dirc) declare_error("Could not copy string in check_fs.c - memory issue encountered.");
     char *dname = dirname(dirc);
     if (access(dname, W_OK) != 0) {
@@ -56,9 +54,9 @@ void check_fs(FILE *fp)
     free(dirc);
   }
 
-  if (SEISMO > 0) {
+  if (gv->SEISMO > 0) {
     /* check seismogram directory */
-    char *dirc = strdup(SEIS_FILE);
+    char *dirc = strdup(gv->SEIS_FILE);
     if (!dirc) declare_error("Could not copy string in check_fs.c - memory issue encountered.");
     char *dname = dirname(dirc);
     if (access(dname, W_OK) != 0) {
@@ -74,9 +72,9 @@ void check_fs(FILE *fp)
     free(dirc);
   }
 
-  if (SNAP > 0) {
+  if (gv->SNAP > 0) {
     /* check snapshot directory */
-    char *dirc = strdup(SNAP_FILE);
+    char *dirc = strdup(gv->SNAP_FILE);
     if (!dirc) declare_error("Could not copy string in check_fs.c - memory issue encountered.");
     char *dname = dirname(dirc);
     if (access(dname, W_OK) != 0) {
@@ -92,9 +90,9 @@ void check_fs(FILE *fp)
     free(dirc);
   }
 
-  if (WRITE_MODELFILES > 0) {
+  if (gv->WRITE_MODELFILES > 0) {
     /* check model file directory */
-    char *dirc = strdup(MFILE);
+    char *dirc = strdup(gv->MFILE);
     if (!dirc) declare_error("Could not copy string in check_fs.c - memory issue encountered.");
     char *dname = dirname(dirc);
     if (access(dname, W_OK) != 0) {
@@ -110,9 +108,9 @@ void check_fs(FILE *fp)
     free(dirc);
   }
 
-  if (1 == SIGOUT) {
+  if (1 == gv->SIGOUT) {
     /* check signal output directory */
-    char *dirc = strdup(SIGOUT_FILE);
+    char *dirc = strdup(gv->SIGOUT_FILE);
     if (!dirc) declare_error("Could not copy string in check_fs.c - memory issue encountered.");
     char *dname = dirname(dirc);
     if (access(dname, W_OK) != 0) {

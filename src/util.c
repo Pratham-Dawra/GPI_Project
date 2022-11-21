@@ -29,31 +29,32 @@
 #include "fd.h"
 
 
-void err2(char errformat[],char errfilename[]){
+void err2(char errformat[],char errfilename[]) {
 	char outtxt[STRING_SIZE];
 	sprintf(outtxt,errformat,errfilename);
 	declare_error(outtxt);
 }
 
-void declare_error(char err_text[]){
-        extern int MYID;
+void declare_error(char err_text[]) {
+    int MYID;
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
 
-        fprintf(stdout,"Message from PE %d\n",MYID);
-        fprintf(stdout,"R U N - T I M E  E R R O R: \n");
-        fprintf(stdout,"%s\n",err_text);
-        fprintf(stdout,"...now exiting to system.\n");
+    fprintf(stdout,"Message from PE %d\n",MYID);
+    fprintf(stdout,"R U N - T I M E  E R R O R: \n");
+    fprintf(stdout,"%s\n",err_text);
+    fprintf(stdout,"...now exiting to system.\n");
 
-        MPI_Abort(MPI_COMM_WORLD, 1);
-        exit(1);
+    MPI_Abort(MPI_COMM_WORLD, 1);
+    exit(EXIT_FAILURE);
 }
 
-void warning(char warn_text[]){
-	/* standard warnings handler */
-	fprintf(stdout,"W A R N I N G   M E S S A G E: \n");
-	fprintf(stdout,"%s\n",warn_text);
+void warning(char warn_text[]) {
+    /* standard warnings handler */
+    fprintf(stdout,"W A R N I N G   M E S S A G E: \n");
+    fprintf(stdout,"%s\n",warn_text);
 }
 
-void dt_mult(int nx, int ny, float dt, float  **  a ){
+void dt_mult(int nx, int ny, float dt, float  **  a ) {
     int i, j;
    
     for (i=1;i<=nx;i++){
@@ -64,7 +65,7 @@ void dt_mult(int nx, int ny, float dt, float  **  a ){
 }
 
 
-double maximum(float **a, int nx, int ny){
+double maximum(float **a, int nx, int ny) {
 	/* find absolute maximum of array a[1...nx][1...ny] */
 	double maxi=0.0;
 	int i, j;
@@ -77,7 +78,7 @@ double maximum(float **a, int nx, int ny){
 }
 
 
-float *vector(int nl, int nh){
+float *vector(int nl, int nh) {
 	/* allocate a float vector with subscript range v[nl..nh] and initializing
 		   this vector, eg. vector[nl..nh]=0.0 */
 	float *v;
@@ -89,7 +90,7 @@ float *vector(int nl, int nh){
 	return v-nl+NR_END;
 }
 
-int *ivector(int nl, int nh){
+int *ivector(int nl, int nh) {
 	/* allocate an int vector with subscript range v[nl..nh] and initializing
 		   this vector, eg. ivector[nl..nh]=0 */
 	int *v;
@@ -102,7 +103,7 @@ int *ivector(int nl, int nh){
 }
 
 
-unsigned short int *usvector(int nl, int nh){
+unsigned short int *usvector(int nl, int nh) {
 	/* allocate an short int vector with subscript range v[nl..nh] and initializing
 		   this vector, eg. ivector[nl..nh]=0 */
 	unsigned short int *v;
@@ -115,7 +116,7 @@ unsigned short int *usvector(int nl, int nh){
 }
 
 
-unsigned char *cvector(int nl, int nh){
+unsigned char *cvector(int nl, int nh) {
 	/* allocate an unsigned char vector with subscript range v[nl..nh] */
 	unsigned char *v;
 
@@ -125,7 +126,7 @@ unsigned char *cvector(int nl, int nh){
 }
 
 
-unsigned long *lvector(int nl, int nh){
+unsigned long *lvector(int nl, int nh) {
 	/* allocate an unsigned long vector with subscript range v[nl..nh] and
 		  initializing this vector, eg. vector[nl..nh]=0.0 */
 	unsigned long *v;
@@ -137,7 +138,7 @@ unsigned long *lvector(int nl, int nh){
 	return v-nl+NR_END;
 }
 
-double *dvector(int nl, int nh){
+double *dvector(int nl, int nh) {
 	/* allocate a double vector with subscript range v[nl..nh] and initializing
 		   this vector, eg. vector[nl..nh]=0.0 */
 
@@ -150,7 +151,7 @@ double *dvector(int nl, int nh){
 	return v-nl+NR_END;
 }
 
-float **fmatrix(int nrl, int nrh, int ncl, int nch){
+float **fmatrix(int nrl, int nrh, int ncl, int nch) {
 	/* allocate a float matrix with subscript range m[nrl..nrh][ncl..nch]
 		   and intializing the matrix, e.g. m[nrl..nrh][ncl..nch]=0.0 */
 	int i,j, nrow=nrh-nrl+1,ncol=nch-ncl+1;
@@ -178,7 +179,7 @@ float **fmatrix(int nrl, int nrh, int ncl, int nch){
 	return m;
 }
 
-float **matrix(int nrl, int nrh, int ncl, int nch){
+float **matrix(int nrl, int nrh, int ncl, int nch) {
 	/* allocate a float matrix with subscript range m[nrl..nrh][ncl..nch]
 		   and intializing the matrix, e.g. m[nrl..nrh][ncl..nch]=0.0 */
 	int i,j, nrow=nrh-nrl+1,ncol=nch-ncl+1;

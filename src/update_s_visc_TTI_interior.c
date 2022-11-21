@@ -37,19 +37,18 @@ void update_s_visc_TTI_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, i
                                  float *** pc11d, float ***pc33d, float ***pc13d, float *** pc55d,
                                  float *** pc15d, float *** pc35d,
                                  float *** pc55ipjpd, float *** pc15ipjpd,float *** pc35ipjpd,
-                                 float *bip, float *cip, float *hc)
+                                 float *bip, float *cip, float *hc, GlobVar *gv)
 {
 
 
 	int i,j,fdoh;
 	float  vxx, vyy, vxy, vyx;
-	extern int MYID, FDORDER;
-	extern FILE *FP;
-	extern int OUTNTIMESTEPINFO;
 	double time1=0.0, time2=0.0;
+    int MYID;
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
 
 
-    fdoh = FDORDER/2;
+    fdoh = gv->FDORDER/2;
     
     /*Pointer array to the locations of the fd-operator functions*/
     void ( *FD_op_s[7] ) ();
@@ -61,29 +60,29 @@ void update_s_visc_TTI_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, i
     FD_op_s[6] = &operator_s_fd12;
     
 
-	if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
+	if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
 		time1=MPI_Wtime();
-		fprintf ( FP,"\n **Message from update_s_visc_TTI_interior (printed by PE %d):\n",MYID );
-		fprintf ( FP," Updating stress components ..." );
+		fprintf ( gv->FP,"\n **Message from update_s_visc_TTI_interior (printed by PE %d):\n",MYID );
+		fprintf ( gv->FP," Updating stress components ..." );
 	}
 
 
 		for ( j=gy[2]+1; j<=gy[3]; j++ ) {
 			for ( i=gx[2]+1; i<=gx[3]; i++ ) {
 				
-                FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+                FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc,gv );
                 
                   wavefield_update_s_visc_TTI ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pr, pp, pq,
                                                pc11u, pc33u,  pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
                                                pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
-                                               bip,  cip);
+                                               bip,  cip, gv);
                   
 				
 			}
 		}
 		
-	if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
+	if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
 		time2=MPI_Wtime();
-		fprintf ( FP," finished (real time: %4.3f s).\n",time2-time1 );
+		fprintf ( gv->FP," finished (real time: %4.3f s).\n",time2-time1 );
 	}
 }

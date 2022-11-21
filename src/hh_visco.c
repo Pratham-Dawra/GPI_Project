@@ -23,23 +23,17 @@
 
 #include "fd.h"
 
-void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, float **  taup, float *  eta){
-
-	/*--------------------------------------------------------------------------*/
-	/* extern variables */
-
-	extern float DT, *FL, TS, DH;
-	extern int NX, NY, NXG, NYG,  POS[3], L, MYID;
-	extern int WRITE_MODELFILES;
-	extern char  MFILE[STRING_SIZE];	
-    extern FILE *FP;
+void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, float **  taup, float *  eta, GlobVar *gv){
 
 	/* local variables */
 	float Rhov, muv, piv, Vp, Vs, y;
 	float *pts, ts, tp, sumu, sumpi, ws, fc;
 	int i, j, l, ii, jj;
-	char modfile[STRING_SIZE];	
+	char modfile[STRING_SIZE+16];	
 	float ** pwavemod=NULL, ** swavemod=NULL;
+
+    int MYID;
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
 
 	/*-----------------material property definition -------------------------*/	
 
@@ -56,23 +50,23 @@ void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, floa
 
 	/*-----------------------------------------------------------------------*/
 
-	if (WRITE_MODELFILES==1) {
-		pwavemod  =  matrix(0,NY+1,0,NX+1);
-		swavemod  =  matrix(0,NY+1,0,NX+1);
+	if (gv->WRITE_MODELFILES==1) {
+		pwavemod  =  matrix(0,gv->NY+1,0,gv->NX+1);
+		swavemod  =  matrix(0,gv->NY+1,0,gv->NX+1);
 	}
 
 	/* vector for maxwellbodies */
-	pts=vector(1,L);
-	for (l=1;l<=L;l++) {
-		pts[l]=1.0/(2.0*PI*FL[l]);
-		eta[l]=DT/pts[l];
+	pts=vector(1,gv->L);
+	for (l=1;l<=gv->L;l++) {
+		pts[l]=1.0/(2.0*PI*gv->FL[l]);
+		eta[l]=gv->DT/pts[l];
 	}
 
 
-    fc=1.0/TS;
+    fc=1.0/gv->TS;
     if (MYID==0){
-        fprintf(FP," Message from readmod_visco_vti:\n");
-        fprintf(FP," Center source frequency of %5.2f Hz applied for calculation of relaxed moduli ! \n",fc);
+        fprintf(gv->FP," Message from readmod_visco_vti:\n");
+        fprintf(gv->FP," Center source frequency of %5.2f Hz applied for calculation of relaxed moduli ! \n",fc);
        
     }
     
@@ -82,11 +76,11 @@ void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, floa
 
 
 	/* loop over global grid */
-	for (i=1;i<=NXG;i++){
-		for (j=1;j<=NYG;j++){
+	for (i=1;i<=gv->NXG;i++){
+		for (j=1;j<=gv->NYG;j++){
 
 			/* calculate coordinate in m */
-			y=(float)j*DH;
+			y=(float)j*gv->DH;
 
 			/* two layer case */
 			if (y<=h){
@@ -100,7 +94,7 @@ void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, floa
 
 			sumu=0.0; 
 			sumpi=0.0;
-			for (l=1;l<=L;l++){
+			for (l=1;l<=gv->L;l++){
 				sumu=sumu+((ws*ws*pts[l]*pts[l]*ts)/(1.0+ws*ws*pts[l]*pts[l]));
 				sumpi=sumpi+((ws*ws*pts[l]*pts[l]*tp)/(1.0+ws*ws*pts[l]*pts[l]));
 			}
@@ -110,17 +104,17 @@ void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, floa
 
 			/* only the PE which belongs to the current global gridpoint
 				  is saving model parameters in his local arrays */
-			if ((POS[1]==((i-1)/NX)) &&
-					(POS[2]==((j-1)/NY))){
-				ii=i-POS[1]*NX;
-				jj=j-POS[2]*NY;
+			if ((gv->POS[1]==((i-1)/gv->NX)) &&
+					(gv->POS[2]==((j-1)/gv->NY))){
+				ii=i-gv->POS[1]*gv->NX;
+				jj=j-gv->POS[2]*gv->NY;
 
 				taus[jj][ii]=ts;
 				taup[jj][ii]=tp;
 				u[jj][ii]=muv;
 				rho[jj][ii]=Rhov;
 				pi[jj][ii]=piv;
-				if (WRITE_MODELFILES==1)
+				if (gv->WRITE_MODELFILES==1)
 				{
 					pwavemod[jj][ii]=Vp;
 					swavemod[jj][ii]=Vs;
@@ -129,60 +123,57 @@ void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, floa
 		}
 	}
 
-
-
-
 	/* each PE writes his model to disk */
 
 	/* all models are written to file */
-	if (WRITE_MODELFILES==1) {
-		sprintf(modfile,"%s.SOFI2D.u",MFILE);
-		writemod(modfile,u,3);
+	if (gv->WRITE_MODELFILES==1) {
+		sprintf(modfile,"%s.SOFI2D.u",gv->MFILE);
+		writemod(modfile,u,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3);
+		if (MYID==0) mergemod(modfile,3,gv);
 
-		sprintf(modfile,"%s.SOFI2D.pi",MFILE);
-		writemod(modfile,pi,3);
+		sprintf(modfile,"%s.SOFI2D.pi",gv->MFILE);
+		writemod(modfile,pi,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3);
+		if (MYID==0) mergemod(modfile,3,gv);
 
-		sprintf(modfile,"%s.SOFI2D.ts",MFILE);
-		writemod(modfile,taus,3);
+		sprintf(modfile,"%s.SOFI2D.ts",gv->MFILE);
+		writemod(modfile,taus,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3);
+		if (MYID==0) mergemod(modfile,3,gv);
 
-		sprintf(modfile,"%s.SOFI2D.tp",MFILE);
-		writemod(modfile,taup,3);
+		sprintf(modfile,"%s.SOFI2D.tp",gv->MFILE);
+		writemod(modfile,taup,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3);
+		if (MYID==0) mergemod(modfile,3,gv);
 
-		sprintf(modfile,"%s.SOFI2D.vp",MFILE);
-		writemod(modfile,pwavemod,3);
+		sprintf(modfile,"%s.SOFI2D.vp",gv->MFILE);
+		writemod(modfile,pwavemod,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3);
+		if (MYID==0) mergemod(modfile,3,gv);
 
-		sprintf(modfile,"%s.SOFI2D.vs",MFILE);
-		writemod(modfile,swavemod,3);
+		sprintf(modfile,"%s.SOFI2D.vs",gv->MFILE);
+		writemod(modfile,swavemod,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3);
+		if (MYID==0) mergemod(modfile,3,gv);
 
-		sprintf(modfile,"%s.SOFI2D.rho",MFILE);
-		writemod(modfile,rho,3);
+		sprintf(modfile,"%s.SOFI2D.rho",gv->MFILE);
+		writemod(modfile,rho,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3);
+		if (MYID==0) mergemod(modfile,3,gv);
 	}
 
 	/* only density is written to file */
-	if (WRITE_MODELFILES==2) {
-		sprintf(modfile,"%s.SOFI2D.rho",MFILE);
-		writemod(modfile,rho,3);
+	if (gv->WRITE_MODELFILES==2) {
+		sprintf(modfile,"%s.SOFI2D.rho",gv->MFILE);
+		writemod(modfile,rho,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3);
+		if (MYID==0) mergemod(modfile,3,gv);
 	}
 
-	free_vector(pts,1,L);
-	if (WRITE_MODELFILES==1) {
-		free_matrix(pwavemod,0,NY+1,0,NX+1);
-		free_matrix(swavemod,0,NY+1,0,NX+1);
+	free_vector(pts,1,gv->L);
+	if (gv->WRITE_MODELFILES==1) {
+		free_matrix(pwavemod,0,gv->NY+1,0,gv->NX+1);
+		free_matrix(swavemod,0,gv->NY+1,0,gv->NX+1);
 	}
 }

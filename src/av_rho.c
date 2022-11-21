@@ -23,18 +23,14 @@
 
 #include "fd.h"
 
-void av_rho(float **rho, float **rip, float **rjp){
+void av_rho(float **rho, float **rip, float **rjp, GlobVar *gv){
 
-	extern int NX, NY;
 	int i, j;
-		
-	
-	for (j=1;j<=NY;j++){
-		for (i=1;i<=NX;i++){
-	       
+
+	for (j=1;j<=gv->NY;j++) {
+		for (i=1;i<=gv->NX;i++) {
 			rjp[j][i] = 1.0/(0.5*(rho[j][i]+rho[j+1][i])); 	
 			rip[j][i] = 1.0/(0.5*(rho[j][i]+rho[j][i+1])); 	
-	
 		}
 	}
 }

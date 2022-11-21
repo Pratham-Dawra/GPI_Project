@@ -30,19 +30,17 @@ void wavefield_update_s_visc_TTI ( int i, int j,float   vxx, float  vyx,float vx
                                  float *** pc11d, float ***pc33d, float ***pc13d, float *** pc55d,
                                  float *** pc15d, float *** pc35d,
                                  float *** pc55ipjpd, float *** pc15ipjpd,float *** pc35ipjpd,
-                                  float *bip, float *cip)
+                                  float *bip, float *cip, GlobVar *gv)
 {
 	int l;
 	float  dthalbe, v;
-	extern float DT;
-	extern int L;
 	float sumr=0.0, sump=0.0, sumq=0.0;
 	/* computing sums of the old memory variables */
 	
-	dthalbe = DT/2.0;
+	dthalbe = gv->DT/2.0;
 	
 	sumr=sump=sumq=0.0;
-	for ( l=1; l<=L; l++ ) {
+	for ( l=1; l<=gv->L; l++ ) {
 		sumr+=r[j][i][l];
 		sump+=p[j][i][l];
 		sumq+=q[j][i][l];
@@ -60,7 +58,7 @@ void wavefield_update_s_visc_TTI ( int i, int j,float   vxx, float  vyx,float vx
 
 	/* now updating the memory-variables and sum them up*/
 	sumr=sump=sumq=0.0;
-	for ( l=1; l<=L; l++ ) {
+	for ( l=1; l<=gv->L; l++ ) {
 		r[j][i][l] = bip[l]* ( r[j][i][l]*cip[l]- ( pc55ipjpd[j][i][l]* v ) - ( pc15ipjpd[j][i][l]* vxx) - ( pc35ipjpd[j][i][l]* vyy) );
 		p[j][i][l] = bip[l]* ( p[j][i][l]*cip[l]- ( pc11d[j][i][l]*vxx ) -  ( pc13d[j][i][l]*vyy ) - ( pc15d[j][i][l]*v ) );
 		q[j][i][l] = bip[l]* ( q[j][i][l]*cip[l]- ( pc13d[j][i][l]*vxx ) -  ( pc33d[j][i][l]*vyy ) - ( pc35d[j][i][l]*v ));

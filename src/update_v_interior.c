@@ -34,53 +34,46 @@
 void update_v_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
                          float **  vx, float ** vy, float ** sxx, float ** syy,
                          float ** sxy, float **rho, float  **rip, float **rjp,
-                         float **  srcpos_loc, float ** signals, int nsrc,float *hc )
+                         float **  srcpos_loc, float ** signals, int nsrc,float *hc, GlobVar *gv )
 {
 
 	int i, j,l;
 	float amp, dtdh;
 	float sxx_x, sxy_x, sxy_y, syy_y;
 	float azi_rad;
-	extern float DT, DH;
-	extern int OUTNTIMESTEPINFO;
 	double time1=0.0, time2=0.0;
-	extern int MYID, SOURCE_TYPE, CHECKPTREAD, FDORDER;
-	extern FILE *FP;
 
-	dtdh = DT/DH;
+    int MYID;
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
 
+	dtdh = gv->DT/gv->DH;
 
-
-	if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
+	if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
 		time1=MPI_Wtime();
-		fprintf ( FP,"\n **Message from update_v_interior (printed by PE %d):\n",MYID );
-		fprintf ( FP," Updating particle velocities ..." );
+		fprintf ( gv->FP,"\n **Message from update_v_interior (printed by PE %d):\n",MYID );
+		fprintf ( gv->FP," Updating particle velocities ..." );
 	}
-
 
 	/* ------------------------------------------------------------
 	 * Important!
 	 * rip and rjp are reciprocal values of averaged densities
 	 * ------------------------------------------------------------ */
 
-
-
-	if ( !CHECKPTREAD )
+	if ( !gv->CHECKPTREAD )
 		for ( l=1; l<=nsrc; l++ ) {
 			i= ( int ) srcpos_loc[1][l];
 			j= ( int ) srcpos_loc[2][l];
 			azi_rad=srcpos_loc[7][l]*PI/180;
 
 			//amp=signals[l][nt]; // unscaled force amplitude
-			amp= ( DT*signals[l][nt] ) / ( DH*DH ); // scaled force amplitude with F= 1N
+			amp= ( gv->DT*signals[l][nt] ) / ( gv->DH*gv->DH ); // scaled force amplitude with F= 1N
 
-			//fprintf(FP," amp at timestep nt %i = %5.5e with DH=%5.2f  DT=%5.8f\n",nt,amp,DH,DT);
+			//fprintf(gv->FP," amp at timestep nt %i = %5.5e with gv->DH=%5.2f  gv->DT=%5.8f\n",nt,amp,gv->DH,gv->DT);
 
-			SOURCE_TYPE= ( int ) srcpos_loc[8][l];
+			gv->SOURCE_TYPE= ( int ) srcpos_loc[8][l];
 
-			switch ( SOURCE_TYPE ) {
+			switch ( gv->SOURCE_TYPE ) {
 			case 2 : /* single force in x */
-
 
 				vx[j][i]  +=  rip[j][i]*amp;
 
@@ -100,7 +93,6 @@ void update_v_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, i
 					vx[j][i-m]    +=  hc[m]*rip[j][i-1]*amp;
 
 				}*/
-
 
 				break;
 			case 3 : /* single force in y */
@@ -129,15 +121,11 @@ void update_v_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, i
 					vy[j-m][i]    +=  cos(azi_rad)*(hc[m]*rjp[j][i-1]*amp);
 
 				}*/
-
 				break;
-
 			}
 		}
 
-
-
-	switch ( FDORDER ) {
+	switch ( gv->FDORDER ) {
 	case 2:
 		for ( j=gy[2]+1; j<=gy[3]; j++ ) {
 			for ( i=gx[2]+1; i<=gx[3]; i++ ) {
@@ -320,16 +308,10 @@ void update_v_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, i
 			}
 		}
 		break;
+	} /* end of switch(gv->FDORDER) */
 
-	} /* end of switch(FDORDER) */
-
-
-
-
-
-	if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
+	if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
 		time2=MPI_Wtime();
-		fprintf ( FP," finished (real time: %4.3f s).\n",time2-time1 );
+		fprintf ( gv->FP," finished (real time: %4.3f s).\n",time2-time1 );
 	}
 }
-

@@ -24,14 +24,13 @@
 
 
 void wavefield_update_v_4 ( int i, int j,float   sxx_x, float  sxy_x,float sxy_y,float  syy_y, float **vx,
-                         float **vy, float ** rip, float ** rjp,float ** svx_1,float ** svx_2,float ** svx_3,float ** svx_4,float ** svy_1,float ** svy_2,float ** svy_3,float ** svy_4)
+                         float **vy, float ** rip, float ** rjp,float ** svx_1,float ** svx_2,float ** svx_3,float ** svx_4,float ** svy_1,float ** svy_2,float ** svy_3,float ** svy_4, GlobVar *gv)
 {
     float  dtdh;
-    extern float DT,DH;
     float c1, c2, c3, c4; /* Coefficients for Adam Bashforth */
     c1=13.0/12.0; c2=-5.0/24.0; c3=1.0/6.0; c4=-1.0/24.0;
 
-    dtdh = DT/DH;
+    dtdh = gv->DT/gv->DH;
     
     // Save derivations
     svx_1[j][i]=sxx_x + sxy_y;

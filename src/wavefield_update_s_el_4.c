@@ -22,27 +22,24 @@
 #include "fd.h"
 
 void wavefield_update_s_el_4 ( int i, int j,float   vxx, float  vyx,float vxy,float  vyy, float **sxy,
-                            float **sxx, float ** syy, float ** pi, float ** u, float ** uipjp,float ** vxx_1,float ** vxx_2,float ** vxx_3,float ** vxx_4,float ** vyy_1,float ** vyy_2,float ** vyy_3,float ** vyy_4,float ** vxy_1,float ** vxy_2,float ** vxy_3,float ** vxy_4,float ** vyx_1,float ** vyx_2,float ** vyx_3,float ** vyx_4)
-{
-    
-    extern float DT;
+                            float **sxx, float ** syy, float ** pi, float ** u, float ** uipjp,float ** vxx_1,float ** vxx_2,float ** vxx_3,float ** vxx_4,float ** vyy_1,float ** vyy_2,float ** vyy_3,float ** vyy_4,float ** vxy_1,float ** vxy_2,float ** vxy_3,float ** vxy_4,float ** vyx_1,float ** vyx_2,float ** vyx_3,float ** vyx_4, GlobVar *gv) {
+
     float fipjp, f, g;
-    extern float DH;
     float  dhi;
     float c1, c2, c3, c4; /* Coefficients for Adam Bashforth */
     c1=13.0/12.0; c2=-5.0/24.0; c3=1.0/6.0; c4=-1.0/24.0;
     float sumxx=0.0,sumyy=0.0,sumxy=0.0,sumyx=0.0;
     
-    dhi = 1.0/DH;
-    fipjp=uipjp[j][i]*DT;
-    f = u[j][i]*DT;
-    g = pi[j][i]*DT;
+    dhi = 1.0/gv->DH;
+    fipjp=uipjp[j][i]*gv->DT;
+    f = u[j][i]*gv->DT;
+    g = pi[j][i]*gv->DT;
 
     // Save derviations
-    vxx_1[j][i]=vxx*DH;
-    vyy_1[j][i]=vyy*DH;
-    vxy_1[j][i]=vxy*DH;
-    vyx_1[j][i]=vyx*DH;
+    vxx_1[j][i]=vxx*gv->DH;
+    vyy_1[j][i]=vyy*gv->DH;
+    vxy_1[j][i]=vxy*gv->DH;
+    vyx_1[j][i]=vyx*gv->DH;
 
     // Calculate Adams-Bashforth stuff
     sumxx=c1*vxx_1[j][i]+c2*vxx_2[j][i]+c3*vxx_3[j][i]+c4*vxx_4[j][i];

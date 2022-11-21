@@ -29,70 +29,73 @@
 
 #include "fd.h"
 
-void absorb(float ** absorb_coeff)
+void absorb(float ** absorb_coeff, GlobVar *gv)
 {
 
 	/* extern variables */
 
-	extern float DAMPING;
-	extern int FREE_SURF, NX, NY, BOUNDARY, FW;
-	extern int NPROCX, NPROCY, MYID, POS[3];
-	extern FILE *FP;
+	//extern float DAMPING;
+	//extern int FREE_SURF, NX, NY, BOUNDARY, FW;
+	//extern int NPROCX, NPROCY, MYID, POS[3];
+	//extern FILE *FP;
 	
 	/* local variables */
 	int i, j, ii, jj, xb, yb, xe, ye;
 	float amp, a, *coeff;
 	/*char modfile[STRING_SIZE];*/
-	
+
+    int MYID;
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
+
 	if (MYID==0){
-		fprintf(FP,"\n **Message from absorb (printed by PE %d):\n",MYID);
-		fprintf(FP," Coefficients for absorbing frame are now calculated.\n");
-		fprintf(FP," Width of dissipative frame (grid points)= %i\n",FW);
-		fprintf(FP," Percentage of exponential damping = %5.2f\n",DAMPING);
+		fprintf(gv->FP,"\n **Message from absorb (printed by PE %d):\n",MYID);
+		fprintf(gv->FP," Coefficients for absorbing frame are now calculated.\n");
+		fprintf(gv->FP," Width of dissipative frame (grid points)= %i\n",gv->FW);
+		fprintf(gv->FP," Percentage of exponential damping = %5.2f\n",gv->DAMPING);
 	}
 
-	amp=1.0-DAMPING/100.0;   /* amplitude at the edge of the numerical grid */
+	amp=1.0-gv->DAMPING/100.0;   /* amplitude at the edge of the numerical grid */
 	
-	coeff=vector(1,FW);
-	a=sqrt(-log(amp)/((FW-1)*(FW-1)));
+	coeff=vector(1,gv->FW);
+	a=sqrt(-log(amp)/((gv->FW-1)*(gv->FW-1)));
 	
-	for (i=1;i<=FW;i++)
-		coeff[i]=exp(-(a*a*(FW-i)*(FW-i)));
+	for (i=1;i<=gv->FW;i++)
+		coeff[i]=exp(-(a*a*(gv->FW-i)*(gv->FW-i)));
 	
 	if (MYID==0)
 	{
-		fprintf(FP," Table of coefficients \n # \t coeff \n");
-		/*printf(" FW=%d \t a=%f amp=%f \n", FW,a,amp); */
-		for (i=1;i<=FW;i++)
-			fprintf(FP," %d \t %5.3f \n", i, coeff[i]);
+		fprintf(gv->FP," Table of coefficients \n # \t coeff \n");
+		/*printf(" gv->FW=%d \t a=%f amp=%f \n", gv->FW,a,amp); */
+		for (i=1;i<=gv->FW;i++)
+			fprintf(gv->FP," %d \t %5.3f \n", i, coeff[i]);
 	}	
 	
 
 	/* initialize array of coefficients with one */
-	for (j=1;j<=NY;j++)
-	for (i=1;i<=NX;i++) absorb_coeff[j][i]=1.0;
+	for (j=1;j<=gv->NY;j++)
+	for (i=1;i<=gv->NX;i++) absorb_coeff[j][i]=1.0;
 
 
 	/* compute coefficients for left and right grid boundaries (x-direction) */
-	if ((!BOUNDARY) && (POS[1]==0))
+	if ((!gv->BOUNDARY) && (gv->POS[1]==0))
 	{
-		yb=1; ye=NY; 
-		for (i=1;i<=FW;i++)
+		yb=1; ye=gv->NY; 
+		for (i=1;i<=gv->FW;i++)
 		{
-			if ((POS[2]==0) && (!(FREE_SURF))) yb=i;
-			if (POS[2]==NPROCY-1) ye=NY-i+1;
+			if ((gv->POS[2]==0) && (!(gv->FREE_SURF))) yb=i;
+			if (gv->POS[2]==gv->NPROCY-1) ye=gv->NY-i+1;
 			for (j=yb;j<=ye;j++)
 				absorb_coeff[j][i]=coeff[i];
 		}
 	}
 			
-	if ((!BOUNDARY) && (POS[1]==NPROCX-1))
+	if ((!gv->BOUNDARY) && (gv->POS[1]==gv->NPROCX-1))
 	{
-		yb=1; ye=NY;
-		for (i=1;i<=FW;i++){
-			ii=NX-i+1;
-			if ((POS[2]==0) && (!(FREE_SURF))) yb=i;
-			if (POS[2]==NPROCY-1) ye=NY-i+1;
+		yb=1; ye=gv->NY;
+		for (i=1;i<=gv->FW;i++){
+			ii=gv->NX-i+1;
+			if ((gv->POS[2]==0) && (!(gv->FREE_SURF))) yb=i;
+			if (gv->POS[2]==gv->NPROCY-1) ye=gv->NY-i+1;
 			for (j=yb;j<=ye;j++)
 				absorb_coeff[j][ii]=coeff[i];
 		}
@@ -101,26 +104,26 @@ void absorb(float ** absorb_coeff)
 
 	/* compute coefficients for top and bottom grid boundaries (y-direction) */
 
-	if ((POS[2]==0) && (!(FREE_SURF)))
+	if ((gv->POS[2]==0) && (!(gv->FREE_SURF)))
 	{
-		xb=1; xe=NX;
-		for (j=1;j<=FW;j++)
+		xb=1; xe=gv->NX;
+		for (j=1;j<=gv->FW;j++)
 		{
-			if ((!BOUNDARY) && (POS[1]==0)) xb=j;
-			if ((!BOUNDARY) && (POS[1]==NPROCX-1)) xe=NX-j+1;
+			if ((!gv->BOUNDARY) && (gv->POS[1]==0)) xb=j;
+			if ((!gv->BOUNDARY) && (gv->POS[1]==gv->NPROCX-1)) xe=gv->NX-j+1;
 			for (i=xb;i<=xe;i++)
 				absorb_coeff[j][i]=coeff[j];
 		}
 	}
 
-	if (POS[2]==NPROCY-1)
+	if (gv->POS[2]==gv->NPROCY-1)
 	{
-		xb=1; xe=NX;
-		for (j=1;j<=FW;j++)
+		xb=1; xe=gv->NX;
+		for (j=1;j<=gv->FW;j++)
 		{
-			jj=NY-j+1;
-			if ((!BOUNDARY) && (POS[1]==0)) xb=j;
-			if ((!BOUNDARY) && (POS[1]==NPROCX-1)) xe=NX-j+1;
+			jj=gv->NY-j+1;
+			if ((!gv->BOUNDARY) && (gv->POS[1]==0)) xb=j;
+			if ((!gv->BOUNDARY) && (gv->POS[1]==gv->NPROCX-1)) xe=gv->NX-j+1;
 			for (i=xb;i<=xe;i++)
 				absorb_coeff[jj][i]=coeff[j];
 		}
@@ -136,7 +139,7 @@ void absorb(float ** absorb_coeff)
 	if (MYID==0) mergemod(modfile,3); 
 */
 
-	free_vector(coeff,1,FW);
+	free_vector(coeff,1,gv->FW);
 }
 
 

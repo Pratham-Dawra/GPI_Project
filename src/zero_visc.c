@@ -23,33 +23,27 @@
 
 #include "fd.h"
 
-void zero_visc(int nx1, int nx2, int ny1, int ny2, float ** vx, float ** vy, float ** sxx, float ** syy, float ** sxy, float *** pr, float *** pp, float *** pq){
-
-
+void zero_visc(int nx1, int nx2, int ny1, int ny2, float ** vx, float ** vy, float ** sxx, float ** syy, float ** sxy, float *** pr, float *** pp, float *** pq, GlobVar *gv){
 
 	register int i, j, l;
-	extern int L;
 
-	
 		for (j=ny1;j<=ny2;j++){
 			for (i=nx1;i<=nx2;i++){
 				vx[j][i]=0.0;
 				vy[j][i]=0.0;
 				sxx[j][i]=0.0;
 				syy[j][i]=0.0;
-                                sxy[j][i]=0.0;
+                sxy[j][i]=0.0;
 			}
 		}
-		
-		
+
 		for (j=ny1;j<=ny2;j++){
 			for (i=nx1;i<=nx2;i++){
-				for (l=1;l<=L;l++){
+				for (l=1;l<=gv->L;l++){
 					pr[j][i][l] = 0.0;
 					pp[j][i][l] = 0.0;
 					pq[j][i][l] = 0.0;
 				}
 			}
 		}
-	
 }

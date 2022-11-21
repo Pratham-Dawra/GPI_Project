@@ -19,25 +19,25 @@
 
 #include "fd.h"
 
-void note(FILE *fp)
-{
-  extern char LOG_FILE[STRING_SIZE];
-  extern int MYID, LOG;
+void note(FILE *fp, GlobVar *gv) {
 
-  int len = strlen(LOG_FILE)-1;
+  int MYID;
+  MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
 
-  fprintf(fp,"\nPlease note: \n");
-  fprintf(fp,"Each processing element (PE) is writing log information during program \n");
-  fprintf(fp,"execution to %.*sPE.\n", len, LOG_FILE);
+  int len = strlen(gv->LOG_FILE)-1;
+
+  fprintf(fp,"\nPlease note:\n");
+  fprintf(fp,"Each processing element (PE) is writing log information during program\n");
+  fprintf(fp,"execution to %.*sPE.\n", len, gv->LOG_FILE);
   fprintf(fp,"See corresponding log files for further information on program status.\n");
-  fprintf(fp,"Information about overall program execution \n");
+  fprintf(fp,"Information about overall program execution\n");
   fprintf(fp,"(numerical artefacts, accuracy, computing times etc)\n");
-  if (LOG){
+  if (gv->LOG) {
     fprintf(fp,"will be written by PE 0 to");
-    if ((LOG == 1) || (LOG == 3)) {
+    if ((gv->LOG == 1) || (gv->LOG == 3)) {
       fprintf(fp," standard output. \n");
-    } else if (LOG == 2) {
-      fprintf(fp," %.*s%i.\n", len, LOG_FILE, MYID);
+    } else if (gv->LOG == 2) {
+      fprintf(fp," %.*s%i.\n", len, gv->LOG_FILE, MYID);
     }
   } else {
     fprintf(fp," will NOT be output.");

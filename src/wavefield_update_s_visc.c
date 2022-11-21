@@ -26,19 +26,17 @@
 void wavefield_update_s_visc ( int i, int j,float   vxx, float  vyx,float vxy,float  vyy, float **sxy,
                                float **sxx, float ** syy, float ***r, float ***p,
                                float ***q,float **fipjp, float **f, float **g, float *bip, 
-			       float *bjm,float *cip, float *cjm, float ***d, float ***e, float ***dip )
-{
+			       float *bjm,float *cip, float *cjm, float ***d, float ***e, float ***dip, GlobVar *gv ) {
+
 	int l;
 	float  dthalbe;
-	extern float DT;
-	extern int L;
 	float sumr=0.0, sump=0.0, sumq=0.0;
 	/* computing sums of the old memory variables */
 	
-	dthalbe = DT/2.0;
+	dthalbe = gv->DT/2.0;
 	
 	sumr=sump=sumq=0.0;
-	for ( l=1; l<=L; l++ ) {
+	for ( l=1; l<=gv->L; l++ ) {
 		sumr+=r[j][i][l];
 		sump+=p[j][i][l];
 		sumq+=q[j][i][l];
@@ -54,7 +52,7 @@ void wavefield_update_s_visc ( int i, int j,float   vxx, float  vyx,float vxy,fl
 
 	/* now updating the memory-variables and sum them up*/
 	sumr=sump=sumq=0.0;
-	for ( l=1; l<=L; l++ ) {
+	for ( l=1; l<=gv->L; l++ ) {
 		r[j][i][l] = bip[l]* ( r[j][i][l]*cip[l]- ( dip[j][i][l]* ( vxy+vyx ) ) );
 		p[j][i][l] = bjm[l]* ( p[j][i][l]*cjm[l]- ( e[j][i][l]* ( vxx+vyy ) ) + ( 2.0*d[j][i][l]*vyy ) );
 		q[j][i][l] = bjm[l]* ( q[j][i][l]*cjm[l]- ( e[j][i][l]* ( vxx+vyy ) ) + ( 2.0*d[j][i][l]*vxx ) );

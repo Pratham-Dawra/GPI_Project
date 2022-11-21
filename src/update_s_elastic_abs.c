@@ -31,17 +31,16 @@
 void update_s_elastic_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
                             float **  vx, float **   vy, float **   sxx, float **   syy,
                             float **   sxy, float ** pi, float ** u, float ** uipjp,
-                            float ** absorb_coeff, float *hc )
+                            float ** absorb_coeff, float *hc, GlobVar *gv )
 {
 	int i,j,fdoh;
 	float  vxx, vyy, vxy, vyx;
-	extern int MYID, FDORDER;
-	extern FILE *FP;
-	extern int OUTNTIMESTEPINFO;
 	double time1=0.0, time2=0.0;
 
-
-	fdoh=FDORDER/2;
+    int MYID;
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
+  
+	fdoh=gv->FDORDER/2;
 
 	/*Pointer array to the locations of the fd-operator functions*/
 	void ( *FD_op_s[7] ) ();
@@ -52,10 +51,10 @@ void update_s_elastic_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * 
 	FD_op_s[5] = &operator_s_fd10;
 	FD_op_s[6] = &operator_s_fd12;
 
-	if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
+	if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
 		time1=MPI_Wtime();
-		fprintf ( FP,"\n **Message from update_s_PML (printed by PE %d):\n",MYID );
-		fprintf ( FP," Updating stress components ..." );
+		fprintf ( gv->FP,"\n **Message from update_s_PML (printed by PE %d):\n",MYID );
+		fprintf ( gv->FP," Updating stress components ..." );
 	}
 
 
@@ -63,9 +62,9 @@ void update_s_elastic_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * 
 	/* left boundary */
 	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
 		for ( i=gx[1]; i<=gx[2]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
 
-			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp );
+			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
 
 			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
 		}
@@ -74,9 +73,9 @@ void update_s_elastic_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * 
 	/* right boundary */
 	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
 		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
 
-			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp );
+			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
 
 			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
 
@@ -86,9 +85,9 @@ void update_s_elastic_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * 
 	/* top boundary */
 	for ( j=gy[1]; j<=gy[2]; j++ ) {
 		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
 
-			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp );
+			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
 
 			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
 		}
@@ -97,9 +96,9 @@ void update_s_elastic_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * 
 	/* bottom boundary */
 	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
 		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
 
-			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp );
+			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
 
 			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
 		}
@@ -110,9 +109,9 @@ void update_s_elastic_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * 
 	/*left-top*/
 	for ( j=gy[1]; j<=gy[2]; j++ ) {
 		for ( i=gx[1]; i<=gx[2]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
 
-			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp );
+			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
 
 			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
 
@@ -122,9 +121,9 @@ void update_s_elastic_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * 
 	/*left-bottom*/
 	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
 		for ( i=gx[1]; i<=gx[2]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
 
-			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp );
+			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
 
 			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
 		}
@@ -133,9 +132,9 @@ void update_s_elastic_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * 
 	/* right-top */
 	for ( j=gy[1]; j<=gy[2]; j++ ) {
 		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
 
-			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp );
+			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
 
 			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
 		}
@@ -144,9 +143,9 @@ void update_s_elastic_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * 
 	/* right-bottom */
 	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
 		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
 
-			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp );
+			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
 
 			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
 		}
@@ -157,8 +156,8 @@ void update_s_elastic_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * 
 
 
 
-	if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
+	if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
 		time2=MPI_Wtime();
-		fprintf ( FP," finished (real time: %4.3f s).\n",time2-time1 );
+		fprintf ( gv->FP," finished (real time: %4.3f s).\n",time2-time1 );
 	}
 }

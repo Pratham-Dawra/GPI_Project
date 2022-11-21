@@ -31,17 +31,13 @@
 
 void update_s_elastic_interior_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
                                 float **  vx, float **   vy, float **   sxx, float **   syy,
-                                float **   sxy, float ** pi, float ** u, float ** uipjp, float *hc,float ** vxx_1,float ** vxx_2,float ** vxx_3,float ** vxx_4,float ** vyy_1,float ** vyy_2,float ** vyy_3,float ** vyy_4,float ** vxy_1,float ** vxy_2,float ** vxy_3,float ** vxy_4,float ** vyx_1,float ** vyx_2,float ** vyx_3,float ** vyx_4)
+                                float **   sxy, float ** pi, float ** u, float ** uipjp, float *hc,float ** vxx_1,float ** vxx_2,float ** vxx_3,float ** vxx_4,float ** vyy_1,float ** vyy_2,float ** vyy_3,float ** vyy_4,float ** vxy_1,float ** vxy_2,float ** vxy_3,float ** vxy_4,float ** vyx_1,float ** vyx_2,float ** vyx_3,float ** vyx_4, GlobVar *gv)
 {
     
     
     int i,j;
     float fipjp, f, g;
     float  dhi;
-    extern float DT, DH;
-    extern int MYID, FDORDER;
-    extern FILE *FP;
-    extern int OUTNTIMESTEPINFO;
     double time1=0.0, time2=0.0;
     float c1, c2, c3, c4; /* Coefficients for Adam Bashforth */
     c1=13.0/12.0; c2=-5.0/24.0; c3=1.0/6.0; c4=-1.0/24.0;
@@ -52,18 +48,21 @@ void update_s_elastic_interior_4 ( int nx1, int nx2, int ny1, int ny2, int * gx,
     float * vxx_4_j, *vyy_4_j,* vxy_4_j, *vyx_4_j;
     
     float sumxx=0.0,sumyy=0.0,sumxy=0.0,sumyx=0.0;
+
+    int MYID;
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
+
+    dhi = 1.0/gv->DH;
     
-    dhi = 1.0/DH;
-    
-    if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
+    if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
         time1=MPI_Wtime();
-        fprintf ( FP,"\n **Message from update_s_interior_4 (printed by PE %d):\n",MYID );
-        fprintf ( FP," Updating stress components ..." );
+        fprintf ( gv->FP,"\n **Message from update_s_interior_4 (printed by PE %d):\n",MYID );
+        fprintf ( gv->FP," Updating stress components ..." );
     }
     
     
     
-    switch ( FDORDER ) {
+    switch ( gv->FDORDER ) {
             
         case 2:
             for ( j=gy[2]+1; j<=gy[3]; j++ ) {
@@ -82,9 +81,9 @@ void update_s_elastic_interior_4 ( int nx1, int nx2, int ny1, int ny2, int * gx,
                     *(vxy_1_j+i) = hc[1]* ( vx[j+1][i]-vx[j][i] );
                     
                     /* updating components of the stress tensor, partially */
-                    fipjp=uipjp[j][i]*DT;
-                    f=u[j][i]*DT;
-                    g=pi[j][i]*DT;
+                    fipjp=uipjp[j][i]*gv->DT;
+                    f=u[j][i]*gv->DT;
+                    g=pi[j][i]*gv->DT;
                     
                     // Calculate Adams-Bashforth stuff
                     sumxx=c1*(*(vxx_1_j+i))+c2*(*(vxx_2_j+i))+c3*(*(vxx_3_j+i))+c4*(*(vxx_4_j+i));
@@ -120,9 +119,9 @@ void update_s_elastic_interior_4 ( int nx1, int nx2, int ny1, int ny2, int * gx,
                            + hc[2]* ( vx[j+2][i]-vx[j-1][i] )
                                     );
                     
-                    fipjp=uipjp[j][i]*DT;
-                    f=u[j][i]*DT;
-                    g=pi[j][i]*DT;
+                    fipjp=uipjp[j][i]*gv->DT;
+                    f=u[j][i]*gv->DT;
+                    g=pi[j][i]*gv->DT;
                     
                     // Calculate Adams-Bashforth stuff
                     sumxx=c1*(*(vxx_1_j+i))+c2*(*(vxx_2_j+i))+c3*(*(vxx_3_j+i))+c4*(*(vxx_4_j+i));
@@ -163,9 +162,9 @@ void update_s_elastic_interior_4 ( int nx1, int nx2, int ny1, int ny2, int * gx,
                            + hc[3]* ( vx[j+3][i]-vx[j-2][i] )
                            );
                     
-                    fipjp=uipjp[j][i]*DT;
-                    f=u[j][i]*DT;
-                    g=pi[j][i]*DT;
+                    fipjp=uipjp[j][i]*gv->DT;
+                    f=u[j][i]*gv->DT;
+                    g=pi[j][i]*gv->DT;
                     
                     // Calculate Adams-Bashforth stuff
                     sumxx=c1*(*(vxx_1_j+i))+c2*(*(vxx_2_j+i))+c3*(*(vxx_3_j+i))+c4*(*(vxx_4_j+i));
@@ -210,9 +209,9 @@ void update_s_elastic_interior_4 ( int nx1, int nx2, int ny1, int ny2, int * gx,
                            + hc[4]* ( vx[j+4][i]-vx[j-3][i] )
                            );
                     
-                    fipjp=uipjp[j][i]*DT;
-                    f=u[j][i]*DT;
-                    g=pi[j][i]*DT;
+                    fipjp=uipjp[j][i]*gv->DT;
+                    f=u[j][i]*gv->DT;
+                    g=pi[j][i]*gv->DT;
                     
                     // Calculate Adams-Bashforth stuff
                     sumxx=c1*(*(vxx_1_j+i))+c2*(*(vxx_2_j+i))+c3*(*(vxx_3_j+i))+c4*(*(vxx_4_j+i));
@@ -261,9 +260,9 @@ void update_s_elastic_interior_4 ( int nx1, int nx2, int ny1, int ny2, int * gx,
                            + hc[5]* ( vx[j+5][i]-vx[j-4][i] )
                            );
                     
-                    fipjp=uipjp[j][i]*DT;
-                    f=u[j][i]*DT;
-                    g=pi[j][i]*DT;
+                    fipjp=uipjp[j][i]*gv->DT;
+                    f=u[j][i]*gv->DT;
+                    g=pi[j][i]*gv->DT;
                     
                     // Calculate Adams-Bashforth stuff
                     sumxx=c1*(*(vxx_1_j+i))+c2*(*(vxx_2_j+i))+c3*(*(vxx_3_j+i))+c4*(*(vxx_4_j+i));
@@ -317,9 +316,9 @@ void update_s_elastic_interior_4 ( int nx1, int nx2, int ny1, int ny2, int * gx,
                            + hc[6]* ( vx[j+6][i]-vx[j-5][i] )
                            );
                     
-                    fipjp=uipjp[j][i]*DT;
-                    f=u[j][i]*DT;
-                    g=pi[j][i]*DT;
+                    fipjp=uipjp[j][i]*gv->DT;
+                    f=u[j][i]*gv->DT;
+                    g=pi[j][i]*gv->DT;
                     
                     // Calculate Adams-Bashforth stuff
                     sumxx=c1*(*(vxx_1_j+i))+c2*(*(vxx_2_j+i))+c3*(*(vxx_3_j+i))+c4*(*(vxx_4_j+i));
@@ -353,9 +352,9 @@ void update_s_elastic_interior_4 ( int nx1, int nx2, int ny1, int ny2, int * gx,
                     *(vxy_1_j+i) = hc[1]* ( vx[j+1][i]-vx[j][i] );
                     
                     /* updating components of the stress tensor, partially */
-                    fipjp=uipjp[j][i]*DT;
-                    f=u[j][i]*DT;
-                    g=pi[j][i]*DT;
+                    fipjp=uipjp[j][i]*gv->DT;
+                    f=u[j][i]*gv->DT;
+                    g=pi[j][i]*gv->DT;
                     
                     // Calculate Adams-Bashforth stuff
                     sumxx=c1*(*(vxx_1_j+i))+c2*(*(vxx_2_j+i))+c3*(*(vxx_3_j+i))+c4*(*(vxx_4_j+i));
@@ -372,13 +371,13 @@ void update_s_elastic_interior_4 ( int nx1, int nx2, int ny1, int ny2, int * gx,
             }
             break;
             
-    } /* end of switch(FDORDER) */
+    } /* end of switch(gv->FDORDER) */
     
     
     
-    if ( ( MYID==0 ) && ( ( nt+ ( OUTNTIMESTEPINFO-1 ) ) %OUTNTIMESTEPINFO ) ==0 ) {
+    if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
         time2=MPI_Wtime();
-        fprintf ( FP," finished (real time: %4.3f s).\n",time2-time1 );
+        fprintf ( gv->FP," finished (real time: %4.3f s).\n",time2-time1 );
     }
 }
 

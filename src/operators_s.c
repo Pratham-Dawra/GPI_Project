@@ -28,12 +28,11 @@
 #include "fd.h"
 
 /*FD Operators Order 2-12  ----------------------------------------------------------------------------------------------------*/
-void operator_s_fd2 ( int i, int j,float  * vxx, float * vyx,float * vxy,float * vyy, float **vx, float **vy,float * hc )
+void operator_s_fd2 ( int i, int j,float  * vxx, float * vyx,float * vxy,float * vyy, float **vx, float **vy,float * hc, GlobVar *gv )
 {
 	float  dhi;
-	extern float DH;
 
-	dhi = 1.0/DH;
+	dhi = 1.0/gv->DH;
 
 	*vxx = hc[1]* ( vx[j][i]  -vx[j][i-1] ) *dhi;
 	*vyx = hc[1]* ( vy[j][i+1]-vy[j][i] ) *dhi;
@@ -41,12 +40,11 @@ void operator_s_fd2 ( int i, int j,float  * vxx, float * vyx,float * vxy,float *
 	*vyy = hc[1]* ( vy[j][i]  -vy[j-1][i] ) *dhi;
 }
 
-void operator_s_fd4 ( int i, int j,float  * vxx, float * vyx,float * vxy,float * vyy, float **vx, float **vy,float * hc )
+void operator_s_fd4 ( int i, int j,float  * vxx, float * vyx,float * vxy,float * vyy, float **vx, float **vy,float * hc, GlobVar *gv )
 {
 	float  dhi;
-	extern float DH;
 
-	dhi = 1.0/DH;
+	dhi = 1.0/gv->DH;
 
 	*vxx = ( hc[1]* ( vx[j][i]  -vx[j][i-1] )
 	         + hc[2]* ( vx[j][i+1]-vx[j][i-2] ) ) *dhi;
@@ -61,12 +59,11 @@ void operator_s_fd4 ( int i, int j,float  * vxx, float * vyx,float * vxy,float *
 	         + hc[2]* ( vy[j+1][i]-vy[j-2][i] ) ) *dhi;
 }
 
-void operator_s_fd6 ( int i, int j,float  * vxx, float * vyx,float * vxy,float * vyy, float **vx, float **vy,float * hc )
+void operator_s_fd6 ( int i, int j,float  * vxx, float * vyx,float * vxy,float * vyy, float **vx, float **vy,float * hc, GlobVar *gv )
 {
 	float  dhi;
-	extern float DH;
 
-	dhi = 1.0/DH;
+	dhi = 1.0/gv->DH;
 	*vxx = ( hc[1]* ( vx[j][i]  -vx[j][i-1] )
 	         + hc[2]* ( vx[j][i+1]-vx[j][i-2] )
 	         + hc[3]* ( vx[j][i+2]-vx[j][i-3] ) ) *dhi;
@@ -84,12 +81,11 @@ void operator_s_fd6 ( int i, int j,float  * vxx, float * vyx,float * vxy,float *
 	         + hc[3]* ( vy[j+2][i]-vy[j-3][i] ) ) *dhi;
 }
 
-void operator_s_fd8 ( int i, int j,float  * vxx, float * vyx,float * vxy,float * vyy, float **vx, float **vy,float * hc )
+void operator_s_fd8 ( int i, int j,float  * vxx, float * vyx,float * vxy,float * vyy, float **vx, float **vy,float * hc, GlobVar *gv )
 {
 	float  dhi;
-	extern float DH;
 
-	dhi = 1.0/DH;
+	dhi = 1.0/gv->DH;
 
 	*vxx = ( hc[1]* ( vx[j][i]  -vx[j][i-1] )
 	         + hc[2]* ( vx[j][i+1]-vx[j][i-2] )
@@ -112,12 +108,11 @@ void operator_s_fd8 ( int i, int j,float  * vxx, float * vyx,float * vxy,float *
 	         + hc[4]* ( vy[j+3][i]-vy[j-4][i] ) ) *dhi;
 }
 
-void operator_s_fd10 ( int i, int j,float  * vxx, float * vyx,float * vxy,float * vyy, float **vx, float **vy,float * hc )
+void operator_s_fd10 ( int i, int j,float  * vxx, float * vyx,float * vxy,float * vyy, float **vx, float **vy,float * hc, GlobVar *gv )
 {
 	float  dhi;
-	extern float DH;
 
-	dhi = 1.0/DH;
+	dhi = 1.0/gv->DH;
 	*vxx = ( hc[1]* ( vx[j][i]  -vx[j][i-1] )
 	         + hc[2]* ( vx[j][i+1]-vx[j][i-2] )
 	         + hc[3]* ( vx[j][i+2]-vx[j][i-3] )
@@ -144,12 +139,11 @@ void operator_s_fd10 ( int i, int j,float  * vxx, float * vyx,float * vxy,float 
 	       ) *dhi;
 }
 
-void operator_s_fd12 ( int i, int j,float  * vxx, float * vyx,float * vxy,float * vyy, float **vx, float **vy,float * hc )
+void operator_s_fd12 ( int i, int j,float  * vxx, float * vyx,float * vxy,float * vyy, float **vx, float **vy,float * hc, GlobVar *gv )
 {
 	float  dhi;
-	extern float DH;
 
-	dhi = 1.0/DH;
+	dhi = 1.0/gv->DH;
 	*vxx = ( hc[1]* ( vx[j][i]  -vx[j][i-1] )
 	         + hc[2]* ( vx[j][i+1]-vx[j][i-2] )
 	         + hc[3]* ( vx[j][i+2]-vx[j][i-3] )

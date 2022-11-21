@@ -23,10 +23,7 @@
  * ----------------------------------------------------------------------*/
  
  #include "fd.h"
-int **splitrec(int **recpos,int *ntr_loc, int ntr, int *recswitch)
-{
-
-	extern int IENDX, IENDY, POS[4];
+int **splitrec(int **recpos,int *ntr_loc, int ntr, int *recswitch, GlobVar *gv) {
 
 	int a,b,i=0,j,k;
 	//int found=0;
@@ -36,16 +33,16 @@ int **splitrec(int **recpos,int *ntr_loc, int ntr, int *recswitch)
 	for (j=1;j<=ntr;j++)
 	{
 		recswitch[j] = 0;
-		a=(recpos[1][j]-1)/IENDX;
-		b=(recpos[2][j]-1)/IENDY;
+		a=(recpos[1][j]-1)/gv->IENDX;
+		b=(recpos[2][j]-1)/gv->IENDY;
 
-		if ((POS[1]==a)&&(POS[2]==b))
+		if ((gv->POS[1]==a)&&(gv->POS[2]==b))
 		{
 			//found = 1;
 			recswitch[j] = 1;
-			i++;	/* Anzahl der Empf�nger i jedes Prozesses ermitteln */
-			recpos_dummy[1][i] = ((recpos[1][j]-1)%IENDX)+1;
-			recpos_dummy[2][i] = ((recpos[2][j]-1)%IENDY)+1;
+			i++;	/* number of receivers i of each process */
+			recpos_dummy[1][i] = ((recpos[1][j]-1)%gv->IENDX)+1;
+			recpos_dummy[2][i] = ((recpos[2][j]-1)%gv->IENDY)+1;
 			recpos_dummy[3][i] = j;
 		}
 	}
@@ -74,5 +71,4 @@ int **splitrec(int **recpos,int *ntr_loc, int ntr, int *recswitch)
 */
    	*ntr_loc=i;
 	return recpos_local;
-
 }

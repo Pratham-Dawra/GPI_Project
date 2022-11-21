@@ -20,13 +20,8 @@
 
 #include "fd.h"
 
-void readmod_elastic_tti (float  **  rho, float **  pc11, float **  pc33, float **  pc13,float **  pc55, float **  pc15,float **  pc35 ){
+void readmod_elastic_tti (float  **  rho, float **  pc11, float **  pc33, float **  pc13,float **  pc55, float **  pc15,float **  pc35, GlobVar *gv ) {
 
-	extern int NX, NY, NXG, NYG,  POS[3], MYID;
-	extern char  MFILE[STRING_SIZE];	
-	extern FILE *FP;
-
-		
 	/* local variables */
 	float rhov, c11, c33, c13, c55, t;
 	int i, j, ii, jj;
@@ -37,52 +32,49 @@ void readmod_elastic_tti (float  **  rho, float **  pc11, float **  pc33, float 
 
     FILE *fp_epsilon, *fp_delta, *fp_vp, *fp_vs, *fp_rho, *fp_theta;
 
-	char filename[STRING_SIZE];
+	char filename[STRING_SIZE+16];
+
+    int MYID;
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
 
 
+    fprintf(gv->FP,"\n...reading elastic TTI Thomsen parameters from model-files...\n");
 
-
-	   fprintf(FP,"\n...reading elastic TTI Thomsen parameters from model-files...\n");
-
-    fprintf(FP,"\n...reading viscoelastic TTI Thomsen parameters from model-files...\n");
-    fprintf(FP,"\t Vp:\n\t %s.vp\n\n",MFILE);
-    sprintf(filename,"%s.vp",MFILE);
+    fprintf(gv->FP,"\n...reading viscoelastic TTI Thomsen parameters from model-files...\n");
+    fprintf(gv->FP,"\t Vp:\n\t %s.vp\n\n",gv->MFILE);
+    sprintf(filename,"%s.vp",gv->MFILE);
     fp_vp=fopen(filename,"r");
     if ((fp_vp==NULL) && (MYID==0)) declare_error(" Could not open model file VP ! ");
  
-     fprintf(FP,"\t Vs:\n\t %s.vs\n\n",MFILE);
-     sprintf(filename,"%s.vs",MFILE);
+     fprintf(gv->FP,"\t Vs:\n\t %s.vs\n\n",gv->MFILE);
+     sprintf(filename,"%s.vs",gv->MFILE);
      fp_vs=fopen(filename,"r");
      if ((fp_vs==NULL) && (MYID==0)) declare_error(" Could not open model file VS ! ");
      
-     fprintf(FP,"\t Density:\n\t %s.rho\n\n",MFILE);
-     sprintf(filename,"%s.rho",MFILE);
+     fprintf(gv->FP,"\t Density:\n\t %s.rho\n\n",gv->MFILE);
+     sprintf(filename,"%s.rho",gv->MFILE);
      fp_rho=fopen(filename,"r");
      if ((fp_rho==NULL) && (MYID==0)) declare_error(" Could not open model file for densities ! ");
 
-     fprintf(FP,"\t Theta:\n\t %s.theta\n\n",MFILE);
-     sprintf(filename,"%s.theta",MFILE);
+     fprintf(gv->FP,"\t Theta:\n\t %s.theta\n\n",gv->MFILE);
+     sprintf(filename,"%s.theta",gv->MFILE);
      fp_theta=fopen(filename,"r");
      if ((fp_theta==NULL) && (MYID==0)) declare_error(" Could not open model file with elastic constants Theta ! ");
 
-     fprintf(FP,"\t Epsilon:\n\t %s.epsilon\n\n",MFILE);
-     sprintf(filename,"%s.epsilon",MFILE);
+     fprintf(gv->FP,"\t Epsilon:\n\t %s.epsilon\n\n",gv->MFILE);
+     sprintf(filename,"%s.epsilon",gv->MFILE);
      fp_epsilon=fopen(filename,"r");
      if ((fp_epsilon==NULL) && (MYID==0)) declare_error(" Could not open model file with elastic constants Epsilon ! ");
 
-     fprintf(FP,"\t Delta:\n\t %s.delta\n\n",MFILE);
-     sprintf(filename,"%s.delta",MFILE);
+     fprintf(gv->FP,"\t Delta:\n\t %s.delta\n\n",gv->MFILE);
+     sprintf(filename,"%s.delta",gv->MFILE);
      fp_delta=fopen(filename,"r");
      if ((fp_delta==NULL) && (MYID==0)) declare_error(" Could not open model file with elastic constants Delta ! ");
 
-
-
-	   
-
 	/* loop over global grid */
-		for (i=1;i<=NXG;i++){
-			for (j=1;j<=NYG;j++){
-               
+		for (i=1;i<=gv->NXG;i++){
+			for (j=1;j<=gv->NYG;j++){
+
                 fread(&vp, sizeof(float), 1, fp_vp);
                 fread(&vs, sizeof(float), 1, fp_vs);
                 fread(&rhov, sizeof(float), 1, fp_rho);
@@ -94,20 +86,17 @@ void readmod_elastic_tti (float  **  rho, float **  pc11, float **  pc33, float 
                 c55=rhov*vs*vs;
                 c11=c33*(2.0*epsilon+1.0);
                 c13=sqrt((2.0*delta*c33*(c33-c55))+((c33-c55)*(c33-c55)))-c55;
-  
-
 
                 /* Bond transformation (Oh et al, 2020, GJI, doi: 10.1093/gji/ggaa295 */
                 t=theta*PI/180.0;
                 l1=cos(t); l2=sin(t); l12=l1*l1; l22=l2*l2; l14=l12*l12; l24=l22*l22; l13=l1*l12; l23=l2*l22;
-               
-                
+
                 a1=2.0*c13+4.0*c55;
                 a3=c11+c33-4.0*c55;
                 a4=c11+c33-2.0*c13;
                 a5=c13-c11+2.0*c55;
                 a6=c13-c33+2.0*c55;
-                
+
                 c11t=c11*l14+c33*l24+a1*l12*l22;
                 c33t=c11*l24+c33*l14+a1*l12*l22;
                 c13t=a3*l12*l22+c13*(l14+l24);
@@ -115,14 +104,12 @@ void readmod_elastic_tti (float  **  rho, float **  pc11, float **  pc33, float 
                 c15t=a5*l13*l2-a6*l1*l23;
                 c35t=a5*l23*l1-a6*l2*l13;
 
-                
-
 			/* only the PE which belongs to the current global gridpoint 
 			is saving model parameters in his local arrays */
-				if ((POS[1]==((i-1)/NX)) && 
-				    (POS[2]==((j-1)/NY))){
-					ii=i-POS[1]*NX;
-					jj=j-POS[2]*NY;
+				if ((gv->POS[1]==((i-1)/gv->NX)) && 
+				    (gv->POS[2]==((j-1)/gv->NY))){
+					ii=i-gv->POS[1]*gv->NX;
+					jj=j-gv->POS[2]*gv->NY;
 
                     pc11[jj][ii]=c11t;
                     rho[jj][ii]=rhov;
@@ -134,8 +121,6 @@ void readmod_elastic_tti (float  **  rho, float **  pc11, float **  pc33, float 
 				}
 			}
 		}
-	
-
 
     fclose(fp_vp);
     fclose(fp_vs);
@@ -144,22 +129,15 @@ void readmod_elastic_tti (float  **  rho, float **  pc11, float **  pc33, float 
     fclose(fp_delta);
     fclose(fp_theta);
   
-
-
-
-	
 	/* each PE writes his model to disk */
-	   
-	   
-/*	sprintf(filename,"%s.sofi2D.rho",MFILE);
 
+/*	sprintf(filename,"%s.sofi2D.rho",gv->MFILE);
 	writemod(filename,rho,3);
 
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	if (MYID==0) mergemod(filename,3);
 	*/
-
 }
 
 

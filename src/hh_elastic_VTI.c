@@ -23,20 +23,15 @@
 
 #include "fd.h"
 
-void model_elastic_VTI(float  **  rho, float **  pc11, float **  pc33, float **  pc13, float **  pc55){
-
-	/*--------------------------------------------------------------------------*/
-	/* extern variables */
-
-	extern int NX, NY, NXG, NYG,  POS[3], MYID;
-	extern int WRITE_MODELFILES;
-	extern char  MFILE[STRING_SIZE];	
+void model_elastic_VTI(float  **  rho, float **  pc11, float **  pc33, float **  pc13, float **  pc55, GlobVar *gv){
 
 	/* local variables */
 	float c11, c33, c55, c13, Rho;
 	int i, j, ii, jj;
-	char modfile[STRING_SIZE];
+	char modfile[STRING_SIZE+16];
 
+    int MYID;
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
 
 	/*-----------------material property definition -------------------------*/	
 
@@ -52,8 +47,8 @@ void model_elastic_VTI(float  **  rho, float **  pc11, float **  pc33, float ** 
 
 
 	/* loop over global grid */
-	for (i=1;i<=NXG;i++){
-		for (j=1;j<=NYG;j++){
+	for (i=1;i<=gv->NXG;i++){
+		for (j=1;j<=gv->NYG;j++){
 
 			if (j<jh){ c11=0.0; c33=0.0; c13=0.0; c55=1.0; Rho=1.0;}
 			else { c11=C11; c33=C33; c13=C13; c55=C55; Rho=RHO;}
@@ -61,10 +56,10 @@ void model_elastic_VTI(float  **  rho, float **  pc11, float **  pc33, float ** 
 
 			/* only the PE which belongs to the current global gridpoint
 				  is saving model parameters in his local arrays */
-			if ((POS[1]==((i-1)/NX)) &&
-					(POS[2]==((j-1)/NY))){
-				ii=i-POS[1]*NX;
-				jj=j-POS[2]*NY;
+			if ((gv->POS[1]==((i-1)/gv->NX)) &&
+					(gv->POS[2]==((j-1)/gv->NY))){
+				ii=i-gv->POS[1]*gv->NX;
+				jj=j-gv->POS[2]*gv->NY;
 
 				pc11[jj][ii]=c11;
 				rho[jj][ii]=Rho;
@@ -80,43 +75,40 @@ void model_elastic_VTI(float  **  rho, float **  pc11, float **  pc33, float ** 
 	/* each PE writes his model to disk */
 
 	/* only the density model is written to file */
-	if (WRITE_MODELFILES==2) {
-		sprintf(modfile,"%s.SOFI2D.rho",MFILE);
-		writemod(modfile,rho,3);
+	if (gv->WRITE_MODELFILES==2) {
+		sprintf(modfile,"%s.SOFI2D.rho",gv->MFILE);
+		writemod(modfile,rho,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3);
+		if (MYID==0) mergemod(modfile,3,gv);
 	}
 
 	/* all models are written to file */
-	if (WRITE_MODELFILES==1) {
-		sprintf(modfile,"%s.SOFI2D.c11",MFILE);
-		writemod(modfile,pc11,3);
+	if (gv->WRITE_MODELFILES==1) {
+		sprintf(modfile,"%s.SOFI2D.c11",gv->MFILE);
+		writemod(modfile,pc11,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3);
+		if (MYID==0) mergemod(modfile,3,gv);
 
-		sprintf(modfile,"%s.SOFI2D.c33",MFILE);
-		writemod(modfile,pc33,3);
+		sprintf(modfile,"%s.SOFI2D.c33",gv->MFILE);
+		writemod(modfile,pc33,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3);
+		if (MYID==0) mergemod(modfile,3,gv);
 
-		sprintf(modfile,"%s.SOFI2D.c13",MFILE);
-		writemod(modfile,pc13,3);
+		sprintf(modfile,"%s.SOFI2D.c13",gv->MFILE);
+		writemod(modfile,pc13,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3);
+		if (MYID==0) mergemod(modfile,3,gv);
 
-		sprintf(modfile,"%s.SOFI2D.c55",MFILE);
-		writemod(modfile,pc55,3);
+		sprintf(modfile,"%s.SOFI2D.c55",gv->MFILE);
+		writemod(modfile,pc55,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3);
+		if (MYID==0) mergemod(modfile,3,gv);
 
-		sprintf(modfile,"%s.SOFI2D.rho",MFILE);
-		writemod(modfile,rho,3);
+		sprintf(modfile,"%s.SOFI2D.rho",gv->MFILE);
+		writemod(modfile,rho,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3);
+		if (MYID==0) mergemod(modfile,3,gv);
 	}
-
-
-	
 }
 
 

@@ -25,16 +25,7 @@
 #include <stdbool.h>
 
 
-int **receiver(FILE *fp, int *ntr){
-
-	/* declaration of extern variables */
-	extern  char REC_FILE[STRING_SIZE];
-	extern float DH, REFREC[4], REC_ARRAY_DEPTH, REC_ARRAY_DIST;
-	extern int READREC, DRX, REC_ARRAY, NXG, FW;
-	/*extern int NGEOPH;*/
-	extern float NGEOPH;
-	extern int MYID;
-	extern float XREC1, YREC1, XREC2, YREC2;
+int **receiver(FILE *fp, int *ntr, GlobVar *gv) {
 
 	int **recpos1, **recpos=NULL;
 	int   itr=1, itr1=0, itr2=0, recflag=0, n, i, j;
@@ -46,14 +37,15 @@ int **receiver(FILE *fp, int *ntr){
 
 	FILE *fpr;
 
-
-	if (MYID==0)
-	{
+	int MYID;
+    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
+    
+	if (MYID==0) {
 		fprintf(fp,"-------------------- RECEIVER POSITIONS ---------------------\n");
 		fprintf(fp," Message from function receiver (written by PE %d):\n\n",MYID);
-		if (READREC){ /* read receiver positions from file */
-			fprintf(fp," Reading receiver positions from file: '%s'\n",REC_FILE);
-			fpr=fopen(REC_FILE,"r");
+		if (gv->READREC) { /* read receiver positions from file */
+			fprintf(fp," Reading receiver positions from file: '%s'\n",gv->REC_FILE);
+			fpr=fopen(gv->REC_FILE,"r");
 			if (fpr==NULL) declare_error(" Receiver file could not be opened !");
 			*ntr=0;
 
@@ -77,8 +69,8 @@ int **receiver(FILE *fp, int *ntr){
 			recpos1=imatrix(1,3,1,*ntr);
 			for (itr=1;itr<=*ntr;itr++){
 				fscanf(fpr,"%f%f\n",&xrec, &yrec);
-				recpos1[1][itr]=iround((xrec+REFREC[1])/DH);
-				recpos1[2][itr]=iround((yrec+REFREC[2])/DH);
+				recpos1[1][itr]=iround((xrec+gv->REFREC[1])/gv->DH);
+				recpos1[2][itr]=iround((yrec+gv->REFREC[2])/gv->DH);
 				recpos1[3][itr]=itr;
 			}
 			fclose(fpr);
@@ -113,16 +105,16 @@ int **receiver(FILE *fp, int *ntr){
 
 		}
 
-		else if (REC_ARRAY>0){
+		else if (gv->REC_ARRAY>0){
 			fprintf(fp," Generating receiver planes as specified in input file.\n");
 
 			
-			*ntr=(1+(NXG-2*FW)/DRX)*REC_ARRAY;
+			*ntr=(1+(gv->NXG-2*gv->FW)/gv->DRX)*gv->REC_ARRAY;
 			recpos=imatrix(1,3,1,*ntr);
 			itr=0;
-			for (n=0;n<=REC_ARRAY-1;n++){
-				j=iround((REC_ARRAY_DEPTH+REC_ARRAY_DIST*(float)n)/DH);
-				for (i=FW;i<=NXG-FW;i+=DRX){
+			for (n=0;n<=gv->REC_ARRAY-1;n++){
+				j=iround((gv->REC_ARRAY_DEPTH+gv->REC_ARRAY_DIST*(float)n)/gv->DH);
+				for (i=gv->FW;i<=gv->NXG-gv->FW;i+=gv->DRX){
 					itr++;
 					recpos[1][itr]=i;
 					recpos[2][itr]=j;
@@ -133,10 +125,10 @@ int **receiver(FILE *fp, int *ntr){
 
 		else{         /* straight horizontal or vertical line of receivers */
 			fprintf(fp," Reading receiver positions from input file. \n");
-			nxrec1=XREC1/DH;   /* (nxrec1,nyrec1) and (nxrec2,nyrec2) are */
-			nyrec1=YREC1/DH;   /* the positions of the first and last receiver*/
-			nxrec2=XREC2/DH;	 /* in gridpoints */
-			nyrec2=YREC2/DH;
+			nxrec1=gv->XREC1/gv->DH;   /* (nxrec1,nyrec1) and (nxrec2,nyrec2) are */
+			nyrec1=gv->YREC1/gv->DH;   /* the positions of the first and last receiver*/
+			nxrec2=gv->XREC2/gv->DH;	 /* in gridpoints */
+			nyrec2=gv->YREC2/gv->DH;
 
 
 			/* only 1 receiver */
@@ -149,31 +141,31 @@ int **receiver(FILE *fp, int *ntr){
 				recpos[3][1] = 1;
 			} else if (((iround(nyrec2)-iround(nyrec1))==0)) {
 				fprintf(fp," A horizontal receiver line (in x-direction) is specified in the input file. \n");
-				*ntr=iround((nxrec2-nxrec1)/NGEOPH)+1;
+				*ntr=iround((nxrec2-nxrec1)/gv->NGEOPH)+1;
 				recpos=imatrix(1,3,1,*ntr);
 				nxrec = nxrec1;
 				for (n=1;n<=*ntr;n++){
 					nyrec=nyrec1+((nyrec2-nyrec1)/(nxrec2-nxrec1)*(nxrec-nxrec1));
-					itr=iround((nxrec-nxrec1)/NGEOPH)+1;
+					itr=iround((nxrec-nxrec1)/gv->NGEOPH)+1;
 					recpos[1][itr] = iround(nxrec);
 					recpos[2][itr] = iround(nyrec);
 					recpos[3][itr] = itr;
-					nxrec += NGEOPH;
+					nxrec += gv->NGEOPH;
 				}
 
 			}
 			else if (((iround(nxrec2)-iround(nxrec1))==0)) {
 				fprintf(fp," A vertical receiver line (in y-direction) is specified in the input file. \n");
-				*ntr=iround((nyrec2-nyrec1)/NGEOPH)+1;
+				*ntr=iround((nyrec2-nyrec1)/gv->NGEOPH)+1;
 				recpos=imatrix(1,3,1,*ntr);
 				nyrec = nyrec1;
 				for (n=1;n<=*ntr;n++){
 					nxrec=nxrec1+((nxrec2-nxrec1)/(nyrec2-nyrec1)*(nyrec-nyrec1));
-					itr=iround((nyrec-nyrec1)/NGEOPH)+1;
+					itr=iround((nyrec-nyrec1)/gv->NGEOPH)+1;
 					recpos[1][itr] = iround(nxrec);
 					recpos[2][itr] = iround(nyrec);
 					recpos[3][itr] = itr;
-					nyrec += NGEOPH;
+					nyrec += gv->NGEOPH;
 				}
 			}
 			else {
@@ -217,10 +209,10 @@ int **receiver(FILE *fp, int *ntr){
 		fprintf(fp," x (gridpoints) y (gridpoints) \t x (in m) \t y (in m) \n");
 		fprintf(fp," -------------  -------------- \t ---------\t -------- \n");
 		if (*ntr>50) { for (itr=1;itr<=50;itr++)
-			fprintf(fp," %i\t\t %i \t\t %6.2f \t %6.2f \n",recpos[1][itr],recpos[2][itr],recpos[1][itr]*DH,recpos[2][itr]*DH);
+			fprintf(fp," %i\t\t %i \t\t %6.2f \t %6.2f \n",recpos[1][itr],recpos[2][itr],recpos[1][itr]*gv->DH,recpos[2][itr]*gv->DH);
 		}
 		else for (itr=1;itr<=*ntr;itr++)
-			fprintf(fp," %i\t\t %i \t\t %6.2f \t %6.2f \n",recpos[1][itr],recpos[2][itr],recpos[1][itr]*DH,recpos[2][itr]*DH);
+			fprintf(fp," %i\t\t %i \t\t %6.2f \t %6.2f \n",recpos[1][itr],recpos[2][itr],recpos[1][itr]*gv->DH,recpos[2][itr]*gv->DH);
 
 	}
 

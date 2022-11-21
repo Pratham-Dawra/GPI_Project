@@ -22,10 +22,12 @@
   bool b_err:       true if at least one NaN or INF has been 
                     found, otherwise false
  */
-bool debug_check_vector(float *vector, int nt, size_t len, int id, int min_nt, const char *cbuf)
-{
-  extern int MYID;
+bool debug_check_vector(float *vector, int nt, size_t len, int id, int min_nt, const char *cbuf) {
+
   bool b_err = false;
+
+  int MYID;
+  MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
 
   if (nt<min_nt) { return b_err; }
 
@@ -56,10 +58,12 @@ bool debug_check_vector(float *vector, int nt, size_t len, int id, int min_nt, c
   bool b_err:       true if at least one NaN or INF has been 
                     found, otherwise false
  */
-bool debug_check_matrix(float **matrix, int nt, size_t lenx, size_t leny, int id, int min_nt, const char *cbuf)
-{
-  extern int MYID;
+bool debug_check_matrix(float **matrix, int nt, size_t lenx, size_t leny, int id, int min_nt, const char *cbuf) {
+    
   bool b_err = false;
+  
+  int MYID;
+  MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
 
   if (nt<min_nt) { return b_err; }
 

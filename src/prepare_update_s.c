@@ -25,23 +25,20 @@
 void prepare_update_s(float *etajm, float *etaip, float *peta, float **fipjp, float **pu,
 		float **puipjp, float **ppi, float **ptaus, float **ptaup,
 		float **ptausipjp, float **f, float **g, float *bip, float *bjm,
-		float *cip, float *cjm, float ***dip, float ***d, float ***e) {
+		float *cip, float *cjm, float ***dip, float ***d, float ***e, GlobVar *gv) {
 
-	extern int NX, NY, L;
-	extern float DT;
 	int i, j, l;
 
-
-	for (l=1;l<=L;l++){
+	for (l=1;l<=gv->L;l++){
 		etajm[l] = peta[l];
 		etaip[l] = peta[l];
 	}
-	for (j=1;j<=NY;j++){
-		for (i=1;i<=NX;i++){
-			fipjp[j][i] = puipjp[j][i]*DT*(1.0+L*ptausipjp[j][i]);
-			f[j][i] = pu[j][i]*DT*(1.0+L*ptaus[j][i]);
-			g[j][i] = ppi[j][i]*DT*(1.0+L*ptaup[j][i]);
-			for (l=1;l<=L;l++){
+	for (j=1;j<=gv->NY;j++){
+		for (i=1;i<=gv->NX;i++){
+			fipjp[j][i] = puipjp[j][i]*gv->DT*(1.0+gv->L*ptausipjp[j][i]);
+			f[j][i] = pu[j][i]*gv->DT*(1.0+gv->L*ptaus[j][i]);
+			g[j][i] = ppi[j][i]*gv->DT*(1.0+gv->L*ptaup[j][i]);
+			for (l=1;l<=gv->L;l++){
 				bip[l] = 1.0/(1.0+(etaip[l]*0.5));
 				bjm[l] = 1.0/(1.0+(etajm[l]*0.5));
 				cip[l] = 1.0-(etaip[l]*0.5);
@@ -52,5 +49,4 @@ void prepare_update_s(float *etajm, float *etaip, float *peta, float **fipjp, fl
 			}
 		}
 	}
-
 }
