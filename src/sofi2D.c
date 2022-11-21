@@ -42,7 +42,6 @@
 
 #include "fd.h"           /* general include file for viscoelastic FD programs */
 
-//#include "globvar.h"      /* definition of global variables  */
 #include "globvar_struct.h"
 #ifdef EBUG
 #include "debug_buffers.h"
@@ -89,6 +88,8 @@ int main ( int argc, char **argv )
 
     float **ptau11=NULL, **ptau33=NULL, **ptau13=NULL, **ptau55=NULL, **ptau15=NULL, **ptau35=NULL;
     float **ptau55ipjp=NULL, **ptau15ipjp=NULL, **ptau35ipjp=NULL;
+    
+    float **pvxx=NULL, **pvyy=NULL, **pvyx=NULL, **pvxy=NULL;
 
     /* Save old spatial derivations of velocity for Adam Bashforth */
     float ** vxx_1=NULL,** vxx_2=NULL,** vxx_3=NULL,** vxx_4=NULL;
@@ -515,8 +516,11 @@ int main ( int argc, char **argv )
         pc15ipjp = matrix ( -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd );
         pc35 = matrix ( -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd );
         pc35ipjp = matrix ( -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd );
-        
-        
+
+        pvxx = matrix ( -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd );
+        pvyy = matrix ( -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd );
+        pvyx = matrix ( -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd );
+        pvxy = matrix ( -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd );
     }
     
     if ( gv.WEQ==8 ) { /*viscoelastic TTI wave equation */
@@ -567,6 +571,11 @@ int main ( int argc, char **argv )
         peta = vector ( 1, gv.L );
         bip = vector ( 1, gv.L );
         cip = vector ( 1, gv.L );
+        
+        pvxx = matrix ( -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd );
+        pvyy = matrix ( -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd );
+        pvyx = matrix ( -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd );
+        pvxy = matrix ( -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd );
 
     }
     
@@ -1039,8 +1048,8 @@ int main ( int argc, char **argv )
                                       K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half,
                                       a_y_half, b_y_half, psi_sxx_x, psi_syy_y, psi_sxy_y, psi_sxy_x, &gv );
                     }
-                    
-                    if ( gv.ABS_TYPE != 1 ) {
+
+                    if ( gv.ABS_TYPE == 2 ) {
                         update_v_abs ( 1, gv.NX, 1, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, prip, prjp, absorb_coeff, hc, &gv );
                     }
 #ifdef EBUG
@@ -1059,8 +1068,8 @@ int main ( int argc, char **argv )
                                            K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half,
                                            a_y_half, b_y_half, psi_sxx_x, psi_syy_y, psi_sxy_y, psi_sxy_x,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4, &gv );
                     }
-                    
-                    if ( gv.ABS_TYPE != 1 ) {
+
+                    if ( gv.ABS_TYPE == 2 ) {
                         update_v_abs_4 ( 1, gv.NX, 1, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, prip, prjp, absorb_coeff, hc,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4, &gv );
                     }
                 }
@@ -1080,8 +1089,14 @@ int main ( int argc, char **argv )
             /*---------------------------------------------------------------*/
             /* ------- exchange of particle velocities between PEs --------------*/
             /*---------------------------------------------------------------*/
-            
+
             exchange_v ( nd, pvx, pvy, bufferlef_to_rig, bufferrig_to_lef, buffertop_to_bot, bufferbot_to_top, req_send, req_rec, &gv );
+            
+            if ((gv.WEQ==7) || (gv.WEQ==8)) { /* TTI */
+                v_derivatives(pvx, pvy, pvxx, pvyy, pvyx, pvxy,hc, &gv);
+                exchange_v ( nd, pvxx, pvyy, bufferlef_to_rig, bufferrig_to_lef, buffertop_to_bot, bufferbot_to_top, req_send, req_rec, &gv );
+                exchange_v ( nd, pvyx, pvxy, bufferlef_to_rig, bufferrig_to_lef, buffertop_to_bot, bufferbot_to_top, req_send, req_rec, &gv );
+            }
             
             if ( ( MYID == 0 )
                 && ( ( nt + ( gv.OUTNTIMESTEPINFO - 1 ) ) % gv.OUTNTIMESTEPINFO ) == 0 ) {
@@ -1164,19 +1179,27 @@ int main ( int argc, char **argv )
 #endif
                     break;
                         
+                        
                     case 7: /* elastic TTI */
-                         update_s_elastic_TTI_interior ( 1, gv.NX, 1, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
-                                                        pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp, hc, &gv );
-                     
+                        update_s_elastic_TTI_interior ( 1, gv.NX, 1, gv.NY, gx, gy, nt, pvxx, pvyy,
+                                                       pvyx, pvxy, psxx, psyy, psxy,
+                                                       pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp, hc, &gv );
+                       
                      if ( gv.FW ) {
                          if ( gv.ABS_TYPE ==1 )
-                             update_s_elastic_TTI_PML ( 1, gv.NX, 1, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
-                                                       pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp, hc,
-                                                   K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx, &gv );
+                       update_s_elastic_TTI_PML ( 1, gv.NX, 1, gv.NY, gx, gy, nt, pvxx, pvyy,
+                                                   pvyx, pvxy, psxx, psyy, psxy,
+                                                   pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp, hc,
+                                               K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx, &gv );
+                    
+
+                             
                          if ( gv.ABS_TYPE ==2 )
-                             update_s_elastic_tti_abs ( 1, gv.NX, 1, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
-                                                       pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp, absorb_coeff, hc, &gv );
+                             update_s_elastic_tti_abs ( 1, gv.NX, 1, gv.NY, gx, gy, nt, pvxx, pvyy,
+                                                       pvyx, pvxy, psxx, psyy, psxy,
+                                                       pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp, absorb_coeff, hc );
                      }
+
 #ifdef EBUG
 		     debug_check_matrix(psxx, nt, gv.NX, gv.NY, 777, 0, "psxx");
 		     debug_check_matrix(psyy, nt, gv.NX, gv.NY, 777, 0, "psyy");
@@ -1185,20 +1208,20 @@ int main ( int argc, char **argv )
                      break;
                         
                     case 8: /* viscoelastic TTI */
-                        update_s_visc_TTI_interior ( 1, gv.NX, 1, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq,
+
+                        update_s_visc_TTI_interior ( 1, gv.NX, 1, gv.NY, gx, gy, nt, pvxx, pvyy, pvyx, pvxy, psxx, psyy, psxy, pr, pp, pq,
                                                                          pc11u, pc33u,  pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
                                                                          pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
                                                                             bip,  cip, hc, &gv);
                    if ( gv.FW ) {
                         if ( gv.ABS_TYPE ==1 )
-                            update_s_visc_TTI_PML ( 1, gv.NX, 1, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq,
+                            update_s_visc_TTI_PML ( 1, gv.NX, 1, gv.NY, gx, gy, nt, pvxx, pvyy, pvyx, pvxy, psxx, psyy, psxy, pr, pp, pq,
                                                    pc11u, pc33u,  pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
                                                    pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
-                                                   bip,  cip, hc,
-                                                            K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half,
-                                                            b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx, &gv );
+                                                   bip,  cip, hc, K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y,
+                                                   K_y_half, a_y_half,b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx, &gv );
                         if ( gv.ABS_TYPE ==2 )
-                            update_s_visc_tti_abs ( 1, gv.NX, 1, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq,
+                            update_s_visc_tti_abs ( 1, gv.NX, 1, gv.NY, gx, gy, nt, pvxx, pvyy, pvyx, pvxy, psxx, psyy, psxy, pr, pp, pq,
                                                    pc11u, pc33u,  pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
                                                    pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
                                                             bip,  cip, absorb_coeff, hc, &gv );
@@ -1470,7 +1493,14 @@ if ( gv.WEQ==4 ) { /*viscoelastic wave equation */
             free_vector ( bip, 1, gv.L );
             free_vector ( cip, 1, gv.L );
 }
+    /*elastic TTI wave equation */
+/*    if ( WEQ==7 ) {
+        free_matrix ( pvxx, -nd + 1, NY + nd, -nd + 1, NX + nd );
+        free_matrix ( pvyy, -nd + 1, NY + nd, -nd + 1, NX + nd );
+        free_matrix ( pvxy, -nd + 1, NY + nd, -nd + 1, NX + nd );
+        free_matrix ( pvyx, -nd + 1, NY + nd, -nd + 1, NX + nd );
 
+    }*/
 
     if(gv.L>0 && gv.FDORDER_TIME==4){
         free_f3tensor ( pr_2, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd, 1, gv.L );
@@ -1606,92 +1636,3 @@ if ( gv.WEQ==4 ) { /*viscoelastic wave equation */
 
     return EXIT_SUCCESS;
 } /*main*/
-    
-    //______________________
-    /*NPROCX = gv.NPROCX;
-    NPROCY = gv.NPROCY;
-    NPROC = gv.NPROC;
-    NP = gv.NP;
-    FDORDER = gv.FDORDER;
-    FDORDER_TIME = gv.FDORDER_TIME;
-    MAXRELERROR = gv.MAXRELERROR;
-    NX = gv.NX;
-    NY = gv.NY;
-    DH = gv.DH;
-    TIME = gv.TIME;
-    DT = gv.DT;
-    NT = gv.NT;
-    WEQ = gv.WEQ;
-    SOURCE_TYPE = gv.SOURCE_TYPE;
-    SIGOUT = gv.SIGOUT;
-    strcpy(SIGOUT_FILE, gv.SIGOUT_FILE);
-    SIGOUT_FORMAT = gv.SIGOUT_FORMAT;
-    SOURCE_SHAPE = gv.SOURCE_SHAPE;
-    strcpy(SIGNAL_FILE , gv.SIGNAL_FILE);
-    SRCREC = gv.SRCREC;
-    strcpy(SOURCE_FILE, gv.SOURCE_FILE);
-    RUN_MULTIPLE_SHOTS = gv.RUN_MULTIPLE_SHOTS;
-    PLANE_WAVE_DEPTH = gv.PLANE_WAVE_DEPTH;
-    PLANE_WAVE_ANGLE = gv.PLANE_WAVE_ANGLE;
-    TS = gv.TS;
-    FREE_SURF = gv.FREE_SURF;
-    BOUNDARY = gv.BOUNDARY;
-    FW = gv.FW;
-    ABS_TYPE = gv.ABS_TYPE;
-    NPOWER = gv.NPOWER;
-    K_MAX_CPML = gv.K_MAX_CPML;
-    FPML = gv.FPML;
-    VPPML = gv.VPPML;
-    DAMPING = gv.DAMPING;
-    SNAP_FORMAT = gv.SNAP_FORMAT;
-    SNAP = gv.SNAP;
-    TSNAP1 = gv.TSNAP1;
-    TSNAP2 = gv.TSNAP2;
-    TSNAPINC = gv.TSNAPINC;
-    strcpy(SNAP_FILE, gv.SNAP_FILE);
-    IDX = gv.IDX;
-    IDY = gv.IDY;
-    SEISMO = gv.SEISMO;
-    strcpy(REC_FILE , gv.REC_FILE);
-    strcpy(SEIS_FILE , gv.SEIS_FILE);
-    READREC = gv.READREC;
-    XREC1 = gv.XREC1;
-    XREC2 = gv.XREC2;
-    YREC1 = gv.YREC1;
-    YREC2 = gv.YREC2;
-    NDT =gv.NDT;
-    SEIS_FORMAT = gv.SEIS_FORMAT;
-    REC_ARRAY = gv.REC_ARRAY;
-    DRX = gv.DRX;
-    REC_ARRAY_DEPTH = gv.REC_ARRAY_DEPTH;
-    REC_ARRAY_DIST = gv.REC_ARRAY_DIST;
-    //strcpy(REFREC, gv.REFREC);
-    REFREC[1] = gv.REFREC[1];
-    REFREC[2] = gv.REFREC[2];
-    NGEOPH = gv.NGEOPH;
-    strcpy(MFILE , gv.MFILE);
-    WRITE_MODELFILES = gv.WRITE_MODELFILES;
-    LOG = gv.LOG;
-    CHECKPTREAD = gv.CHECKPTREAD;
-    CHECKPTWRITE = gv.CHECKPTWRITE;
-    strcpy(LOG_FILE , gv.LOG_FILE);
-    strcpy(CHECKPTFILE, gv.CHECKPTFILE);
-    READMOD = gv.READMOD;
-    OUTNTIMESTEPINFO = gv.OUTNTIMESTEPINFO;
-    TAU = gv.TAU;
-    L = gv.L;
-    FL = gv.FL;
-    FP = stdout;
-    IENDX = gv.IENDX;
-    IENDY = gv.IENDY;
-    NXG = gv.NXG;
-    NYG = gv.NYG;
-    //INDEX = gv.INDEX;
-    //POS = gv.POS;
-    INDEX[1] = gv.INDEX[1];
-    INDEX[2] = gv.INDEX[2];
-    INDEX[3] = gv.INDEX[3];
-    INDEX[4] = gv.INDEX[4];
-    POS[1] = gv.POS[1];
-    POS[2] = gv.POS[2];*/
-    //______________________

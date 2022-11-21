@@ -53,6 +53,7 @@ int main(int argc, char **argv) {
 
   /* =================================================== */
   /* read standard input file */
+  gv.FP = stdout;
   if (strstr(fileinp,".json")) {
       read_par_json(fileinp, &gv);
   } else {

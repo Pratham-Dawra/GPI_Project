@@ -76,6 +76,9 @@ SNAPMERGE_SCR = \
 	writedsk.c \
 	util.c 
 
+
+
+
 SOFI2D_SRC= \
 	$(MODEL_V) \
 	$(MODEL_E) \
@@ -142,7 +145,6 @@ SOFI2D_SRC= \
 	surface_elastic.c \
 	update_s_elastic_abs.c \
 	update_s_elastic_VTI_abs.c \
-	update_s_elastic_TTI_abs.c \
 	update_s_elastic_abs_4.c \
 	update_s_elastic_interior.c \
 	update_s_elastic_VTI_interior.c \
@@ -151,6 +153,7 @@ SOFI2D_SRC= \
 	update_s_elastic_PML.c \
 	update_s_elastic_VTI_PML.c \
 	update_s_elastic_TTI_PML.c \
+	update_s_elastic_TTI_abs.c \
 	update_s_elastic_PML_4.c \
 	update_s_visc_abs.c \
 	update_s_visc_interior.c \
@@ -171,6 +174,7 @@ SOFI2D_SRC= \
 	update_v_PML.c \
 	update_v_PML_4.c \
 	util.c \
+	v_derivatives.c \
 	wavefield_update_s_el.c \
 	wavefield_update_s_el_vti.c \
 	wavefield_update_s_el_tti.c \
