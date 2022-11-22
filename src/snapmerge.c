@@ -27,7 +27,8 @@ int main(int argc, char **argv) {
 
   int  nsnap;
   char *fileinp="";
-  GlobVar gv = {.FP=stdout};
+  
+  GlobVar gv = {.FP=stdout, .OUTNTIMESTEPINFO=1, .NDT=1, .IDX=1, .IDY=1};
 
   /* ============================================== */
   /* Open parameter-file to check if auto mode or not*/

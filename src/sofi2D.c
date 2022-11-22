@@ -131,7 +131,7 @@ int main ( int argc, char **argv )
     float ** psi_sxx_x=NULL, ** psi_syy_y=NULL, ** psi_sxy_y=NULL, ** psi_sxy_x=NULL,
     ** psi_vxx=NULL, ** psi_vyy=NULL, ** psi_vxy=NULL, ** psi_vyx=NULL, ** psi_vxxs=NULL;
     
-    GlobVar gv = {.FP=stdout};
+    GlobVar gv = {.FP=stdout, .OUTNTIMESTEPINFO=100, .NDT=1, .IDX=1, .IDY=1};
     
     MPI_Request *req_send, *req_rec;
     /*	MPI_Status *send_statuses, *rec_statuses; */
@@ -227,7 +227,7 @@ int main ( int argc, char **argv )
     ns = iround(gv.NT/gv.NDT);       /* number of samples per trace */
     lsnap = iround(gv.TSNAP1/gv.DT); /* first snapshot at this timestep */
     lsamp = gv.NDT;
-    
+
     /* output of parameters */
     if (MYID == 0) {
       write_par(stdout, &gv);

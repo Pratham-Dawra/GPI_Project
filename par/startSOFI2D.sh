@@ -5,8 +5,8 @@
 # mpirun -np 4 nice -19 ../bin/sofi2D ./in_and_out/sofi2D.json | tee ./in_and_out/sofi2D.jout
 # mpirun -np 4 ../bin/sofi2D ./in_and_out/sofi2D.json | tee ./in_and_out/sofi2D.jout
 # mpirun -np 4 ../bin/sofi2D ./in_and_out/sofi2D.json > ./in_and_out/sofi2D.jout
- mpirun -np 4 valgrind ../bin/sofi2D ./in_and_out/sofi2D.json 
-# mpirun -np 4 ../bin/sofi2D ./in_and_out/sofi2D.json
+# mpirun -np 4 valgrind ../bin/sofi2D ./in_and_out/sofi2D.json 
+mpirun -np 4 ../bin/sofi2D ./in_and_out/sofi2D.json
  
 #../bin/snapmerge ./in_and_out/sofi2D.json
 
