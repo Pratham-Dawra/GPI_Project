@@ -88,6 +88,7 @@ typedef struct {
     int   SIGOUT_FORMAT;                  // data output format for source wavelet
     char  SIGOUT_FILE[STRING_SIZE];       // name of output file of source wavelet
     int   LOG;                            // switch to output logging information
+    char  LOG_VERBOSITY[STRING_SIZE];     // log output level (verbosity)       
     char  LOG_FILE[STRING_SIZE];          // name of output file of logging information
     int   OUTNTIMESTEPINFO;               //     /*every OUTNTIMESTEPINFO th timestep, information on the time step will be given to screen/file */
     int   CHECKPTREAD;                    // switch to read wavefield from checkpoint file

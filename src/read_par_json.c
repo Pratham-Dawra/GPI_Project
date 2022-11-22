@@ -261,6 +261,10 @@ void read_par_json(char *fileinp, GlobVar *gv)
   if (get_int_from_objectlist("WRITE_MODELFILES",number_readobjects,&(gv->WRITE_MODELFILES),varname_list, value_list)) {}
   if (get_int_from_objectlist("LOG",number_readobjects,&(gv->LOG),varname_list, value_list))
     declare_error("Variable LOG could not be retrieved from the json input file!");
+  if (get_string_from_objectlist("LOG_VERBOSITY",number_readobjects,(gv->LOG_VERBOSITY),varname_list, value_list)) {
+      fprintf(gv->FP, "Variable LOG_VERBOSITY not given, set to 'INFO' (default)!\n");
+      strcpy(&(gv->LOG_VERBOSITY[0]),"INFO");
+  }
   if (get_int_from_objectlist("CHECKPTREAD",number_readobjects,&(gv->CHECKPTREAD),varname_list, value_list))
     declare_error("Variable CHECKPTREAD could not be retrieved from the json input file!");
   if (get_int_from_objectlist("CHECKPTWRITE",number_readobjects,&(gv->CHECKPTWRITE),varname_list, value_list))
