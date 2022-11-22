@@ -178,6 +178,7 @@ SOFI2D_SRC= \
 	wavefield_update_s_el.c \
 	wavefield_update_s_el_vti.c \
 	wavefield_update_s_el_tti.c \
+	wavefield_update_s_el_tti_pml.c \
 	wavefield_update_s_el_4.c \
 	wavefield_update_s_visc.c \
 	wavefield_update_s_visc_VTI.c \

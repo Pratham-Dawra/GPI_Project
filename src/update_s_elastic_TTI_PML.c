@@ -62,7 +62,7 @@ void update_s_elastic_TTI_PML ( int nx1, int nx2, int ny1, int ny2, int * gx, in
     }
 
     for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-        for ( i=gx[1]; i<=gx[2]; i++ ) {
+        for ( i=gx[1]+2; i<=gx[2]; i++ ) {
             
 			wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
                                        pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
@@ -81,7 +81,7 @@ void update_s_elastic_TTI_PML ( int nx1, int nx2, int ny1, int ny2, int * gx, in
     }
 
     for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-        for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+        for ( i=gx[3]+1; i<=gx[4]-2; i++ ) {
   
             wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
                                        pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
@@ -98,7 +98,7 @@ void update_s_elastic_TTI_PML ( int nx1, int nx2, int ny1, int ny2, int * gx, in
 
         }
     }
-    for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( j=gy[1]+2; j<=gy[2]; j++ ) {
         for ( i=gx[2]+1; i<=gx[3]; i++ ) {
 
             wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
@@ -117,7 +117,7 @@ void update_s_elastic_TTI_PML ( int nx1, int nx2, int ny1, int ny2, int * gx, in
 
         }
     }
-    for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( j=gy[3]+1; j<=gy[4]-2; j++ ) {
         for ( i=gx[2]+1; i<=gx[3]; i++ ) {
 
             wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
@@ -139,8 +139,8 @@ void update_s_elastic_TTI_PML ( int nx1, int nx2, int ny1, int ny2, int * gx, in
                            b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
         }
     }
-    for ( j=gy[1]; j<=gy[2]; j++ ) {
-        for ( i=gx[1]; i<=gx[2]; i++ ) {
+    for ( j=gy[1]+2; j<=gy[2]; j++ ) {
+        for ( i=gx[1]+2; i<=gx[2]; i++ ) {
 
             wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
                                        pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
@@ -161,8 +161,8 @@ void update_s_elastic_TTI_PML ( int nx1, int nx2, int ny1, int ny2, int * gx, in
            
         }
     }
-    for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-        for ( i=gx[1]; i<=gx[2]; i++ ) {
+    for ( j=gy[3]+1; j<=gy[4]-2; j++ ) {
+        for ( i=gx[1]+2; i<=gx[2]; i++ ) {
             
           wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
                                        pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
@@ -183,8 +183,8 @@ void update_s_elastic_TTI_PML ( int nx1, int nx2, int ny1, int ny2, int * gx, in
                            b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
         }
     }
-    for ( j=gy[1]; j<=gy[2]; j++ ) {
-        for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+    for ( j=gy[1]+2; j<=gy[2]; j++ ) {
+        for ( i=gx[3]+1; i<=gx[4]-2; i++ ) {
 
             wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
                                        pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
@@ -193,7 +193,7 @@ void update_s_elastic_TTI_PML ( int nx1, int nx2, int ny1, int ny2, int * gx, in
 	}
 
 	/* right-bottom */
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+	for ( j=gy[3]+1; j<=gy[4]-1; j++ ) {
 		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
 
             h1 = ( i-nx2+2*gv->FW );
@@ -206,8 +206,8 @@ void update_s_elastic_TTI_PML ( int nx1, int nx2, int ny1, int ny2, int * gx, in
 
         }
     }
-    for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-        for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+    for ( j=gy[3]+1; j<=gy[4]-2; j++ ) {
+        for ( i=gx[3]+1; i<=gx[4]-2; i++ ) {
             wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
                                        pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
             

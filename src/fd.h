@@ -581,6 +581,13 @@ void wavefield_update_s_el_tti ( int i, int j,float   **vxx, float  **vyx,float 
                                 float ** pc13, float ** pc33,
                                 float ** pc15, float ** pc35, float ** pc15ipjp, float ** pc35ipjp);
 
+void wavefield_update_s_el_tti_pml ( int i, int j,float   **vxx, float  **vyx,float **vxy,float  **vyy,
+                                float **sxy, float **sxx, float ** syy, float ** pc11, float ** pc55ipjp,
+                                float ** pc13, float ** pc33,
+                                float ** pc15, float ** pc35, float ** pc15ipjp, float ** pc35ipjp);
+
+
+
 void wavefield_update_s_el_tti2 ( int i, int j,float   vxx, float  vyx,float vxy,float  vyy, float **sxy, float **sxx, float ** syy, float ** pc11,                                 float ** pc55ipjp,
                             float ** pc13, float ** pc33,
                                  float ** pc15, float ** pc35, float ** pc15ipjp, float ** pc35ipjp);
