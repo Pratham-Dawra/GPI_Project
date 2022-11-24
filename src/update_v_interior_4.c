@@ -76,8 +76,6 @@ void update_v_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,
             //amp=signals[l][nt]; // unscaled force amplitude
             amp= ( gv->DT*signals[l][nt] ) / ( gv->DH*gv->DH ); // scaled force amplitude with F= 1N
             
-            //fprintf(gv->FP," amp at timestep nt %i = %5.5e with gv->DH=%5.2f  gv->DT=%5.8f\n",nt,amp,gv->DH,gv->DT);
-            
             gv->SOURCE_TYPE= ( int ) srcpos_loc[8][l];
             
             switch ( gv->SOURCE_TYPE ) {

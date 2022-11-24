@@ -141,7 +141,7 @@ int main ( int argc, char **argv )
 
     /* initialize logging */
     log_init(NULL);
-    log_banner();
+    log_banner(LOG_SOFI);
 
     time1 = MPI_Wtime();
     cpu_time1 = clock();

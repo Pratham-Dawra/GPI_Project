@@ -2,11 +2,6 @@
 .SECONDARY:
 .PHONY: all clean distclean help
 
-# Makefile for SOFI2D
-# Test
-#--------------------------------------------------------
-# edit here:
-
 EXEC := ../bin
 
 EXE_SN := $(strip $(EXEC))/snapmerge
@@ -37,36 +32,19 @@ MODEL_BE := benchmod_el.c
 CDEPEND = -MMD -MP -MF .dep-$(subst /,-,$@)
 DEPS := $(wildcard .dep*)
 
-# ON Linux cluster running LAM
-#CC := hcc
-#LFLAGS := -lm -lmpi 
-#CFLAGS := -Wall -O4
-
 # ON Linux cluster running OpenMPI and ON MAC
-CC := mpicc
-LFLAGS := -lm -lmpi
-CFLAGS := -Wall -O3 -g -D_GNU_SOURCE -DLOG_COLOR -std=c99
-
-# On CRAY T3E
-#CC := cc
-
-# On SCHARnet system
-#CC := mpicc
-#LFLAGS := -lm  
-
-# On HLRN system
-#CC := mpcc
-#LFLAGS := -lm  
-
-# ALTIX
-#CC := icc
-#CFLAGS := -mp -O3 -ip0
-#LFLAGS := -lmpi -lm 
+CC        := mpicc
+CFLAGS    := -Wall -O3 -g -std=c99 -D_GNU_SOURCE -DLOG_COLOR
+CFLAGS_SN := $(CFLAGS)
+CFLAGS_SF := $(CFLAGS) -DLOG_MPI
+LFLAGS    := -lm
+LFLAGS_SN := $(LFLAGS)
+LFLAGS_SF := $(LFLAGS) -lmpi
 
 # after this line, no further editing should be necessary
 # --------------------------------------------------------
 
-SNAPMERGE_SCR = \
+SNAPMERGE_SRC = \
 	snapmerge.c \
 	holbergcoeff.c \
 	json_parser.c \
@@ -106,7 +84,6 @@ SOFI2D_SRC= \
 	logging.c \
 	matcopy.c \
 	matcopy_elastic.c \
-	merge.c \
 	mergemod.c \
 	outseis.c \
 	outseis_glob.c \
@@ -217,7 +194,6 @@ SOFI2D_BENCH_SRC= \
 	logging.c \
 	matcopy.c \
 	matcopy_elastic.c \
-	merge.c \
 	mergemod.c \
 	outseis.c \
 	outseis_glob.c \
@@ -281,35 +257,33 @@ SOFI2D_BENCH_SRC= \
 	zero_PML_elastic.c \
         zero_PML_visc.c
 
-SNAPMERGE_OBJ := $(SNAPMERGE_SCR:%.c=%.o)
-
 SOFI2D_OBJ := $(SOFI2D_SRC:%.c=%.o)
 SOFI2D_BENCH_OBJ := $(SOFI2D_BENCH_SRC:%.c=%.o)
 
 help:
 	@echo
-	@echo "make all       :: compile software"
-	@echo "make clean     :: remove intermediate files"
-	@echo "make distclean :: remove everything (incl. executables)"
+	@echo "make all          :: compile software"
+	@echo "make clean        :: remove intermediate files"
+	@echo "make distclean    :: remove everything (incl. executables)"
 	@echo
-	@echo "Compiler       :: `which $(CC)`"
-	@echo "Compiler flags :: $(CFLAGS)"
-	@echo "Linker flags   :: $(LFLAGS)"
-	@echo "SNAPMERGE      :: $(EXE_SN)"
-	@echo "SOFI2D         :: $(EXE_SF)"
+	@echo "Compiler          :: `which $(CC)`"
+	@echo "Flags (SOFI)      :: $(CFLAGS_SF) $(LFLAGS_SF)"
+	@echo "Flags (SNAPMERGE) :: $(CFLAGS_SN) $(LFLAGS_SN)"
+	@echo "SNAPMERGE exe     :: $(EXE_SN)"
+	@echo "SOFI exe          :: $(EXE_SF)"
 	@echo
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(CDEPEND) -c -o $@ $<
+	$(CC) $(CFLAGS_SF) $(CDEPEND) -c -o $@ $<
 
-$(EXE_SN): $(SNAPMERGE_OBJ)
-	$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS)
+$(EXE_SN): $(SNAPMERGE_SRC)
+	$(CC) $(CFLAGS_SN) -o $@ $^ $(LFLAGS_SN)
 
 $(EXE_SF): $(SOFI2D_OBJ)
-	$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS)
+	$(CC) $(CFLAGS_SF) -o $@ $^ $(LFLAGS_SF)
 
 $(EXE_SB): $(SOFI2D_BENCH_OBJ)
-	$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS)
+	$(CC) $(CFLAGS_SF) -o $@ $^ $(LFLAGS_SF)
 
 clean:
 	find . -name "*.o" -exec rm {} \;

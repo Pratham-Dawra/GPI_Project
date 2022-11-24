@@ -8,10 +8,12 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
-#include <mpi.h>
 #include <sys/time.h>
 #include <sys/utsname.h>
 #include <sys/resource.h>
+#ifdef LOG_MPI
+#include <mpi.h>
+#endif 
 
 #define LOG_STDOUT stdout
 #define LOG_STDERR stdout
@@ -21,16 +23,8 @@
 #define LOG_ALL_RESET     "\x1b[0m"
 #define LOG_FGCOLOR_RESET "\x1b[39m"
 #define LOG_BGCOLOR_RESET "\x1b[49m"
-#define LOG_COLOR_BOLD    "\x1b[1m"
-#define LOG_BOLD_RESET    "\x1b[21m"
 #define LOG_COLOR_ULINE   "\x1b[4m"
 #define LOG_ULINE_RESET   "\x1b[24m"
-#define LOG_COLOR_RED     "\x1b[1;31m"
-#define LOG_COLOR_GREEN   "\x1b[1;32m"
-#define LOG_COLOR_YELLOW  "\x1b[1;33m"
-#define LOG_COLOR_BLUE    "\x1b[1;34m"
-#define LOG_COLOR_PURPLE  "\x1b[1;35m"
-#define LOG_COLOR_CYAN    "\x1b[1;36m"
 #define LOG_COLOR_WHITE   "\x1b[1;37m"
 #define LOG_COLOR_REDBG   "\x1b[1;97;41m"
 
@@ -43,7 +37,7 @@ static FILE* fpstd                 = NULL;
 static FILE* fperr                 = NULL;
 static struct timespec ts_start;
 
-int log_mpid_ = -1;
+int log_mpid_ = 0;
 
 const char* log_get_date_() 
 {
@@ -62,7 +56,9 @@ const char* log_get_nodename()
 
 void log_init(FILE *fp) 
 {
+#ifdef LOG_MPI
   MPI_Comm_rank(MPI_COMM_WORLD, &log_mpid_);
+#endif
   if (fp) {
     fpstd = fp;
     fperr = fp;
@@ -194,24 +190,38 @@ void log_general_(log_Level level, const char *file, int line, const char *fmt, 
       fprintf(fperr, "%-5s[%s,%d] ", level_strings[level], buf, log_mpid_);
 #endif
       vfprintf(fperr, fmt, ap); fflush(fperr);
+#ifdef LOG_MPI
       MPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
+#else
+      exit(EXIT_FAILURE);
+#endif
       break;
     }
   
   va_end(ap);
 }
 
-void log_banner() 
+void log_banner(log_Program prog) 
 {
   static struct utsname kern;
   uname(&kern);
+
   if (0==log_mpid_) {
     log_std("\n***********************************************************************\n");
 #ifdef LOG_COLOR
-    log_std("* %sSOFI: Parallel Viscoelastic Anisotropic Finite-Difference Modelling%s *\n", 
-	    LOG_COLOR_BOLD, LOG_ALL_RESET);
+    if (prog==LOG_SOFI) {
+      log_std("* %sSOFI: Parallel Viscoelastic Anisotropic Finite-Difference Modelling%s *\n", 
+	      LOG_COLOR_BOLD, LOG_ALL_RESET);
+    } else if (prog==LOG_SNAP) {
+      log_std("* %sSNAPMERGE: Merge of SOFI wavefield snapshot files                  %s *\n", 
+	      LOG_COLOR_BOLD, LOG_ALL_RESET);
+    }
 #else
-    log_std("* SOFI: Parallel Viscoelastic Anisotropic Finite-Difference Modelling *\n");
+    if (prog==LOG_SOFI) {
+      log_std("* SOFI: Parallel Viscoelastic Anisotropic Finite-Difference Modelling *\n");
+    } else if (prog==LOG_SNAP) {
+      log_std("* SNAPMERGE: Merge of SOFI wavefield snapshot files                   *\n");
+    }
 #endif
     log_std("* written by Thomas Bohlen and colleagues                             *\n");
     log_std("* Geophysical Institute, KIT-Department of Physics                    *\n");
@@ -219,11 +229,15 @@ void log_banner()
     log_std("* https://gpi.kit.edu/                                                *\n");
     log_std("***********************************************************************\n");
   }
+#ifdef LOG_MPI
   MPI_Barrier(MPI_COMM_WORLD);
+#endif
   
   log_info("Node: %s (%s %s, %s)\n", kern.nodename, kern.sysname, kern.machine, kern.release);
   
+#ifdef LOG_MPI
   MPI_Barrier(MPI_COMM_WORLD);
+#endif
 
 #ifdef LOG_COLOR
   log_infoc(0, "%sProcess started %s.%s\n", LOG_COLOR_BOLD, log_get_date_(), LOG_ALL_RESET);
@@ -245,7 +259,10 @@ void log_finalize()
 #else
   log_infoc(0, "Process terminated %s.\n", log_get_date_());
 #endif
+
+#ifdef LOG_MPI
   MPI_Barrier(MPI_COMM_WORLD);
+#endif
 
   double rtime     = (double)(ts_end.tv_sec-ts_start.tv_sec)+(double)(ts_end.tv_nsec-ts_start.tv_nsec)*1.0e-9;
   double rhours    = floor(rtime/3600.0);

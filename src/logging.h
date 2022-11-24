@@ -7,7 +7,29 @@
 
 #include <stdbool.h>
 #include <stdio.h>
-  
+
+#ifdef LOG_COLOR
+#define LOG_ALL_RESET     "\x1b[0m"
+#define LOG_COLOR_BOLD    "\x1b[1m"
+#define LOG_BOLD_RESET    "\x1b[21m"
+#define LOG_COLOR_RED     "\x1b[1;31m"
+#define LOG_COLOR_GREEN   "\x1b[1;32m"
+#define LOG_COLOR_YELLOW  "\x1b[1;33m"
+#define LOG_COLOR_BLUE    "\x1b[1;34m"
+#define LOG_COLOR_PURPLE  "\x1b[1;35m"
+#define LOG_COLOR_CYAN    "\x1b[1;36m"
+#else
+#define LOG_ALL_RESET     ""
+#define LOG_COLOR_BOLD    ""
+#define LOG_BOLD_RESET    ""
+#define LOG_COLOR_RED     ""
+#define LOG_COLOR_GREEN   ""
+#define LOG_COLOR_YELLOW  ""
+#define LOG_COLOR_BLUE    ""
+#define LOG_COLOR_PURPLE  ""
+#define LOG_COLOR_CYAN    ""
+#endif
+
 /** 
  * Enum to describe logging levels.
  */
@@ -19,6 +41,14 @@ typedef enum log_Level {
   LOG_INFO,
   LOG_DEBUG
 } log_Level;
+
+/** 
+ * Enum to describe programs.
+ */
+typedef enum log_Program {
+  LOG_SOFI = 0,
+  LOG_SNAP = 1
+} log_Program;
 
 /* Output debug information (prefix DEBUG) */
 #define log_debug(...) log_general_(LOG_DEBUG, __FILE__, __LINE__, ##__VA_ARGS__)
@@ -51,13 +81,13 @@ extern int log_mpid_;
   do { if((RANK)==log_mpid_) log_general_(LOG_WARN,  __FILE__, __LINE__, ##__VA_ARGS__); } while (0)
 
 /**
- * Get the name of the node an MPI process is running on.
+ * Get the name of the node an (MPI) process is running on.
  * @return Character string containing node identifier (usually its name).
  */
 const char* log_get_nodename();
 
 /**
- * Initialize logging. Should be called after MPI_Init().
+ * Initialize logging. Should be called after MPI_Init(), where applicable.
  * @param fp Either a valid file pointer, or NULL to use stdout/stderr.
  */
 void log_init(FILE *fp);
@@ -102,8 +132,9 @@ void log_general_(log_Level level, const char *file, int line, const char *fmt, 
 
 /**
  * Print a banner. Should be called after log_init().
+ * @param prog Main program for which logging is used.
  */
-void log_banner();
+void log_banner(log_Program prog);
 
 /**
  * Finalize logging and print timing statistics.
