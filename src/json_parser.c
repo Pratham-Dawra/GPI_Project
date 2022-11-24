@@ -178,8 +178,8 @@ int read_objects_from_intputfile(const char *input_file,char **varname_list,char
 	log_fatal("Error in input file, line %i, only 4 (two pairs) of double quotes are allowed per line, but found %i!\n",lineno,occurence_doublequotes);
 	break;
       }
-      //printf("JSON - line %i contains object # %i varname %s with value %s.\n",
-      //       lineno,number_readobject, varname_list[number_readobject-1],value_list[number_readobject-1]);
+      //log_std("JSON - line %i contains object # %i varname %s with value %s.\n",
+      //        lineno,number_readobject, varname_list[number_readobject-1],value_list[number_readobject-1]);
     }
   }
   fclose(fp_in);
@@ -208,10 +208,9 @@ int count_occure_charinstring(char stringline[STRING_SIZE], char teststring[])
   int number_occurence=0;
   
   for (int ii=0; stringline[ii] != '\0'; ii++) {
-    //printf("lineno = %i ii= %i cline[ii]= %c  ",lineno, ii,cline[ii]);
-    //printf("teststring= %s ",teststring);
+    //log_std("lineno = %i ii= %i cline[ii]= %c  ",lineno, ii,cline[ii]);
+    //log_std("teststring= %s ",teststring);
     if (strchr(teststring,stringline[ii])) {
-      //printf("hello");
       number_occurence++;
     }
   }
@@ -337,7 +336,7 @@ int is_string_blankspace(char string_in[STRING_SIZE]) {
       blank_num++;
   }
   
-  //printf("\nString has length %i and contains %i black spaces \n",string_length, blank_num);
+  //log_std("String has length %i and contains %i black spaces.\n",string_length, blank_num);
   if (blank_num==string_length) return 1;
   else return 0;
 }
@@ -379,7 +378,7 @@ void add_object_tolist(char string_name[STRING_SIZE],char string_value[STRING_SI
 
   //count number of read objects
   *number_readobject=*number_readobject+1;
-  //printf("func after number_readobject : %i \n",number_readobject);
+  //log_std("func after number_readobject : %i \n",number_readobject);
 
   return;
 }

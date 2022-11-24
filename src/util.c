@@ -29,21 +29,6 @@
 #include "fd.h"
 #include "logging.h"
 
-void err2(char errformat[],char errfilename[]) {
-  char outtxt[STRING_SIZE];
-  sprintf(outtxt,errformat,errfilename);
-  log_fatal("%s\n", outtxt);
-}
-
-void declare_error(char err_text[]) {
-    int MYID;
-    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
-    log_error("Run-time error: %s\n", err_text);
-    
-    MPI_Abort(MPI_COMM_WORLD, 1);
-    exit(EXIT_FAILURE);
-}
 
 void dt_mult(int nx, int ny, float dt, float **a) 
 {

@@ -55,7 +55,8 @@ int **receiver(int *ntr, GlobVar *gv)
 	
 	/*the following output is for debugging*/
 	/*testbuff4=(testbuff1==1 || testbuff2==1);
-	  fprintf(fp," buffer: _%s_with testbuff1=_%i_ testbuff2=_%i_testbuff3=_%i_ testbuff4=_%i_\n",buffer,testbuff1, testbuff2, testbuff3,testbuff4);*/
+	  log_std(fp," buffer: _%s_with testbuff1=_%i_ testbuff2=_%i_testbuff3=_%i_ testbuff4=_%i_\n",buffer,testbuff1, testbuff2, testbuff3,testbuff4);*/
+
 	/* checks if the line contains a '%' or '#' character which indicates a
 	   comment line, and if the reading of a string was successful, 
 	   which is not the case for an empty line*/
@@ -73,8 +74,7 @@ int **receiver(int *ntr, GlobVar *gv)
       }
       fclose(fpr);
 
-      /* check if more than one receiver is located
-	 at the same gridpoint */
+      /* check if more than one receiver is located at the same gridpoint */
       for (itr=1;itr<=(*ntr-1);itr++)
 	for (itr1=itr+1;itr1<=*ntr;itr1++)
 	  if ((recpos1[1][itr]==recpos1[1][itr1])

@@ -49,10 +49,195 @@ void checkfd(float **prho, float **ppi, float **pu,
   nx=gv->NX;
   ny=gv->NY;
 
-  if (0==MYID) {
-    log_info("------------------------- Min/max velocities ----------------\n");
-    log_info("Note: If any velocity is set <1m/s, it will be ignored while\n");
-    log_info("determining stable DH and DT parameters.\n");
+  /* We already perform basic I/O checks for all MPI ranks in check_fs - these additional 
+     filesystem checks here seem somewhat superfluous... Deactivated for now. */
+
+/* 	fprintf(gv->FP,"\n **********************************************************"); */
+/* 	fprintf(gv->FP,"\n ************ CHECKS OF INPUT FILE PARAMETERS  ************"); */
+/* 	fprintf(gv->FP,"\n **********************************************************\n\n"); */
+/* 	fprintf(gv->FP,"\n **Message from checkfd_ssg (printed by PE %d):\n",MYID); */
+/* 	fprintf(gv->FP,"\n\n ------------------ CHECK OUTPUT FILES --------------------------\n"); */
+/* 	/\* The original checks might delete files accidentally that would not be overwritten anyway. */
+/* 	   and did not test accessibility from all CPUs which may be vary, especially in distributed clusters *\/ */
+/* 	/\*Checking SNAP Output *\/ */
+/* 	/\*-------------------- *\/ */
+/* 	/\*-------------------------------------- *\/ */
+/* 	/\* only MYID is performing the file checks, if to many PEs try to do it simultaneously, */
+/* 	 * the code and/or FILESYSTEM and/or MPI implementation will cause segmentation faults */
+/* 	 *\/ */
+/* 	if ((gv->SNAP>0) && (MYID==0)) { */
+/* 		switch (gv->SNAP_FORMAT) { */
+/* 			case 1: */
+/* 				sprintf(file_ext, ".su"); */
+/* 				strcpy(xmod, "ab"); */
+/* 				break; */
+/* 			case 2: */
+/* 				sprintf(file_ext, ".asc"); */
+/* 				strcpy(xmod, "a"); */
+/* 				break; */
+/* 			case 3: */
+/* 				sprintf(file_ext, ".bin"); */
+/* 				strcpy(xmod, "ab"); */
+/* 				break; */
+/* 			default: */
+/* 				declare_error(" Sorry. Snapshot format (SNAP_FORMAT) unknown. \n"); */
+/* 				break; */
+/* 		} */
+/* 		fprintf(gv->FP," Check accessibility for snapshot files ... \n"); */
+/* 		switch (gv->SNAP) { */
+/* 			case 1 : */
+/* 				sprintf(xfile,"%s%s.vx.%i.%i",gv->SNAP_FILE,file_ext,gv->POS[1],gv->POS[2]); */
+/* 				fprintf(gv->FP,"    Check accessibility for snapshot file %s... \n",xfile); */
+/* 				if ((fpcheck=fopen(xfile,xmod)) ==NULL) err2(" PE0  cannot write snapshots to %s!",xfile); */
+/* 				else fclose(fpcheck); */
+/* 				sprintf(xfile,"%s%s.vy.%i.%i",gv->SNAP_FILE,file_ext,gv->POS[1],gv->POS[2]); */
+/* 				fprintf(gv->FP,"    Check accessibility for snapshot file %s... \n",xfile); */
+/* 				if ((fpcheck=fopen(xfile,xmod)) ==NULL) err2(" PE0 cannot write snapshots to %s!",xfile); */
+/* 				else fclose(fpcheck); */
+/* 				break; */
+/* 			case 2 : */
+/* 				sprintf(xfile,"%s%s.p.%i.%i",gv->SNAP_FILE,file_ext,gv->POS[1],gv->POS[2]); */
+/* 				fprintf(gv->FP,"    Check accessibility for snapshot file %s... \n",xfile); */
+/* 				if ((fpcheck=fopen(xfile,xmod)) ==NULL) err2(" PE0 cannot write snapshots to %s!",xfile); */
+/* 				else fclose(fpcheck); */
+/* 				break; */
+/* 			case 4 : */
+/* 				sprintf(xfile,"%s%s.vx.%i.%i",gv->SNAP_FILE,file_ext,gv->POS[1],gv->POS[2]); */
+/* 				fprintf(gv->FP,"    Check accessibility for snapshot file %s... \n",xfile); */
+/* 				if ((fpcheck=fopen(xfile,xmod)) ==NULL) err2(" PE0 cannot write snapshots to %s!",xfile); */
+/* 				else fclose(fpcheck); */
+/* 				sprintf(xfile,"%s%s.vy.%i.%i",gv->SNAP_FILE,file_ext,gv->POS[1],gv->POS[2]); */
+/* 				fprintf(gv->FP,"    Check accessibility for snapshot file %s... \n",xfile); */
+/* 				if ((fpcheck=fopen(xfile,xmod)) ==NULL) err2(" PE0 cannot write snapshots to %s!",xfile); */
+/* 				else fclose(fpcheck); */
+/* 				sprintf(xfile,"%s%s.p.%i.%i",gv->SNAP_FILE,file_ext,gv->POS[1],gv->POS[2]); */
+/* 				fprintf(gv->FP,"    Check accessibility for snapshot file %s... \n",xfile); */
+/* 				if ((fpcheck=fopen(xfile,xmod)) ==NULL) err2(" PE0 cannot write snapshots to %s!",xfile); */
+/* 				else fclose(fpcheck); */
+/* 			case 3 : */
+/* 				sprintf(xfile,"%s%s.div.%i.%i",gv->SNAP_FILE,file_ext,gv->POS[1],gv->POS[2]); */
+/* 				fprintf(gv->FP,"    Check accessibility for snapshot file %s... \n",xfile); */
+/* 				if ((fpcheck=fopen(xfile,xmod)) ==NULL) err2(" PE0 cannot write snapshots to %s!",xfile); */
+/* 				else fclose(fpcheck); */
+/* 				sprintf(xfile,"%s%s.curl.%i.%i",gv->SNAP_FILE,file_ext,gv->POS[1],gv->POS[2]); */
+/* 				fprintf(gv->FP,"    Check accessibility for snapshot file %s... \n",xfile); */
+/* 				if ((fpcheck=fopen(xfile,xmod)) ==NULL) err2(" PE0 cannot write snapshots to %s!",xfile); */
+/* 				else fclose(fpcheck); */
+/* 				break; */
+/* 		} */
+/* 	} */
+/* 	/\*Checking SEISMOGRAM Output Particle velocities *\/ */
+/* 	/\*-------------------------------------- *\/ */
+/* 	/\* only MYID is performing the file checks, if to many PEs try to do it simultaneously, */
+/* 	 * the code and/or FILESYSTEM and/or MPI implementation will cause segmentation faults */
+/* 	 *\/ */
+/* 	if ((gv->SEISMO>0) && (MYID==0)) { */
+/* 		fprintf(gv->FP," Check accessibility for seismogram files of each PE ... \n"); */
+/* 		fprintf(gv->FP," However, the list below refers only to PE0  ... \n"); */
+/* 		switch (gv->SEIS_FORMAT) { */
+/* 			case 1: */
+/* 				sprintf(file_ext,"su"); */
+/* 				break; */
+/* 			case 2: */
+/* 				sprintf(file_ext,"txt"); */
+/* 				break; */
+/* 			case 3: */
+/* 				sprintf(file_ext,"bin"); */
+/* 				break; */
+/* 		} */
+/* 		if (gv->SEIS_FORMAT==2) strcpy(xmod,"a"); */
+/* 		else strcpy(xmod,"w+b"); */
+/* 		/\*MYID=0 is checking if all seismogram file written by other PEs can be written */
+/* 		 * assuming that all PEs can address the files ystem equally */
+/* 		 *\/ */
+/* 		for (myidcounter=0; myidcounter< (gv->NPROCX*gv->NPROCY); myidcounter++) { */
+/* 			switch (gv->SEISMO) { */
+/* 				case 1: /\* particle velocities only *\/ */
+/* 					sprintf(xfile,"%s_vx.%s.%d",gv->SEIS_FILE,file_ext,myidcounter); */
+/* 					/\*in case of number of PE's=500, there will be 500 messages, too many to be displayed! *\/ */
+/* 					if (MYID==myidcounter) fprintf(gv->FP,"    Check accessibility for seismogram file %s... \n",xfile); */
+/* 					sprintf(errormessage,"PE %i cannot write seismogram file %s!",MYID,xfile); */
+/* 					//if (access(xfile,W_OK|X_OK)==-1) declare_error(errormessage); */
+/* 					if ((fpcheck=fopen(xfile,xmod)) ==NULL) declare_error(errormessage); */
+/* 					else fclose(fpcheck); */
+/* 					remove(xfile); */
+/* 					sprintf(xfile,"%s_vy.%s.%d",gv->SEIS_FILE,file_ext,myidcounter); */
+/* 					if (MYID==myidcounter) fprintf(gv->FP,"    Check accessibility for seismogram file %s... \n",xfile); */
+/* 					sprintf(errormessage,"PE %i cannot write seismogram file %s!",MYID,xfile); */
+/* 					if ((fpcheck=fopen(xfile,xmod)) ==NULL) declare_error(errormessage); */
+/* 					else fclose(fpcheck); */
+/* 					remove(xfile); */
+/* 					break; */
+/* 				case 2 : /\* pressure only *\/ */
+/* 					sprintf(xfile,"%s_p.%s.%d",gv->SEIS_FILE,file_ext,myidcounter); */
+/* 					if (MYID==myidcounter) fprintf(gv->FP,"    Check accessibility for seismogram file %s... \n",xfile); */
+/* 					sprintf(errormessage,"PE %i cannot write seismogram file %s!",MYID,xfile); */
+/* 					if ((fpcheck=fopen(xfile,xmod)) ==NULL) declare_error(errormessage); */
+/* 					else fclose(fpcheck); */
+/* 					remove(xfile); */
+/* 					break; */
+/* 				case 4 : /\* everything *\/ */
+/* 					sprintf(xfile,"%s_vx.%s.%d",gv->SEIS_FILE,file_ext,myidcounter); */
+/* 					/\*in case of number of PE's=500, there will be 500 messages, too many to be displayed! *\/ */
+/* 					if (MYID==myidcounter) fprintf(gv->FP,"    Check accessibility for seismogram file %s... \n",xfile); */
+/* 					sprintf(errormessage,"PE %i cannot write seismogram file %s!",MYID,xfile); */
+/* 					//if (access(xfile,W_OK|X_OK)==-1) declare_error(errormessage); */
+/* 					if ((fpcheck=fopen(xfile,xmod)) ==NULL) declare_error(errormessage); */
+/* 					else fclose(fpcheck); */
+/* 					remove(xfile); */
+/* 					sprintf(xfile,"%s_vy.%s.%d",gv->SEIS_FILE,file_ext,myidcounter); */
+/* 					if (MYID==myidcounter) fprintf(gv->FP,"    Check accessibility for seismogram file %s... \n",xfile); */
+/* 					//if (access(xfile,W_OK|X_OK)==-1) declare_error(errormessage); */
+/* 					sprintf(errormessage,"PE %i cannot write seismogram file %s!",MYID,xfile); */
+/* 					if ((fpcheck=fopen(xfile,xmod)) ==NULL) declare_error(errormessage); */
+/* 					else fclose(fpcheck); */
+/* 					remove(xfile); */
+/* 					sprintf(xfile,"%s_p.%s.%d",gv->SEIS_FILE,file_ext,myidcounter); */
+/* 					if (MYID==myidcounter) fprintf(gv->FP,"    Check accessibility for seismogram file %s... \n",xfile); */
+/* 					sprintf(errormessage,"PE %i cannot write seismogram file %s!",MYID,xfile); */
+/* 					if ((fpcheck=fopen(xfile,xmod)) ==NULL) declare_error(errormessage); */
+/* 					else fclose(fpcheck); */
+/* 					remove(xfile); */
+/* 				case 3 : /\* curl and div only *\/ */
+/* 					sprintf(xfile,"%s_div.%s.%d",gv->SEIS_FILE,file_ext,myidcounter); */
+/* 					if (MYID==myidcounter) fprintf(gv->FP,"    Check accessibility for seismogram file %s... \n",xfile); */
+/* 					sprintf(errormessage,"PE %i cannot write seismogram file %s!",MYID,xfile); */
+/* 					if ((fpcheck=fopen(xfile,xmod)) ==NULL) declare_error(errormessage); */
+/* 					else fclose(fpcheck); */
+/* 					remove(xfile); */
+/* 					sprintf(xfile,"%s_curl.%s.%d",gv->SEIS_FILE,file_ext,myidcounter); */
+/* 					if (MYID==myidcounter) fprintf(gv->FP,"    Check accessibility for seismogram file %s... \n",xfile); */
+/* 					sprintf(errormessage,"PE %i cannot write seismogram file %s!",MYID,xfile); */
+/* 					if ((fpcheck=fopen(xfile,xmod)) ==NULL) declare_error(errormessage); */
+/* 					else fclose(fpcheck); */
+/* 					remove(xfile); */
+/* 					break; */
+/* 			} */
+/* 		} */
+/* 	} */
+
+/* 	/\*Checking CHECKPOINT Output *\/ */
+/* 	/\*-------------------------- *\/ */
+/* 	if (gv->CHECKPTREAD>0) { */
+/* 		strcpy(xmod,"rb"); */
+/* 		sprintf(xfile,"%s.%d",gv->CHECKPTFILE,MYID); */
+/* 		fprintf(gv->FP," Check readability for checkpoint files %s... \n",xfile); */
+/* 		if (((fpcheck=fopen(xfile,xmod)) ==NULL) && (MYID==0)) declare_error(" PE 0 cannot read checkpoints!"); */
+/* 		else fclose(fpcheck); */
+/* 	} */
+/* 	if ((gv->CHECKPTWRITE>0)) { */
+/* 		strcpy(xmod,"ab"); */
+/* 		sprintf(xfile,"%s.%d",gv->CHECKPTFILE,MYID); */
+/* 		fprintf(gv->FP," Check writability for checkpoint files %s... \n",xfile); */
+/* 		if (((fpcheck=fopen(xfile,xmod)) ==NULL) && (MYID==0)) declare_error(" PE 0 cannot write checkpoints!"); */
+/* 		else fclose(fpcheck);    /\* Is there any reason to remove it? *\/ */
+/* 	} */
+/* 	fprintf(gv->FP," Accessibility of output files from PE %d has been checked successfully.\n", MYID); */
+
+   if (0==MYID) {
+     log_info("------------------------- Min/max velocities ----------------\n");
+     log_info("Note: If any velocity is set <1m/s, it will be ignored while\n");
+     log_info("determining stable DH and DT parameters.\n");
    }
   
   /* low Q frame not yet applied as a absorbing boundary */

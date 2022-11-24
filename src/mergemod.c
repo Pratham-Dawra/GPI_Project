@@ -22,70 +22,70 @@
  *
  *  ----------------------------------------------------------------------*/
 
+#include <stdio.h>
 #include "fd.h"
+#include "logging.h"
 
+void mergemod(const char* modfile, int format, GlobVar *gv)
+{
+  char file[STRING_SIZE];
+  FILE *fp[gv->NPROCY][gv->NPROCX], *fpout = NULL;
+  int i, j, ip, jp;
+  float a;
 
-void mergemod(char modfile[STRING_SIZE], int format, GlobVar *gv){
+  int MYID;
+  MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
 
-	char file[STRING_SIZE];
-	FILE *fp[gv->NPROCY][gv->NPROCX], *fpout;
-	int i, j, ip, jp;
-	float a;
+  log_info("Merging model files. Output file: %s\n",modfile);
 
-    int MYID;
-    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
+  fpout=fopen(modfile,"w");
+  if (!fpout) log_fatal("Could not open output file %s for writing.\n", modfile);
 
-	int remove(const char * filename);
+  log_debug("Opening model files %s.*.* for reading.\n", modfile);
 
-	fprintf(gv->FP,"\n **Message from mergemod (printed by PE %d):\n",MYID);
-	fprintf(gv->FP," PE %d starts merge of %d model files \n",MYID,gv->NPROC);	
+  for (ip=0;ip<=gv->NPROCX-1; ip++) {
+    for (jp=0;jp<=gv->NPROCY-1; jp++) {
+      sprintf(file,"%s.%i.%i",modfile,ip,jp);
+      fp[jp][ip]=fopen(file,"r");
+      if (!fp[jp][ip]) log_fatal("Could not open file %s for reading.\n", file); 
+    }
+  }
 
-	fprintf(gv->FP,"\n writing merged model file to  %s \n",modfile);
-	fpout=fopen(modfile,"w");
-
-	fprintf(gv->FP," Opening model files: %s.??? ",modfile);
-	for (ip=0;ip<=gv->NPROCX-1; ip++)
-  	for (jp=0;jp<=gv->NPROCY-1; jp++){
-      		sprintf(file,"%s.%i.%i",modfile,ip,jp);
-      		fp[jp][ip]=fopen(file,"r");
-      		if (fp[jp][ip]==NULL) declare_error("merge: can't read model file !"); 
-      	}
-
-	fprintf(gv->FP," ... finished. \n");
+  log_debug("Finished opening all model files. Now copying the data.\n");
     
-	fprintf(gv->FP," Copying...");
-
-  	 for (ip=0;ip<=gv->NPROCX-1; ip++){
-      		for (i=1;i<=gv->NX;i+=gv->IDX){
-			for (jp=0;jp<=gv->NPROCY-1; jp++){
-	    			for (j=1;j<=gv->NY;j+=gv->IDY){
-	      			a=readdsk(fp[jp][ip],format);
-	      			writedsk(fpout,a,format);
-	       			}
-	   		}
-	 	}
-    }
-	fprintf(gv->FP," ... finished. \n");
-
-	for (ip=0;ip<=gv->NPROCX-1; ip++)
-   	for (jp=0;jp<=gv->NPROCY-1; jp++){
-      		fclose(fp[jp][ip]);
-    }
-	fclose(fpout);
-	
-	fprintf(gv->FP," Use \n");
-	fprintf(gv->FP," ximage n1=%d < %s  label1=Y label2=X title=%s \n",
-      			((gv->NYG-1)/gv->IDY)+1,modfile,modfile);
-	fprintf(gv->FP," to visualize model. \n");
-
-	fprintf(gv->FP," Removing model files produced by PEs \n");
-	for (ip=0;ip<=gv->NPROCX-1; ip++)
-  	for (jp=0;jp<=gv->NPROCY-1; jp++){
-  		sprintf(file,"%s.%i.%i",modfile,ip,jp);
-  		if (remove(file) == 0) {
-            fprintf(gv->FP, "The file %s is deleted successfully.",file);
-        } else {
-            printf("The file %s is not deleted.",file);
-        }
+  for (ip=0;ip<=gv->NPROCX-1; ip++){
+    for (i=1;i<=gv->NX;i+=gv->IDX){
+      for (jp=0;jp<=gv->NPROCY-1; jp++){
+	for (j=1;j<=gv->NY;j+=gv->IDY){
+	  a=readdsk(fp[jp][ip],format);
+	  writedsk(fpout,a,format);
 	}
+      }
+    }
+  }
+  log_debug("Finished copying the data. Now closing all input files.\n");
+
+  for (ip=0;ip<=gv->NPROCX-1; ip++) {
+    for (jp=0;jp<=gv->NPROCY-1; jp++) {
+      fclose(fp[jp][ip]);
+    }
+  }
+  log_debug("Finished closing all input files.\n");
+
+  fclose(fpout);
+
+  log_info("Use...\n");
+  log_info("%sximage n1=%d < %s label1=\"Y\" label2=\"X\" title=\"%s\"%s\n",
+	   LOG_COLOR_BOLD,((gv->NYG-1)/gv->IDY)+1,modfile,modfile,LOG_ALL_RESET);
+  log_info("...to visualize the model.\n");
+  
+  log_debug("Removing individual model files procudes by PEs.\n");
+  for (ip=0;ip<=gv->NPROCX-1; ip++) {
+    for (jp=0;jp<=gv->NPROCY-1; jp++) {
+      sprintf(file,"%s.%i.%i",modfile,ip,jp);
+      if (remove(file)!=0) { 
+	log_warn("Could not remove model file %s. Continuing...\n",file);
+      }
+    }
+  }
 }

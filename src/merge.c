@@ -83,7 +83,7 @@ void merge(int nsnap, int type, GlobVar *gv)
   log_info("Output file: %s\n",outfile);
 
   fpout=fopen(outfile,"w");
-  log_debug("Opening snapshot files: %s.??? for reading.\n",mfile);
+  log_debug("Opening snapshot files %s.*.* for reading.\n",mfile);
 
   for (ip=0;ip<=(gv->NPROCX)-1; ip++) {
     for (jp=0;jp<=(gv->NPROCY)-1; jp++){

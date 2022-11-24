@@ -142,7 +142,7 @@ void matcopy_ani(float **rho, float   **c11, float   **c15, float   **c13,
 
 void merge(int nsnap, int type, GlobVar *gv);
 
-void mergemod(char modfile[STRING_SIZE], int format, GlobVar *gv);
+void mergemod(const char* modfile, int format, GlobVar *gv);
 
 void  outseis(FILE *fp, FILE *fpdata, float **section,
               int **recpos, int **recpos_loc, int ntr, float **srcpos_loc,
@@ -676,21 +676,17 @@ void add_object_tolist(char string_name[STRING_SIZE],char string_value[STRING_SI
 
 
 /* utility functions */
-void declare_error(char err_text[]);
-void err2(char errformat[],char errfilename[]);
 void dt_mult(int nx, int ny, float dt, float  **  a );
-
 double maximum(float **a, int nx, int ny);
 float *vector(int nl, int nh);
 int *ivector(int nl, int nh);
 float **matrix(int nrl, int nrh, int ncl, int nch);
 int **imatrix(int nrl, int nrh, int ncl, int nch);
-float ** *f3tensor(int nrl, int nrh, int ncl, int nch,int ndl, int ndh);
+float ***f3tensor(int nrl, int nrh, int ncl, int nch,int ndl, int ndh);
 void free_vector(float *v, int nl, int nh);
 void free_ivector(int *v, int nl, int nh);
 void free_matrix(float **m, int nrl, int nrh, int ncl, int nch);
 void free_imatrix(int **m, int nrl, int nrh, int ncl, int nch);
-void free_f3tensor(float ***t, int nrl, int nrh, int ncl, int nch, int ndl,
-                   int ndh);
+void free_f3tensor(float ***t, int nrl, int nrh, int ncl, int nch, int ndl, int ndh);
 
 #endif
