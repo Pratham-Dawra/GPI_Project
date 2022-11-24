@@ -27,6 +27,7 @@
  *   for each subgrid
  *  ----------------------------------------------------------------------*/
 #include "fd.h"
+#include "logging.h"
 
 void update_s_elastic_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
                             float **  vx, float **   vy, float **   sxx, float **   syy,
@@ -53,8 +54,7 @@ void update_s_elastic_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * 
 
 	if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
 		time1=MPI_Wtime();
-		fprintf ( gv->FP,"\n **Message from update_s_PML (printed by PE %d):\n",MYID );
-		fprintf ( gv->FP," Updating stress components ..." );
+		log_debug("Updating stress components...\n");
 	}
 
 
@@ -158,6 +158,6 @@ void update_s_elastic_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * 
 
 	if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
 		time2=MPI_Wtime();
-		fprintf ( gv->FP," finished (real time: %4.3f s).\n",time2-time1 );
+		log_debug("Finished updating stress components (real time: %4.3fs).\n",time2-time1);
 	}
 }

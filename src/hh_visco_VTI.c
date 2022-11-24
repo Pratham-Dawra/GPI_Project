@@ -22,6 +22,7 @@
  *   ------------------------------------------------------------- */
 
 #include "fd.h"
+#include "logging.h"
 
 void model_visco_vti(float  **  rho, float **  pc11, float **  pc33, float **  pc13, float **  pc55,
 	float **  ptau11, float **  ptau33, float **  ptau13, float **  ptau55, float *  eta, GlobVar *gv){
@@ -53,10 +54,7 @@ void model_visco_vti(float  **  rho, float **  pc11, float **  pc33, float **  p
 	}
 
     fc=1.0/gv->TS;
-   if (MYID==0){
-        fprintf(gv->FP," Message from readmod_visco_vti:\n");
-        fprintf(gv->FP," Center source frequency of %5.2f Hz applied for calculation of relaxed moduli ! \n",fc);       
-   }
+    log_infoc(0, "VTI: center source frequency of %5.2fHz applied for calculation of relaxed moduli.\n", fc);
     
     ws=2.0*PI*fc;
 

@@ -27,7 +27,7 @@
  *  --------------------------------------------------------------------------------------*/
 
 #include "fd.h"
-
+#include "logging.h"
 
 void update_v_abs_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
                    float **  vx, float ** vy, float ** sxx, float ** syy, float ** sxy,
@@ -56,8 +56,7 @@ void update_v_abs_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, in
     
     if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
         time1=MPI_Wtime();
-        fprintf ( gv->FP,"\n **Message from update_v_abs_4 (printed by PE %d):\n",MYID );
-        fprintf ( gv->FP," Updating particle velocities ..." );
+	log_debug("Updating particle velocities...\n");
     }
     
     /* ------------------------------------------------------------
@@ -199,6 +198,6 @@ void update_v_abs_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, in
     
     if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
         time2=MPI_Wtime();
-        fprintf ( gv->FP," finished (real time: %4.3f s).\n",time2-time1 );
+        log_debug("Finished updating particle velocities (real time: %4.3fs).\n",time2-time1);
     }
 }

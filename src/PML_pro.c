@@ -87,16 +87,8 @@ void PML_pro(float * d_x, float * K_x, float * alpha_prime_x, float * a_x, float
             float * d_y, float * K_y, float * alpha_prime_y, float * a_y, float * b_y, 
             float * d_y_half, float * K_y_half, float * alpha_prime_y_half, float * a_y_half, float * b_y_half, GlobVar *gv)
 {
-
-	/* extern variables */
-
-	//extern float DH, VPPML, DT, FPML;
-	//extern int NXG, NYG, FW;
-
-	/* local variables */
-	int i, h;
+      int i, h;
       
-      //extern float NPOWER, K_MAX_CPML;
       const float alpha_max_PML = 2.0 * PI * (gv->FPML/2.0); /* from festa and Vilotte */
 
       float thickness_PML_x, thickness_PML_y, xoriginleft, xoriginright, yoriginbottom, yorigintop;

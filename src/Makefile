@@ -45,7 +45,7 @@ DEPS := $(wildcard .dep*)
 # ON Linux cluster running OpenMPI and ON MAC
 CC := mpicc
 LFLAGS := -lm -lmpi
-CFLAGS := -Wall -O3
+CFLAGS := -Wall -O3 -g -D_GNU_SOURCE -DLOG_COLOR -std=c99
 
 # On CRAY T3E
 #CC := cc
@@ -68,16 +68,14 @@ CFLAGS := -Wall -O3
 
 SNAPMERGE_SCR = \
 	snapmerge.c \
-	holbergcoeff.c\
-	json_parser.c\
+	holbergcoeff.c \
+	json_parser.c \
+	logging.c \
 	merge.c \
 	read_par_json.c \
 	readdsk.c \
 	writedsk.c \
 	util.c 
-
-
-
 
 SOFI2D_SRC= \
 	$(MODEL_V) \
@@ -103,14 +101,13 @@ SOFI2D_SRC= \
 	exchange_v.c \
 	sofi2D.c \
 	holbergcoeff.c\
-	info.c \
 	initproc.c \
-	json_parser.c\
+	json_parser.c \
+	logging.c \
 	matcopy.c \
 	matcopy_elastic.c \
 	merge.c \
 	mergemod.c \
-	note.c \
 	outseis.c \
 	outseis_glob.c \
 	operators_s.c \
@@ -215,14 +212,13 @@ SOFI2D_BENCH_SRC= \
 	exchange_v.c \
 	sofi2D.c \
 	holbergcoeff.c\
-	info.c \
 	initproc.c \
-	json_parser.c\
+	json_parser.c \
+	logging.c \
 	matcopy.c \
 	matcopy_elastic.c \
 	merge.c \
 	mergemod.c \
-	note.c \
 	outseis.c \
 	outseis_glob.c \
 	operators_s.c \

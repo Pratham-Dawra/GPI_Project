@@ -22,26 +22,25 @@
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
+#include "logging.h"
 
+void writemod(char modfile[STRING_SIZE], float ** array, int format, GlobVar *gv)
+{
+  int i, j;
+  FILE *fpmod = NULL;
+  char file[STRING_SIZE];
 
-void writemod(char modfile[STRING_SIZE], float ** array, int format, GlobVar *gv){
+  sprintf(file,"%s.%i.%i",modfile,gv->POS[1],gv->POS[2]);
 
-	int i, j;
-	FILE *fpmod;
-	char file[STRING_SIZE];
+  log_debug("Writing model to file %s.\n", file);
+	
+  fpmod=fopen(file,"w");
+  if (!fpmod) log_fatal("Could not open model output file %s for writing.\n", file);
+  for (i=1;i<=gv->NX;i+=gv->IDX)
+    for (j=1;j<=gv->NY;j+=gv->IDY)
+      writedsk(fpmod,array[j][i],format);
 
-    int MYID;
-    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
-	fprintf(gv->FP,"\n\n PE %d is writing model to \n",MYID);
-	sprintf(file,"%s.%i.%i",modfile,gv->POS[1],gv->POS[2]);
-	fprintf(gv->FP,"\t%s\n\n", file);
-	fpmod=fopen(file,"w");
-	for (i=1;i<=gv->NX;i+=gv->IDX)
-	for (j=1;j<=gv->NY;j+=gv->IDY)
-		writedsk(fpmod,array[j][i],format);
-
-	fclose(fpmod);
+  fclose(fpmod);
 }
 
 

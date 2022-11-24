@@ -24,50 +24,41 @@
 #include <string.h>
 
 #include "fd.h"
+#include "globvar_struct.h"
+#include "logging.h"
 
-void check_fs(FILE *fp, GlobVar *gv) {
+void check_fs(GlobVar *gv) {
   
-  char errmsg[80];
-  int fserr = 0, MYID;
+  int fserr = 0;
   
-  MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
   /********************************************/
   /* Check output directories as required     */
   /********************************************/
 
-  if (gv->LOG > 1) {
+  if (gv->LOG > 0) {
     /* check log file directory */
     char *dirc = strdup(gv->LOG_FILE);
-    if (!dirc) declare_error("Could not copy string in check_fs.c - memory issue encountered.");
+    if (!dirc) log_fatal("Could not copy string in check_fs.c - memory issue encountered.\n");
     char *dname = dirname(dirc);
     if (access(dname, W_OK) != 0) {
-      fprintf(fp, "\n==================================================================\n");
-      fprintf(fp, "ERROR: PE=%d, cannot write to log directory %s.\n", MYID, dname);
-      fprintf(fp, "\n==================================================================\n");
+      log_error("Cannot write to log directory %s.\n", dname);
       fserr = 1;
     } else {
-      if (MYID == 0) {
-	fprintf(fp, "Filesystem check: log file directory %s is writeable.\n", dname); fflush(fp);
-      }
+      log_infoc(0, "Filesystem check: log file directory %s is writable.\n", dname);
     }
     free(dirc);
   }
-
+  
   if (gv->SEISMO > 0) {
     /* check seismogram directory */
     char *dirc = strdup(gv->SEIS_FILE);
-    if (!dirc) declare_error("Could not copy string in check_fs.c - memory issue encountered.");
+    if (!dirc) log_fatal("Could not copy string in check_fs.c - memory issue encountered.\n");
     char *dname = dirname(dirc);
     if (access(dname, W_OK) != 0) {
-      fprintf(fp, "\n==================================================================\n");
-      fprintf(fp, "ERROR: PE=%d, cannot write to seismogram directory %s.\n", MYID, dname);
-      fprintf(fp, "\n==================================================================\n");
+      log_error("Cannot write to seismogram directory %s.\n", dname);
       fserr = 1;
     } else {
-      if (MYID == 0) {
-	fprintf(fp, "Filesystem check: seismogram directory %s is writeable.\n", dname); fflush(fp);
-      }
+      log_infoc(0, "Filesystem check: seismogram directory %s is writable.\n", dname);
     }
     free(dirc);
   }
@@ -75,17 +66,13 @@ void check_fs(FILE *fp, GlobVar *gv) {
   if (gv->SNAP > 0) {
     /* check snapshot directory */
     char *dirc = strdup(gv->SNAP_FILE);
-    if (!dirc) declare_error("Could not copy string in check_fs.c - memory issue encountered.");
+    if (!dirc) log_fatal("Could not copy string in check_fs.c - memory issue encountered.\n");
     char *dname = dirname(dirc);
     if (access(dname, W_OK) != 0) {
-      fprintf(fp, "\n==================================================================\n");
-      fprintf(fp, "ERROR: PE=%d, cannot write to snapshot directory %s.\n", MYID, dname);
-      fprintf(fp, "\n==================================================================\n");
+      log_error("Cannot write to snapshot directory %s.\n", dname);
       fserr = 1;
     } else {
-      if (MYID == 0) {
-	fprintf(fp, "Filesystem check: snapshot directory %s is writeable.\n", dname); fflush(fp);
-      }
+      log_infoc(0, "Filesystem check: snapshot directory %s is writable.\n", dname);
     }
     free(dirc);
   }
@@ -93,46 +80,37 @@ void check_fs(FILE *fp, GlobVar *gv) {
   if (gv->WRITE_MODELFILES > 0) {
     /* check model file directory */
     char *dirc = strdup(gv->MFILE);
-    if (!dirc) declare_error("Could not copy string in check_fs.c - memory issue encountered.");
+    if (!dirc) log_fatal("Could not copy string in check_fs.c - memory issue encountered.\n");
     char *dname = dirname(dirc);
     if (access(dname, W_OK) != 0) {
-      fprintf(fp, "\n==================================================================\n");
-      fprintf(fp, "ERROR: PE=%d, cannot write to model file directory %s.\n", MYID, dname);
-      fprintf(fp, "\n==================================================================\n");
+      log_error("Cannot write to model file directory %s.\n", dname);
       fserr = 1;
     } else {
-      if (MYID == 0) {
-	fprintf(fp, "Filesystem check: model file directory %s is writeable.\n", dname); fflush(fp);
-      }
-    }
-    free(dirc);
-  }
-
-  if (1 == gv->SIGOUT) {
-    /* check signal output directory */
-    char *dirc = strdup(gv->SIGOUT_FILE);
-    if (!dirc) declare_error("Could not copy string in check_fs.c - memory issue encountered.");
-    char *dname = dirname(dirc);
-    if (access(dname, W_OK) != 0) {
-      fprintf(fp, "\n==================================================================\n");
-      fprintf(fp, "ERROR: PE=%d, cannot write to source output directory %s.\n", MYID, dname);
-      fprintf(fp, "\n==================================================================\n");
-      fserr = 1;
-    } else {
-      if (MYID == 0) {
-	fprintf(fp, "Filesystem check: source output directory %s is writeable.\n", dname); fflush(fp);
-      }
+      log_infoc(0, "Filesystem check: model file directory %s is writable.\n", dname);
     }
     free(dirc);
   }
   
+  if (1 == gv->SIGOUT) {
+    /* check signal output directory */
+    char *dirc = strdup(gv->SIGOUT_FILE);
+    if (!dirc) log_fatal("Could not copy string in check_fs.c - memory issue encountered.\n");
+    char *dname = dirname(dirc);
+    if (access(dname, W_OK) != 0) {
+      log_error("Cannot write to source output directory %s.\n", dname);
+      fserr = 1;
+    } else {
+      log_infoc(0, "Filesystem check: source output directory %s is writable.\n", dname);
+    }
+    free(dirc);
+  }
   
   /********************************************/
   /* ERROR                                    */
   /********************************************/
   if (fserr) {
-    fprintf(fp, "\n");
-    sprintf(errmsg, "\n  in: <check_fs.c> \n");
-    declare_error(errmsg);
+    log_fatal("Error(s) encountered while checking filesystem for correct permissions.\n");
   }
+
+  return;
 }

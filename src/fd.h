@@ -64,7 +64,7 @@ void av_rho(float **rho, float **rip, float **rjp, GlobVar *gv);
 
 void av_tau(float **taus, float **tausipjp, GlobVar *gv);
 
-void check_fs(FILE *fp, GlobVar *gv);
+void check_fs(GlobVar *gv);
 
 void checkfd(float **prho, float **ppi, float **pu,
              float **ptaus, float **ptaup, float *peta, float *hc, float **srcpos, int nsrc, int **recpos, int ntr, GlobVar *gv);
@@ -106,8 +106,6 @@ void exchange_par(GlobVar *gv);
 
 float *holbergcoeff(GlobVar *gv);
 
-void info(FILE *fp);
-
 void initproc(GlobVar *gv);
 
 void interpol(int ni1, int ni2, float   **intvar, int cfgt_check);
@@ -145,8 +143,6 @@ void matcopy_ani(float **rho, float   **c11, float   **c15, float   **c13,
 void merge(int nsnap, int type, GlobVar *gv);
 
 void mergemod(char modfile[STRING_SIZE], int format, GlobVar *gv);
-
-void note(FILE *fp, GlobVar *gv);
 
 void  outseis(FILE *fp, FILE *fpdata, float **section,
               int **recpos, int **recpos_loc, int ntr, float **srcpos_loc,
@@ -245,7 +241,7 @@ void readbufv(float **vx, float **vy,
 void read_checkpoint(int nx1, int nx2, int ny1, int ny2,
                      float   **vx, float **vy, float **sxx, float **syy, float **sxy, GlobVar *gv);
 
-void read_par_json(char *fileinp, GlobVar *gv);
+void read_par_json(const char *fileinp, GlobVar *gv);
 
 
 void readmod_visco(float    **rho, float   **pi, float   **u,
@@ -268,7 +264,7 @@ void readmod_visco_tti (float  **  rho, float **  pc11, float **  pc33, float **
 
 void readmod_elastic_tti (float  **  rho, float **  pc11, float **  pc33, float **  pc13,float **  pc55, float **  pc15,float **  pc35, GlobVar *gv );
 
-int **receiver(FILE *fp, int *ntr, GlobVar *gv);
+int **receiver(int *ntr, GlobVar *gv);
 
 void save_checkpoint(int nx1, int nx2, int ny1, int ny2,
                      float   **vx, float **vy, float **sxx, float **syy, float **sxy, GlobVar *gv);
@@ -628,7 +624,7 @@ void writebufv(float **vx, float **vy,
                float **bufferlef_to_rig, float **bufferrig_to_lef,
                float **buffertop_to_bot, float **bufferbot_to_top);
 
-void write_par(FILE *fp, GlobVar *gv);
+void write_par(GlobVar *gv);
 
 void writedsk(FILE *fp_out, float amp, int format);
 
@@ -654,9 +650,9 @@ void zero_PML_visc(int ny1, int ny2, int nx1, int nx2, float **vx, float **vy, f
 /* declaration of functions for parser*/
 
 /* declaration of functions for json parser in json_parser.c*/
-int read_objects_from_intputfile(FILE *fp, char input_file[STRING_SIZE],char **varname_list,char **value_list);
+int read_objects_from_intputfile(const char* input_file,char **varname_list,char **value_list);
 
-void print_objectlist_screen(FILE *fp, int number_readobject,char **varname_list,char **value_list);
+void print_objectlist_screen(int number_readobject,char **varname_list,char **value_list);
 
 int count_occure_charinstring(char stringline[STRING_SIZE], char teststring[]);
 
@@ -682,7 +678,6 @@ void add_object_tolist(char string_name[STRING_SIZE],char string_value[STRING_SI
 /* utility functions */
 void declare_error(char err_text[]);
 void err2(char errformat[],char errfilename[]);
-void warning(char warn_text[]);
 void dt_mult(int nx, int ny, float dt, float  **  a );
 
 double maximum(float **a, int nx, int ny);

@@ -22,7 +22,7 @@
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
-
+#include "logging.h"
 
 void snap(FILE *fp,int nt, int nsnap, float **vx, float **vy, float **sxx,
 	float **syy, float **u, float **pi, float *hc, GlobVar *gv){
@@ -72,14 +72,12 @@ void snap(FILE *fp,int nt, int nsnap, float **vx, float **vy, float **sxx,
 	sprintf(snapfile_rot,"%s%s.curl.%i.%i",gv->SNAP_FILE,ext,gv->POS[1],gv->POS[2]);
 	sprintf(snapfile_p,"%s%s.p.%i.%i",gv->SNAP_FILE,ext,gv->POS[1],gv->POS[2]);
 
-	fprintf(fp,"\n\n PE %d is writing snapshot-data at T=%fs to \n",MYID,nt*gv->DT);
+	log_debug("Writing snapshot data at T=%fs, file suffix '%d.%d'.\n",nt*gv->DT,gv->POS[1],gv->POS[2]);
 	
-		
-
 	switch(gv->SNAP){
 	case 1 :
-		fprintf(fp,"%s\n", snapfile_x);
-		fprintf(fp,"%s\n\n", snapfile_y);
+	  //fprintf(fp,"%s\n", snapfile_x);
+	  //fprintf(fp,"%s\n\n", snapfile_y);
 		
 		if (nsnap==1){
 			fpx1=fopen(snapfile_x,"w");
@@ -100,7 +98,7 @@ void snap(FILE *fp,int nt, int nsnap, float **vx, float **vy, float **sxx,
 
 
 	case 2 :
-		fprintf(fp,"%s\n\n",snapfile_p);
+	  //fprintf(fp,"%s\n\n",snapfile_p);
 		if (nsnap==1){
 			fpx1=fopen(snapfile_p,"w");
 		}
@@ -118,9 +116,9 @@ void snap(FILE *fp,int nt, int nsnap, float **vx, float **vy, float **sxx,
 
 	case 4 :
 
-		fprintf(fp,"%s\n", snapfile_x);
-		fprintf(fp,"%s\n", snapfile_y);
-		fprintf(fp,"%s\n\n",snapfile_p);
+	  //fprintf(fp,"%s\n", snapfile_x);
+	  //fprintf(fp,"%s\n", snapfile_y);
+	  //fprintf(fp,"%s\n\n",snapfile_p);
 		if (nsnap==1){
 			fpx1=fopen(snapfile_x,"w");
 			fpy1=fopen(snapfile_y,"w");
@@ -147,8 +145,8 @@ void snap(FILE *fp,int nt, int nsnap, float **vx, float **vy, float **sxx,
 		/* output of the curl of the velocity field according to Dougherty and
 				                  Stephen (PAGEOPH, 1988) */
 		/*if (gv->NY1<=2) error("NY1 must be greater than 2.");*/
-		fprintf(fp,"%s\n", snapfile_div);
-		fprintf(fp,"%s\n\n", snapfile_rot);
+		//fprintf(fp,"%s\n", snapfile_div);
+		//fprintf(fp,"%s\n\n", snapfile_rot);
 		if (nsnap==1){
 			fpx2=fopen(snapfile_div,"w");
 			fpy2=fopen(snapfile_rot,"w");

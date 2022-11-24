@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
     merge(nsnap,5,&gv);
     break;
   default :
-    warning(" snapmerge: cannot identify content of snapshot !");
+    // warning(" snapmerge: cannot identify content of snapshot !");
     break;
   }
   return EXIT_SUCCESS;	

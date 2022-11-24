@@ -23,6 +23,7 @@
 
 #include "fd.h"
 #include "segy.h"
+#include "logging.h"
 
 void  outseis(FILE *fp, FILE *fpdata, float **section,
 		int **recpos, int **recpos_loc, int ntr, float ** srcpos,
@@ -56,7 +57,7 @@ void  outseis(FILE *fp, FILE *fpdata, float **section,
 			tr.cdp=(int)recpos_loc[3][tracl1];
 			tr.trid=(short)1;           /* trace identification code: 1=seismic*/
 			tr.offset=(signed int)iround(sqrt((XS-xr)*(XS-xr)
-					+(YS-yr)*(YS-yr))*1000.0);
+							  +(YS-yr)*(YS-yr)));
 			tr.gelev=(signed int)iround(yr*1000.0);
 			tr.sdepth=(signed int)iround(YS*1000.0);   /* source depth (positive) */
 			/* angle between receiver position and reference point
@@ -215,8 +216,7 @@ void  outseis(FILE *fp, FILE *fpdata, float **section,
 		break;
 
 	default :
-		fprintf(fp," Don't know data format for seismograms !\n");
-		fprintf(fp," No output written. ");
+	  log_warn("Unknown data format for seismograms. No output written!\n");
 	}
 
 	fclose(fpdata);
