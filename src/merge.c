@@ -76,7 +76,7 @@ void merge(int nsnap, int type, GlobVar *gv)
     }
   
   sprintf(mfile,"%s%s",(gv->SNAP_FILE),ext);
-  log_std(" (files: %s.??? ).\n",mfile);
+  log_std(" (files: %s.*.*).\n",mfile);
 
   sprintf(outfile,"%s%s",(gv->SNAP_FILE),ext);
 	

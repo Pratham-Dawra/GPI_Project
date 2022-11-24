@@ -22,23 +22,25 @@
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
+#include "logging.h"
 
-float *rd_sour(int *nts,FILE* fp_source){
+float *rd_sour(int *nts, FILE* fp_source)
+{
+  float *psource;
+  int i, c;
 
-	/* local variables */
-	float *psource;
-	int i, c;
-
-	if (fp_source==NULL) declare_error(" Source file could no be opened !");
-	/* fscanf(fp_source,"%i", nts); */
-        *nts=0;
-        while ((c=fgetc(fp_source)) != EOF)
-         if (c=='\n') ++(*nts);
-        rewind(fp_source);
-			printf(" Number of samples (nts) in source file: %i\n",*nts);
+  if (!fp_source) log_fatal("Source file has not been opened.\n");
+  *nts=0;
+  while ((c=fgetc(fp_source)) != EOF)
+    if (c=='\n') ++(*nts);
+  rewind(fp_source);
+	
+  log_info("Number of samples (NTS) in source file: %d\n",*nts);
 		  
-	psource=vector(1,*nts);
-	for (i=1;i<=*nts;i++) fscanf(fp_source,"%e\n",&psource[i]);
-	fclose(fp_source);
-	return psource;
+  psource=vector(1,*nts);
+  for (i=1;i<=*nts;i++) fscanf(fp_source,"%e\n",&psource[i]);
+
+  fclose(fp_source);
+	
+  return psource;
 }
