@@ -148,7 +148,7 @@ void  outseis(FILE *fp, FILE *fpdata, float **section,
               int **recpos, int **recpos_loc, int ntr, float **srcpos_loc,
               int nsrc, int ns, int seis_form, int ishot, GlobVar *gv);
 
-void  outseis_glob(FILE *fp, FILE *fpdata, float **section,
+void  outseis_glob(FILE *fpdata, float **section,
                    int **recpos, int **recpos_loc, int ntr, float **srcpos_loc,
                    int nsrc, int ns, int seis_form, int ishot, int comp, GlobVar *gv);
 
@@ -269,18 +269,11 @@ int **receiver(int *ntr, GlobVar *gv);
 void save_checkpoint(int nx1, int nx2, int ny1, int ny2,
                      float   **vx, float **vy, float **sxx, float **syy, float **sxy, GlobVar *gv);
 
-void saveseis(FILE *fp, float **sectionvx, float **sectionvy,float **sectionp,
-              float **sectioncurl, float **sectiondiv, int  **recpos, int  **recpos_loc,
-              int ntr, float **srcpos_loc, int nsrc,int ns, GlobVar *gv);
-
-void saveseis_glob(FILE *fp, float **sectiondata, int  **recpos, int  **recpos_loc,
+void saveseis_glob(float **sectiondata, int  **recpos, int  **recpos_loc,
                    int ntr, float **srcpos, int ishot,int ns, int sectiondatatype, GlobVar *gv);
 
-void snap(FILE *fp,int nt, int nsnap, float **vx, float **vy, float **sxx,
+void snap(int nt, int nsnap, float **vx, float **vy, float **sxx,
           float **syy, float **u, float **pi, float *hc, GlobVar *gv);
-
-
-void snap_rsg(FILE *fp,int nt, int nsnap, float **vx, float **vy, float **sxx, float **syy, float **u, float **pi);
 
 void snapmerge(int nsnap);
 

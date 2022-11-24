@@ -25,7 +25,7 @@
 #include "segy.h"
 #include "logging.h"
 
-void  outseis_glob(FILE *fp, FILE *fpdata, float **section,
+void  outseis_glob(FILE *fpdata, float **section,
 		int **recpos, int **recpos_loc, int ntr, float ** srcpos,
 		int nsrc, int ns, int seis_form, int ishot, int comp, GlobVar *gv) {
 

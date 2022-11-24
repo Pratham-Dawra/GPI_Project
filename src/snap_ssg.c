@@ -24,8 +24,8 @@
 #include "fd.h"
 #include "logging.h"
 
-void snap(FILE *fp,int nt, int nsnap, float **vx, float **vy, float **sxx,
-	float **syy, float **u, float **pi, float *hc, GlobVar *gv){
+void snap(int nt, int nsnap, float **vx, float **vy, float **sxx,
+	  float **syy, float **u, float **pi, float *hc, GlobVar *gv){
 
 	/* 
 		different data formats of output:
