@@ -16,30 +16,23 @@
  * along with SOFI2D. See file COPYING and/or 
   * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------
+ *   Write program name etc to stdout                          
+ *
+ *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
 
-void note(FILE *fp, GlobVar *gv) {
+void info(FILE *fp){
 
-  int MYID;
-  MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
-  int len = strlen(gv->LOG_FILE)-1;
-
-  fprintf(fp,"\nPlease note:\n");
-  fprintf(fp,"Each processing element (PE) is writing log information during program\n");
-  fprintf(fp,"execution to %.*sPE.\n", len, gv->LOG_FILE);
-  fprintf(fp,"See corresponding log files for further information on program status.\n");
-  fprintf(fp,"Information about overall program execution\n");
-  fprintf(fp,"(numerical artefacts, accuracy, computing times etc)\n");
-  if (gv->LOG) {
-    fprintf(fp,"will be written by PE 0 to");
-    if ((gv->LOG == 1) || (gv->LOG == 3)) {
-      fprintf(fp," standard output. \n");
-    } else if (gv->LOG == 2) {
-      fprintf(fp," %.*s%i.\n", len, gv->LOG_FILE, MYID);
-    }
-  } else {
-    fprintf(fp," will NOT be output.");
-  }
+	fprintf(fp," ***********************************************************\n");
+	fprintf(fp," This is program SOFI2D. \n");
+	fprintf(fp," Parallel 2-D Viscoelastic Finite Difference Modeling      \n");
+	fprintf(fp,"                                                            \n");
+	fprintf(fp," written by  T. Bohlen                          \n");
+	fprintf(fp," Geophysical Institute, Department of Physics,         \n");
+	fprintf(fp," Institute of Technology, Karlsruhe, Germany         \n");
+	fprintf(fp," http://www.gpi.kit.edu \n");
+	fprintf(fp," ***********************************************************\n");
+	fprintf(fp,"\n");
 }

@@ -21,70 +21,54 @@
  * 
  * ---------------------------------------------------------------------- */
  
- #include "fd.h"
-float **splitsrc(float **srcpos,int *nsrc_loc, int nsrc, GlobVar *gv) {
+#include "fd.h"
 
-	int a,b,i=0,j,k;
-	//int found=0;
-	float ** srcpos_dummy, **srcpos_local=NULL;
-	srcpos_dummy = matrix(1,NSPAR,1,nsrc);
+float **splitsrc(float **srcpos,int *nsrc_loc, int nsrc, GlobVar *gv) 
+{
+  int a,b,i=0,j,k;
+  float **srcpos_dummy = NULL, **srcpos_local = NULL;
 
-	for (j=1;j<=nsrc;j++) {
-		a=(iround(srcpos[1][j]/gv->DH)-1)/gv->IENDX;
-		b=(iround(srcpos[2][j]/gv->DH)-1)/gv->IENDY;
+  srcpos_dummy = matrix(1,NSPAR,1,nsrc);
 
-		if ((gv->POS[1]==a)&&(gv->POS[2]==b)) {
-			//found = 1;
-			i++;
-			srcpos_dummy[1][i] = (float)(((iround(srcpos[1][j]/gv->DH)-1)%gv->IENDX)+1);
-			srcpos_dummy[2][i] = (float)(((iround(srcpos[2][j]/gv->DH)-1)%gv->IENDY)+1);
-			srcpos_dummy[3][i] = 0.0;
-			srcpos_dummy[4][i] = srcpos[4][j];
-			srcpos_dummy[5][i] = srcpos[5][j];
-			srcpos_dummy[6][i] = srcpos[6][j];
-			srcpos_dummy[7][i] = srcpos[7][j];
-			srcpos_dummy[8][i] = srcpos[8][j];
-            srcpos_dummy[9][i] = srcpos[9][j];
-            srcpos_dummy[10][i] = srcpos[10][j];
-            srcpos_dummy[11][i] = srcpos[11][j];
-            srcpos_dummy[12][i] = srcpos[12][j];
-		}
-	}
+  for (j=1;j<=nsrc;j++) {
+    a=(iround(srcpos[1][j]/gv->DH)-1)/gv->IENDX;
+    b=(iround(srcpos[2][j]/gv->DH)-1)/gv->IENDY;
 
-	if (i>0) srcpos_local = matrix(1,NSPAR,1,i);
-	for (k=1;k<=i;k++){
-		srcpos_local[1][k] = srcpos_dummy[1][k];
-		srcpos_local[2][k] = srcpos_dummy[2][k];
-		srcpos_local[3][k] = srcpos_dummy[3][k];
-		srcpos_local[4][k] = srcpos_dummy[4][k];
-		srcpos_local[5][k] = srcpos_dummy[5][k];
-		srcpos_local[6][k] = srcpos_dummy[6][k];
-		srcpos_local[7][k] = srcpos_dummy[7][k];
-		srcpos_local[8][k] = srcpos_dummy[8][k];
-        srcpos_local[9][k] = srcpos_dummy[9][k];
-        srcpos_local[10][k] = srcpos_dummy[10][k];
-        srcpos_local[11][k] = srcpos_dummy[11][k];
-        srcpos_local[12][k] = srcpos_dummy[12][k];
-	}
-	free_matrix(srcpos_dummy,1,NSPAR,1,nsrc);
-
-/*	fprintf(FP,"\n **Message from splitsrc:\n");
-	fprintf(FP," Splitting of source positions from global to local grids finished.\n");
-	fprintf(FP," MYID= %d \t \t no. of sources= %d\n",MYID,i);
-	fprintf(FP," NSRC_LOC is %i\n",*nsrc_loc);
+    if ((gv->POS[1]==a)&&(gv->POS[2]==b)) {
+      i++;
+      srcpos_dummy[1][i] = (float)(((iround(srcpos[1][j]/gv->DH)-1)%gv->IENDX)+1);
+      srcpos_dummy[2][i] = (float)(((iround(srcpos[2][j]/gv->DH)-1)%gv->IENDY)+1);
+      srcpos_dummy[3][i] = 0.0;
+      srcpos_dummy[4][i] = srcpos[4][j];
+      srcpos_dummy[5][i] = srcpos[5][j];
+      srcpos_dummy[6][i] = srcpos[6][j];
+      srcpos_dummy[7][i] = srcpos[7][j];
+      srcpos_dummy[8][i] = srcpos[8][j];
+      srcpos_dummy[9][i] = srcpos[9][j];
+      srcpos_dummy[10][i] = srcpos[10][j];
+      srcpos_dummy[11][i] = srcpos[11][j];
+      srcpos_dummy[12][i] = srcpos[12][j];
+    }
+  }
+  
+  if (i>0) srcpos_local = matrix(1,NSPAR,1,i);
+  for (k=1;k<=i;k++){
+    srcpos_local[1][k] = srcpos_dummy[1][k];
+    srcpos_local[2][k] = srcpos_dummy[2][k];
+    srcpos_local[3][k] = srcpos_dummy[3][k];
+    srcpos_local[4][k] = srcpos_dummy[4][k];
+    srcpos_local[5][k] = srcpos_dummy[5][k];
+    srcpos_local[6][k] = srcpos_dummy[6][k];
+    srcpos_local[7][k] = srcpos_dummy[7][k];
+    srcpos_local[8][k] = srcpos_dummy[8][k];
+    srcpos_local[9][k] = srcpos_dummy[9][k];
+    srcpos_local[10][k] = srcpos_dummy[10][k];
+    srcpos_local[11][k] = srcpos_dummy[11][k];
+    srcpos_local[12][k] = srcpos_dummy[12][k];
+  }
+  free_matrix(srcpos_dummy,1,NSPAR,1,nsrc);
+  
+  *nsrc_loc=i;
 	
-
-	fprintf(FP,"\n **Message from splitsrc:\n");
-	fprintf(FP," Table of local source positions (in gridpoints), time-shift, centre frequency and amplitude:\n");
-	fprintf(FP," MYID\t  x\t  y\t  z\t  tshift  fc\t  amp\n");
-
-	for (j=1;j<=i;j++)
-		fprintf(FP," %3d\t%4.0f\t%4.0f\t%4.0f\t%6.2f\t%6.2f\t%6.2f\n",
-		    MYID,srcpos_local[1][j],srcpos_local[2][j],srcpos_local[3][j],
-				   srcpos_local[4][j],srcpos_local[5][j],srcpos_local[6][j]); */
-
-
-   *nsrc_loc=i;
-	return srcpos_local;
-
+  return srcpos_local;
 }

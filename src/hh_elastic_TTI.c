@@ -34,9 +34,6 @@ void model_elastic_TTI(float  **  rho, float **  pc11, float **  pc33, float ** 
     
 	char modfile[STRING_SIZE+16];
 
-    int MYID;
-    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
 	/*-----------------material property definition -------------------------*/	
 
 	   /* anisotropic case, values from
@@ -45,8 +42,6 @@ void model_elastic_TTI(float  **  rho, float **  pc11, float **  pc33, float ** 
       const float C11=34.3e9, C33=22.7e9, C55=5.4e9, C13=10.7e9, RHO=2000.0;
       const float THETA=0.0; /* rotation angle in degrees */
       const int jh=-1;
-
-
 
 	/*-----------------------------------------------------------------------*/
 
@@ -111,7 +106,7 @@ void model_elastic_TTI(float  **  rho, float **  pc11, float **  pc33, float ** 
 		sprintf(modfile,"%s.SOFI2D.rho",gv->MFILE);
 		writemod(modfile,rho,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 	}
 
 	/* all models are written to file */
@@ -119,36 +114,36 @@ void model_elastic_TTI(float  **  rho, float **  pc11, float **  pc33, float ** 
 		sprintf(modfile,"%s.SOFI2D.c11",gv->MFILE);
 		writemod(modfile,pc11,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.c33",gv->MFILE);
 		writemod(modfile,pc33,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.c13",gv->MFILE);
 		writemod(modfile,pc13,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.c55",gv->MFILE);
 		writemod(modfile,pc55,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
         sprintf(modfile,"%s.SOFI2D.c15",gv->MFILE);
         writemod(modfile,pc15,3,gv);
         MPI_Barrier(MPI_COMM_WORLD);
-        if (MYID==0) mergemod(modfile,3,gv);
+        if (gv->MPID==0) mergemod(modfile,3,gv);
         
         sprintf(modfile,"%s.SOFI2D.c35",gv->MFILE);
         writemod(modfile,pc35,3,gv);
         MPI_Barrier(MPI_COMM_WORLD);
-        if (MYID==0) mergemod(modfile,3,gv);
+        if (gv->MPID==0) mergemod(modfile,3,gv);
 
         sprintf(modfile,"%s.SOFI2D.rho",gv->MFILE);
 		writemod(modfile,rho,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 	}
 }

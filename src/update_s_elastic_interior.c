@@ -29,28 +29,23 @@
 
 
 #include "fd.h"
+#include "logging.h"
 
 void update_s_elastic_interior ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
                         float **  vx, float **   vy, float **   sxx, float **   syy,
                         float **   sxy, float ** pi, float ** u, float ** uipjp, float *hc, GlobVar *gv )
 {
-
-
 	int i,j;
 	float fipjp, f, g;
 	float  vxx, vyy, vxy, vyx;
 	float  dhi;
 	double time1=0.0, time2=0.0;
 
-    int MYID;
-    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
 	dhi = 1.0/gv->DH;
 
-	if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
 		time1=MPI_Wtime();
-		fprintf ( gv->FP,"\n **Message from update_s_interior (printed by PE %d):\n",MYID );
-		fprintf ( gv->FP," Updating stress components ..." );
+		log_debug("Updating stress components...\n");
 	}
 
 	
@@ -285,9 +280,9 @@ void update_s_elastic_interior ( int nx1, int nx2, int ny1, int ny2, int * gx, i
 
 
 
-	if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
 		time2=MPI_Wtime();
-		fprintf ( gv->FP," finished (real time: %4.3f s).\n",time2-time1 );
+		log_debug("Finished updating stress components (real time: %4.3fs).\n",time2-time1);
 	}
 }
 

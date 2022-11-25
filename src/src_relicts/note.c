@@ -17,21 +17,29 @@
   * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 /*------------------------------------------------------------------------
- *   Write program name etc to stdout                          
+ *   Write note to stdout
  *
  *  ----------------------------------------------------------------------*/
 
-#include <stdio.h>
+#include "fd.h"
 
-void info(FILE *fp) {
-  fprintf(fp,"*******************************************************************\n");
-  fprintf(fp,"* This is program SOFI2D.                                         *\n");
-  fprintf(fp,"* Parallel 2D Viscoelastic Anisotropic Finite-Difference Modeling *\n");
-  fprintf(fp,"*                                                                 *\n");
-  fprintf(fp,"* written by  T. Bohlen                                           *\n");
-  fprintf(fp,"* Geophysical Institute, KIT Department of Physics                *\n");
-  fprintf(fp,"* Karlsruhe Institute of Technology, Karlsruhe, Germany           *\n");
-  fprintf(fp,"* https://www.gpi.kit.edu/                                        *\n");
-  fprintf(fp,"*******************************************************************\n");
-  fprintf(fp,"\n");
+void note(FILE *fp){
+
+extern char LOG_FILE[STRING_SIZE];
+extern int MYID, LOG;
+
+	fprintf(fp," Please note: \n");
+	fprintf(fp," Each processing element (PE) is writing log information during program \n");
+	fprintf(fp," execution to %s.PE .\n",LOG_FILE);
+	fprintf(fp," See corresponding log-files for further information on program status.\n");
+	fprintf(fp," Information about overall program execution \n");
+	fprintf(fp," (numerical artefacts, accuracy, computing times etc)\n");
+	if (LOG){
+		fprintf(fp," will be written by PE 0 to ");
+		if (LOG==1) fprintf(fp," standard output. \n");
+		else if (LOG==2)    fprintf(fp," %s.%i .\n",LOG_FILE,MYID);
+	}
+	else
+		fprintf(fp," will NOT be output.");
+	
 }

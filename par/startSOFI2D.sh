@@ -6,7 +6,7 @@
 # mpirun -np 4 ../bin/sofi2D ./in_and_out/sofi2D.json | tee ./in_and_out/sofi2D.jout
 # mpirun -np 4 ../bin/sofi2D ./in_and_out/sofi2D.json > ./in_and_out/sofi2D.jout
 # mpirun -np 4 valgrind ../bin/sofi2D ./in_and_out/sofi2D.json 
-mpirun -np 4 ../bin/sofi2D ./in_and_out/sofi2D.json
+mpirun -mca btl_base_warn_component_unused 0 -mca orte_base_help_aggregate 0 -np 4 ../bin/sofi2D ./in_and_out/sofi2D.json
  
 #../bin/snapmerge ./in_and_out/sofi2D.json
 

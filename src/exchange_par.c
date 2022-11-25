@@ -29,10 +29,7 @@ void exchange_par(GlobVar *gv) {
   int idum[NPAR];
   float fdum[NPAR];
     
-  int MYID;
-  MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-  
-  if (MYID == 0) {
+  if (gv->MPID == 0) {
     fdum[1]  = gv->DH;
     fdum[2]  = gv->TIME;
     fdum[3]  = gv->DT;
@@ -114,7 +111,7 @@ void exchange_par(GlobVar *gv) {
 
     idum[36] = gv->FDORDER_TIME;
 
-  } /** if (MYID == 0) **/
+  } /** if (gv->MPID == 0) **/
 
   MPI_Barrier(MPI_COMM_WORLD);
   
@@ -212,7 +209,7 @@ void exchange_par(GlobVar *gv) {
   gv->FDORDER_TIME = idum[36];
   
   if (gv->L>0) {
-    if (MYID != 0) {
+    if (gv->MPID != 0) {
       gv->FL = vector(1,gv->L);
     }
     MPI_Barrier(MPI_COMM_WORLD);

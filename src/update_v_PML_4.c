@@ -27,9 +27,7 @@
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
-
-
-
+#include "logging.h"
 
 void update_v_PML_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt, float **  vx, float ** vy,
                    float ** sxx, float ** syy, float ** sxy,  float  **rip, float **rjp,
@@ -42,9 +40,6 @@ void update_v_PML_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, in
     float sxx_x, syy_y, sxy_y, sxy_x;
     double time1=0.0, time2=0.0;
     
-    int MYID;
-    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-    
     fdoh=gv->FDORDER/2;
     
     /*Pointer array to the locations of the fd-operator functions*/
@@ -56,10 +51,9 @@ void update_v_PML_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, in
     FD_op_v[5] = &operator_v_fd10;
     FD_op_v[6] = &operator_v_fd12;
     
-    if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+    if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
         time1=MPI_Wtime();
-        fprintf ( gv->FP,"\n **Message from update_v_PML_4 (printed by PE %d):\n",MYID );
-        fprintf ( gv->FP," Updating particle velocities ..." );
+	log_debug("Updating particle velocities...\n");
     }
     
     /* ------------------------------------------------------------
@@ -238,8 +232,8 @@ void update_v_PML_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, in
         }
     }
     
-    if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+    if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
         time2=MPI_Wtime();
-        fprintf ( gv->FP," finished (real time: %4.3f s).\n",time2-time1 );
+        log_debug("Finished updating particle velocities (real time: %4.3fs).\n",time2-time1);
     }
 }

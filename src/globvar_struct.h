@@ -17,7 +17,7 @@
   * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 /*------------------------------------------------------------------------
- * globvar.h - global variables of viscoelastic 2D FD program
+ * globvar_struct.h - global variables of viscoelastic 2D FD program
  * generally, for the names of the global variables uppercase letters are used
  *
  * ----------------------------------------------------------------------*/
@@ -44,12 +44,12 @@ typedef struct {
     char  SIGNAL_FILE[STRING_SIZE];       // name of external signal file
     int   SRCREC;                         // switch to read source parameters from external source file
     char  SOURCE_FILE[STRING_SIZE];       // name of source parameter file
-    int   RUN_MULTIPLE_SHOTS;             // multiple shots modeled simultaneously (0) or individually /* Added for multiple shots */
+    int   RUN_MULTIPLE_SHOTS;             // multiple shots modeled simultaneously (0) or individually; added for multiple shots
     float PLANE_WAVE_DEPTH;               // depth of plane wave excitation [meter]
     float PLANE_WAVE_ANGLE;               // dip of plane wave from vertical [degree]
     float TS;                             // duration of source signal [in second]
-    float XS;                           //// Source location ??
-    float YS;                           //// Source location ??
+    float XS;                             // Source location ??
+    float YS;                             // Source location ??
     /*Receiver*/
     int   READREC;                        // switch to read receiver positions from file
     char  REC_FILE[STRING_SIZE];          // name of external receiver file
@@ -58,7 +58,8 @@ typedef struct {
     float XREC2;                          // x-position of last receiver [m]
     float YREC1;                          // y-position of first receiver [m]
     float YREC2;                          // y-position of last receiver [m]
-    float NGEOPH;                         // distance between two adjacent receivers [gridpoints] /*in auto mode NGEOPH will be calculated from model dimensions, type integer is incorrect*/
+    float NGEOPH;                         // distance between two adjacent receivers [gridpoints]; in auto mode NGEOPH will be 
+                                          // calculated from model dimensions, type integer is incorrect
     int   REC_ARRAY;                      // number of receivers in 1D receiver array
     float REC_ARRAY_DEPTH;                // depth of first plane [m] 
     float REC_ARRAY_DIST;                 // increment between receiver planes [m]
@@ -90,11 +91,10 @@ typedef struct {
     int   LOG;                            // switch to output logging information
     char  LOG_VERBOSITY[STRING_SIZE];     // log output level (verbosity)       
     char  LOG_FILE[STRING_SIZE];          // name of output file of logging information
-    int   OUTNTIMESTEPINFO;               //     /*every OUTNTIMESTEPINFO th timestep, information on the time step will be given to screen/file */
+    int   OUTNTIMESTEPINFO;               // every OUTNTIMESTEPINFO th timestep, information on the time step will be given to screen/file
     int   CHECKPTREAD;                    // switch to read wavefield from checkpoint file
     int   CHECKPTWRITE;                   // switch to save wavefield to checkpoint file
     char  CHECKPTFILE[STRING_SIZE];       // name of checkpoint file
-    FILE *FP;                           //// file pointer
 //}
 
 //struct FDParams{
@@ -112,9 +112,9 @@ typedef struct {
     int   NPROCY;                         // number of processors in y-direction
     int   NPROC;                        //// number of processors (=NPROCX*NPROCY)
     int   NP;                           //// number of processors from mpirun command
-    int   MYID;                         //// ID of processor
+    int   MPID;                         //// ID of processor
     int   INDEX[5];                     //// ID of neighboring processes %% Why 5??? - should be just 4
-    int   POS[3];                       //// processor location in the 3D logical processor array (MYID%NPROCX; MYID/NPROCX) %% Why 3?? - should be just 2
+    int   POS[3];                       //// processor location in the 3D logical processor array (MPID%NPROCX; MPID/NPROCX) %% Why 3?? - should be just 2
     int   IENDX;                        //// size of domain in x-direction (=NX/NPROCX)
     int   IENDY;                        //// size of domain in y-direction (=NY/NPROCY)
     int   NXG;                          //// number of grid points in x-direction (global)
@@ -139,7 +139,7 @@ typedef struct {
 } GlobVar;
 
     /* Parameters not used - please double check! */    
-//    int   RSG;                          //// ??? NOT USED ??? - rotated staggered grid     /* spatial adaptive Code variables*/
+//    int   RSG;                          //// ??? NOT USED ??? - rotated staggered grid; spatial adaptive Code variables
 //    float SRCPOSXYZ[3]={0.0, 0.0, 0.0}; //// !!! NOT USED !!!
 //    int   NSRC;                         //// !!! NOT USED !!!
 //    int   NPSP;                         //// !!! NOT USED !!!

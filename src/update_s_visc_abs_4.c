@@ -28,23 +28,26 @@
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
+#include "logging.h"
 
 void update_s_visc_abs_4(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
-                       float **vx, float **vy, float **sxx, float **syy,
-                       float **sxy, float ***r, float *** p, float ***q,
-                       float **pi,
-                       float ** fipjp, float **f, float **g, float *bip, float *bjm, float *cip,
-                       float *cjm, float ***d, float ***e, float ***dip,
-                       float ** absorb_coeff,float *hc,  float ** vxx_1,float ** vxx_2,float ** vxx_3,float ** vxx_4,float ** vyy_1,float ** vyy_2,float ** vyy_3,float ** vyy_4,float ** vxy_1,float ** vxy_2,float ** vxy_3,float ** vxy_4,float ** vyx_1,float ** vyx_2,float ** vyx_3,float ** vyx_4,float ** svx_1,float ** svx_2,float ** svx_3,float ** svx_4,float ** svy_1,float ** svy_2,float ** svy_3,float ** svy_4,float ***pr_2,float ***pr_3,float ***pr_4, float ***pp_2, float ***pp_3, float ***pp_4, float ***pq_2, float ***pq_3, float ***pq_4, GlobVar *gv){
-    
-    
+			 float **vx, float **vy, float **sxx, float **syy,
+			 float **sxy, float ***r, float *** p, float ***q,
+			 float **pi,
+			 float ** fipjp, float **f, float **g, float *bip, float *bjm, float *cip,
+			 float *cjm, float ***d, float ***e, float ***dip,
+			 float ** absorb_coeff,float *hc,  float ** vxx_1,float ** vxx_2,
+			 float ** vxx_3,float ** vxx_4,float ** vyy_1,float ** vyy_2,float ** vyy_3,
+			 float ** vyy_4,float ** vxy_1,float ** vxy_2,float ** vxy_3,float ** vxy_4,
+			 float ** vyx_1,float ** vyx_2,float ** vyx_3,float ** vyx_4,float ** svx_1,
+			 float ** svx_2,float ** svx_3,float ** svx_4,float ** svy_1,float ** svy_2,
+			 float ** svy_3,float ** svy_4,float ***pr_2,float ***pr_3,float ***pr_4, 
+			 float ***pp_2, float ***pp_3, float ***pp_4, float ***pq_2, float ***pq_3, 
+			 float ***pq_4, GlobVar *gv)
+{
     int i,j,fdoh;
     float  vxx, vyy, vxy, vyx;
     double time1=0.0, time2=0.0;
-    
-    int MYID;
-    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-    
     
     fdoh = gv->FDORDER/2;
     
@@ -57,10 +60,9 @@ void update_s_visc_abs_4(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, i
     FD_op_s[5] = &operator_s_fd10;
     FD_op_s[6] = &operator_s_fd12;
     
-    if ((MYID==0) && ((nt+(gv->OUTNTIMESTEPINFO-1))%gv->OUTNTIMESTEPINFO)==0) {
+    if ((gv->MPID==0) && ((nt+(gv->OUTNTIMESTEPINFO-1))%gv->OUTNTIMESTEPINFO)==0) {
         time1=MPI_Wtime();
-        fprintf(gv->FP,"\n **Message from update_s_4 (printed by PE %d):\n",MYID);
-        fprintf(gv->FP," Updating stress components ...");
+	log_debug("Updating stress components...\n");
     }
     
     
@@ -160,8 +162,8 @@ void update_s_visc_abs_4(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, i
     }
     
     
-    if ((MYID==0) && ((nt+(gv->OUTNTIMESTEPINFO-1))%gv->OUTNTIMESTEPINFO)==0) {
+    if ((gv->MPID==0) && ((nt+(gv->OUTNTIMESTEPINFO-1))%gv->OUTNTIMESTEPINFO)==0) {
         time2=MPI_Wtime();
-        fprintf(gv->FP," finished (real time: %4.3f s).\n",time2-time1);
+        log_debug("Finished updating stress components (real time: %4.3fs).\n",time2-time1);
     }
 }

@@ -28,8 +28,7 @@
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
-
-
+#include "logging.h"
 
 void update_v_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
                          float **  vx, float ** vy, float ** sxx, float ** syy,
@@ -43,15 +42,11 @@ void update_v_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, i
 	float azi_rad;
 	double time1=0.0, time2=0.0;
 
-    int MYID;
-    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
 	dtdh = gv->DT/gv->DH;
 
-	if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
 		time1=MPI_Wtime();
-		fprintf ( gv->FP,"\n **Message from update_v_interior (printed by PE %d):\n",MYID );
-		fprintf ( gv->FP," Updating particle velocities ..." );
+		log_debug("Updating particle velocities...\n");
 	}
 
 	/* ------------------------------------------------------------
@@ -67,8 +62,6 @@ void update_v_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, i
 
 			//amp=signals[l][nt]; // unscaled force amplitude
 			amp= ( gv->DT*signals[l][nt] ) / ( gv->DH*gv->DH ); // scaled force amplitude with F= 1N
-
-			//fprintf(gv->FP," amp at timestep nt %i = %5.5e with gv->DH=%5.2f  gv->DT=%5.8f\n",nt,amp,gv->DH,gv->DT);
 
 			gv->SOURCE_TYPE= ( int ) srcpos_loc[8][l];
 
@@ -310,8 +303,8 @@ void update_v_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, i
 		break;
 	} /* end of switch(gv->FDORDER) */
 
-	if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
 		time2=MPI_Wtime();
-		fprintf ( gv->FP," finished (real time: %4.3f s).\n",time2-time1 );
+		log_debug("Finished updating particle velocities (real time: %4.3fs).\n",time2-time1 );
 	}
 }

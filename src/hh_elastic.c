@@ -32,9 +32,6 @@ void model_elastic(float  **  rho, float **  pi, float **  u, GlobVar *gv){
 	char modfile[STRING_SIZE+16];
 	float ** pwavemod=NULL, ** swavemod=NULL;
 
-    int MYID;
-    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
 	/*-----------------material property definition -------------------------*/	
 
 	/* parameters for layer 1 */
@@ -96,7 +93,7 @@ void model_elastic(float  **  rho, float **  pi, float **  u, GlobVar *gv){
 		sprintf(modfile,"%s.SOFI2D.rho",gv->MFILE);
 		writemod(modfile,rho,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 	}
 
 	/* all models are written to file */
@@ -104,27 +101,27 @@ void model_elastic(float  **  rho, float **  pi, float **  u, GlobVar *gv){
 		sprintf(modfile,"%s.SOFI2D.u",gv->MFILE);
 		writemod(modfile,u,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.pi",gv->MFILE);
 		writemod(modfile,pi,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.vp",gv->MFILE);
 		writemod(modfile,pwavemod,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.vs",gv->MFILE);
 		writemod(modfile,swavemod,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.rho",gv->MFILE);
 		writemod(modfile,rho,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 	}
 
 	if (gv->WRITE_MODELFILES==1) {

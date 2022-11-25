@@ -22,6 +22,7 @@
  *   ------------------------------------------------------------- */
 
 #include "fd.h"
+#include "logging.h"
 
 void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, float **  taup, float *  eta, GlobVar *gv){
 
@@ -31,9 +32,6 @@ void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, floa
 	int i, j, l, ii, jj;
 	char modfile[STRING_SIZE+16];	
 	float ** pwavemod=NULL, ** swavemod=NULL;
-
-    int MYID;
-    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
 
 	/*-----------------material property definition -------------------------*/	
 
@@ -64,11 +62,7 @@ void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, floa
 
 
     fc=1.0/gv->TS;
-    if (MYID==0){
-        fprintf(gv->FP," Message from readmod_visco_vti:\n");
-        fprintf(gv->FP," Center source frequency of %5.2f Hz applied for calculation of relaxed moduli ! \n",fc);
-       
-    }
+    log_infoc(0, "Center source frequency of %5.2fHz applied for calculation of relaxed moduli.\n", fc);
     
     ws=2.0*PI*fc;
 
@@ -130,37 +124,37 @@ void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, floa
 		sprintf(modfile,"%s.SOFI2D.u",gv->MFILE);
 		writemod(modfile,u,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.pi",gv->MFILE);
 		writemod(modfile,pi,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.ts",gv->MFILE);
 		writemod(modfile,taus,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.tp",gv->MFILE);
 		writemod(modfile,taup,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.vp",gv->MFILE);
 		writemod(modfile,pwavemod,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.vs",gv->MFILE);
 		writemod(modfile,swavemod,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.rho",gv->MFILE);
 		writemod(modfile,rho,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 	}
 
 	/* only density is written to file */
@@ -168,7 +162,7 @@ void model_visco(float  **  rho, float **  pi, float **  u, float **  taus, floa
 		sprintf(modfile,"%s.SOFI2D.rho",gv->MFILE);
 		writemod(modfile,rho,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 	}
 
 	free_vector(pts,1,gv->L);

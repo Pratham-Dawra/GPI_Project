@@ -16,50 +16,35 @@
  * along with SOFI2D. See file COPYING and/or 
   * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
-/*------------------------------------------------------------------------
- *   loop over snapshotfiles which have to be merged.                                   
- *
- *  ----------------------------------------------------------------------*/
 
+#include <unistd.h>
 #include "fd.h"
+#include "logging.h"
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv) 
+{
+  int nsnap;
+  GlobVar gv = {.MPID=0, .OUTNTIMESTEPINFO=1, .NDT=1, .IDX=1, .IDY=1};
 
-  int  nsnap;
-  char *fileinp="";
-  
-  GlobVar gv = {.FP=stdout, .OUTNTIMESTEPINFO=1, .NDT=1, .IDX=1, .IDY=1};
+  log_init(NULL);
+  log_banner(LOG_SNAP);
 
-  /* ============================================== */
-  /* Open parameter-file to check if auto mode or not*/
-  fileinp = argv[1];
-
-  printf(" ***********************************************************\n");
-  printf(" This is program SNAPMERGE.\n");
-  printf(" Merge of snapshot files from the parallel\n 2-D Viscoelastic Finite Difference Modeling\n\n");
-  printf(" written by  T. Bohlen\n");
-  printf(" Geophysical Institute, Department of Physics,\n");
-  printf(" Karlsruhe Institute of Technology, Karlsruhe, Germany\n");
-  printf(" http://www.gpi.kit.edu\n");
-  printf(" ***********************************************************\n\n");
-  printf(" Syntax example if excecuted from ./par directory: ../bin/snapmerge in_and_out/sofi2D.json\n");
-  printf(" Input file for the snapmerge process from command line : %s\n",fileinp);
-  
-  if ((gv.FP=fopen(fileinp,"r"))==NULL) {
-      declare_error(" Opening input file failed.");
-  } else {
-      printf(" Opening input file was successful.\n\n");
+  if (argc != 2) {
+    log_fatal("Unexpected number of commandline arguments; single argument required: name of json parameter file.\n");
   }
-  fclose(gv.FP);
 
-  /* =================================================== */
-  /* read standard input file */
-  gv.FP = stdout;
+  const char *fileinp = argv[1];
+  
+  log_info("Parameter json file: %s\n", fileinp);
+  
+  if (access(fileinp, R_OK)) {
+    log_fatal("Could not open file %s for reading.\n", fileinp);
+  }
+  
   if (strstr(fileinp,".json")) {
-      read_par_json(fileinp, &gv);
+    read_par_json(fileinp, &gv);
   } else {
-      printf("Parameter file has no .json suffix.");
-      exit(EXIT_FAILURE);
+    log_fatal("Parameter file has no json suffix.\n");
   }
 
   gv.NXG = gv.NX;
@@ -68,9 +53,7 @@ int main(int argc, char **argv) {
   gv.NY = gv.NYG/gv.NPROCY;
   
   nsnap=1+iround((gv.TSNAP2-gv.TSNAP1)/gv.TSNAPINC);
-  
-  gv.FP = stdout;
-  
+   
   switch(gv.SNAP){
   case 1 : /*particle velocity*/
     merge(nsnap,1,&gv);
@@ -88,8 +71,11 @@ int main(int argc, char **argv) {
     merge(nsnap,5,&gv);
     break;
   default :
-    warning(" snapmerge: cannot identify content of snapshot !");
+    log_fatal("Unknown value for parameter SNAP.\n");
     break;
   }
+
+  log_finalize();
+
   return EXIT_SUCCESS;	
 }

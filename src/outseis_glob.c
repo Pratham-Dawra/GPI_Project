@@ -23,14 +23,13 @@
 
 #include "fd.h"
 #include "segy.h"
+#include "logging.h"
 
-void  outseis_glob(FILE *fp, FILE *fpdata, float **section,
+void  outseis_glob(FILE *fpdata, float **section,
 		int **recpos, int **recpos_loc, int ntr, float ** srcpos,
 		int nsrc, int ns, int seis_form, int ishot, int comp, GlobVar *gv) {
 
 	const float xshift=800.0, yshift=800.0;
-
-	//fprintf(fp,"\n **Message from function outseis_glob \n\n");
 
 	/* declaration of local variables */
 	int i,j;
@@ -219,8 +218,7 @@ void  outseis_glob(FILE *fp, FILE *fpdata, float **section,
 		break;
 
 	default :
-		fprintf(fp," Don't know data format for seismograms !\n");
-		fprintf(fp," No output written. ");
+	  log_warn("Unknown data format for seismograms. No output written!\n");
 	}
 
 	fclose(fpdata);

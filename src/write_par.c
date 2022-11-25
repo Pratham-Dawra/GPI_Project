@@ -22,322 +22,273 @@
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
+#include "logging.h"
 
-/* printing all important parameters on stdout */
-void write_par(FILE *fp, GlobVar *gv) {
+/* print all important parameters */
+void write_par(GlobVar *gv) 
+{
+  char file_ext[8];
 
-	/* definition of local variables */
-	int l;
-	char file_ext[8];
-    int MYID;
-    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-    
-	fprintf(fp,"\n **********************************************************");
-	fprintf(fp,"\n ********* PARAMETERS AS SPECIFIED IN INPUT FILE **********");
-	fprintf(fp,"\n **********************************************************\n\n");
+  log_info("------------------------- Processors ------------------------\n");
+  log_info("Number of subdomains in x-direction (NPROCX): %d\n", gv->NPROCX);
+  log_info("Number of subdomains in y-direction (NPROCY): %d\n", gv->NPROCY);
+  log_info("Total number of MPI processes/subdomains (NP): %d\n", gv->NP);
 
-	fprintf(fp,"\n **Message from write_par (printed by PE %d):\n",MYID);
-	fprintf(fp,"\n");
-	fprintf(fp,"------------------------- Processors ------------------------\n");
-	fprintf(fp," Number of PEs in x-direction (NPROCX): %d\n",gv->NPROCX);
-	fprintf(fp," Number of PEs in vertical direction (NPROCY): %d\n",gv->NPROCY);
-	fprintf(fp," Total number of PEs in use: %d\n",gv->NP);
-	fprintf(fp,"\n");
+  log_info("------------------------- FD Algorithm ----------------------\n");
+  log_info("Grid: standard staggered grid (SSG) (Virieux-grid)\n");
+  log_info("Order of spatial FD operators (FDORDER): %d\n", gv->FDORDER);
+  log_info("Order of temporal FD operator (FDORDER_TIME): %d\n", gv->FDORDER_TIME);
 
-	fprintf(fp,"------------------------- FD Algorithm ------------------------\n");
-	/*if (gv->RSG) {
-		fprintf(fp," Rotated Staggered Grid (RSG) is used. \n");
-		fprintf(fp," Order of spatial FD operators (FDORDER) is set to 2.");
-
-	} else 	{
-		fprintf(fp," Standard Staggered Grid (SSG) (Virieux-grid) is used.\n");
-		fprintf(fp," Order of spatial FD operators (FDORDER) is %d\n", gv->FDORDER);
-        fprintf(fp," Order of temporal FD operator (FDORDER_TIME) is %d\n", gv->FDORDER_TIME);
-	}*/
-    fprintf(fp," Standard Staggered Grid (SSG) (Virieux-grid) is used.\n");
-    fprintf(fp," Order of spatial FD operators (FDORDER) is %d\n", gv->FDORDER);
-    fprintf(fp," Order of temporal FD operator (FDORDER_TIME) is %d\n", gv->FDORDER_TIME);
-	fprintf(fp,"\n");
-
-    fprintf(fp,"----------------------- Wave Equation ------------------------\n");
-
-    switch (gv->WEQ){
-        case 1 :
-            fprintf(fp," Acoustic wave equation\n");
-            break;
-        case 2 :
-            fprintf(fp," Viscoacoustic wave equation\n");
-            break;
-        case 3 :
-            fprintf(fp," Elastic wave equation\n");
-            break;
-        case 4 :
-            fprintf(fp," Viscoelastic wave equation\n");
-            break;
-        case 5 :
-            fprintf(fp," Elastic VTI wave equation\n");
-            break;
-        case 6 :
-            fprintf(fp," Viscoelastic VTI wave equation\n");
-            break;
-        case 7 :
-            fprintf(fp," Elastic TTI wave equation\n");
-            break;
-        case 8 :
-            fprintf(fp," Viscoelastic TTI wave equation\n");
-            break;
-            
-        default :
-            declare_error(" Sorry, incorrect specification of type of wave equation (WEQ) ! ");
-            break;
+  log_info("------------------------- Wave Equation ---------------------\n");
+  switch (gv->WEQ)
+    {
+    case 1 :
+      log_info("Type (WEQ): acoustic wave equation\n");
+      break;
+    case 2 :
+      log_info("Type (WEQ): viscoacoustic wave equation\n");
+      break;
+    case 3 :
+      log_info("Type (WEQ): elastic wave equation\n");
+      break;
+    case 4 :
+      log_info("Type (WEQ): viscoelastic wave equation\n");
+      break;
+    case 5 :
+      log_info("Type (WEQ): elastic VTI wave equation\n");
+      break;
+    case 6 :
+      log_info("Type (WEQ): viscoelastic VTI wave equation\n");
+      break;
+    case 7 :
+      log_info("Type (WEQ): elastic TTI wave equation\n");
+      break;
+    case 8 :
+      log_info("Type (WEQ): viscoelastic TTI wave equation\n");
+      break;
+    default :
+      log_fatal("Sorry, incorrect specification of parameter WEQ (type of wave equation)!\n");
+      break;
     }
 
-    fprintf(fp,"\n");
-    
+  log_info("------------------------- Discretization --------------------\n");
+  log_info("Model size (grid points) in x-direction (NX): %d\n", gv->NX);
+  log_info("Model size (grid points) in y-direction (NY): %d\n", gv->NY);
+  log_info("Grid-spacing (DH): %em\n", gv->DH);
+  log_info("Model size (real) in x-direction: %em\n", (gv->NX-1)*gv->DH);
+  log_info("Model size (real) in y-direction: %em\n", (gv->NY-1)*gv->DH);
+  log_info("Time of wave propagation (TIME): %es\n",gv->TIME);
+  log_info("Time step interval (DT): %es\n", gv->DT);
+  log_info("Number of time steps: %d \n",gv->NT);
 
-	fprintf(fp," ----------------------- Discretization  ---------------------\n");
-	fprintf(fp," Number of gridpoints in x-direction (NX): %i\n", gv->NX);
-	fprintf(fp," Number of gridpoints in y-direction (NY): %i\n", gv->NY);
-	fprintf(fp," Grid-spacing (DH): %e meter\n", gv->DH);
-	fprintf(fp," Model size in x-direction: %.5g m\n", gv->NX*gv->DH);
-	fprintf(fp," Model size in y-direction: %.5g m\n", gv->NY*gv->DH);
-	fprintf(fp," Time of wave propagation (T): %e seconds\n",gv->TIME);
-	fprintf(fp," Timestep (DT): %e seconds\n", gv->DT);
-	fprintf(fp," Number of timesteps: %i \n",gv->NT);
-	fprintf(fp,"\n");
-	fprintf(fp," ------------------------- SOURCE -----------------------------\n");
-
-	if (gv->SRCREC) {
-		fprintf(fp," reading source positions, time delay, centre frequency \n");
-		fprintf(fp," and initial amplitude from ASCII-file: %s\n\n",gv->SOURCE_FILE);
-	} else {
-		fprintf(fp," plane wave excitation: depth= %5.2f meter \n",gv->PLANE_WAVE_DEPTH);
-		fprintf(fp," incidence angle of plane P-wave (from vertical) PLANE_WAVE_ANGLE= %5.2f degrees \n",gv->PLANE_WAVE_ANGLE);
- 		fprintf(fp," duration of source signal: %e seconds\n",gv->TS);
- 		fprintf(fp," (centre frequency is approximately %e Hz)\n",1.0/gv->TS);
-	}
-
-	fprintf(fp," wavelet of source:");
-
-	switch (gv->SOURCE_SHAPE) {
-	case 1 :
-		fprintf(fp," Ricker\n");
-		break;
-	case 2 :
-		fprintf(fp," Fuchs-Mueller\n");
-		break;
-	case 3 :
-		fprintf(fp," reading from \n\t %s\n",gv->SIGNAL_FILE);
-		break;
-	case 4 :
-		fprintf(fp," sinus raised to the power of 3.0 \n");
-		break;
-	case 5 :
-		fprintf(fp," Berlage wavelet \n");
-		break;
-	case 6 :
-		fprintf(fp," Klauder wavelet \n");
-		break;
-	default :
-		declare_error(" Sorry, incorrect specification of source wavelet ! ");
-		break;
-	}
-
-	fprintf(fp," Type of source:");
-	switch (gv->SOURCE_TYPE) {
-	case 1 :
-		fprintf(fp," explosive source \n");
-		break;
-	case 2 :
-		fprintf(fp," point source with directive force in x-direction\n");
-		break;
-	case 3 :
-		fprintf(fp," point source with directive force in (vertical) y-direction\n");
-		break;
-	case 4 :
-		fprintf(fp," point source with directive force in  z-direction\n");
-		break;
-	default :
-		declare_error(" Sorry, wrong source type specification ! ");
-		break;
-	}
-
-	if (1==gv->SIGOUT) {
-        switch (gv->SIGOUT_FORMAT){
-            case 1: sprintf(file_ext,"su");  break;
-            case 2: sprintf(file_ext,"txt"); break;
-            case 3: sprintf(file_ext,"bin"); break;
-		}
-        fprintf(fp," Source signal will be written to file: %s.%s\n\n",gv->SIGOUT_FILE,file_ext);
+  log_info("------------------------- Source parameters -----------------\n");
+  if (gv->SRCREC) {
+    log_info("Source parameters will be read from ASCII file %s.\n", gv->SOURCE_FILE);
+  } else {
+    log_info("Plane wave excitation depth (PLANE_WAVE_DEPTH): %5.2fm\n", gv->PLANE_WAVE_DEPTH);
+    log_info("Incidence angle of plane P-wave (from vertical; PLANE_WAVE_ANGLE): %5.2fdeg\n",gv->PLANE_WAVE_ANGLE);
+    log_info("Duration of source signal (TS): %es\n",gv->TS);
+    log_info("Center frequency is approximately %eHz.\n", 1.0/gv->TS);
+  }
+  switch (gv->SOURCE_SHAPE) 
+    {
+    case 1 :
+      log_info("Source wavelet: Ricker (zero-phase; shifted)\n");
+      break;
+    case 2 :
+      log_info("Source wavelet: Fuchs-Mueller\n");
+      break;
+    case 3 :
+      log_info("Source wavelet will be read from ASCII file %s.\n",gv->SIGNAL_FILE);
+      break;
+    case 4 :
+      log_info("Source wavelet: sine^3\n");
+      break;
+    case 5 :
+      log_info("Source wavelet: Berlage (minimum-phase)\n");
+      break;
+    case 6 :
+      log_info("Source wavelet: Klauder (zero-phase; shifted)\n");
+      break;
+    default :
+      log_fatal("Sorry, incorrect specification of parameter SOURCE_SHAPE (source wavelet)!\n");
+      break;
     }
+  switch (gv->SOURCE_TYPE) 
+    {
+    case 1 :
+      log_info("Type of source: explosive source\n");
+      break;
+    case 2 :
+      log_info("Type of source: point source with directive force in (horizontal) x-direction\n");
+      break;
+    case 3 :
+      log_info("Type of source: point source with directive force in (vertical) y-direction\n");
+      break;
+    case 4 :
+      log_info("Type of source: point source with directive force in (horizontal) z-direction\n");
+      break;
+    default :
+      log_fatal("Sorry, incorrect specification of parameter SOURCE_TYPE (source type)!\n");
+      break;
+    }
+  if (1==gv->SIGOUT) {
+    switch (gv->SIGOUT_FORMAT)
+      {
+      case 1: sprintf(file_ext,"su");  break;
+      case 2: sprintf(file_ext,"txt"); break;
+      case 3: sprintf(file_ext,"bin"); break;
+      default:
+	log_fatal("Sorry, incorrect specification of parameter SIGOUT_FORMAT (output format of source signature)!\n");
+      }
+    log_info("Source signature will be written to file %s.%s.\n",gv->SIGOUT_FILE, file_ext);
+  }
 
-	fprintf(fp,"\n");
+  if (gv->SEISMO) {
+    log_info("------------------------- Receivers -------------------------\n");
+    if (gv->READREC) {
+      log_info("Receiver positions will be read from ASCII file %s.\n", gv->REC_FILE);
+      log_info("Reference point for receivers (REFRECX, REFRECY): (%f, %f)m\n", gv->REFREC[1], gv->REFREC[2]);
+    } else if (gv->REC_ARRAY>0){
+      log_info("Using %d horizontal line(s) of receivers (REC_ARRAY).\n", gv->REC_ARRAY);
+      log_info("Depth of upper line (REC_ARRAY_DEPTH): %em\n",gv->REC_ARRAY_DEPTH);
+      log_info("Vertical increment between lines (REC_ARRAY_DIST): %em\n",gv->REC_ARRAY_DIST);
+      log_info("Receiver distance (grid points) within line in x-direction (DRX): %d\n", gv->DRX);
+    } else {
+      log_info("First receiver position (XREC1, YREC1): (%e, %e)m\n", gv->XREC1,gv->YREC1);
+      log_info("Last receiver position (XREC2, YREC2): (%e, %e)m\n", gv->XREC2,gv->YREC2);
+    }
+  }
 
-	if (gv->SEISMO){
-		fprintf(fp," ------------------------- RECEIVER  ------- -------------------\n");
-		if (gv->READREC){
-			fprintf(fp," reading receiver positions from file \n");
-			fprintf(fp,"\t%s\n\n",gv->REC_FILE);
-			fprintf(fp," reference point for receiver coordinate system:\n");
-			fprintf(fp," x=%f \ty=%f\t z=%f\n",gv->REFREC[1], gv->REFREC[2], gv->REFREC[3]);
-		} else if (gv->REC_ARRAY>0){
-				fprintf(fp," horizontal lines of receivers.\n");
-				fprintf(fp," number of lines: %d \n",gv->REC_ARRAY);
-				fprintf(fp," depth of upper line: %e m \n",gv->REC_ARRAY_DEPTH);
-				fprintf(fp," vertical increment between lines: %e m \n",gv->REC_ARRAY_DIST);
-				fprintf(fp," distance between receivers in x-direction within line: %i \n", gv->DRX);		
-		}else{
+  log_info("------------------------- Free surface ----------------------\n");
+  if (gv->FREE_SURF) log_info("Free surface at the top of the model (FREE_SURF).\n");
+  else log_info("No free surface at the top of the model (FREE_SURF).\n");
 
-			fprintf(fp," first receiver position (XREC1,YREC1) = (%e, %e) m\n",
-			    gv->XREC1,gv->YREC1);
-			fprintf(fp," last receiver position (XREC2,YREC2) = (%e, %e) m\n",
-			    gv->XREC2,gv->YREC2);
-		}
-		fprintf(fp,"\n");
-	}
+  log_info("------------------------- Absorbing frame -------------------\n");
+  if (gv->FW>0) {
+    log_info("Width of absorbing frame (FW): %d grid points (%5.2fm)\n",gv->FW,(float)(gv->FW-1)*gv->DH);
+    if (gv->ABS_TYPE==1) {
+      log_info("Type of frame (ABS_TYPE): CPML\n");
+      log_info("Damping velocity in the PML frame (VPPML): %fm/s\n",gv->VPPML);
+      log_info("Frequency within the PML frame (FPML): %fHz\n",gv->FPML);
+      log_info("NPOWER: %f\n",gv->NPOWER);
+      log_info("K_MAX: %f\n",gv->K_MAX_CPML);
+    }
+    if (gv->ABS_TYPE==2) {
+      log_info("Type of frame (ABS_TYPE): exponential damping\n");
+      log_info("Percentage of amplitude decay (DAMPING): %f\n",gv->DAMPING);
+    }
+  }
+  else log_info("No absorbing frame used.\n");
+  switch (gv->BOUNDARY) {
+  case 0 :
+    log_info("No periodic boundary condition used (BOUNDARY).\n");
+    break;
+  case 1 :
+    log_info("Periodic boundary condition at left and right edges (BOUNDARY).\n");
+    break;
+  default :
+    log_warn("Unknown value %d for parameter BOUNDARY; setting BOUNDARY=0 (no periodic boundary).", gv->BOUNDARY);
+    gv->BOUNDARY=0;
+    break;
+  }
 
-	fprintf(fp," ------------------------- FREE SURFACE ------------------------\n");
-	if (gv->FREE_SURF) fprintf(fp," free surface at the top of the model ! \n");
-	else fprintf(fp," no free surface at the top of the model ! \n");
-	fprintf(fp,"\n");
+  log_info("------------------------- Q approximation -------------------\n");
+  log_info("Number of relaxation mechanisms (L): %d\n",gv->L);
+  if (gv->L>0) {
+    log_info("Value for tau (TAU): %f\n",gv->TAU);
+    for (int l=1; l<=gv->L; l++) {
+      log_info("Relaxation frequency %d (FL%d): %fHz\n", l, l, gv->FL[l]);
+    }
+  }
 
-	fprintf(fp," ------------------------- ABSORBING FRAME ---------------------\n");
-	if (gv->FW>0){
-		fprintf(fp," width of absorbing frame is %i grid points (%5.2f m).\n",gv->FW,(float)gv->FW*gv->DH);
-		if (gv->ABS_TYPE==1) {
-                	fprintf(fp," CPML damping applied. \n");
-                	fprintf(fp," Damping velocity in the PML frame in m/s: %f .\n",gv->VPPML);
-                	fprintf(fp," Frequency within the PML frame in Hz: %f \n",gv->FPML);
-                	fprintf(fp," NPOWER: %f \n",gv->NPOWER);
-                	fprintf(fp," K_MAX: %f \n",gv->K_MAX_CPML);
-        	}
-
-		if (gv->ABS_TYPE==2) {
-			fprintf(fp," Exponential damping applied. \n");
-			fprintf(fp," Percentage of amplitude decay: %f .\n",gv->DAMPING);
-		}
-	}
-	else fprintf(fp," absorbing frame not installed ! \n");
-
-	switch (gv->BOUNDARY){
-	case 0 :
-		fprintf(fp," No periodic boundary condition.\n");
-		break;
-	case 1 :
-		fprintf(fp," Periodic boundary condition at left and right edges.\n");
-		break;
-	default :
-		warning(" Wrong integer value for BOUNDARY specified ! ");
-		warning(" No periodic boundary condition will be applied ");
-		gv->BOUNDARY=0;
-		break;
-	}
-
-	fprintf(fp,"\n");
-	fprintf(fp," ------------------------- Q-APROXIMATION --------------------\n");
-	fprintf(fp," Number of relaxation mechanisms (L): %i\n",gv->L);
-	fprintf(fp," The L relaxation frequencies are at:  \n");
-	for (l=1;l<=gv->L;l++) fprintf(fp,"\t%f",gv->FL[l]);
-	fprintf(fp," Hz\n");
-	fprintf(fp," Value for tau is : %f\n",gv->TAU);
-
-
-	if (gv->SNAP){
-		fprintf(fp,"\n");
-		fprintf(fp," -----------------------  SNAPSHOTS  -----------------------\n");
-		fprintf(fp," Snapshots of");
-		switch(gv->SNAP){
-		case 1:
-			fprintf(fp," x- and y-component");
-			fprintf(fp," of particle velocity.\n");
-			break;
-		case 2:
-			fprintf(fp," pressure field.\n");
-			break;
-		case 3:
-			fprintf(fp," curl and divergence energy of the wavefield.\n");
-			break;
-		case 4:
-			fprintf(fp," curl and divergence energy of the wavefield.\n");
-			fprintf(fp," x- and y-component of particle velocity.\n");
-			break;
-		default:
-			declare_error(" sorry, incorrect value for SNAP ! \n");
-			break;
-		}
-
-		fprintf(fp," \t first (TSNAP1)= %8.5f s\n", gv->TSNAP1);
-		fprintf(fp," \t last (TSNAP2)=%8.5f s\n",gv->TSNAP2);
-		fprintf(fp," \t increment (TSNAPINC) =%8.5f s\n\n",gv->TSNAPINC);
-		fprintf(fp," \t first_and_last_horizontal(x)_gridpoint = %i, %i \n",1,gv->NX);
-		fprintf(fp," \t first_and_last_vertical_gridpoint = %i, %i \n",1,gv->NY);
-		fprintf(fp," \n name of output-file (SNAP_FILE):\n\t %s\n",gv->SNAP_FILE);
-		switch (gv->SNAP_FORMAT){
-		case 1 :
-			declare_error(" SU-Format not yet available !!");
-			break;
-		case 2 :
-			fprintf(fp," The data is written in ASCII. \n");
-			break;
-		case 3 :
-			fprintf(fp," The data is written binary (IEEE) (4 byte per float)");
-			break;
-		default:
-			declare_error(" Don't know the format for the Snapshot-data ! \n");
-			break;
-		}
-
-		fprintf(fp,"\n\n");
-	}
-	if (gv->SEISMO){
-		fprintf(fp,"\n");
-		fprintf(fp," -----------------------  SEISMOGRAMS  ----------------------\n");
-		switch (gv->SEIS_FORMAT){
-			case 1: sprintf(file_ext,"su");  break;
-			case 2: sprintf(file_ext,"txt"); break;
-			case 3: sprintf(file_ext,"bin"); break;
-		}
-		if ((gv->SEISMO==1) || (gv->SEISMO==4)){
-			fprintf(fp," Seismograms of ");
-			fprintf(fp," x-, y-, and z-component");
-			fprintf(fp," of particle velocity.\n");
-			fprintf(fp," output-files: \n ");
-			fprintf(fp,"\t%s_vx.%s\n\t%s_vy.%s\n",gv->SEIS_FILE,file_ext,gv->SEIS_FILE,file_ext);
-		}
-		if ((gv->SEISMO==2) || (gv->SEISMO==4)){
-			fprintf(fp," Seismograms of pressure field (hydrophones).\n");
-			fprintf(fp," output-file: \n ");
-			fprintf(fp,"\t%s_p.%s\n",gv->SEIS_FILE,file_ext);
-		}
-		if ((gv->SEISMO==3) || (gv->SEISMO==4)){
-			fprintf(fp," Seismograms of curl (S-wave component) and div (P-wave component of wavefield).\n");
-			fprintf(fp," output-files: \n ");
-			fprintf(fp,"\t%s_rot.%s \n\t%s_div.%s\n",gv->SEIS_FILE,file_ext,gv->SEIS_FILE,file_ext);
-			
-		}		
-
-		switch (gv->SEIS_FORMAT){
-		case 1 :
-			fprintf(fp," The data is written in IEEE SU-format . \n");
-			break;
-		case 2 :
-			fprintf(fp," The data is written in ASCII. \n");
-			break;
-		case 3 :
-			fprintf(fp," The data is written binary IEEE (4 byte per float)");
-			break;
-		default:
-			declare_error(" Sorry. I don't know the format for the seismic data ! \n");
-			break;
-		}
-		fprintf(fp," samplingrate of seismic data: %f s\n",gv->NDT*gv->DT);
-		if (!gv->READREC) fprintf(fp," Trace-spacing: %5.2f m\n", gv->NGEOPH*gv->DH);
-		fprintf(fp," Number of samples per trace: %i \n", iround(gv->NT/gv->NDT));
-		fprintf(fp," ----------------------------------------------------------\n");
-		fprintf(fp,"\n");
-		fprintf(fp,"\n");
-	}
-	fprintf(fp,"\n **********************************************************");
-	fprintf(fp,"\n ******* PARAMETERS READ or PROCESSED within SOFI2D ********");
-	fprintf(fp,"\n **********************************************************\n\n");
+  if (gv->SNAP) {
+    log_info("------------------------- Snapshots -------------------------\n");
+    log_info("Snapshots: ");
+    switch(gv->SNAP)
+      {
+      case 0:
+	log_std("no shapshots will be output\n");
+      case 1:
+	log_std("vx, vy\n");
+	break;
+      case 2:
+	log_std("p\n");
+	break;
+      case 3:
+	log_info("curl, div\n");
+	break;
+      case 4:
+	log_info("vx, vy, p, curl, div\n");
+	break;
+      default:
+	log_fatal("Sorry, incorrect specification of parameter SNAP (snapshot output)!\n");
+	break;
+      }
+    log_info("First snapshot (TSNAP1): %8.5fs\n", gv->TSNAP1);
+    log_info("Last snapshot (TSNAP2): %8.5fs\n",gv->TSNAP2);
+    log_info("Snapshot increment (TSNAPINC): %8.5fs\n",gv->TSNAPINC);
+    log_info("First and last_horizontal grid point: %d, %d\n",1,gv->NX);
+    log_info("First and last vertical grid point: %d, %d\n",1,gv->NY);
+    log_info("Snapshot output file (SNAP_FILE): %s\n",gv->SNAP_FILE);
+    switch (gv->SNAP_FORMAT)
+      {
+      case 1 :
+	log_fatal("SNAP_FORMAT=1, i.e. SU format, not yet available!\n");
+	break;
+      case 2 :
+	log_info("Output format (SNAP_FORMAT): ASCII\n");
+	break;
+      case 3 :
+	log_info("Output format (SNAP_FORMAT): binary (32-bit IEEE, native endian)\n");
+	break;
+      default:
+	log_fatal("Sorry, incorrect specification of parameter SNAP_FORMAT (snapshot output format)!\n");
+	break;
+      }
+  }
+	
+  if (gv->SEISMO){
+    log_info("------------------------- Seismograms -----------------------\n");	
+    switch (gv->SEIS_FORMAT)
+      {
+      case 1: sprintf(file_ext,"su");  break;
+      case 2: sprintf(file_ext,"txt"); break;
+      case 3: sprintf(file_ext,"bin"); break;
+      default:
+	log_fatal("Sorry, incorrect specification of parameter SEIS_FORMAT (output format of seismograms)!\n");
+	break;
+      }
+    log_info("Base name for output files (SEIS_FILE): %s\n", gv->SEIS_FILE);
+    if ((gv->SEISMO==1) || (gv->SEISMO==4)){
+      log_info("Seismograms of vx and vy: %s_vx.%s, %s_vy.%s\n",gv->SEIS_FILE,file_ext,gv->SEIS_FILE,file_ext);
+    }
+    if ((gv->SEISMO==2) || (gv->SEISMO==4)){
+      log_info("Seismograms of p: s_p.%s\n",gv->SEIS_FILE,file_ext);
+    }
+    if ((gv->SEISMO==3) || (gv->SEISMO==4)){
+      log_info("Seismograms of curl and div: t%s_rot.%s, %s_div.%s\n",gv->SEIS_FILE,file_ext,gv->SEIS_FILE,file_ext);
+    }		
+    switch (gv->SEIS_FORMAT) 
+      {
+      case 1 :
+	log_info("Output format (SEIS_FORMAT): SU format (32-bit IEEE, native endian)\n");
+	break;
+      case 2 :
+	log_info("Output format (SEIS_FORMAT): ASCII\n");
+	break;
+      case 3 :
+	log_info("Output format (SEIS_FORMAT): binary (32-bit IEEE, native endian)\n");
+	break;
+      default:
+	log_fatal("Sorry, incorrect specification of parameter SEIS_FORMAT (seismogram output format)!\n");
+	break;
+      }
+    log_info("Sampling interval of output data: %fs\n",gv->NDT*gv->DT);
+    if (!gv->READREC) log_info("Trace-spacing: %5.2fm\n", gv->NGEOPH*gv->DH);
+    log_info("Number of samples per output trace: %d\n", iround((gv->NT-1)/gv->NDT));
+  }
+  
+  log_info("-------------------------------------------------------------\n");	
+  return;
 }
