@@ -35,9 +35,6 @@ void absorb(float ** absorb_coeff, GlobVar *gv)
   int i, j, ii, jj, xb, yb, xe, ye;
   float amp, a, *coeff;
 	
-  int MYID;
-  MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
   log_infoc(0, "Calculating coefficients for absorbing frame (FW=%d, DAMPING=%.2f).\n",gv->FW, gv->DAMPING);
 
   amp=1.0-gv->DAMPING/100.0;   /* amplitude at the edge of the numerical grid */
@@ -46,7 +43,7 @@ void absorb(float ** absorb_coeff, GlobVar *gv)
   for (i=1;i<=gv->FW;i++)
     coeff[i]=exp(-(a*a*(gv->FW-i)*(gv->FW-i)));
   
-  if (MYID==0 && log_get_level()==LOG_DEBUG) {
+  if (gv->MPID==0 && log_get_level()==LOG_DEBUG) {
     log_debug("Table of coefficients:\n");
     for (i=1;i<=gv->FW;i++) {
       log_debug("# %3d, coefficient %5.3f\n", i, coeff[i]);

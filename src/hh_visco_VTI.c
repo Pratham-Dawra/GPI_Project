@@ -33,12 +33,9 @@ void model_visco_vti(float  **  rho, float **  pc11, float **  pc33, float **  p
 	int i, j, l, ii, jj;
 	char modfile[STRING_SIZE+16];	
 
-    int MYID;
-    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
 	/*-----------------material property definition -------------------------*/	
 
-/* anisotropic case, values from
+	/* anisotropic case, values from
                  Jones, Wang, 1981, Geophysics, 46, 3, 288-297*/
                 
       const float C11=34.3e9, C33=22.7e9, C55=5.4e9, C13=10.7e9, RHO=2000.0;
@@ -117,47 +114,47 @@ void model_visco_vti(float  **  rho, float **  pc11, float **  pc33, float **  p
 		sprintf(modfile,"%s.SOFI2D.c11",gv->MFILE);
 		writemod(modfile,pc11,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.c33",gv->MFILE);
 		writemod(modfile,pc33,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.c13",gv->MFILE);
 		writemod(modfile,pc13,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.c55",gv->MFILE);
 		writemod(modfile,pc55,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.tau11",gv->MFILE);
 		writemod(modfile,ptau11,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.tau33",gv->MFILE);
 		writemod(modfile,ptau33,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.tau13",gv->MFILE);
 		writemod(modfile,ptau13,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.tau55",gv->MFILE);
 		writemod(modfile,ptau55,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.rho",gv->MFILE);
 		writemod(modfile,rho,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 	}
 
 	/* only density is written to file */
@@ -165,7 +162,7 @@ void model_visco_vti(float  **  rho, float **  pc11, float **  pc33, float **  p
 		sprintf(modfile,"%s.SOFI2D.rho",gv->MFILE);
 		writemod(modfile,rho,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 	}
 	free_vector(pts,1,gv->L);
 }

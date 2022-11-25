@@ -30,9 +30,6 @@ void model_elastic_VTI(float  **  rho, float **  pc11, float **  pc33, float ** 
 	int i, j, ii, jj;
 	char modfile[STRING_SIZE+16];
 
-    int MYID;
-    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
 	/*-----------------material property definition -------------------------*/	
 
 	   /* anisotropic case, values from
@@ -79,7 +76,7 @@ void model_elastic_VTI(float  **  rho, float **  pc11, float **  pc33, float ** 
 		sprintf(modfile,"%s.SOFI2D.rho",gv->MFILE);
 		writemod(modfile,rho,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 	}
 
 	/* all models are written to file */
@@ -87,27 +84,27 @@ void model_elastic_VTI(float  **  rho, float **  pc11, float **  pc33, float ** 
 		sprintf(modfile,"%s.SOFI2D.c11",gv->MFILE);
 		writemod(modfile,pc11,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.c33",gv->MFILE);
 		writemod(modfile,pc33,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.c13",gv->MFILE);
 		writemod(modfile,pc13,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.c55",gv->MFILE);
 		writemod(modfile,pc55,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 
 		sprintf(modfile,"%s.SOFI2D.rho",gv->MFILE);
 		writemod(modfile,rho,3,gv);
 		MPI_Barrier(MPI_COMM_WORLD);
-		if (MYID==0) mergemod(modfile,3,gv);
+		if (gv->MPID==0) mergemod(modfile,3,gv);
 	}
 }
 

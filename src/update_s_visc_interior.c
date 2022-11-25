@@ -41,9 +41,6 @@ void update_s_visc_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, int *
 	float  vxx, vyy, vxy, vyx;
 	double time1=0.0, time2=0.0;
 
-    int MYID;
-    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
     fdoh = gv->FDORDER/2;
     
     /*Pointer array to the locations of the fd-operator functions*/
@@ -56,7 +53,7 @@ void update_s_visc_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, int *
     FD_op_s[6] = &operator_s_fd12;
     
 
-	if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
 		time1=MPI_Wtime();
 		log_debug("Updating stress components...\n");
 	}
@@ -73,7 +70,7 @@ void update_s_visc_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, int *
 			}
 		}
 		
-	if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
 		time2=MPI_Wtime();
 		log_debug("Finished updating stess components (real time: %4.3fs).\n",time2-time1 );
 	}

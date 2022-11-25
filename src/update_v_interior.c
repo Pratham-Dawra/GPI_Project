@@ -42,12 +42,9 @@ void update_v_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, i
 	float azi_rad;
 	double time1=0.0, time2=0.0;
 
-    int MYID;
-    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
 	dtdh = gv->DT/gv->DH;
 
-	if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
 		time1=MPI_Wtime();
 		log_debug("Updating particle velocities...\n");
 	}
@@ -306,7 +303,7 @@ void update_v_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, i
 		break;
 	} /* end of switch(gv->FDORDER) */
 
-	if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
 		time2=MPI_Wtime();
 		log_debug("Finished updating particle velocities (real time: %4.3fs).\n",time2-time1 );
 	}

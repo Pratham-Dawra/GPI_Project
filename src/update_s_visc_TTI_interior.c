@@ -43,10 +43,8 @@ void update_s_visc_TTI_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, i
 
 	int i,j;
 	double time1=0.0, time2=0.0;
-    int MYID;
-    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
 
-	if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
 		time1=MPI_Wtime();
 		log_debug("Updating stress components...\n");
 	}
@@ -62,7 +60,7 @@ void update_s_visc_TTI_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, i
 			}
 		}
 		
-	if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
 		time2=MPI_Wtime();
 		log_debug("Finished updating stress components (real time: %4.3fs).\n",time2-time1);
 	}

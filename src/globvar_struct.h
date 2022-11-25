@@ -112,9 +112,9 @@ typedef struct {
     int   NPROCY;                         // number of processors in y-direction
     int   NPROC;                        //// number of processors (=NPROCX*NPROCY)
     int   NP;                           //// number of processors from mpirun command
-    int   MYID;                         //// ID of processor
+    int   MPID;                         //// ID of processor
     int   INDEX[5];                     //// ID of neighboring processes %% Why 5??? - should be just 4
-    int   POS[3];                       //// processor location in the 3D logical processor array (MYID%NPROCX; MYID/NPROCX) %% Why 3?? - should be just 2
+    int   POS[3];                       //// processor location in the 3D logical processor array (MPID%NPROCX; MPID/NPROCX) %% Why 3?? - should be just 2
     int   IENDX;                        //// size of domain in x-direction (=NX/NPROCX)
     int   IENDY;                        //// size of domain in y-direction (=NY/NPROCY)
     int   NXG;                          //// number of grid points in x-direction (global)

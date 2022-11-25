@@ -33,9 +33,6 @@ void mergemod(const char* modfile, int format, GlobVar *gv)
   int i, j, ip, jp;
   float a;
 
-  int MYID;
-  MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
   log_info("Merging model files. Output file: %s\n",modfile);
 
   fpout=fopen(modfile,"w");

@@ -33,10 +33,7 @@ float **sources(int *nsrc, GlobVar *gv)
   char buffer[STRING_SIZE], bufferstring[10], cline[256];
   FILE *fpsrc = NULL;
 
-  int MYID;
-  MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
-  if (MYID==0){
+  if (gv->MPID==0){
     if (gv->SRCREC==1){ /* read source positions from file */
       *nsrc=0;
       log_info("------------------------- Source parameters (II) ------------\n");
@@ -80,18 +77,18 @@ float **sources(int *nsrc, GlobVar *gv)
 	    switch(nvarin){
 	    case 0: xsrc=0.0;
 	    case 1: ysrc=0.0;
-	    case 2: if (MYID==0) log_error("No time shift defined for source %i in %s!\n",l, gv->SOURCE_FILE);
+	    case 2: if (gv->MPID==0) log_error("No time shift defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
-	    case 3: if (MYID==0) log_error("No frequency defined for source %i in %s!\n",l, gv->SOURCE_FILE);
+	    case 3: if (gv->MPID==0) log_error("No frequency defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
-	    case 4: if (MYID==0) log_error("No amplitude defined for source %i in %s!\n",l, gv->SOURCE_FILE);
+	    case 4: if (gv->MPID==0) log_error("No amplitude defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
 	    case 5: srcpos[7][l]=0.0;
 	    case 6: srcpos[8][l]=gv->SOURCE_TYPE;
 	    }
 	    if ((srcpos[8][l]!=4) && (nvarin>5)) {
 	      current_source=(int)srcpos[8][l];
-	      if (MYID==0) log_warn("SOURCE_TYPE of source #%i is specified as %i, SOURCE_AZIMUTH is ignored.\n", l, current_source);
+	      if (gv->MPID==0) log_warn("SOURCE_TYPE of source #%i is specified as %i, SOURCE_AZIMUTH is ignored.\n", l, current_source);
 	    }
 	    srcpos[1][l]=xsrc;
 	    srcpos[2][l]=ysrc;
@@ -126,24 +123,24 @@ float **sources(int *nsrc, GlobVar *gv)
 	    switch(nvarin){
 	    case 0: xsrc=0.0;
 	    case 1: ysrc=0.0;
-	    case 2: if (MYID==0) log_error("No time shift defined for source %i in %s!\n",l, gv->SOURCE_FILE);
+	    case 2: if (gv->MPID==0) log_error("No time shift defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
-	    case 3: if (MYID==0) log_error("No frequency defined for source %i in %s!\n",l, gv->SOURCE_FILE);
+	    case 3: if (gv->MPID==0) log_error("No frequency defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
-	    case 4: if (MYID==0) log_error("No amplitude defined for source %i in %s!\n",l, gv->SOURCE_FILE);
+	    case 4: if (gv->MPID==0) log_error("No amplitude defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
-	    case 5: if (MYID==0) log_error("No time exponent defined for source %i in %s!\n",l, gv->SOURCE_FILE);
+	    case 5: if (gv->MPID==0) log_error("No time exponent defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
-	    case 6: if (MYID==0) log_error("No exponential decay factor defined for source %i in %s!\n",l, gv->SOURCE_FILE);
+	    case 6: if (gv->MPID==0) log_error("No exponential decay factor defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
-	    case 7: if (MYID==0) log_error("No initial phase angle [°] defined for source %i in %s!\n",l, gv->SOURCE_FILE);
+	    case 7: if (gv->MPID==0) log_error("No initial phase angle [°] defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
 	    case 8: srcpos[7][l]=0.0;
 	    case 9: srcpos[8][l]=gv->SOURCE_TYPE;
 	    }
 	    if ((srcpos[8][l]!=4) && (nvarin>8)) {
 	      current_source=(int)srcpos[8][l];
-	      if (MYID==0) log_warn("SOURCE_TYPE of source #%i is specified as %i, SOURCE_AZIMUTH is ignored.\n", l, current_source);
+	      if (gv->MPID==0) log_warn("SOURCE_TYPE of source #%i is specified as %i, SOURCE_AZIMUTH is ignored.\n", l, current_source);
 	    }
 	    srcpos[1][l]=xsrc;
 	    srcpos[2][l]=ysrc;
@@ -179,24 +176,24 @@ float **sources(int *nsrc, GlobVar *gv)
 	    switch(nvarin){
 	    case 0: xsrc=0.0;
 	    case 1: ysrc=0.0;
-	    case 2: if (MYID==0) log_error("No time shift defined for source %i in %s!\n",l, gv->SOURCE_FILE);
+	    case 2: if (gv->MPID==0) log_error("No time shift defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
-	    case 3: if (MYID==0) log_error("No minimum frequency defined for source %i in %s!\n",l, gv->SOURCE_FILE);
+	    case 3: if (gv->MPID==0) log_error("No minimum frequency defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
-	    case 4: if (MYID==0) log_error("No maximum frequency defined for source %i in %s!\n",l, gv->SOURCE_FILE);
+	    case 4: if (gv->MPID==0) log_error("No maximum frequency defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
-	    case 5: if (MYID==0) log_error("No amplitude defined for source %i in %s!\n",l, gv->SOURCE_FILE);
+	    case 5: if (gv->MPID==0) log_error("No amplitude defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
-	    case 6: if (MYID==0) log_error("No sweep length [s] defined for source %i in %s!\n",l, gv->SOURCE_FILE);
+	    case 6: if (gv->MPID==0) log_error("No sweep length [s] defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
-	    case 7: if (MYID==0) log_error("No width of the wavelet (in number of center periods) defined for source %i in %s!\n",l, gv->SOURCE_FILE);
+	    case 7: if (gv->MPID==0) log_error("No width of the wavelet (in number of center periods) defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
 	    case 8: srcpos[7][l]=0.0;
 	    case 9: srcpos[8][l]=gv->SOURCE_TYPE;
 	    }
 	    if ((srcpos[8][l]!=4) && (nvarin>8)) {
 	      current_source=(int)srcpos[8][l];
-	      if (MYID==0) log_warn("SOURCE_TYPE of source #%i is specified as %i, SOURCE_AZIMUTH is ignored.\n", l, current_source);
+	      if (gv->MPID==0) log_warn("SOURCE_TYPE of source #%i is specified as %i, SOURCE_AZIMUTH is ignored.\n", l, current_source);
 	    }	  
 	    srcpos[1][l]=xsrc;
 	    srcpos[2][l]=ysrc;
@@ -218,7 +215,7 @@ float **sources(int *nsrc, GlobVar *gv)
       
       /* outputs all sources per each subdomain / node */
 
-      if (MYID==0){
+      if (gv->MPID==0){
 	if (gv->RUN_MULTIPLE_SHOTS) log_info("All sources will be modelled individually (RUN_MULTIPLE_SHOTS=1).\n");
 	else log_info("All sources will be modelled simultaneously (RUN_MULTIPLE_SHOTS=0).\n");
       }
@@ -259,16 +256,16 @@ float **sources(int *nsrc, GlobVar *gv)
       else log_fatal("SRCREC parameter specifies PLANE_WAVE excitation, but PLANE_WAVE_DEPTH<=0!\n");
     }
     else log_fatal("SRCREC parameter is invalid (SRCREC!=1 or SRCREC!=2)! No source parameters specified!\n");
-  } // end MYID==0
+  } // end gv->MPID==0
 
   MPI_Barrier(MPI_COMM_WORLD);
   MPI_Bcast(nsrc,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&(gv->TS),1,MPI_FLOAT,0,MPI_COMM_WORLD);
 
-  if (MYID!=0) srcpos=matrix(1,NSPAR,1,*nsrc);
+  if (gv->MPID!=0) srcpos=matrix(1,NSPAR,1,*nsrc);
   MPI_Bcast(&srcpos[1][1],(*nsrc)*12,MPI_FLOAT,0,MPI_COMM_WORLD);
 
-  if (MYID==0){
+  if (gv->MPID==0){
     if (*nsrc>50) log_warn("The following table is quite large (%d lines); only printing the first 50 entries!\n",*nsrc);
     if (4 >= gv->SOURCE_SHAPE) {
       log_info("  Shot         x         y   tshift       fc      amp azimuth type\n");
@@ -293,7 +290,7 @@ float **sources(int *nsrc, GlobVar *gv)
 		 l,srcpos[1][l],srcpos[2][l],srcpos[4][l],srcpos[9][l],srcpos[10][l],srcpos[5][l],srcpos[6][l],srcpos[11][l],srcpos[12][l],srcpos[7][l],(int)srcpos[8][l]);
       }
     }
-  } // end MYID==0
+  } // end gv->MPID==0
   
   return srcpos;
 }

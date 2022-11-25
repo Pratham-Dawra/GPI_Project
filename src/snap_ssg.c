@@ -49,9 +49,6 @@ void snap(int nt, int nsnap, float **vx, float **vy, float **sxx,
 	char snapfile_rot[STRING_SIZE*2], snapfile_p[STRING_SIZE*2], ext[8];
 	FILE *fpx1, *fpy1, *fpx2, *fpy2, *fpp;
 
-    int MYID;
-    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
 	dhi = 1.0/gv->DH;
 	fdoh = gv->FDORDER/2;
 

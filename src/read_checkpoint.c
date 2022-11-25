@@ -33,11 +33,8 @@ void read_checkpoint(int nx1, int nx2, int ny1, int ny2,
   FILE *fp = NULL;
   char checkptfile[STRING_SIZE];
 
-  int MYID;
-  MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
   sprintf(checkptfile,"%s",gv->CHECKPTFILE);
-  sprintf(myid,".%d",MYID);
+  sprintf(myid,".%d",gv->MPID);
   strcat(checkptfile,myid);
   
   fp=fopen(checkptfile,"rb");

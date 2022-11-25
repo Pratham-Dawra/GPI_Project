@@ -36,10 +36,7 @@ int **receiver(int *ntr, GlobVar *gv)
   char bufferstring[10], buffer[STRING_SIZE];
   FILE *fpr = NULL;
   
-  int MYID;
-  MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-    
-  if (MYID==0) {
+  if (gv->MPID==0) {
     log_info("------------------------- Receiver positions ----------------\n");
     if (gv->READREC) { /* read receiver positions from file */
       log_info("Reading receiver positions from file %s.\n",gv->REC_FILE);
@@ -171,15 +168,15 @@ int **receiver(int *ntr, GlobVar *gv)
 	if (recpos[n][itr]==0) recpos[n][itr] = 1;
       }
     }
-  } /* End of if(MYID==0) */
+  } /* End of if(gv->MPID==0) */
   
 
   MPI_Barrier(MPI_COMM_WORLD);
   MPI_Bcast(ntr,1,MPI_INT,0,MPI_COMM_WORLD);
-  if (MYID!=0) recpos=imatrix(1,3,1,*ntr);
+  if (gv->MPID!=0) recpos=imatrix(1,3,1,*ntr);
   MPI_Bcast(&recpos[1][1],(*ntr)*3,MPI_INT,0,MPI_COMM_WORLD);
 
-  if (MYID==0) {
+  if (gv->MPID==0) {
     if (*ntr>50) log_warn("The following table is quite large (%d lines); only printing the first 50 entries!\n",*ntr);
     log_info("Receiver positions in the global model-system:\n");
     log_info(" x (gridpoints) y (gridpoints) \t x (in m) \t y (in m)\n");

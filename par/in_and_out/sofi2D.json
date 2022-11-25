@@ -111,7 +111,8 @@
 
 "Monitoring the simulation" : "comment",
 			"LOG_FILE" : "./log/test.log",
-			"LOG" : "1",
+			"LOG" : "0",
+			"LOG_VERBOSITY" : "INFO",
 			"OUT_TIMESTEP_INFO" : "100",
 
 "Checkpoints" : "comment",

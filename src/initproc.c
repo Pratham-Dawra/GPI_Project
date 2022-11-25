@@ -28,10 +28,7 @@
 
 void initproc(GlobVar *gv)	
 {
-  int MYID;
-  MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
-  if ((gv->NPROC != gv->NP)  && (MYID==0)) {
+  if ((gv->NPROC != gv->NP)  && (gv->MPID==0)) {
     log_error("You specified NPROCX*NPROCY=%d (in json file) but number of MPI processes set to NP=%d.\n",gv->NPROC,gv->NP);
     log_fatal("Number of MPI processes (NP) and number of processing elements (NPROCX*NPROCY) differ!\n");
   }
@@ -47,22 +44,22 @@ void initproc(GlobVar *gv)
   log_debugc(0, "Size of subdomains (in grid points): %d (horz.) times %d (vert.)\n", gv->IENDX, gv->IENDY);
 
   /* index is indicating neighbouring processes */
-  gv->INDEX[1]=MYID-1;           /* left	*/
-  gv->INDEX[2]=MYID+1;           /* right	*/
-  gv->INDEX[3]=MYID-gv->NPROCX;  /* upper	*/
-  gv->INDEX[4]=MYID+gv->NPROCX;  /* lower	*/
+  gv->INDEX[1]=gv->MPID-1;           /* left	*/
+  gv->INDEX[2]=gv->MPID+1;           /* right	*/
+  gv->INDEX[3]=gv->MPID-gv->NPROCX;  /* upper	*/
+  gv->INDEX[4]=gv->MPID+gv->NPROCX;  /* lower	*/
 	
   /* POS indicates the processor location in the 3D logical processor array */
-  gv->POS[1] = MYID%gv->NPROCX;   /* x coordinate */
-  gv->POS[2] = (MYID/gv->NPROCX); /* y coordinate */
+  gv->POS[1] = gv->MPID%gv->NPROCX;   /* x coordinate */
+  gv->POS[2] = (gv->MPID/gv->NPROCX); /* y coordinate */
 
   if (gv->POS[1] == 0)            gv->INDEX[1] = gv->INDEX[1] + gv->NPROCX;        	  
   if (gv->POS[1] == gv->NPROCX-1) gv->INDEX[2] = gv->INDEX[2] - gv->NPROCX;
-  if (gv->POS[2] == 0)            gv->INDEX[3] = (gv->NPROCX*gv->NPROCY)+MYID-gv->NPROCX;
-  if (gv->POS[2] == gv->NPROCY-1) gv->INDEX[4] = MYID+gv->NPROCX-(gv->NPROCX*gv->NPROCY);
+  if (gv->POS[2] == 0)            gv->INDEX[3] = (gv->NPROCX*gv->NPROCY)+gv->MPID-gv->NPROCX;
+  if (gv->POS[2] == gv->NPROCY-1) gv->INDEX[4] = gv->MPID+gv->NPROCX-(gv->NPROCX*gv->NPROCY);
   
   log_debug("PE %d; col %d; row %d; left-right neighbor %d,%d; upper-lower neighbor %d,%d\n",
-	    MYID,gv->POS[1],gv->POS[2],gv->INDEX[1],gv->INDEX[2],gv->INDEX[3],gv->INDEX[4]);
+	    gv->MPID,gv->POS[1],gv->POS[2],gv->INDEX[1],gv->INDEX[2],gv->INDEX[3],gv->INDEX[4]);
 
   return;
 }

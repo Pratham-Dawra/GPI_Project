@@ -33,11 +33,8 @@ void save_checkpoint(int nx1, int nx2, int ny1, int ny2,
   char checkptfile[STRING_SIZE];
   FILE *fp = NULL;
 
-  int MYID;
-  MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
   sprintf(checkptfile,"%s",gv->CHECKPTFILE);
-  sprintf(myid,".%d",MYID);
+  sprintf(myid,".%d",gv->MPID);
   strcat(checkptfile,myid);
   
   fp=fopen(checkptfile,"wb");

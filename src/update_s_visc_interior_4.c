@@ -35,10 +35,14 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
                                float **sxy, float ***r, float *** p, float ***q,
                                float ** fipjp, float **f, float **g, float *bip, float *bjm, float *cip,
                                float *cjm, float ***d, float ***e, float ***dip,
-                               float *hc ,  float ** vxx_1,float ** vxx_2,float ** vxx_3,float ** vxx_4,float ** vyy_1,float ** vyy_2,float ** vyy_3,float ** vyy_4,float ** vxy_1,float ** vxy_2,float ** vxy_3,float ** vxy_4,float ** vyx_1,float ** vyx_2,float ** vyx_3,float ** vyx_4,float ** svx_1,float ** svx_2,float ** svx_3,float ** svx_4,float ** svy_1,float ** svy_2,float ** svy_3,float ** svy_4,float ***r_2,float ***r_3,float ***r_4, float ***p_2, float ***p_3, float ***p_4, float ***q_2, float ***q_3, float ***q_4, GlobVar *gv)
+                               float *hc ,  float ** vxx_1,float ** vxx_2,float ** vxx_3,float ** vxx_4,
+				float ** vyy_1,float ** vyy_2,float ** vyy_3,float ** vyy_4,float ** vxy_1,
+				float ** vxy_2,float ** vxy_3,float ** vxy_4,float ** vyx_1,float ** vyx_2,
+				float ** vyx_3,float ** vyx_4,float ** svx_1,float ** svx_2,float ** svx_3,
+				float ** svx_4,float ** svy_1,float ** svy_2,float ** svy_3,float ** svy_4,
+				float ***r_2,float ***r_3,float ***r_4, float ***p_2, float ***p_3, 
+				float ***p_4, float ***q_2, float ***q_3, float ***q_4, GlobVar *gv)
 {
-    
-    
     int i,j,l;
     float  sumr=0.0, sump=0.0, sumq=0.0;
     float  dthalbe, dhi,ctemp;// dhi2;
@@ -56,14 +60,11 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
     
     float sumxx=0.0,sumyy=0.0,sumxy=0.0,sumyx=0.0;
     
-    int MYID;
-    MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-
     dthalbe=gv->DT/2.0;
     dhi = 1.0/gv->DH;
     
     
-    if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+    if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
         time1=MPI_Wtime();
         log_debug("Updating stress components...\n");
     }
@@ -550,7 +551,7 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
     
     
     
-    if ( ( MYID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+    if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
         time2=MPI_Wtime();
         log_debug("Finished updating stress components (real time: %4.3fs).\n",time2-time1);
     }

@@ -43,13 +43,10 @@ void checkfd(float **prho, float **ppi, float **pu,
 
   int i, j, k, l, ny1=1, nx, ny, nfw;
 
-  int MYID;
-  MPI_Comm_rank(MPI_COMM_WORLD, &MYID);
-    
   nx=gv->NX;
   ny=gv->NY;
 
-  if (0==MYID) {
+  if (0==gv->MPID) {
     log_info("------------------------- Min/max velocities ----------------\n");
     log_info("Note: If any velocity is set <1m/s, it will be ignored while\n");
     log_info("determining stable DH and DT parameters.\n");
@@ -146,7 +143,7 @@ void checkfd(float **prho, float **ppi, float **pu,
   dtstab = gv->DH/ (sqrt(2) *gamma*cmax*temporal);
   CFL=cmax*gv->DT/gv->DH;
 
-  if (MYID == 0) {
+  if (gv->MPID == 0) {
     log_info("Min and max model velocity: V_min=%.2fm/s, V_max=%.2fm/s\n", cmin, cmax);
     log_info("------------------------- Grid dispersion -------------------\n");
     log_info("To limit grid dispersion, the number of grid points per min.\n");
