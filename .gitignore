@@ -336,13 +336,13 @@ local.properties
 CMakeCache.txt
 CMakeFiles
 CMakeScripts
-Makefile
+#Makefile
 cmake_install.cmake
 install_manifest.txt
 
 
 ### premake-gmake ###
-Makefile
+#Makefile
 *.make
 obj/
 
