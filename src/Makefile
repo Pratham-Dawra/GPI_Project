@@ -11,12 +11,14 @@ EXE_SF    := $(strip $(EXEC))/sofi2D
 CDEPEND    = -MMD -MP -MF .dep-$(subst /,-,$@)
 DEPS      := $(wildcard .dep*)
 
+COMMIT    := $(strip $(shell git log --pretty=short --format="%h %as" 2>/dev/null | head -n1))
+
 # use colors for log (comment line to switch colors off)
 COLOR     := -DLOG_COLOR
 
 # Linux cluster running OpenMPI
 CC        := mpicc
-CFLAGS    := -Wall -O3 -g -std=c99 -D_GNU_SOURCE $(COLOR)
+CFLAGS    := -Wall -O3 -g -std=c99 -D_GNU_SOURCE -DLOG_COMMIT="\"$(COMMIT)\"" $(COLOR)
 CFLAGS_SN := $(CFLAGS)
 CFLAGS_SF := $(CFLAGS) -DLOG_MPI
 LFLAGS    := -lm

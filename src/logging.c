@@ -15,6 +15,10 @@
 #include <mpi.h>
 #endif 
 
+#ifndef LOG_COMMIT
+#define LOG_COMMIT "unknown"
+#endif
+
 #define LOG_STDOUT stdout
 #define LOG_STDERR stdout
 /* if you would like to use stderr output stream for errors, redefine above macro */
@@ -232,6 +236,7 @@ void log_banner(log_Program prog)
     log_std("* Geophysical Institute, KIT-Department of Physics                    *\n");
     log_std("* Karlsruhe Institute of Technology (KIT), Karlsruhe, Germany         *\n");
     log_std("* https://gpi.kit.edu/                                                *\n");
+    log_std("* Program compiled from git commit: %-33s *\n", LOG_COMMIT);
     log_std("***********************************************************************\n");
   }
 #ifdef LOG_MPI
