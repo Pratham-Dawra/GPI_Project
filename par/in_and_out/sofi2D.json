@@ -19,7 +19,7 @@
 
             
 "Wave Equation" : "comment",
-			"WEQ" : "8",
+			"WEQ" : "7",
 			"WEQ values : 1:acoustic, 2:viscoacoustic, 3:elastic, " : "comment",
 			"WEQ values : 4:viscoelastic, 5:elastic VTI, 6:viscoelastic VTI, " : "comment",
 			"WEQ values : 7:elastic TTI, 8:viscoelastic TTI, " : "comment",
@@ -64,7 +64,7 @@
                         "BOUNDARY" : "0",
 
 			"FW" : "20",
-			"ABS_TYPE" : "2",
+			"ABS_TYPE" : "1",
 			"ABS_TYPE values : CPML-Boundary=1; Damping-Boundary=2" : "comment",
 			
 			"Parameter for CPML (ABS_TYPE=1)" : "comment",
