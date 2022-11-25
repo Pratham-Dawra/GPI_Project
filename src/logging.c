@@ -131,6 +131,11 @@ const char* log_get_level_string(log_Level level)
   return level_strings[level];
 }
 
+int log_get_mpid()
+{
+  return log_mpid_;
+}
+
 void log_general_(log_Level level, const char *file, int line, const char *fmt, ...) 
 {
   if (level>log_minlevel) return;

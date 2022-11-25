@@ -24,7 +24,7 @@
 int main(int argc, char **argv) 
 {
   int nsnap;
-  GlobVar gv = {.FP=stdout, .OUTNTIMESTEPINFO=1, .NDT=1, .IDX=1, .IDY=1};
+  GlobVar gv = {.OUTNTIMESTEPINFO=1, .NDT=1, .IDX=1, .IDY=1};
 
   log_init(NULL);
   log_banner(LOG_SNAP);

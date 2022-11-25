@@ -2,12 +2,28 @@
 .SECONDARY:
 .PHONY: all clean distclean help
 
-EXEC := ../bin
+# output directory for executables and their names
+EXEC      := ../bin
+EXE_SN    := $(strip $(EXEC))/snapmerge
+EXE_SF    := $(strip $(EXEC))/sofi2D
 
-EXE_SN := $(strip $(EXEC))/snapmerge
-EXE_SF := $(strip $(EXEC))/sofi2D
+# dependency handling
+CDEPEND    = -MMD -MP -MF .dep-$(subst /,-,$@)
+DEPS      := $(wildcard .dep*)
 
-# source code for model (internal) generation
+# use colors for log (comment line to switch colors off)
+COLOR     := -DLOG_COLOR
+
+# Linux cluster running OpenMPI
+CC        := mpicc
+CFLAGS    := -Wall -O3 -g -std=c99 -D_GNU_SOURCE $(COLOR)
+CFLAGS_SN := $(CFLAGS)
+CFLAGS_SF := $(CFLAGS) -DLOG_MPI
+LFLAGS    := -lm
+LFLAGS_SN := $(LFLAGS)
+LFLAGS_SF := $(LFLAGS) -lmpi
+
+# source code for (internal) model generation
 # model file for isotropic elastic modeling (WEQ=3)
 MODEL_E := hh_elastic.c
 # model file for isotropic viscoelastic (WEQ=4)
@@ -20,19 +36,6 @@ MODEL_V_VTI := hh_visco_VTI.c
 MODEL_E_TTI := hh_elastic_TTI.c
 # model file for TTI elastic modeling (WEQ=8)
 MODEL_V_TTI := hh_visco_TTI.c
-
-# Compiler
-CDEPEND = -MMD -MP -MF .dep-$(subst /,-,$@)
-DEPS := $(wildcard .dep*)
-
-# ON Linux cluster running OpenMPI and ON MAC
-CC        := mpicc
-CFLAGS    := -Wall -O3 -g -std=c99 -D_GNU_SOURCE -DLOG_COLOR
-CFLAGS_SN := $(CFLAGS)
-CFLAGS_SF := $(CFLAGS) -DLOG_MPI
-LFLAGS    := -lm
-LFLAGS_SN := $(LFLAGS)
-LFLAGS_SF := $(LFLAGS) -lmpi
 
 # after this line, no further editing should be necessary
 # --------------------------------------------------------
@@ -187,14 +190,12 @@ $(EXE_SF): $(SOFI2D_OBJ)
 	$(CC) $(CFLAGS_SF) -o $@ $^ $(LFLAGS_SF)
 
 clean:
-	find . -name "*.o" -exec rm {} \;
-	find . -name "*.c%" -exec rm {} \;
-	find . -name "*.bck" -exec rm {} \;
-	find . -name ".dep*" -exec rm {} \;
-	rm -f *~
+	@echo "Removing object files..." && find . -name "*.o" -exec rm {} \;
+	@rm -f *~
 
 distclean: clean
-	rm -f $(EXE_SF) $(EXE_SN)
+	@echo "Removing depdendency files..." && find . -name ".dep*" -exec rm {} \;
+	@echo "Removing executables..." && rm -f $(EXE_SF) $(EXE_SN)
 
 all: $(EXE_SF) $(EXE_SN)
 

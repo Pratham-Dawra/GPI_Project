@@ -81,12 +81,6 @@ extern int log_mpid_;
   do { if((RANK)==log_mpid_) log_general_(LOG_WARN,  __FILE__, __LINE__, ##__VA_ARGS__); } while (0)
 
 /**
- * Get the name of the node an (MPI) process is running on.
- * @return Character string containing node identifier (usually its name).
- */
-const char* log_get_nodename();
-
-/**
  * Initialize logging. Should be called after MPI_Init(), where applicable.
  * @param fp Either a valid file pointer, or NULL to use stdout/stderr.
  */
@@ -124,6 +118,18 @@ log_Level log_get_level();
  * @return Logging level as character string.
  */
 const char* log_get_level_string(log_Level level);
+
+/**
+ * Get the name of the node an (MPI) process is running on.
+ * @return Character string containing node identifier (usually its name).
+ */
+const char* log_get_nodename();
+
+/**
+ * Get the identifier of the current (MPI) process.
+ * @return MPI identifier as integer.
+ */
+int log_get_mpid();
 
 /**
  * Internal function, should not be called directly. Use logging macros given above.
