@@ -230,7 +230,7 @@ void copy_str2str_uptochar(char string_in[STRING_SIZE], char string_out[STRING_S
 }
 
 int get_int_from_objectlist(char string_in[STRING_SIZE], int number_readobject, int *int_buffer,
-                            char **varname_list,char **value_list) 
+                            char **varname_list,char **value_list, int *used_list)
 {
   int ii=0, checkifstringfound=1;
   double double_buffer;
@@ -263,12 +263,14 @@ int get_int_from_objectlist(char string_in[STRING_SIZE], int number_readobject, 
   } else {
     checkifstringfound=1;
   }
+
+  used_list[ii] = 1;
   
   return checkifstringfound;
 }
 
 int get_float_from_objectlist(char string_in[STRING_SIZE], int number_readobject, float *double_buffer,
-                              char **varname_list,char **value_list) 
+                              char **varname_list,char **value_list, int *used_list) 
 {
   int ii=0, checkifstringfound=1;
   double double_dummy;
@@ -297,12 +299,14 @@ int get_float_from_objectlist(char string_in[STRING_SIZE], int number_readobject
   } else {
     checkifstringfound=1;
   }
+
+  used_list[ii] = 1;
   
   return checkifstringfound;
 }
 
 int get_string_from_objectlist(char string_in[STRING_SIZE], int number_readobject, char string_buffer[STRING_SIZE],
-                               char **varname_list,char **value_list) 
+                               char **varname_list,char **value_list, int *used_list) 
 {
   int ii=0, checkifstringfound=1;
   
@@ -321,6 +325,8 @@ int get_string_from_objectlist(char string_in[STRING_SIZE], int number_readobjec
   } else {
     checkifstringfound=1;
   }
+
+  used_list[ii] = 1;
 
   return checkifstringfound;
 }

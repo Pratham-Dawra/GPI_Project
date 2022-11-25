@@ -652,13 +652,13 @@ int count_occure_charinstring(char stringline[STRING_SIZE], char teststring[]);
 void copy_str2str_uptochar(char string_in[STRING_SIZE], char string_out[STRING_SIZE], char teststring[]);
 
 int get_int_from_objectlist(char string_in[STRING_SIZE], int number_readobject, int *int_buffer,
-                            char **varname_list,char **value_list);
+                            char **varname_list,char **value_list, int *used_list);
 
 int get_float_from_objectlist(char string_in[STRING_SIZE], int number_readobject, float *double_buffer,
-                              char **varname_list,char **value_list);
+                              char **varname_list,char **value_list, int *used_list);
 
 int get_string_from_objectlist(char string_in[STRING_SIZE], int number_readobject, char string_buffer[STRING_SIZE],
-                               char **varname_list,char **value_list);
+                               char **varname_list,char **value_list, int *used_list);
 
 int is_string_blankspace(char string_in[STRING_SIZE]);
 
