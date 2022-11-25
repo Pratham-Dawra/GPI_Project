@@ -381,7 +381,7 @@ void read_par_json(const char *fileinp, GlobVar *gv)
 	log_info("The following parameter(s) from the json file were unclaimed in this run:\n");
 	header_printed = true;
       }
-      log_info("Parameter '%s' with value '%s'.\n", varname_list[i], value_list[i]);
+      log_info("  Parameter '%s' with value '%s'.\n", varname_list[i], value_list[i]);
       ++not_used;
     }
   }
