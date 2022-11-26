@@ -35,10 +35,10 @@
 #include <mpi.h>
 #include "globvar_struct.h"
 
-#define iround(x) ((int)(floor)(x+0.5))
-#define min(x,y) ((x<y)?x:y)
-#define max(x,y) ((x<y)?y:x)
-#define fsign(x) ((x<0.0)?(-1):1)
+#define iround(x) ((int)(floor)((x)+0.5))
+#define min(x,y) (((x)<(y))?(x):(y))
+#define max(x,y) (((x)<(y))?(y):(x))
+#define fsign(x) (((x)<0.0)?(-1):1)
 
 #define PI (3.141592653589793238462643383279502884197169)
 #define NPAR 41

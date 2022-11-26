@@ -55,6 +55,7 @@ int main ( int argc, char **argv )
     int lsnap, nsnap = 0, lsamp = 0, buffsize;
     int ntr = 0, ntr_loc = 0, ntr_glob = 0, nsrc = 0, nsrc_loc = 0;
     int ishot, nshots; /* Added ishot and nshots for multiple shots */
+    int **dummy = NULL;
     /*Limits for local grids defined in subgrid_bounds.c */
     char sigf[STRING_SIZE*2], file_ext[5];
     int * gx=NULL, * gy=NULL;
@@ -906,9 +907,14 @@ int main ( int argc, char **argv )
                 case 2: sprintf(file_ext,"txt"); break;
                 case 3: sprintf(file_ext,"bin"); break;
             }
+	    dummy = imatrix(1,3,1,1);
+	    dummy[1][1] = iround(srcpos_loc[1][ishot]/gv.DH);
+	    dummy[2][1] = iround(srcpos_loc[2][ishot]/gv.DH);
+	    dummy[3][1] = 0;
             sprintf(sigf,"%s.shot%d.%s",gv.SIGOUT_FILE,ishot,file_ext);
             log_info("Writing source wavelet to file %s.\n",sigf);
-            outseis_glob(fopen(sigf,"w"),signals,recpos,1,srcpos_loc,gv.NT,gv.SIGOUT_FORMAT,ishot,0, &gv);
+            outseis_glob(fopen(sigf,"w"),signals,dummy,1,srcpos_loc,gv.NT,gv.SIGOUT_FORMAT,ishot,0,&gv);
+	    free_imatrix(dummy,1,3,1,1);
         }
 
         /* initialize wavefield with zero */
