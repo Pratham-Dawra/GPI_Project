@@ -26,8 +26,8 @@
 #include "logging.h"
 
 void  outseis_glob(FILE *fpdata, float **section,
-		int **recpos, int **recpos_loc, int ntr, float ** srcpos,
-		int nsrc, int ns, int seis_form, int ishot, int comp, GlobVar *gv) {
+		int **recpos, int ntr, float ** srcpos,
+		int ns, int seis_form, int ishot, int comp, GlobVar *gv) {
 
 	const float xshift=800.0, yshift=800.0;
 

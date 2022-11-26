@@ -30,7 +30,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void update_s_visc_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_visc_interior ( int *gx, int *gy, int nt,
                               float **vx, float **vy, float **sxx, float **syy,
                               float **sxy, float ***r, float *** p, float ***q,
                               float ** fipjp, float **f, float **g, float *bip, float *bjm, float *cip,

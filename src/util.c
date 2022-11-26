@@ -22,13 +22,13 @@
  *
  * ----------------------------------------------------------------------*/
 
-
 #define NR_END 1
 #define FREE_ARG char *
 
 #include "fd.h"
 #include "logging.h"
 
+#define UNUSED(x) (void)(x)
 
 void dt_mult(int nx, int ny, float dt, float **a) 
 {
@@ -416,34 +416,43 @@ float ****f4tensor(int nrl, int nrh, int ncl, int nch,int ndl, int ndh, int nvl,
 void free_vector(float *v, int nl, int nh){
   /* free a float vector allocated with vector() */
   free((FREE_ARG) (v+nl-NR_END));
+  UNUSED(nh);
 }
 
 void free_ivector(int *v, int nl, int nh){
   /* free a int vector allocated with vector() */
-  free((FREE_ARG) (v+nl-NR_END));
+  free((FREE_ARG) (v+nl-NR_END)); 
+  UNUSED(nh);
 }
 
 void free_cvector(char *v, int nl, int nh){
   /* free a char vector allocated with vector() */
   free((FREE_ARG) (v+nl-NR_END));
+  UNUSED(nh);
 }
 
 void free_matrix(float **m, int nrl, int nrh, int ncl, int nch){
   /* free a float matrix allocated by matrix() */
   free((FREE_ARG) (m[nrl]+ncl-NR_END));
   free((FREE_ARG) (m+nrl-NR_END));
+  UNUSED(nrh);
+  UNUSED(nch);
 }
 
 void free_imatrix(int **m, int nrl, int nrh, int ncl, int nch){
   /* free a integer matrix allocated by imatrix() */
   free((FREE_ARG) (m[nrl]+ncl-NR_END));
   free((FREE_ARG) (m+nrl-NR_END));
+  UNUSED(nrh);
+  UNUSED(nch);
 }
 
 void free_usmatrix(unsigned short int **m, int nrl, int nrh, int ncl, int nch){
   /* free a integer matrix allocated by imatrix() */
   free((FREE_ARG) (m[nrl]+ncl-NR_END));
   free((FREE_ARG) (m+nrl-NR_END));
+  UNUSED(nrh);
+  UNUSED(nch);
 }
 
 void free_f3tensor(float ***t, int nrl, int nrh, int ncl, int nch, int ndl, int ndh){
@@ -451,6 +460,9 @@ void free_f3tensor(float ***t, int nrl, int nrh, int ncl, int nch, int ndl, int 
   free((FREE_ARG) (t[nrl][ncl]+ndl-NR_END));
   free((FREE_ARG) (t[nrl]+ncl-NR_END));
   free((FREE_ARG) (t+nrl-NR_END));
+  UNUSED(nrh);
+  UNUSED(nch);
+  UNUSED(ndh);
 }
 
 void free_i3tensor(int ***t, int nrl, int nrh, int ncl, int nch, int ndl, int ndh){
@@ -458,4 +470,7 @@ void free_i3tensor(int ***t, int nrl, int nrh, int ncl, int nch, int ndl, int nd
   free((FREE_ARG) (t[nrl][ncl]+ndl-NR_END));
   free((FREE_ARG) (t[nrl]+ncl-NR_END));
   free((FREE_ARG) (t+nrl-NR_END));
+  UNUSED(nrh);
+  UNUSED(nch);
+  UNUSED(ndh);
 }

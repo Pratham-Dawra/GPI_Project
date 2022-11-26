@@ -27,14 +27,26 @@ MERGE := snapmerge
 ###############################################################################
 # Compiler / MPI settings
 ###############################################################################
+### GNU compiler
 CC             := mpicc
 CPPFLAGS        = -D_GNU_SOURCE -DLOG_COLOR
 EXTRA_CPPFLAGS := -DLOG_MPI
-CFLAGS          = -O3 -Wall -Wextra -g -fstack-protector -std=c99 
+CFLAGS          = -O3 -Wall -Wextra -g -fstack-protector -std=c99
 CDEPEND         = -MMD -MP -MF .dep-$(subst /,-,$@)
 LD             := $(CC)
 LDFLAGS         = -lm
 EXTRA_LDFLAGS  := -lmpi
+
+###############################################################################
+### Intel compiler (OneAPI)
+#CC             := mpicc -cc=icx
+#CPPFLAGS        = -D_GNU_SOURCE -DLOG_COLOR
+#EXTRA_CPPFLAGS := -DLOG_MPI
+#CFLAGS          = -O3 -Wall -Wextra -g -fstack-protector -std=c99 --intel
+#CDEPEND         = -MMD -MP -MF .dep-$(subst /,-,$@)
+#LD             := $(CC)
+#LDFLAGS         = -static-intel -lm 
+#EXTRA_LDFLAGS  := -lmpi
 
 ###############################################################################
 ###############################################################################
@@ -81,7 +93,6 @@ FDMOD_FILES := sofi2D.c \
                cpml_update.c \
                debug_buffers.c \
 	       exchange_par.c \
-               exchange_s_rsg.c \
                exchange_s.c \
                exchange_v.c \
                hh_elastic.c \
@@ -97,7 +108,6 @@ FDMOD_FILES := sofi2D.c \
                matcopy.c \
                matcopy_elastic.c \
                mergemod.c \
-               outseis.c \
                outseis_glob.c \
                operators_s.c \
                operators_v.c \

@@ -28,16 +28,16 @@
  *  ----------------------------------------------------------------------*/
 #include "fd.h"
 
-void update_s_visc_tti_abs ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_visc_tti_abs (int *gx, int *gy,
                             float **  pvxx, float **   pvyy, float **  pvyx, float **   pvxy,
                             float **sxx, float **syy, float **sxy,
                               float ***pr, float ***pp, float ***pq,
-                            float ** pc11u, float **pc33u, float **pc13u, float ** pc55u, float ** pc15u, float ** pc35u,
+                            float ** pc11u, float **pc33u, float **pc13u, float ** pc15u, float ** pc35u,
                            float ** pc55ipjpu, float ** pc15ipjpu,float ** pc35ipjpu,
-                           float *** pc11d, float ***pc33d, float ***pc13d, float *** pc55d,
+                           float *** pc11d, float ***pc33d, float ***pc13d,
                            float *** pc15d, float *** pc35d,
                            float *** pc55ipjpd, float *** pc15ipjpd,float *** pc35ipjpd,
-                             float *bip, float *cip, float ** absorb_coeff, float *hc, GlobVar *gv ) {
+                             float *bip, float *cip, float ** absorb_coeff, GlobVar *gv ) {
 
 	int i,j;
 
@@ -47,8 +47,8 @@ void update_s_visc_tti_abs ( int nx1, int nx2, int ny1, int ny2, int *gx, int *g
 		for ( i=gx[1]; i<=gx[2]; i++ ) {
 
             wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
                                          bip,  cip, gv);
             
             abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
@@ -60,8 +60,8 @@ void update_s_visc_tti_abs ( int nx1, int nx2, int ny1, int ny2, int *gx, int *g
 		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
 
             wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
                                          bip,  cip, gv);
 			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
 		}
@@ -72,8 +72,8 @@ void update_s_visc_tti_abs ( int nx1, int nx2, int ny1, int ny2, int *gx, int *g
 		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
 
             wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
                                          bip,  cip, gv);
 			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
 		}
@@ -84,8 +84,8 @@ void update_s_visc_tti_abs ( int nx1, int nx2, int ny1, int ny2, int *gx, int *g
 		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
 
             wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
                                          bip,  cip, gv);
 			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
 		}
@@ -98,8 +98,8 @@ void update_s_visc_tti_abs ( int nx1, int nx2, int ny1, int ny2, int *gx, int *g
 		for ( i=gx[1]; i<=gx[2]; i++ ) {
 
             wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
                                          bip,  cip, gv);
 			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
 		}
@@ -110,8 +110,8 @@ void update_s_visc_tti_abs ( int nx1, int nx2, int ny1, int ny2, int *gx, int *g
 		for ( i=gx[1]; i<=gx[2]; i++ ) {
 
             wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
                                          bip,  cip, gv);
 			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
 		}
@@ -122,8 +122,8 @@ void update_s_visc_tti_abs ( int nx1, int nx2, int ny1, int ny2, int *gx, int *g
 		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
 
             wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
                                          bip,  cip, gv);
 			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
 		}
@@ -134,8 +134,8 @@ void update_s_visc_tti_abs ( int nx1, int nx2, int ny1, int ny2, int *gx, int *g
 		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
 
             wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
                                          bip,  cip, gv);
 			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
 		}

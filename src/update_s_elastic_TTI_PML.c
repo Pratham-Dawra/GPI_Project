@@ -30,12 +30,12 @@
 #include "fd.h"
 
 
-void update_s_elastic_TTI_PML ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
+void update_s_elastic_TTI_PML ( int nx2, int ny2, int * gx, int * gy, 
                                float **  pvxx, float **   pvyy, float **  pvyx, float **   pvxy,
                                float **   sxx, float **   syy,
                             float **   sxy,
                                float ** pc11, float ** pc55ipjp, float ** pc13, float ** pc33,
-                                           float ** pc15, float ** pc35, float ** pc15ipjp, float ** pc35ipjp, float *hc,
+                                           float ** pc15, float ** pc35, float ** pc15ipjp, float ** pc35ipjp,
                             float * K_x, float * a_x, float * b_x, float * K_x_half, float * a_x_half, float * b_x_half,
                             float * K_y, float * a_y, float * b_y, float * K_y_half, float * a_y_half, float * b_y_half,
                             float ** psi_vxx, float ** psi_vyy, float ** psi_vxy, float ** psi_vyx, GlobVar *gv ) {

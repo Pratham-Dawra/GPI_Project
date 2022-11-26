@@ -71,11 +71,12 @@ void snap(int nt, int nsnap, float **vx, float **vy, float **sxx,
 
 	log_debug("Writing snapshot data at T=%fs, file suffix '%d.%d'.\n",nt*gv->DT,gv->POS[1],gv->POS[2]);
 	
+	/* do NOT remove the FALLTHRU comment below, it is used to tell the compiler
+	   that this is an intentional fall through */
 	switch(gv->SNAP){
 	case 1 :
 	  //log_debug("%s\n", snapfile_x);
-	  //log_debug("%s\n", snapfile_y);
-		
+	  //log_debug("%s\n", snapfile_y);		
 		if (nsnap==1){
 			fpx1=fopen(snapfile_x,"w");
 			fpy1=fopen(snapfile_y,"w");
@@ -92,8 +93,6 @@ void snap(int nt, int nsnap, float **vx, float **vy, float **sxx,
 		fclose(fpx1);
 		fclose(fpy1);
 		break;
-
-
 	case 2 :
 	  //log_debug("%s\n",snapfile_p);
 		if (nsnap==1){
@@ -110,7 +109,6 @@ void snap(int nt, int nsnap, float **vx, float **vy, float **sxx,
 			}
 		fclose(fpx1);
 		break;
-
 	case 4 :
 	  //log_debug("%s\n", snapfile_x);
 	  //log_debug("%s\n", snapfile_y);
@@ -136,7 +134,7 @@ void snap(int nt, int nsnap, float **vx, float **vy, float **sxx,
 		fclose(fpx1);
 		fclose(fpy1);
 		fclose(fpp);
-				
+		/* FALLTHRU */		
 	case 3 :
 		/* output of the curl of the velocity field according to Dougherty and
 				                  Stephen (PAGEOPH, 1988) */

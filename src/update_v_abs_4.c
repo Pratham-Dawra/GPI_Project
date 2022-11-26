@@ -29,7 +29,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void update_v_abs_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
+void update_v_abs_4 ( int * gx, int * gy, int nt,
                    float **  vx, float ** vy, float ** sxx, float ** syy, float ** sxy,
                    float  **rip, float **rjp, float ** absorb_coeff,float *hc,float ** svx_1,float ** svx_2,float ** svx_3,float ** svx_4,float ** svy_1,float ** svy_2,float ** svy_3,float ** svy_4, GlobVar *gv)
 {

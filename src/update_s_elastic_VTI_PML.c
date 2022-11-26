@@ -30,7 +30,7 @@
 #include "fd.h"
 
 
-void update_s_elastic_VTI_PML ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
+void update_s_elastic_VTI_PML ( int nx2, int ny2, int * gx, int * gy, 
                             float **  vx, float **   vy, float **   sxx, float **   syy,
                             float **   sxy, float ** pc11, float ** pc13, float **pc33, float ** pc55ipjp, float *hc,
                             float * K_x, float * a_x, float * b_x, float * K_x_half, float * a_x_half, float * b_x_half,

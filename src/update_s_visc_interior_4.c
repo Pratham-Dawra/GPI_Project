@@ -30,7 +30,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_visc_interior_4 ( int *gx, int *gy, int nt,
                                float **vx, float **vy, float **sxx, float **syy,
                                float **sxy, float ***r, float *** p, float ***q,
                                float ** fipjp, float **f, float **g, float *bip, float *bjm, float *cip,
@@ -38,8 +38,7 @@ void update_s_visc_interior_4 ( int nx1, int nx2, int ny1, int ny2, int *gx, int
                                float *hc ,  float ** vxx_1,float ** vxx_2,float ** vxx_3,float ** vxx_4,
 				float ** vyy_1,float ** vyy_2,float ** vyy_3,float ** vyy_4,float ** vxy_1,
 				float ** vxy_2,float ** vxy_3,float ** vxy_4,float ** vyx_1,float ** vyx_2,
-				float ** vyx_3,float ** vyx_4,float ** svx_1,float ** svx_2,float ** svx_3,
-				float ** svx_4,float ** svy_1,float ** svy_2,float ** svy_3,float ** svy_4,
+				float ** vyx_3,float ** vyx_4,
 				float ***r_2,float ***r_3,float ***r_4, float ***p_2, float ***p_3, 
 				float ***p_4, float ***q_2, float ***q_3, float ***q_4, GlobVar *gv)
 {

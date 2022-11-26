@@ -29,10 +29,9 @@
 
 #include "fd.h"
 
-void update_s_visc_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_visc_abs(int *gx, int *gy,
 		float **vx, float **vy, float **sxx, float **syy,
 		float **sxy, float ***r, float *** p, float ***q,
-		float **pi,
 		float ** fipjp, float **f, float **g, float *bip, float *bjm, float *cip,
 		float *cjm, float ***d, float ***e, float ***dip,
 		float ** absorb_coeff,float *hc, GlobVar *gv) {

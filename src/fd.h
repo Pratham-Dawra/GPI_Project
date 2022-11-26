@@ -87,20 +87,13 @@ void cpml_update_v_x(int i, int j,float   *sxx_x, float *sxy_x,float *K_x, float
 void cpml_update_v_y(int i, int j,float *sxy_y,float *syy_y,float *K_y, float *a_y,
                      float *b_y, float *K_y_half, float *a_y_half, float *b_y_half ,float **psi_syy_y,float **psi_sxy_y);
 
-void exchange_s_rsg(float **vx, float **vy, float **vz,
-                    float **bufferlef_to_rig, float **bufferrig_to_lef,
-                    float **buffertop_to_bot, float **bufferbot_to_top, GlobVar *gv);
-
 void exchange_v(int nd, float **vx, float **vy,
                 float **bufferlef_to_rig, float **bufferrig_to_lef,
-                float **buffertop_to_bot, float **bufferbot_to_top,
-                MPI_Request *req_send, MPI_Request *req_rec, GlobVar *gv);
+                float **buffertop_to_bot, float **bufferbot_to_top, GlobVar *gv);
 
 void exchange_s(int nd, float **sxx, float **syy,
                 float **sxy, float **bufferlef_to_rig, float **bufferrig_to_lef,
-                float **buffertop_to_bot, float **bufferbot_to_top,
-                MPI_Request *req_send, MPI_Request *req_rec, GlobVar *gv);
-
+                float **buffertop_to_bot, float **bufferbot_to_top, GlobVar *gv);
 
 void exchange_par(GlobVar *gv);
 
@@ -144,13 +137,9 @@ void merge(int nsnap, int type, GlobVar *gv);
 
 void mergemod(const char* modfile, int format, GlobVar *gv);
 
-void  outseis(FILE *fp, FILE *fpdata, float **section,
-              int **recpos, int **recpos_loc, int ntr, float **srcpos_loc,
-              int nsrc, int ns, int seis_form, int ishot, GlobVar *gv);
-
 void  outseis_glob(FILE *fpdata, float **section,
-                   int **recpos, int **recpos_loc, int ntr, float **srcpos_loc,
-                   int nsrc, int ns, int seis_form, int ishot, int comp, GlobVar *gv);
+                   int **recpos, int ntr, float **srcpos_loc,
+                   int ns, int seis_form, int ishot, int comp, GlobVar *gv);
 
 void  output_source_signal(FILE *fp, float **signals, int ns, int seis_form);
 
@@ -269,7 +258,7 @@ int **receiver(int *ntr, GlobVar *gv);
 void save_checkpoint(int nx1, int nx2, int ny1, int ny2,
                      float   **vx, float **vy, float **sxx, float **syy, float **sxy, GlobVar *gv);
 
-void saveseis_glob(float **sectiondata, int  **recpos, int  **recpos_loc,
+void saveseis_glob(float **sectiondata, int  **recpos, 
                    int ntr, float **srcpos, int ishot,int ns, int sectiondatatype, GlobVar *gv);
 
 void snap(int nt, int nsnap, float **vx, float **vy, float **sxx,
@@ -304,115 +293,113 @@ void surface(int ndepth, float **pvx, float **pvy,
              float    **ppi, float    **pu, float **ptaup,
              float **ptaus, float *etajm, float *peta, float *hc, float *K_x, float *a_x, float *b_x, float **psi_vxx, GlobVar *gv);
 
-void surface_elastic(int ndepth, int *gx, float **vx, float **vy, float **sxx, float **syy,
+void surface_elastic(int ndepth, float **vx, float **vy, float **sxx, float **syy,
                      float **sxy, float    **pi, float    **u, float *hc, float *K_x, float *a_x, float *b_x, float**
                      psi_vxx, GlobVar *gv);
 
-void update_s_visc_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_visc_abs(int *gx, int *gy,
                        float **vx, float **vy, float **sxx, float **syy,
                        float **sxy, float ***r, float *** p, float ***q,
-                       float **pi,
                        float **fipjp, float **f, float **g, float *bip, float *bjm, float *cip,
                        float *cjm, float ***d, float ***e, float ***dip,
                        float **absorb_coeff,float *hc, GlobVar *gv);
 
-void update_s_visc_abs_4(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_visc_abs_4(int *gx, int *gy, int nt,
                          float **vx, float **vy, float **sxx, float **syy,
                          float **sxy, float ***r, float *** p, float ***q,
-                         float **pi,
-                         float **fipjp, float **f, float **g, float *bip, float *bjm, float *cip,
+			 float **fipjp, float **f, float **g, float *bip, float *bjm, float *cip,
                          float *cjm, float ***d, float ***e, float ***dip,
-                         float **absorb_coeff,float *hc,  float **vxx_1,float **vxx_2,float **vxx_3,float **vxx_4,float **vyy_1,float **vyy_2,float **vyy_3,float **vyy_4,float **vxy_1,float **vxy_2,float **vxy_3,float **vxy_4,float **vyx_1,float **vyx_2,float **vyx_3,float **vyx_4,float **svx_1,float **svx_2,float **svx_3,float **svx_4,float **svy_1,float **svy_2,float **svy_3,float **svy_4,float ***pr_2,float ***pr_3,float ***pr_4, float ***pp_2, float ***pp_3, float ***pp_4, float ***pq_2, float ***pq_3, float ***pq_4, GlobVar *gv);
+                         float **absorb_coeff,float *hc,  float **vxx_1,float **vxx_2,float **vxx_3,float **vxx_4,float **vyy_1,float **vyy_2,float **vyy_3,float **vyy_4,float **vxy_1,float **vxy_2,float **vxy_3,float **vxy_4,float **vyx_1,float **vyx_2,float **vyx_3,float **vyx_4,float ***pr_2,float ***pr_3,float ***pr_4, float ***pp_2, float ***pp_3, float ***pp_4, float ***pq_2, float ***pq_3, float ***pq_4, GlobVar *gv);
 
 void update_s_elastic(int nx1, int nx2, int ny1, int ny2, int nt,
                       float   **vx, float    **vy, float    **sxx, float    **syy,
                       float    **sxy, float **pi, float **u, float **uipjp, float **absorb_coeff,
                       float *hc);
 
-void update_s_elastic_VTI_interior ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
+void update_s_elastic_VTI_interior ( int * gx, int * gy, int nt,
                                      float **  vx, float **   vy, float **   sxx, float **   syy,float **   sxy,
                                      float ** pc11, float ** pc55ipjp, float ** pc13, float ** pc33, float *hc, GlobVar *gv );
 
-void update_s_elastic_TTI_interior ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
+void update_s_elastic_TTI_interior ( int * gx, int * gy, int nt,
                          float **  pvxx, float **   pvyy, float **  pvyx, float **   pvxy,
                                     float **   sxx, float **   syy,
                         float **   sxy, float ** pc11, float ** pc55ipjp, float ** pc13, float ** pc33,
-                                    float ** pc15, float ** pc35, float ** pc15ipjp, float ** pc35ipjp, float *hc, GlobVar *gv );
+                                    float ** pc15, float ** pc35, float ** pc15ipjp, float ** pc35ipjp, GlobVar *gv );
 
 void update_s_elastic_TTI_interior2 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
                         float **  vx, float **   vy, float **   sxx, float **   syy,
                         float **   sxy, float ** pc11, float ** pc55ipjp, float ** pc13, float ** pc33,
                                      float ** pc15, float ** pc35, float ** pc15ipjp, float ** pc35ipjp, float *hc );
 
-void update_s_visc_VTI_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_visc_VTI_interior ( int *gx, int *gy, int nt,
                               float **vx, float **vy, float **sxx, float **syy, float **sxy,
                               float ***pr, float ***pp, float ***pq,
                              float ** pc55ipjpu, float ** pc13u, float **pc11u, float **pc33u,
                              float *** pc55ipjpd, float *** pc13d, float ***pc11d, float ***pc33d,
                              float *bip, float *cip, float *hc, GlobVar *gv);
 
-void update_s_visc_TTI_interior ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_visc_TTI_interior (int *gx, int *gy, int nt,
                                  float **  pvxx, float **   pvyy, float **  pvyx, float **   pvxy,
                                  float **sxx, float **syy, float **sxy,
                               float ***pr, float ***pp, float ***pq,
-                                  float ** pc11u, float **pc33u, float **pc13u, float ** pc55u, float ** pc15u, float ** pc35u,
+                                  float ** pc11u, float **pc33u, float **pc13u, float ** pc15u, float ** pc35u,
                                  float ** pc55ipjpu, float ** pc15ipjpu,float ** pc35ipjpu,
-                                 float *** pc11d, float ***pc33d, float ***pc13d, float *** pc55d,
+                                 float *** pc11d, float ***pc33d, float ***pc13d,
                                  float *** pc15d, float *** pc35d,
                                  float *** pc55ipjpd, float *** pc15ipjpd,float *** pc35ipjpd,
-                                 float *bip, float *cip, float *hc, GlobVar *gv);
+                                 float *bip, float *cip, GlobVar *gv);
 
-void update_s_elastic_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_elastic_abs(int *gx, int *gy, int nt,
                           float   **vx, float    **vy, float    **sxx, float    **syy,
                           float    **sxy, float **pi, float **u, float **uipjp,
                           float **absorb_coeff, float *hc, GlobVar *gv);
 
-void update_s_elastic_vti_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
+void update_s_elastic_vti_abs ( int * gx, int * gy,
                                float **  vx, float **   vy, float **   sxx, float **   syy,
                                float **   sxy, float ** pc11, float ** pc55ipjp,
                                float ** pc13, float ** pc33, float ** absorb_coeff, float *hc, GlobVar *gv );
 
 
-void update_s_elastic_tti_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
+void update_s_elastic_tti_abs ( int * gx, int * gy,
                                float  **pvxx, float **pvyx,float **pvxy,float **pvyy,
                                float **   sxx, float **   syy,
                             float **   sxy, float ** pc11, float ** pc55ipjp, float ** pc13, float ** pc33,
                                            float ** pc15, float ** pc35, float ** pc15ipjp, float ** pc35ipjp,
-                               float ** absorb_coeff, float *hc );
+                               float ** absorb_coeff);
 
-void update_s_visc_vti_abs ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_visc_vti_abs ( int *gx, int *gy,
                               float **vx, float **vy, float **sxx, float **syy, float **sxy,
                               float ***pr, float ***pp, float ***pq,
                              float ** pc55ipjpu, float ** pc13u, float **pc11u, float **pc33u,
                              float *** pc55ipjpd, float *** pc13d, float ***pc11d, float ***pc33d,
                              float *bip, float *cip, float ** absorb_coeff, float *hc, GlobVar *gv );
 
-void update_s_visc_tti_abs ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_visc_tti_abs ( int *gx, int *gy,
                             float **  pvxx, float **   pvyy, float **  pvyx, float **   pvxy,
                             float **sxx, float **syy, float **sxy,
                               float ***pr, float ***pp, float ***pq,
-                            float ** pc11u, float **pc33u, float **pc13u, float ** pc55u, float ** pc15u, float ** pc35u,
+                            float ** pc11u, float **pc33u, float **pc13u, float ** pc15u, float ** pc35u,
                            float ** pc55ipjpu, float ** pc15ipjpu,float ** pc35ipjpu,
-                           float *** pc11d, float ***pc33d, float ***pc13d, float *** pc55d,
+                           float *** pc11d, float ***pc33d, float ***pc13d,
                            float *** pc15d, float *** pc35d,
                            float *** pc55ipjpd, float *** pc15ipjpd,float *** pc35ipjpd,
-                           float *bip, float *cip, float ** absorb_coeff, float *hc, GlobVar *gv );
+                           float *bip, float *cip, float ** absorb_coeff, GlobVar *gv );
 
 
 
-void update_s_elastic_VTI_PML ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
+void update_s_elastic_VTI_PML ( int nx2, int ny2, int * gx, int * gy, 
                             float **  vx, float **   vy, float **   sxx, float **   syy,
                             float **   sxy, float ** pc11, float ** pc13, float **pc33, float ** pc55ipjp, float *hc,
                             float * K_x, float * a_x, float * b_x, float * K_x_half, float * a_x_half, float * b_x_half,
                             float * K_y, float * a_y, float * b_y, float * K_y_half, float * a_y_half, float * b_y_half,
                             float ** psi_vxx, float ** psi_vyy, float ** psi_vxy, float ** psi_vyx, GlobVar *gv );
 
-void update_s_elastic_TTI_PML ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
+void update_s_elastic_TTI_PML ( int nx2, int ny2, int * gx, int * gy, 
                                float **  pvxx, float **   pvyy, float **  pvyx, float **   pvxy,
                                float **   sxx, float **   syy,
                             float **   sxy,
                                float ** pc11, float ** pc55ipjp, float ** pc13, float ** pc33,
-                                           float ** pc15, float ** pc35, float ** pc15ipjp, float ** pc35ipjp, float *hc,
+                                           float ** pc15, float ** pc35, float ** pc15ipjp, float ** pc35ipjp,
                             float * K_x, float * a_x, float * b_x, float * K_x_half, float * a_x_half, float * b_x_half,
                             float * K_y, float * a_y, float * b_y, float * K_y_half, float * a_y_half, float * b_y_half,
                                float ** psi_vxx, float ** psi_vyy, float ** psi_vxy, float ** psi_vyx, GlobVar *gv );
@@ -427,7 +414,7 @@ void update_s_elastic_TTI_PML2 ( int nx1, int nx2, int ny1, int ny2, int * gx, i
                                 float ** psi_vxx, float ** psi_vyy, float ** psi_vxy, float ** psi_vyx );
 
 
-void update_s_visc_VTI_PML ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_visc_VTI_PML ( int nx2, int ny2, int *gx, int *gy,
                               float **vx, float **vy, float **sxx, float **syy, float **sxy,
                               float ***pr, float ***pp, float ***pq,
                              float ** pc55ipjpu, float ** pc13u, float **pc11u, float **pc33u,
@@ -437,35 +424,35 @@ void update_s_visc_VTI_PML ( int nx1, int nx2, int ny1, int ny2, int *gx, int *g
                             float * K_y, float * a_y, float * b_y, float * K_y_half, float * a_y_half, float * b_y_half,
                             float ** psi_vxx, float ** psi_vyy, float ** psi_vxy, float ** psi_vyx, GlobVar *gv );
 
-void update_s_visc_TTI_PML ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_visc_TTI_PML ( int nx2, int ny2, int *gx, int *gy,
                             float **  pvxx, float **   pvyy, float **  pvyx, float **   pvxy,
                             float **sxx, float **syy, float **sxy,
                               float ***pr, float ***pp, float ***pq,
-                            float ** pc11u, float **pc33u, float **pc13u, float ** pc55u, float ** pc15u, float ** pc35u,
+                            float ** pc11u, float **pc33u, float **pc13u, float ** pc15u, float ** pc35u,
                            float ** pc55ipjpu, float ** pc15ipjpu,float ** pc35ipjpu,
-                           float *** pc11d, float ***pc33d, float ***pc13d, float *** pc55d,
+                           float *** pc11d, float ***pc33d, float ***pc13d,
                            float *** pc15d, float *** pc35d,
                            float *** pc55ipjpd, float *** pc15ipjpd,float *** pc35ipjpd,
-                             float *bip, float *cip, float *hc,
+                             float *bip, float *cip,
                             float * K_x, float * a_x, float * b_x, float * K_x_half, float * a_x_half, float * b_x_half,
                             float * K_y, float * a_y, float * b_y, float * K_y_half, float * a_y_half, float * b_y_half,
                             float ** psi_vxx, float ** psi_vyy, float ** psi_vxy, float ** psi_vyx, GlobVar *gv );
 
-void update_s_elastic_abs_4(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_elastic_abs_4(int *gx, int *gy, int nt,
                             float   **vx, float    **vy, float    **sxx, float    **syy,
                             float    **sxy, float **pi, float **u, float **uipjp,
                             float **absorb_coeff, float *hc ,float **vxx_1,float **vxx_2,float **vxx_3,float **vxx_4,float **vyy_1,float **vyy_2,float **vyy_3,float **vyy_4,float **vxy_1,float **vxy_2,float **vxy_3,float **vxy_4,float **vyx_1,float **vyx_2,float **vyx_3,float **vyx_4, GlobVar *gv);
 
-void update_s_elastic_interior(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_elastic_interior(int *gx, int *gy, int nt,
                                float   **vx, float    **vy, float    **sxx, float    **syy,
                                float    **sxy, float **pi, float **u, float **uipjp,
                                float *hc, GlobVar *gv);
 
-void update_s_elastic_interior_4(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_elastic_interior_4(int *gx, int *gy, int nt,
                                  float   **vx, float    **vy, float    **sxx, float    **syy,
                                  float    **sxy, float **pi, float **u, float **uipjp, float *hc,float **vxx_1,float **vxx_2,float **vxx_3,float **vxx_4,float **vyy_1,float **vyy_2,float **vyy_3,float **vyy_4,float **vxy_1,float **vxy_2,float **vxy_3,float **vxy_4,float **vyx_1,float **vyx_2,float **vyx_3,float **vyx_4, GlobVar *gv);
 
-void update_s_elastic_PML(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_elastic_PML(int nx2, int ny2, int *gx, int *gy, int nt,
                           float   **vx, float    **vy, float    **sxx, float    **syy,
                           float    **sxy, float **pi, float **u, float **uipjp, float *hc,
                           float *K_x, float *a_x, float *b_x, float *K_x_half, float *a_x_half, float *b_x_half,
@@ -474,21 +461,21 @@ void update_s_elastic_PML(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, 
 
 
 
-void update_s_elastic_PML_4(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_elastic_PML_4(int nx2, int ny2, int *gx, int *gy, int nt,
                             float   **vx, float    **vy, float    **sxx, float    **syy,
                             float    **sxy, float **pi, float **u, float **uipjp, float *hc,
                             float *K_x, float *a_x, float *b_x, float *K_x_half, float *a_x_half, float *b_x_half,
                             float *K_y, float *a_y, float *b_y, float *K_y_half, float *a_y_half, float *b_y_half,
                             float **psi_vxx, float **psi_vyy, float **psi_vxy, float **psi_vyx,float **vxx_1,float **vxx_2,float **vxx_3,float **vxx_4,float **vyy_1,float **vyy_2,float **vyy_3,float **vyy_4,float **vxy_1,float **vxy_2,float **vxy_3,float **vxy_4,float **vyx_1,float **vyx_2,float **vyx_3,float **vyx_4, GlobVar *gv);
 
-void update_s_visc_interior(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_visc_interior(int *gx, int *gy, int nt,
                             float **vx, float **vy, float **sxx, float **syy,
                             float **sxy, float ***r, float *** p, float ***q,
                             float **fipjp, float **f, float **g, float *bip, float *bjm, float *cip,
                             float *cjm, float ***d, float ***e, float ***dip,
                             float *hc, GlobVar *gv);
 
-void update_s_visc_PML(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,int nt,
+void update_s_visc_PML(int nx2, int ny2, int *gx, int *gy,int nt,
                        float   **vx, float    **vy, float    **sxx, float    **syy,
                        float    **sxy, float *hc, float ***r, float ***p, float ***q, float **fipjp, float **f, float **g,
                        float *bip, float *bjm, float *cip, float *cjm, float ***d, float ***e, float ***dip,
@@ -496,23 +483,20 @@ void update_s_visc_PML(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,int 
                        float *K_y, float *a_y, float *b_y, float *K_y_half, float *a_y_half, float *b_y_half,
                        float **psi_vxx, float **psi_vyy, float **psi_vxy, float **psi_vyx, GlobVar *gv);
 
-
-
-
-void update_s_visc_interior_4(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_visc_interior_4(int *gx, int *gy, int nt,
                               float **vx, float **vy, float **sxx, float **syy,
                               float **sxy, float ***r, float *** p, float ***q,
                               float **fipjp, float **f, float **g, float *bip, float *bjm, float *cip,
                               float *cjm, float ***d, float ***e, float ***dip,
-                              float *hc,  float **vxx_1,float **vxx_2,float **vxx_3,float **vxx_4,float **vyy_1,float **vyy_2,float **vyy_3,float **vyy_4,float **vxy_1,float **vxy_2,float **vxy_3,float **vxy_4,float **vyx_1,float **vyx_2,float **vyx_3,float **vyx_4,float **svx_1,float **svx_2,float **svx_3,float **svx_4,float **svy_1,float **svy_2,float **svy_3,float **svy_4,float ***pr_2,float ***pr_3,float ***pr_4, float ***pp_2, float ***pp_3, float ***pp_4, float ***pq_2, float ***pq_3, float ***pq_4, GlobVar *gv);
+                              float *hc,  float **vxx_1,float **vxx_2,float **vxx_3,float **vxx_4,float **vyy_1,float **vyy_2,float **vyy_3,float **vyy_4,float **vxy_1,float **vxy_2,float **vxy_3,float **vxy_4,float **vyx_1,float **vyx_2,float **vyx_3,float **vyx_4,float ***pr_2,float ***pr_3,float ***pr_4, float ***pp_2, float ***pp_3, float ***pp_4, float ***pq_2, float ***pq_3, float ***pq_4, GlobVar *gv);
 
-void update_s_visc_PML_4(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy,int nt,
+void update_s_visc_PML_4(int nx2, int ny2, int *gx, int *gy,int nt,
                          float   **vx, float    **vy, float    **sxx, float    **syy,
                          float    **sxy, float *hc, float ***r, float ***p, float ***q, float **fipjp, float **f, float **g,
                          float *bip, float *bjm, float *cip, float *cjm, float ***d, float ***e, float ***dip,
                          float *K_x, float *a_x, float *b_x, float *K_x_half, float *a_x_half, float *b_x_half,
                          float *K_y, float *a_y, float *b_y, float *K_y_half, float *a_y_half, float *b_y_half,
-                         float **psi_vxx, float **psi_vyy, float **psi_vxy, float **psi_vyx,  float **vxx_1,float **vxx_2,float **vxx_3,float **vxx_4,float **vyy_1,float **vyy_2,float **vyy_3,float **vyy_4,float **vxy_1,float **vxy_2,float **vxy_3,float **vxy_4,float **vyx_1,float **vyx_2,float **vyx_3,float **vyx_4,float **svx_1,float **svx_2,float **svx_3,float **svx_4,float **svy_1,float **svy_2,float **svy_3,float **svy_4,float ***pr_2,float ***pr_3,float ***pr_4, float ***pp_2, float ***pp_3, float ***pp_4, float ***pq_2, float ***pq_3, float ***pq_4, GlobVar *gv);
+                         float **psi_vxx, float **psi_vyy, float **psi_vxy, float **psi_vyx,  float **vxx_1,float **vxx_2,float **vxx_3,float **vxx_4,float **vyy_1,float **vyy_2,float **vyy_3,float **vyy_4,float **vxy_1,float **vxy_2,float **vxy_3,float **vxy_4,float **vyx_1,float **vyx_2,float **vyx_3,float **vyx_4,float ***pr_2,float ***pr_3,float ***pr_4, float ***pp_2, float ***pp_3, float ***pp_4, float ***pq_2, float ***pq_3, float ***pq_4, GlobVar *gv);
 
 void PML_pro(float *d_x, float *K_x, float *alpha_prime_x, float *a_x, float *b_x,
              float *d_x_half, float *K_x_half, float *alpha_prime_x_half, float *a_x_half, float *b_x_half,
@@ -526,31 +510,31 @@ void update_v(int nx1, int nx2, int ny1, int ny2, int nt,
               float   **srcpos_loc, float **signals, int nsrc, float **absorb_coeff,
               float *hc);
 
-void update_v_abs(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt, float   **vx, float **vy,
+void update_v_abs(int *gx, int *gy, float   **vx, float **vy,
                   float **sxx, float **syy, float **sxy,  float  **rip, float **rjp,
                   float **absorb_coeff,float *hc, GlobVar *gv);
 
-void update_v_abs_4(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_v_abs_4(int *gx, int *gy, int nt,
                     float   **vx, float **vy, float **sxx, float **syy, float **sxy,
                     float  **rip, float **rjp, float **absorb_coeff,float *hc,float **svx_1,float **svx_2,float **svx_3,float **svx_4,float **svy_1,float **svy_2,float **svy_3,float **svy_4, GlobVar *gv);
 
-void update_v_interior(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_v_interior(int *gx, int *gy, int nt,
                        float   **vx, float **vy, float **sxx, float **syy,
-                       float **sxy, float **rho, float  **rip, float **rjp,
+                       float **sxy, float  **rip, float **rjp,
                        float   **srcpos_loc, float **signals, int nsrc,
                        float *hc, GlobVar *gv);
 
-void update_v_interior_4(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_v_interior_4(int *gx, int *gy, int nt,
                          float   **vx, float **vy, float **sxx, float **syy,
-                         float **sxy, float **rho, float  **rip, float **rjp,
+                         float **sxy, float  **rip, float **rjp,
                          float   **srcpos_loc, float **signals, int nsrc,float *hc,float **svx_1,float **svx_2,float **svx_3,float **svx_4,float **svy_1,float **svy_2,float **svy_3,float **svy_4, GlobVar *gv);
 
-void update_v_PML(int nx1, int nx2, int ny1, int ny2,int *gx, int *gy, int nt, float   **vx, float **vy,
+void update_v_PML(int nx2, int ny2,int *gx, int *gy, int nt, float   **vx, float **vy,
                   float **sxx, float **syy, float **sxy, float  **rip, float **rjp,
                   float *hc, float *K_x, float *a_x, float *b_x, float *K_x_half,
                   float *a_x_half, float *b_x_half, float *K_y, float *a_y, float *b_y, float *K_y_half, float *a_y_half, float *b_y_half, float **psi_sxx_x, float **psi_syy_y,
                   float **psi_sxy_y, float **psi_syx_x, GlobVar *gv);
-void update_v_PML_4(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt, float   **vx, float **vy,
+void update_v_PML_4(int nx2, int ny2, int *gx, int *gy, int nt, float   **vx, float **vy,
                     float **sxx, float **syy, float **sxy,  float  **rip, float **rjp,
                     float *hc, float *K_x, float *a_x, float *b_x, float *K_x_half, float *a_x_half,
                     float *b_x_half, float *K_y, float *a_y, float *b_y, float *K_y_half, float *a_y_half, float *b_y_half,
@@ -594,9 +578,9 @@ void wavefield_update_s_visc_VTI ( int i, int j,float   vxx, float  vyx,float vx
 
 void wavefield_update_s_visc_TTI ( int i, int j,float  **vxx, float **vyx,float **vxy,float **vyy,
                               float **sxy, float **sxx, float ** syy, float ***p, float ***r,float ***q,
-                                  float ** pc11u, float **pc33u, float **pc13u, float ** pc55u, float ** pc15u, float ** pc35u,
+                                  float ** pc11u, float **pc33u, float **pc13u, float ** pc15u, float ** pc35u,
                                  float ** pc55ipjpu, float ** pc15ipjpu,float ** pc35ipjpu,
-                                 float *** pc11d, float ***pc33d, float ***pc13d, float *** pc55d,
+                                 float *** pc11d, float ***pc33d, float ***pc13d,
                                  float *** pc15d, float *** pc35d,
                                  float *** pc55ipjpd, float *** pc15ipjpd,float *** pc35ipjpd,
                                   float *bip, float *cip, GlobVar *gv);
@@ -604,7 +588,7 @@ void wavefield_update_s_visc_TTI ( int i, int j,float  **vxx, float **vyx,float 
 void wavefield_update_s_visc_4(int i, int j,float   vxx, float  vyx,float vxy,float  vyy, float **sxy,
                                float **sxx, float **syy, float ***r, float ***p,
                                float ***q,float **fipjp, float **f, float **g, float *bip,
-                               float *bjm,float *cip, float *cjm, float ***d, float ***e, float ***dip,  float **vxx_1,float **vxx_2,float **vxx_3,float **vxx_4,float **vyy_1,float **vyy_2,float **vyy_3,float **vyy_4,float **vxy_1,float **vxy_2,float **vxy_3,float **vxy_4,float **vyx_1,float **vyx_2,float **vyx_3,float **vyx_4,float **svx_1,float **svx_2,float **svx_3,float **svx_4,float **svy_1,float **svy_2,float **svy_3,float **svy_4,float ***pr_2,float ***pr_3,float ***pr_4, float ***pp_2, float ***pp_3, float ***pp_4, float ***pq_2, float ***pq_3, float ***pq_4, GlobVar *gv);
+                               float *bjm,float *cip, float *cjm, float ***d, float ***e, float ***dip,  float **vxx_1,float **vxx_2,float **vxx_3,float **vxx_4,float **vyy_1,float **vyy_2,float **vyy_3,float **vyy_4,float **vxy_1,float **vxy_2,float **vxy_3,float **vxy_4,float **vyx_1,float **vyx_2,float **vyx_3,float **vyx_4,float ***pr_2,float ***pr_3,float ***pr_4, float ***pp_2, float ***pp_3, float ***pp_4, float ***pq_2, float ***pq_3, float ***pq_4, GlobVar *gv);
 
 void wavefield_update_v(int i, int j,float   sxx_x, float  sxy_x,float sxy_y,float  syy_y, float **vx,
                         float **vy, float **rip, float **rjp, GlobVar *gv);

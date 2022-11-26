@@ -30,7 +30,7 @@
 #include "fd.h"
 
 
-void update_s_visc_VTI_PML ( int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
+void update_s_visc_VTI_PML ( int nx2, int ny2, int *gx, int *gy,
                               float **vx, float **vy, float **sxx, float **syy, float **sxy,
                               float ***pr, float ***pp, float ***pq,
                              float ** pc55ipjpu, float ** pc13u, float **pc11u, float **pc33u,

@@ -24,12 +24,11 @@
 #include "fd.h"
 #include "logging.h"
 
-void saveseis_glob(float **sectiondata, int **recpos, int **recpos_loc, int ntr, 
+void saveseis_glob(float **sectiondata, int **recpos, int ntr, 
 		   float **srcpos, int ishot, int ns, int sectiondatatype, GlobVar *gv)
 {
   char vxf[STRING_SIZE*2], vyf[STRING_SIZE*2], curlf[STRING_SIZE*2], divf[STRING_SIZE*2], pf[STRING_SIZE*2], file_ext[5];
-  int nsrc = 1;
-
+  
   //switch (gv->SEIS_FORMAT[0]){
   switch (gv->SEIS_FORMAT)
     {
@@ -59,23 +58,23 @@ void saveseis_glob(float **sectiondata, int **recpos, int **recpos_loc, int ntr,
     {
     case 1 : /* particle velocities vx only */
       log_info("Writing %d merged seismogram traces (vx) to %s.\n",ntr,vxf);
-      outseis_glob(fopen(vxf,"w"),sectiondata,recpos,recpos_loc,ntr,srcpos,nsrc,ns,gv->SEIS_FORMAT, ishot,1, gv);
+      outseis_glob(fopen(vxf,"w"),sectiondata,recpos,ntr,srcpos,ns,gv->SEIS_FORMAT, ishot,1, gv);
       break;
     case 2 : /* particle velocities vy only */
       log_info("Writing %d merged seismogram traces (vy) to %s.\n",ntr,vyf);
-      outseis_glob(fopen(vyf,"w"),sectiondata,recpos,recpos_loc,ntr,srcpos,nsrc,ns,gv->SEIS_FORMAT, ishot,2, gv);
+      outseis_glob(fopen(vyf,"w"),sectiondata,recpos,ntr,srcpos,ns,gv->SEIS_FORMAT, ishot,2, gv);
       break;
     case 4 : /* pressure only */   
       log_info("Writing %d merged seismogram traces (p) to %s.\n",ntr,pf);
-      outseis_glob(fopen(pf,"w"),sectiondata,recpos,recpos_loc, ntr,srcpos,nsrc,ns,gv->SEIS_FORMAT, ishot,0, gv);
+      outseis_glob(fopen(pf,"w"),sectiondata,recpos,ntr,srcpos,ns,gv->SEIS_FORMAT, ishot,0, gv);
       break;
     case 5 : /* curl only */
       log_info("Writing %d merged seismogram traces (div) to %s.\n",ntr,divf);
-      outseis_glob(fopen(divf,"w"),sectiondata,recpos,recpos_loc,ntr,srcpos,nsrc,ns,gv->SEIS_FORMAT, ishot,0, gv);
+      outseis_glob(fopen(divf,"w"),sectiondata,recpos,ntr,srcpos,ns,gv->SEIS_FORMAT, ishot,0, gv);
       break;
     case 6 : /* div only */
       log_info("Writing %d merged seismogram traces (curl) to %s.\n",ntr,curlf);
-      outseis_glob(fopen(curlf,"w"),sectiondata,recpos,recpos_loc,ntr,srcpos,nsrc,ns,gv->SEIS_FORMAT, ishot,0, gv);
+      outseis_glob(fopen(curlf,"w"),sectiondata,recpos,ntr,srcpos,ns,gv->SEIS_FORMAT, ishot,0, gv);
       break;
     }
 

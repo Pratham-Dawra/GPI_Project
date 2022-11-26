@@ -66,6 +66,7 @@ int main(int argc, char **argv)
     merge(nsnap,1,&gv);
     merge(nsnap,2,&gv);
     merge(nsnap,6,&gv);
+    /* FALL THRU */
   case 3 :
     merge(nsnap,4,&gv);
     merge(nsnap,5,&gv);

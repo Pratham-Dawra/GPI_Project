@@ -209,6 +209,7 @@ void write_par(GlobVar *gv)
       {
       case 0:
 	log_std("no shapshots will be output\n");
+	break;
       case 1:
 	log_std("vx, vy\n");
 	break;

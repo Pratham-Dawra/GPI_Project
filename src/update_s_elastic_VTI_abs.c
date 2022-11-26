@@ -28,7 +28,7 @@
  *  ----------------------------------------------------------------------*/
 #include "fd.h"
 
-void update_s_elastic_vti_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
+void update_s_elastic_vti_abs ( int * gx, int * gy, 
                             float **  vx, float **   vy, float **   sxx, float **   syy,
                             float **   sxy, float ** pc11, float ** pc55ipjp,
                            float ** pc13, float ** pc33, float ** absorb_coeff, float *hc, GlobVar *gv )

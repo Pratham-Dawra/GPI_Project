@@ -291,6 +291,8 @@ void read_par_json(const char *fileinp, GlobVar *gv)
     (gv->L) = 0;
   }
   
+  /* do NOT remove the FALLTHRU comments below, they are used to tell the compiler
+     that this is an intentional fall through */
   if ((gv->L)>0) {
     (gv->FL) = vector(1,(gv->L));
     switch((gv->L)) {
@@ -299,15 +301,19 @@ void read_par_json(const char *fileinp, GlobVar *gv)
     case 5:
       if (get_float_from_objectlist("FL5",number_readobjects,&(gv->FL[5]),varname_list, value_list, used_list))
 	log_fatal("Variable FL5 could not be retrieved from the json input file!");
+      /* FALLTHRU */
     case 4:
       if (get_float_from_objectlist("FL4",number_readobjects,&(gv->FL[4]),varname_list, value_list, used_list))
 	log_fatal("Variable FL4 could not be retrieved from the json input file!");
+      /* FALLTHRU */
     case 3:
       if (get_float_from_objectlist("FL3",number_readobjects,&(gv->FL[3]),varname_list, value_list, used_list))
 	log_fatal("Variable FL3 could not be retrieved from the json input file!");
+      /* FALLTHRU */
     case 2:
       if (get_float_from_objectlist("FL2",number_readobjects,&(gv->FL[2]),varname_list, value_list, used_list))
 	log_fatal("Variable FL2 could not be retrieved from the json input file!");
+      /* FALLTHRU */
     case 1:
       if (get_float_from_objectlist("FL1",number_readobjects,&(gv->FL[1]),varname_list, value_list, used_list))
 	log_fatal("Variable FL1 could not be retrieved from the json input file!");

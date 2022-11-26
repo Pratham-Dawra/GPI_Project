@@ -33,6 +33,9 @@ float **sources(int *nsrc, GlobVar *gv)
   char buffer[STRING_SIZE], bufferstring[10], cline[256];
   FILE *fpsrc = NULL;
 
+  /* do NOT remove the FALLTHRU comments below, they are used to tell the compiler
+     that this is an intentional fall through */
+
   if (gv->MPID==0){
     if (gv->SRCREC==1){ /* read source positions from file */
       *nsrc=0;
@@ -76,14 +79,20 @@ float **sources(int *nsrc, GlobVar *gv)
 	    nvarin=sscanf(cline,"%f%f%f%f%f%f%f",&xsrc, &ysrc, &tshift, &srcpos[5][l], &srcpos[6][l], &srcpos[7][l], &srcpos[8][l]);
 	    switch(nvarin){
 	    case 0: xsrc=0.0;
+	      /* FALLTHRU */		
 	    case 1: ysrc=0.0;
+	      /* FALLTHRU */		
 	    case 2: if (gv->MPID==0) log_error("No time shift defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
+	      /* FALLTHRU */		
 	    case 3: if (gv->MPID==0) log_error("No frequency defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
+	      /* FALLTHRU */		
 	    case 4: if (gv->MPID==0) log_error("No amplitude defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
+	      /* FALLTHRU */		
 	    case 5: srcpos[7][l]=0.0;
+	      /* FALLTHRU */		
 	    case 6: srcpos[8][l]=gv->SOURCE_TYPE;
 	    }
 	    if ((srcpos[8][l]!=4) && (nvarin>5)) {
@@ -122,20 +131,29 @@ float **sources(int *nsrc, GlobVar *gv)
 			  &srcpos[10][l], &srcpos[11][l], &srcpos[7][l], &srcpos[8][l]);
 	    switch(nvarin){
 	    case 0: xsrc=0.0;
+	      /* FALLTHRU */		
 	    case 1: ysrc=0.0;
+	      /* FALLTHRU */		
 	    case 2: if (gv->MPID==0) log_error("No time shift defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
+	      /* FALLTHRU */		
 	    case 3: if (gv->MPID==0) log_error("No frequency defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
+	      /* FALLTHRU */		
 	    case 4: if (gv->MPID==0) log_error("No amplitude defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
+	      /* FALLTHRU */		
 	    case 5: if (gv->MPID==0) log_error("No time exponent defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
+	      /* FALLTHRU */		
 	    case 6: if (gv->MPID==0) log_error("No exponential decay factor defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
+	      /* FALLTHRU */		
 	    case 7: if (gv->MPID==0) log_error("No initial phase angle [°] defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
+	      /* FALLTHRU */		
 	    case 8: srcpos[7][l]=0.0;
+	      /* FALLTHRU */		
 	    case 9: srcpos[8][l]=gv->SOURCE_TYPE;
 	    }
 	    if ((srcpos[8][l]!=4) && (nvarin>8)) {
@@ -175,20 +193,29 @@ float **sources(int *nsrc, GlobVar *gv)
 			  &srcpos[11][l], &srcpos[12][l], &srcpos[7][l], &srcpos[8][l]);
 	    switch(nvarin){
 	    case 0: xsrc=0.0;
+	      /* FALLTHRU */		
 	    case 1: ysrc=0.0;
+	      /* FALLTHRU */		
 	    case 2: if (gv->MPID==0) log_error("No time shift defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
+	      /* FALLTHRU */		
 	    case 3: if (gv->MPID==0) log_error("No minimum frequency defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
+	      /* FALLTHRU */		
 	    case 4: if (gv->MPID==0) log_error("No maximum frequency defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
+	      /* FALLTHRU */		
 	    case 5: if (gv->MPID==0) log_error("No amplitude defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
+	      /* FALLTHRU */		
 	    case 6: if (gv->MPID==0) log_error("No sweep length [s] defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
+	      /* FALLTHRU */		
 	    case 7: if (gv->MPID==0) log_error("No width of the wavelet (in number of center periods) defined for source %i in %s!\n",l, gv->SOURCE_FILE);
 	      log_fatal("Missing parameter in SOURCE_FILE!\n");
+	      /* FALLTHRU */		
 	    case 8: srcpos[7][l]=0.0;
+	      /* FALLTHRU */		
 	    case 9: srcpos[8][l]=gv->SOURCE_TYPE;
 	    }
 	    if ((srcpos[8][l]!=4) && (nvarin>8)) {

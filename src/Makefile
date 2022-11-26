@@ -18,7 +18,7 @@ COLOR     := -DLOG_COLOR
 
 # Linux cluster running OpenMPI
 CC        := mpicc
-CFLAGS    := -Wall -O3 -g -std=c99 -D_GNU_SOURCE -DLOG_COMMIT="\"$(COMMIT)\"" $(COLOR)
+CFLAGS    := -Wall -Wextra -O3 -g -std=c99 -D_GNU_SOURCE -DLOG_COMMIT="\"$(COMMIT)\"" $(COLOR)
 CFLAGS_SN := $(CFLAGS)
 CFLAGS_SF := $(CFLAGS) -DLOG_MPI
 LFLAGS    := -lm
@@ -72,7 +72,6 @@ SOFI2D_SRC= \
 	cpml_update.c \
         debug_buffers.c \
 	exchange_par.c \
-	exchange_s_rsg.c \
 	exchange_s.c \
 	exchange_v.c \
 	sofi2D.c \
@@ -83,7 +82,6 @@ SOFI2D_SRC= \
 	matcopy.c \
 	matcopy_elastic.c \
 	mergemod.c \
-	outseis.c \
 	outseis_glob.c \
 	operators_s.c \
 	operators_v.c \

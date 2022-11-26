@@ -28,12 +28,12 @@
  *  ----------------------------------------------------------------------*/
 #include "fd.h"
 
-void update_s_elastic_tti_abs ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
+void update_s_elastic_tti_abs ( int * gx, int * gy, 
                                float  **pvxx, float **pvyy,float **pvyx,float **pvxy,
                                float **   sxx, float **   syy,
                             float **   sxy, float ** pc11, float ** pc55ipjp, float ** pc13, float ** pc33,
                                            float ** pc15, float ** pc35, float ** pc15ipjp, float ** pc35ipjp,
-                               float ** absorb_coeff, float *hc ) {
+                               float ** absorb_coeff) {
 
 	int i,j;
 

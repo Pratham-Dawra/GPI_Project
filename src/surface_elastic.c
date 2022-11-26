@@ -23,7 +23,7 @@
 
 #include "fd.h"
 
-void surface_elastic(int ndepth, int * gx, float ** vx, float ** vy, float ** sxx, float ** syy,
+void surface_elastic(int ndepth, float ** vx, float ** vy, float ** sxx, float ** syy,
 float **sxy, float  **pi, float  **u, float *hc, float * K_x, float * a_x, float * b_x, float ** psi_vxx, GlobVar *gv){
 
 

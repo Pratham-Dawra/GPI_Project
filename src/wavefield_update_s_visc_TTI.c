@@ -26,9 +26,9 @@
 void wavefield_update_s_visc_TTI ( int i, int j,float  **vxx, float **vyx,float **vxy,float **vyy,
                               float **sxy, float **sxx, float ** syy, float ***p, float ***r,
                                   float ***q,
-                                  float ** pc11u, float **pc33u, float **pc13u, float ** pc55u, float ** pc15u, float ** pc35u,
+                                  float ** pc11u, float **pc33u, float **pc13u, float ** pc15u, float ** pc35u,
                                  float ** pc55ipjpu, float ** pc15ipjpu,float ** pc35ipjpu,
-                                 float *** pc11d, float ***pc33d, float ***pc13d, float *** pc55d,
+                                 float *** pc11d, float ***pc33d, float ***pc13d,
                                  float *** pc15d, float *** pc35d,
                                  float *** pc55ipjpd, float *** pc15ipjpd,float *** pc35ipjpd,
                                   float *bip, float *cip, GlobVar *gv)

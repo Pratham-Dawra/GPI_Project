@@ -29,7 +29,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void update_s_elastic_PML_4 ( int nx1, int nx2, int ny1, int ny2, int * gx, int * gy, int nt,
+void update_s_elastic_PML_4 ( int nx2, int ny2, int * gx, int * gy, int nt,
 			      float **  vx, float **   vy, float **   sxx, float **   syy,
 			      float **   sxy, float ** pi, float ** u, float ** uipjp, float *hc,
 			      float * K_x, float * a_x, float * b_x, float * K_x_half, float * a_x_half, float * b_x_half,

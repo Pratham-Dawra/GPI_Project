@@ -27,8 +27,7 @@
 
 void exchange_s(int nd, float ** sxx, float ** syy, 
 		float ** sxy, float ** bufferlef_to_rig, float ** bufferrig_to_lef,
-		float ** buffertop_to_bot, float ** bufferbot_to_top,
-		MPI_Request *req_send, MPI_Request *req_rec, GlobVar *gv){
+		float ** buffertop_to_bot, float ** bufferbot_to_top, GlobVar *gv){
 
 	MPI_Status  status;
 	int i, j, fdo, fdo2, n, l;
@@ -65,27 +64,8 @@ void exchange_s(int nd, float ** sxx, float ** syy,
 			}
 		}
 	/* send and receive values for points at inner boundaries */
-	/* blocking communication */
-	/*
-	MPI_Bsend(&buffertop_to_bot[1][1],gv->NX*fdo2,MPI_FLOAT,gv->INDEX[3],gv->TAG5,MPI_COMM_WORLD);
-	MPI_Barrier(MPI_COMM_WORLD);
-	MPI_Recv(&buffertop_to_bot[1][1],gv->NX*fdo2,MPI_FLOAT,gv->INDEX[4],gv->TAG5,MPI_COMM_WORLD,&status);
-	MPI_Bsend(&bufferbot_to_top[1][1],gv->NX*fdo2,MPI_FLOAT,gv->INDEX[4],gv->TAG6,MPI_COMM_WORLD);
-	MPI_Barrier(MPI_COMM_WORLD);
-	MPI_Recv(&bufferbot_to_top[1][1],gv->NX*fdo2,MPI_FLOAT,gv->INDEX[3],gv->TAG6,MPI_COMM_WORLD,&status);   
-	 */
-	/* alternative communication */
-	/* still blocking communication */
 	MPI_Sendrecv_replace(&buffertop_to_bot[1][1],gv->NX*fdo2,MPI_FLOAT,gv->INDEX[3],gv->TAG5,gv->INDEX[4],gv->TAG5,MPI_COMM_WORLD,&status);
 	MPI_Sendrecv_replace(&bufferbot_to_top[1][1],gv->NX*fdo2,MPI_FLOAT,gv->INDEX[4],gv->TAG6,gv->INDEX[3],gv->TAG6,MPI_COMM_WORLD,&status);
-	/* Initiates a communication with a persistent request handle */
-	/*	for (i=2;i<=3;i++){
-		MPI_Start(&req_send[i]);
-		MPI_Wait(&req_send[i],&status);
-		MPI_Start(&req_rec[i]);
-		MPI_Wait(&req_rec[i],&status);
-	}*/
-
 
 	if (gv->POS[2]!=gv->NPROCY-1)	/* no boundary exchange at bottom of global grid */
 		for (i=1;i<=gv->NX;i++){
@@ -142,27 +122,9 @@ void exchange_s(int nd, float ** sxx, float ** syy,
 
 
 	/* send and receive values for points at inner boundaries */
-
-	/*
- 	MPI_Bsend(&bufferlef_to_rig[1][1],(gv->NY)*fdo3,MPI_FLOAT,gv->INDEX[1],gv->TAG1,MPI_COMM_WORLD);
-	MPI_Barrier(MPI_COMM_WORLD);
-	MPI_Recv(&bufferlef_to_rig[1][1],(gv->NY)*fdo3,MPI_FLOAT,gv->INDEX[2],gv->TAG1,MPI_COMM_WORLD,&status);
-	MPI_Bsend(&bufferrig_to_lef[1][1],(gv->NY)*fdo3,MPI_FLOAT,gv->INDEX[2],gv->TAG2,MPI_COMM_WORLD);
-	MPI_Barrier(MPI_COMM_WORLD);
-	MPI_Recv(&bufferrig_to_lef[1][1],(gv->NY)*fdo3,MPI_FLOAT,gv->INDEX[1],gv->TAG2,MPI_COMM_WORLD,&status);
-	 */
-	/* alternative communication */
-	/* still blocking communication */
 	MPI_Sendrecv_replace(&bufferlef_to_rig[1][1],gv->NY*fdo2,MPI_FLOAT,gv->INDEX[1],gv->TAG1,gv->INDEX[2],gv->TAG1,MPI_COMM_WORLD,&status);
 	MPI_Sendrecv_replace(&bufferrig_to_lef[1][1],gv->NY*fdo2,MPI_FLOAT,gv->INDEX[2],gv->TAG2,gv->INDEX[1],gv->TAG2,MPI_COMM_WORLD,&status);
 	/* send and reveive values at edges of the local grid */
-	/*for (i=0;i<=1;i++){
-		MPI_Start(&req_send[i]);
-		MPI_Wait(&req_send[i],&status);
-		MPI_Start(&req_rec[i]);
-		MPI_Wait(&req_rec[i],&status);
-	}*/
-
 
 	if ((gv->BOUNDARY) || (gv->POS[1]!=gv->NPROCX-1))	/* no boundary exchange at right edge of global grid */
 		for (j=1;j<=gv->NY;j++){
