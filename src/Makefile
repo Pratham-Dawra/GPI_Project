@@ -68,7 +68,6 @@ SOFI2D_SRC= \
 	catseis.c\
 	check_fs.c\
 	checkfd.c \
-	comm_ini.c\
 	cpml_update.c \
         debug_buffers.c \
 	exchange_par.c \

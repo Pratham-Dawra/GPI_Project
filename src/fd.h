@@ -71,10 +71,6 @@ void checkfd(float **prho, float **ppi, float **pu,
 
 void catseis(float **data, float **fulldata, int *recswitch, int ntr_glob, int ns);
 
-void comm_ini(float **bufferlef_to_rig, float **bufferrig_to_lef,
-              float **buffertop_to_bot, float **bufferbot_to_top,
-              MPI_Request *req_send, MPI_Request *req_rec, GlobVar *gv);
-
 void cpml_update_s_x(int i, int j,float   *vxx, float *vyx,float *K_x, float *a_x,
                      float *b_x, float *K_x_half, float *a_x_half, float *b_x_half ,float **psi_vxx,float **psi_vyx);
 
@@ -612,7 +608,7 @@ void write_par(GlobVar *gv);
 
 void writedsk(FILE *fp_out, float amp, int format);
 
-void writemod(char modfile[STRING_SIZE], float **array, int format, GlobVar *gv);
+void writemod(char *modfile, float **array, int format, GlobVar *gv);
 
 void zero_elastic(int nx1, int nx2, int ny1, int ny2, float **vx, float **vy, float **sxx, float **syy, float **sxy);
 
@@ -638,26 +634,25 @@ int read_objects_from_intputfile(const char* input_file,char **varname_list,char
 
 void print_objectlist_screen(int number_readobject,char **varname_list,char **value_list);
 
-int count_occure_charinstring(char stringline[STRING_SIZE], char teststring[]);
+int count_occure_charinstring(char *stringline, char teststring[]);
 
-void copy_str2str_uptochar(char string_in[STRING_SIZE], char string_out[STRING_SIZE], char teststring[]);
+void copy_str2str_uptochar(char *string_in, char *string_out, char teststring[]);
 
-int get_int_from_objectlist(char string_in[STRING_SIZE], int number_readobject, int *int_buffer,
+int get_int_from_objectlist(char *string_in, int number_readobject, int *int_buffer,
                             char **varname_list,char **value_list, int *used_list);
 
-int get_float_from_objectlist(char string_in[STRING_SIZE], int number_readobject, float *double_buffer,
+int get_float_from_objectlist(char *string_in, int number_readobject, float *double_buffer,
                               char **varname_list,char **value_list, int *used_list);
 
-int get_string_from_objectlist(char string_in[STRING_SIZE], int number_readobject, char string_buffer[STRING_SIZE],
+int get_string_from_objectlist(char *string_in, int number_readobject, char *string_buffer,
                                char **varname_list,char **value_list, int *used_list);
 
-int is_string_blankspace(char string_in[STRING_SIZE]);
+int is_string_blankspace(char *string_in);
 
-void remove_blankspaces_around_string(char string_in[STRING_SIZE]);
+void remove_blankspaces_around_string(char *string_in);
 
-void add_object_tolist(char string_name[STRING_SIZE],char string_value[STRING_SIZE], int *number_read_object,
+void add_object_tolist(char *string_name,char *string_value, int *number_read_object,
                        char **varname_list,char **value_list);
-
 
 /* utility functions */
 void dt_mult(int nx, int ny, float dt, float  **  a );

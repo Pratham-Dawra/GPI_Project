@@ -1,6 +1,6 @@
 .SUFFIXES:
 .SECONDARY:
-.PHONY: all clean distclean help install uninstall
+.PHONY: all clean distclean help install uninstall force
 
 MAKEFLAGS += -rR
 SHELL     := /bin/bash
@@ -64,9 +64,9 @@ MERGE_EXE := $(strip $(MERGE))
 INSTALL   := install -D -p
 RM        := rm -f --preserve-root
 DEPS      := $(wildcard .dep*)
-COMMIT    := $(strip $(shell cd $(BASEDIR) && git log --pretty=short --format="%h %as" 2>/dev/null | head -n1))
+COMMIT    := $(strip $(shell cd $(BASEDIR) && git log --format="%h %as" 2>/dev/null | head -n1))
 ifeq ($(COMMIT),)
-  COMMIT  := -1
+  COMMIT  := unknown
 endif
 CPPFLAGS  += -DLOG_COMMIT="\"$(COMMIT)\""
 
@@ -89,7 +89,6 @@ FDMOD_FILES := sofi2D.c \
                catseis.c \
                check_fs.c \
                checkfd.c \
-               comm_ini.c\
                cpml_update.c \
                debug_buffers.c \
 	       exchange_par.c \
@@ -221,16 +220,22 @@ help:
 	@echo
 	@echo "Targets:"
 	@echo "   all       : compile main programs"
+	@echo "   force     : force recompilation of main programs"
 	@echo "   install   : install main programs"
-	@echo "   clean     : remove all object files"
+	@echo "   clean     : remove object files and executables"
 	@echo "   distclean : clean up entire build directory"
 	@echo "   uninstall : remove previously installed programs"
 	@echo 
 	@echo "Main programs:"
 	@echo "   $(FDMOD_EXE), $(MERGE_EXE)"
-	@echo
 	@echo "Installation directory:"
 	@echo "   $(strip $(INSTDIR))"
+	@echo "Compiler / linker and flags:"
+	@echo "   CC: $(CC)"
+	@echo "   CPPFLAGS: $(CPPFLAGS) [$(EXTRA_CPPFLAGS)]"
+	@echo "   CFLAGS: $(CFLAGS)"
+	@echo "   LD: $(LD)"
+	@echo "   LDFLAGS: $(LDFLAGS) [$(EXTRA_LDFLAGS)]"
 	@echo 
 	@echo "Use V=1 to see full command being executed."
 	@echo 
@@ -242,18 +247,21 @@ install: all
 clean: 
 	$(call cmd,rmdir,$(FDMOD_O))
 	$(call cmd,rmdir,$(MERGE_O))
+	@echo -e "   \e[31m[RM]\e[0m    executables $(FDMOD_EXE) $(MERGE_EXE)"
+	-$(Q)$(RM) $(FDMOD_EXE) $(MERGE_EXE)
 	@$(RM) *~
 
 distclean: clean
 	@echo -e "   \e[31m[RM]\e[0m    dependency files .dep-*"
 	-$(Q)find . -iname ".dep-*" | xargs $(RM)
-	@echo -e "   \e[31m[RM]\e[0m    executables $(FDMOD_EXE) $(MERGE_EXE)"
-	-$(Q)$(RM) $(FDMOD_EXE) $(MERGE_EXE)
 	-$(Q)$(RM) *~
 
 uninstall:
 	@echo -e "   \e[31m[RM]\e[0m    main programs in $(strip $(INSTDIR))"
 	-$(Q)$(RM) $(strip $(INSTDIR))/$(FDMOD_EXE) $(strip $(INSTDIR))/$(MERGE_EXE) 
+
+force:
+	@$(MAKE) -B all
 
 all: $(FDMOD_EXE) $(MERGE_EXE)
 
