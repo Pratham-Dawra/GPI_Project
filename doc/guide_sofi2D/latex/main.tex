@@ -1,7 +1,7 @@
 \documentclass[11pt,english,a4paper]{article}
 \usepackage{xifthen,iftex}
-    \ifluatex
-    \else
+\ifluatex
+\else
     \usepackage[utf8]{inputenc}% force UTF8 file encoding if no UTF8 engine is used
 \fi
 \usepackage[T1]{fontenc}% T1 font encoding
@@ -89,8 +89,7 @@
 \pagecolor{lightgray}\afterpage{\nopagecolor}
 \begin{titlepage}
        	\centering
-    \ifcurrentbaselanguage{English}
-    {\includegraphics[height=2.8cm]{figures/kitlogo_en_cmyk}}
+        {\includegraphics[height=2.8cm]{figures/kitlogo_en_cmyk}}
     
 	\vspace{2cm}
 	
@@ -105,7 +104,7 @@
 	{\large \textbf{Users guide}\par}
 	\vspace{1cm}
  	Department of Physics, Geophysical Institute (GPI)\par
-	Hertzstrasse 16, 76187 Karlsruhe, Germany\par
+	Hertzstra\ss{}e 16, 76187 Karlsruhe, Germany\par
 	\vspace{1.5cm}
 	{\large \textbf{Authors}\par} 
 	Thomas Bohlen\par

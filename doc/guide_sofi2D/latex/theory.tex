@@ -492,7 +492,7 @@ The material parameters, namely $\rho$, $\mu$, $\tau$, and the $c_{ij}$ componen
         \rho_y[j+\frac{1}{2},i] &= \frac{\rho[j,i]+\rho[j+1,i]}{2}\;,\\
         \tau^S_{xy}[j+\frac{1}{2},i+\frac{1}{2}] &= \frac{\tau^S[j,i]+\tau^S[j,i+1]+\tau^S[j+1,i+1]+\tau^S[j+1,i]}{4}\;,\\
         \mu_{xy}[j+\frac{1}{2},i+\frac{1}{2}] &= \frac{4}{\mu^{-1}[j,i]+\mu^{-1}[j,i+1]+\mu^{-1}[j+1,i+1]+\mu^{-1}[j+1,i]}\;.
-        \label{eq:stress_vti}
+        \label{eq:stress_vti2}
     \end{align}
 \end{subequations}
 This averaging procedure satisfies the condition of traction continuity across the interface between two media on standard staggered grids (\cite{moczo:02}). Harmonic averaging of the shear modulus $\mu$ yields higher accuracy than arithmetic averaging for modeling Scholte waves propagating along fluid-solid interfaces (\cite{falk:98}). What is more, our numerical tests show that arithmetic averaging of the shear modulus across free surfaces leads to instabilities; harmonic averaging produces stable simulations. 

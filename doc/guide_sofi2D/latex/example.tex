@@ -434,7 +434,7 @@ If \texttt{SEISMO}>0, seismograms recorded at the receiver positions are written
 
 It is recommended to use SU (native 4-byte-floats (IEEE on PC)/little endian on PC) format for saving the seismograms. The main advantage of this format is that the time step interval (\texttt{NDT*DT}) and the acquisition geometry (shot and receiver locations) are stored in the corresponding SU header words. Moreover, additional header words like offset are set by SOFI2D. This format thus facilitates a further visualization and processing of the synthetic seismograms. Note, however, that SU cannot handle sampling rates smaller than \SI{1.0e-3}{ms} and the number of samples is limited to about \SI{32000}{}. In such cases, you should increase the sampling rate by increasing \texttt{NDT}. If this is impossible (for example, because the Nyquist criterion is violated), you must choose a different output format (ASCII or binary). 
 
-SU-files can be merged together using the Unix command \texttt{cat}. For example, in order to merge seismograms of the $vx$-component of particle velocity into one single SU-file use: \texttt{cat SEIS\_FILE\_VR.* $>$ SEIS\_FILE\_VR}. The shell script \textt{sucat.sh} merges all seismograms at the same time.\\
+SU-files can be merged together using the Unix command \texttt{cat}. For example, in order to merge seismograms of the $vx$-component of particle velocity into one single SU-file use: \texttt{cat SEIS\_FILE\_VR.* $>$ SEIS\_FILE\_VR}. The shell script \texttt{sucat.sh} merges all seismograms at the same time.\\
 
 \texttt{SEIS\_FILE} : Basic filename according to output of seismograms (\texttt{SEISMO})
 
