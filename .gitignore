@@ -14,7 +14,7 @@ guide_sofi2D.pdf
 *.su
 *.bin*
 *.dat
-*.json
+# *.json
 
 *.avi
 

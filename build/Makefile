@@ -1,6 +1,6 @@
 .SUFFIXES:
 .SECONDARY:
-.PHONY: all clean distclean help install uninstall force
+.PHONY: all clean distclean help install uninstall force doc
 
 MAKEFLAGS += -rR
 SHELL     := /bin/bash
@@ -25,6 +25,11 @@ FDMOD := sofi2D
 MERGE := snapmerge
 
 ###############################################################################
+# Name of documentation (PDF)
+###############################################################################
+DOC := sofi2D_manual.pdf
+
+###############################################################################
 # Compiler / MPI settings
 ###############################################################################
 ### GNU compiler
@@ -39,6 +44,7 @@ EXTRA_LDFLAGS  := -lmpi
 
 ###############################################################################
 ### Intel compiler (OneAPI)
+### => module load compiler/latest mpi/latest
 #CC             := mpicc -cc=icx
 #CPPFLAGS        = -D_GNU_SOURCE -DLOG_COLOR
 #EXTRA_CPPFLAGS := -DLOG_MPI
@@ -54,21 +60,32 @@ EXTRA_LDFLAGS  := -lmpi
 ###############################################################################
 ###############################################################################
 
+CURRENT   := $(PWD)
 SRCTREE   := $(strip $(realpath $(BASEDIR)/src))
 FDMOD_O   := $(strip ./fdmod_obj)
 MERGE_O   := $(strip ./merge_obj)
+LATEX_O   := $(strip ./latex)
 dummy     := $(shell mkdir -p $(FDMOD_O))
 dummy     := $(shell mkdir -p $(MERGE_O))
+dummy     := $(shell mkdir -p $(LATEX_O))
 FDMOD_EXE := $(strip $(FDMOD))
 MERGE_EXE := $(strip $(MERGE))
 INSTALL   := install -D -p
 RM        := rm -f --preserve-root
+LATEX     := pdflatex
+BIBER     := biber
 DEPS      := $(wildcard .dep*)
 COMMIT    := $(strip $(shell cd $(BASEDIR) && git log --format="%h %as" 2>/dev/null | head -n1))
 ifeq ($(COMMIT),)
   COMMIT  := unknown
 endif
 CPPFLAGS  += -DLOG_COMMIT="\"$(COMMIT)\""
+
+DOC_MAIN := main
+DOC_FILES := $(wildcard $(strip $(realpath $(BASEDIR)))/doc/guide_sofi2D/latex/*.tex) \
+             $(wildcard $(strip $(realpath $(BASEDIR)))/doc/guide_sofi2D/latex/figures/*) \
+             $(strip $(realpath $(BASEDIR)))/doc/guide_sofi2D/latex/sofi2D.json \
+             $(strip $(realpath $(BASEDIR)))/doc/guide_sofi2D/latex/biblio.bib 
 
 MERGE_FILES := snapmerge.c \
                holbergcoeff.c \
@@ -222,6 +239,7 @@ help:
 	@echo "   all       : compile main programs"
 	@echo "   force     : force recompilation of main programs"
 	@echo "   install   : install main programs"
+	@echo "   doc       : compile documentation (requires LaTeX)"
 	@echo "   clean     : remove object files and executables"
 	@echo "   distclean : clean up entire build directory"
 	@echo "   uninstall : remove previously installed programs"
@@ -253,6 +271,8 @@ clean:
 
 distclean: clean
 	@echo -e "   \e[31m[RM]\e[0m    dependency files .dep-*"
+	@echo -e "   \e[31m[RM]\e[0m    $(DOC)"
+	$(call cmd,rmdir,$(LATEX_O))
 	-$(Q)find . -iname ".dep-*" | xargs $(RM)
 	-$(Q)$(RM) *~
 
@@ -264,6 +284,18 @@ force:
 	@$(MAKE) -B all
 
 all: $(FDMOD_EXE) $(MERGE_EXE)
+
+doc: $(DOC)
+
+$(DOC): $(DOC_FILES)
+	@cd $(strip $(realpath $(BASEDIR)))/doc/guide_sofi2D/latex && \
+	$(LATEX) -output-directory $(CURRENT)/$(LATEX_O) $(DOC_MAIN) && \
+	$(BIBER) --output-directory $(CURRENT)/$(LATEX_O) $(DOC_MAIN) && \
+	$(LATEX) -output-directory $(CURRENT)/$(LATEX_O) $(DOC_MAIN) && \
+	$(LATEX) -output-directory $(CURRENT)/$(LATEX_O) $(DOC_MAIN) && \
+	cd $(CURRENT) && mv $(LATEX_O)/$(DOC_MAIN).pdf $(DOC) && \
+	echo -e "   \e[33m[DOC]\e[0m   $(DOC)"
+	@cd $(CURRENT)
 
 $(MERGE_EXE): $(MERGE_OBJ)
 	$(call cmd,link)
