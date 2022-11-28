@@ -1,0 +1,128 @@
+\section{Appendix: Parameters used in the code}
+\label{parameters}
+
+\begin{verbatim}
+MODEL PARAMETERS
+    
+    general parameters
+    
+    READMOD=0 ........................ switch to read model parameters from
+                                       MFILE
+    MFILE[STRING_SIZE]="" ............ model file name
+    NX=0 ............................. number of grid points in x-direction
+    NY=0 ............................. number of grid points in y-direction
+                                       (depth)
+    
+    source parameters
+    
+    SOURCE_TYPE=0 .................... type of source
+    SOURCE_SHAPE=0 ................... shape of source-signal
+    SIGNAL_FILE[STRING_SIZE]="" ...... name of external signal file
+    SRCREC=0 ......................... read source parameters from external
+                                       source file
+    SOURCE_FILE[STRING_SIZE]="" ...... name of source parameter file
+    RUN_MULTIPLE_SHOTS=0 ............. multiple shots modeled simultaneously
+                                       or individually
+    PLANE_WAVE_DEPTH=0.0 ............. depth of plane wave excitation [m]
+    PLANE_WAVE_ANGLE=0.0 ............. dip of plane wave from vertical [deg]
+    TS=0.0 ........................... duration of source signal [s]
+    
+    receiver parameters
+    
+    READREC=0 ........................ switch to read receiver positions from
+                                       file
+    REC_FILE[STRING_SIZE]="" ......... name of external receiver file
+    REFREC[4]={0.0, 0.0, 0.0, 0.0} ... reference point for receiver coordinate 
+                                       system
+    XREC1=0.0 ........................ x-position of first receiver [m]
+    XREC2=0.0 ........................ x-position of last receiver [m]
+    YREC1=0.0 ........................ y-position of first receiver [m]
+    YREC2=0.0 ........................ y-position of last receiver [m]
+    NGEOPH ........................... distance between two adjacent receivers 
+                                       [gridpoints]
+    REC_ARRAY=0 ...................... number of receivers in 1D receiver array
+    REC_ARRAY_DEPTH=0.0 .............. depth of first plane [m] 
+    REC_ARRAY_DIST=0.0 ............... increment between receiver planes [m]
+    DRX=0............................. increment between receivers in each plane 
+                                       [gridpoints]
+    attenuation parameters
+    
+    L=0 .............................. number of relaxation parameters
+    FL=0.0 ........................... frequency of each relaxation parameters 
+                                       [Hz]
+    TAU=0.0 .......................... ratio of retardation and relaxation time
+    
+
+IO PARAMETERS
+    
+    seismogram parameters
+    
+    SEISMO=0 ......................... switch to output components of seismograms
+    NDT=1 ............................ sampling rate of seismograms [timesteps]
+    SEIS_FORMAT=0 .................... data output format for seismograms
+    SEIS_FILE[STRING_SIZE]="" ........ name of output file of seismograms
+    
+    snapshot parameters
+    
+    SNAP=0 ........................... switch to output of snapshots
+    SNAP_FORMAT=0 .................... data output format for snapshots
+    SNAP_FILE[STRING_SIZE]="" ........ name of output file of snapshots
+    TSNAP1=0.0 ....................... first snapshot [s]
+    TSNAP2=0.0 ....................... last snapshot [s]
+    TSNAPINC=0.0 ..................... increment between snapshots [s]
+    IDX=1 ............................ increment in x-direction [gridpoints]
+    IDY=1 ............................ increment in y-direction [gridpoints]
+    
+    other parameters
+    
+    WRITE_MODELFILES=0 ............... switch to output model files
+    SIGOUT=0 ......................... switch to output source wavelet
+    SIGOUT_FORMAT=0 .................. data output format for source wavelet
+    SIGOUT_FILE[STRING_SIZE]="" ...... name of output file of source wavelet
+    LOG=0 ............................ switch to output logging information
+    LOG_FILE[STRING_SIZE]="" ......... name of output file of logging information
+    LOG_VERBOSITY .................... set how much information is output
+    OUTNTIMESTEPINFO=1 ............... information on the time step given to
+                                       screen/file
+    CHECKPTREAD=0 .................... switch to read wavefield from checkpoint 
+                                       file
+    CHECKPTWRITE=0 ................... switch to save wavefield to checkpoint
+                                       file
+    CHECKPTFILE[STRING_SIZE]="" ...... name of checkpoint file
+
+FD PARAMETERS
+    
+    general parameters
+    
+    WEQ=0 ............................ wave equation
+    DH=0.0 ........................... spacial increment [m]
+    FDORDER=0 ........................ spatial FD order 
+    TIME=0.0 ......................... modeling time [s]
+    DT=0.0 ........................... modeling time increment [s]
+    FDORDER_TIME=0 ................... temporal FD order
+    
+    MPI parameters
+    
+    MAXRELERROR=0..................... maximum relative group velocity error
+    NPROCX=1 ......................... number of processors in x-direction
+    NPROCY=1 ......................... number of processors in y-direction
+    
+    boundary parameters
+    
+    FREE_SURF=0 ...................... switch to apply free surface at the top 
+                                       of the model
+    BOUNDARY=0........................ switch to apply periodic boundary condi- 
+                                       tion at edges
+    ABS_TYPE ......................... type of the absorbing boundary
+    FW=0 ............................. width of absorbing frame [gridpoints]
+    DAMPING=0.0 ...................... attenuation at the edges of the grid
+                                       [%]
+    
+    PML parameters
+    
+    NPOWER .......................... exponent for calculation of damping profile
+    K_MAX_CPML ...................... 
+    FPML ............................ dominant signal frequency (usually FC) [Hz]
+    VPPML............................ attenuation velocity within the PML bounda- 
+                                      ry [m/s]
+\end{verbatim}

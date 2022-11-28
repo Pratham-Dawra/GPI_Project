@@ -1,0 +1,232 @@
+\documentclass[11pt,english,a4paper]{article}
+\usepackage{xifthen,iftex}
+    \ifluatex
+    \else
+    \usepackage[utf8]{inputenc}% force UTF8 file encoding if no UTF8 engine is used
+\fi
+\usepackage[T1]{fontenc}% T1 font encoding
+\usepackage[l2tabu,orthodox]{nag}
+\usepackage{microtype}
+\usepackage{etoolbox}
+\usepackage{XCharter}% default font
+\usepackage[uprightscript,charter,vvarbb,scaled=1.05]{newtxmath}% preferred but requires relatively new nextxmath package
+
+% \usepackage[charter,vvarbb,scaled=1.05]{newtxmath}% use this if above leads to an error
+\usepackage{textcomp}
+\usepackage[width=150mm,top=25mm,bottom=25mm]{geometry}
+\usepackage{isodate}
+\usepackage{babel}
+\usepackage{xcolor}
+\usepackage{afterpage}
+\usepackage{graphicx,wrapfig,subcaption}
+\usepackage{xurl}
+\usepackage{tikz,pgfplots}
+\usepackage{booktabs,multirow}
+\usepackage[tableposition=top,figureposition=below]{caption}
+\usepackage{listings}
+\usepackage{titling}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage[autostyle=true]{csquotes}
+\usepackage{amsmath}
+\usepackage[b]{esvect}
+\usepackage[ISO]{diffcoeff}% preferred but requires relatively new diffcoeff package
+
+% \usepackage{diffcoeff}% use this if above leads to an error
+\usepackage{mathtools}
+\usepackage{siunitx}
+\usepackage{derivative}
+\usepackage[backend=biber,
+            style=authoryear-comp,
+            sorting=nyt,
+            sortcites=false,
+            maxnames=2,
+            minnames=1,
+            maxbibnames=10,
+            minbibnames=3,
+            abbreviate=true,
+            doi=true,
+            useprefix=true,
+            giveninits=true,
+            uniquename=init,
+            natbib=true,
+            dashed=false]{biblatex}
+            
+\DeclareNameAlias{sortname}{family-given} 
+\renewbibmacro{in:}{%   
+   \ifentrytype{article}{}{\printtext{\bibstring{in}\intitlepunct}}%
+} 
+\ExecuteBibliographyOptions{maxcitenames=2,mincitenames=1}
+\DefineBibliographyStrings{german}{ 
+   andothers = {et\addabbrvspace al\adddot},
+   andmore   = {et\addabbrvspace al\adddot},
+}
+\addbibresource{biblio.bib}
+%\setlength{\bibitemsep}{0.5\baselineskip}
+
+\usepackage{varioref}                                             
+\usepackage[hidelinks]{hyperref}% |- retain order
+\usepackage{cleveref}                                            
+
+\pgfplotsset{compat=newest}
+\urlstyle{same}
+\sisetup{detect-all}
+
+\graphicspath{Figures}
+\captionsetup{labelfont=bf}
+
+\hyphenation{me-ta-mo-del}
+
+\usepackage[toc]{appendix}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BEGIN DOCUMENT%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\pagecolor{lightgray}\afterpage{\nopagecolor}
+\begin{titlepage}
+       	\centering
+    \ifcurrentbaselanguage{English}
+    {\includegraphics[height=2.8cm]{figures/kitlogo_en_cmyk}}
+    
+	\vspace{2cm}
+	
+	\textsc{\Huge - \textbf{SOFI2D} -\\ Seismic mOdeling with FInite differences\\}
+	
+	\vspace{1cm}
+	
+	\textsc{\huge 2D - (visco-)elastic and anisotropic version}
+	
+	\vspace{1cm}
+	
+	{\large \textbf{Users guide}\par}
+	\vspace{1cm}
+ 	Department of Physics, Geophysical Institute (GPI)\par
+	Hertzstrasse 16, 76187 Karlsruhe, Germany\par
+	\vspace{1.5cm}
+	{\large \textbf{Authors}\par} 
+	Thomas Bohlen\par
+	Denise De Nil \par
+	Daniel K\"ohn \par
+	Stefan Jetschny \par
+    Thomas Hertweck \par 
+    Lars Houpt \par 
+    Sonia \textcommabelow{S}ortan\par
+    \vspace{1cm}
+    {\large Karlsruhe, 2022\par}
+	%\vfill
+\end{titlepage}
+
+\thispagestyle{empty}
+\cleardoublepage
+
+\tableofcontents
+\newpage
+
+\section{Getting started}
+\subsection{Requirements}
+\label{requirements}
+\texttt{sofi2D} can be generally run under Windows and Linux. You just have to make sure that an MPI implementation (one of the three listed below) is running and a C-Compiler is available. However, the preferred platform is Linux, since most of the large scale cluster computer run under Linux. As we use Suse Linux and OpenMPI on our local workstation cluster, most of the tests are performed under this system. The following programs should be installed on you machine for a proper run and processing of modeling data.\par
+\begin{center}
+\small
+\begin{tabular}{lll}
+\textbf{Program} & \textbf{Description} & \textbf{Weblink} \\ 
+OpenMPI & MPI Implementation & \url{http://www.open-mpi.org} \\
+& (for parallelization) & \\
+C-Compiler & Code written in C; any C-Compiler & \\
+& should be able to compile it & \\
+Seismic Un*x & Seismic processing package; & \url{https://wiki.seismic-unix.org/doku.php} \\
+(SU)  & SOFI2D outputs seismic data in SU & \\
+& format & \\
+Matlab & Preferred program package for & \url{http://www.mathworks.de} \\
+(commercial)& snapshot visualization and  & \\
+& seismogram processing and display & \\
+xmovie & Console based movie program used & usually included in Linux distribution;\\
+& for quick display of snapshot data & otherwise install from repository\\
+\end{tabular}
+\end{center}
+
+\subsection{Installation}
+\label{insta}
+The package contains the following sub-directories:
+
+\textbf{bin}\\
+All executable programs (generally \texttt{sofi2D} and \texttt{snapmerge}); these executables are generated using the command \texttt{make $<$program$>$} (see below).
+
+\textbf{doc}\\
+Documentation on the software.
+
+\textbf{genmod}\\
+Model and benchmark files for \texttt{sofi2D}.
+
+\textbf{mfiles}\\
+Matlab routines (\texttt{m}-files) are stored. They can be used to find optimal relaxation frequencies to approximate a constant $Q$ (\texttt{qapprox.m}) or to plot $Q$ as a function of frequency for
+certain relaxation frequencies and value of tau (\texttt{qplot.m}). For further details on the theory behind these algorithms, see \citet{bohlen:98} and \citet{blanch:95}. 
+
+\textbf{overnightbuilt} (only in the overnight-built version of \texttt{sofi2D})\\
+Complete benchmarking suite designed to test whether your installed release of \texttt{sofi2D} works as intended. During the test run, several model scenarios will be simulated and, afterwards, the created seismogram and snapshot files will be compared with reference values created by the \texttt{sofi2D} developer team. This benchmarking test can be used as an overnight built check while developing the code, i.e., after modifications to the code, the test evaluates if standard modeling scenarios still result in the same simulation output. For further information, see the separate documentation \texttt{sofi2D\_overnight\_documentation} in the folder \textbf{doc}.
+
+\textbf{par}\\
+Parameter files for \texttt{sofi2D} modeling.
+
+\textbf{src}\\
+Complete source codes. The following programs are available and can be compiled using \texttt{make $<$program$>$}:
+
+\begin{table}[hbt]
+\caption{Names of executables located in the folder \textbf{bin} and their purpose.}
+\begin{tabular}{ll}
+\textbf{Program} & \textbf{Purpose} \\ 
+\texttt{snapmerge} & merge snapshot files \\
+\texttt{sofi2D} & (visco-)elastic code, 2nd-12th order spatial FD operators, SSG \\
+\texttt{sofi2D\_bench} & (visco-)elastic code, 2nd-12th order spatial FD operators, SSG, only used \\
+& for overnight built testing suite \\
+\end{tabular}
+\label{tab_programs}
+\end{table}
+
+\subsection{Compilation and running}
+\label{qguide}
+To compile the program do
+
+\texttt{cd sofi2D/src}
+
+then
+
+\texttt{make sofi2D}
+
+to compile the standard staggered grid version (SSG). You may also use the shell script \texttt{compileSOFI2D.sh} located in \texttt{sofi2D/par}. For a successful compiler run you probably need to change the compiler options in \texttt{sofi2D/src/Makefile}. 
+
+To run the program on 4 CPUs do
+
+\texttt{cd sofi2D/par}
+
+\texttt{mpirun -np 4 ../bin/sofi2D ./in\_and\_out/sofi2D.json > ./in\_and\_out/sofi2D.jout}
+
+The file \texttt{sofi2D/par/in\_and\_out/sofi2D.jout} shows the obtained screen output. You may also use the shell script \texttt{startSOFI2D.sh} located in \texttt{sofi2D/par} that also writes the screen output to the file \texttt{sofi2D/par/in\_and\_out/sofi2D.jout}.
+
+The modeling parameters are specified in the \texttt{sofi2D} input file \texttt{sofi2D.json}. The parameters should be more or less self-explanatory (for a detailed list of all parameters see Appendix~\ref{parameters}). The synthetic seismograms and snapshots are written to the files specified in the \texttt{sofi2D} input file.
+
+In the current distribution, the model is generated on the fly by the function \texttt{sofi2D/src/hh.c}. \textcolor{red}{This function generates a homogeneous medium with $v_P=\SI{3500}{m/s}$, $v_S=\SI{2000}{m/s}$, and $\rho=\SI{2000}{kg/m\cubed}$}. Instead, the function \texttt{readmod.c} can be used to read model info from external grid files. See \texttt{readmod.c} for the format of the external files. You can change the function which generates the model grid at the beginning of \texttt{sofi2D/src/Makefile}.
+
+\subsection{License}
+\label{license}
+\texttt{sofi2D} is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.0 of the License only.
+ 
+\texttt{sofi2D} is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with \texttt{sofi2D}. See file COPYING and/or \url{http://www.gnu.org/licenses/gpl-2.0.html}.
+
+The Authors of \texttt{sofi2D} are listed in file \texttt{AUTHORS}.
+
+\input{introduction.tex}
+\input{theory.tex}
+\input{example.tex}
+
+\printbibliography   
+
+\appendix
+
+\input{appendix.tex}
+
+\end{document}
