@@ -32,7 +32,9 @@ DOC := sofi2D_manual.pdf
 ###############################################################################
 # Compiler / MPI settings
 ###############################################################################
-### GNU compiler
+
+###############################################################################
+### GNU compiler with OpenMPI (standard)
 CC             := mpicc
 CPPFLAGS        = -D_GNU_SOURCE -DLOG_COLOR
 EXTRA_CPPFLAGS := -DLOG_MPI
@@ -43,7 +45,7 @@ LDFLAGS         = -lm
 EXTRA_LDFLAGS  := -lmpi
 
 ###############################################################################
-### Intel compiler (OneAPI)
+### Intel compiler (OneAPI) with Intel MPI
 ### => module load compiler/latest mpi/latest
 #CC             := mpicc -cc=icx
 #CPPFLAGS        = -D_GNU_SOURCE -DLOG_COLOR
@@ -53,6 +55,17 @@ EXTRA_LDFLAGS  := -lmpi
 #LD             := $(CC)
 #LDFLAGS         = -static-intel -lm 
 #EXTRA_LDFLAGS  := -lmpi
+
+###############################################################################
+### clang (LLVM) with OpenMPI
+#CC             := clang
+#CPPFLAGS        = -D_GNU_SOURCE -DLOG_COLOR
+#EXTRA_CPPFLAGS := -DLOG_MPI
+#CFLAGS          = -O3 -Wall -Wextra -g -fstack-protector -std=c99 -I/usr/lib64/mpi/gcc/openmpi3/include
+#CDEPEND         = -MMD -MP -MF .dep-$(subst /,-,$@)
+#LD             := $(CC)
+#LDFLAGS         = -lm 
+#EXTRA_LDFLAGS  := -L/usr/lib64/mpi/gcc/openmpi3/lib64 -lmpi
 
 ###############################################################################
 ###############################################################################
@@ -271,9 +284,10 @@ clean:
 
 distclean: clean
 	@echo -e "   \e[31m[RM]\e[0m    dependency files .dep-*"
-	@echo -e "   \e[31m[RM]\e[0m    $(DOC)"
-	$(call cmd,rmdir,$(LATEX_O))
 	-$(Q)find . -iname ".dep-*" | xargs $(RM)
+	@echo -e "   \e[31m[RM]\e[0m    $(DOC)"
+	-$(Q)$(RM) $(DOC)
+	$(call cmd,rmdir,$(LATEX_O))
 	-$(Q)$(RM) *~
 
 uninstall:
@@ -325,6 +339,6 @@ quiet_cmd_install = \e[36m[INST]\e[0m  $(1) -> $(strip $(INSTDIR))
 
 cmd = @$(if $($(quiet)cmd_$(1)),echo -e '   $(call $(quiet)cmd_$(1),$(2))' &&) $(call cmd_$(1),$(2))
 
-ifneq ($(sofi.deps),)
-  -include $(sofi.deps)
+ifneq ($(DEPS),)
+  -include $(DEPS)
 endif
