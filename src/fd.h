@@ -356,12 +356,9 @@ void update_s_elastic_vti_abs ( int * gx, int * gy,
                                float ** pc13, float ** pc33, float ** absorb_coeff, float *hc, GlobVar *gv );
 
 
-void update_s_elastic_tti_abs ( int * gx, int * gy,
-                               float  **pvxx, float **pvyx,float **pvxy,float **pvyy,
-                               float **   sxx, float **   syy,
-                            float **   sxy, float ** pc11, float ** pc55ipjp, float ** pc13, float ** pc33,
-                                           float ** pc15, float ** pc35, float ** pc15ipjp, float ** pc35ipjp,
-                               float ** absorb_coeff);
+void update_s_elastic_tti_abs ( int *gx, int *gy, float  **pvxx, float **pvyy, float **pvyx, float **pvxy,
+				float **sxx, float **syy, float **sxy, float **pc11, float **pc55ipjp, float **pc13, float **pc33,
+				float **pc15, float **pc35, float **pc15ipjp, float **pc35ipjp, float **absorb_coeff);
 
 void update_s_visc_vti_abs ( int *gx, int *gy,
                               float **vx, float **vy, float **sxx, float **syy, float **sxy,
@@ -618,11 +615,11 @@ void zero_visco_4(int nx1, int nx2, int ny1, int ny2, float **vxx_1,float **vxx_
 
 void zero_visc(int nx1, int nx2, int ny1, int ny2, float **vx, float **vy, float **sxx, float **syy, float **sxy, float *** pr, float *** pp, float *** pq, GlobVar *gv);
 
-void zero_PML_elastic(int ny1, int ny2, int nx1, int nx2, float **vx, float **vy, float **sxx,
+void zero_PML_elastic(int nx1, int nx2, int ny1, int ny2, float **vx, float **vy, float **sxx,
                       float **syy, float **sxy,
                       float **psi_sxx_x, float **psi_sxy_x, float **psi_vxx, float **psi_vyx, float **psi_syy_y, float **psi_sxy_y, float **psi_vyy, float **psi_vxy,float **psi_vxxs, GlobVar *gv);
 
-void zero_PML_visc(int ny1, int ny2, int nx1, int nx2, float **vx, float **vy, float **sxx,
+void zero_PML_visc(int nx1, int nx2, int ny1, int ny2, float **vx, float **vy, float **sxx,
                    float **syy, float **sxy,
                    float **psi_sxx_x, float **psi_sxy_x, float **psi_vxx, float **psi_vyx, float **psi_syy_y, float **psi_sxy_y, float **psi_vyy, float **psi_vxy, float **psi_vxxs,
                    float ***pr, float ***pp, float ***pq, GlobVar *gv);

@@ -24,7 +24,7 @@
 
 #include "fd.h"
 
-void zero_PML_visc(int ny1, int ny2, int nx1, int nx2, float ** vx, float ** vy, float ** sxx, 
+void zero_PML_visc(int nx1, int nx2, int ny1, int ny2, float ** vx, float ** vy, float ** sxx, 
                  float ** syy, float ** sxy, 
                  float ** psi_sxx_x, float ** psi_sxy_x, float ** psi_vxx, float ** psi_vyx, 
 		 float ** psi_syy_y, float ** psi_sxy_y, float ** psi_vyy, float ** psi_vxy, float ** psi_vxxs,

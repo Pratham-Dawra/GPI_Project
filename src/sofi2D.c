@@ -921,20 +921,20 @@ int main ( int argc, char **argv )
         
         if ( gv.ABS_TYPE == 1 ) {
             if ( gv.L )
-                zero_PML_visc ( -nd+1,gv.NY+nd,-nd+1,gv.NX+nd,pvx,pvy,psxx,psyy,psxy,psi_sxx_x,psi_sxy_x,
+                zero_PML_visc ( -nd+1,gv.NX+nd,-nd+1,gv.NY+nd,pvx,pvy,psxx,psyy,psxy,psi_sxx_x,psi_sxy_x,
                                psi_vxx,psi_vyx,psi_syy_y,psi_sxy_y,psi_vyy,psi_vxy,psi_vxxs,pr,pp,pq, &gv );
             else
-                zero_PML_elastic ( -nd+1,gv.NY+nd,-nd+1,gv.NX+nd,pvx,pvy,psxx,psyy,psxy,psi_sxx_x,psi_sxy_x,
+                zero_PML_elastic ( -nd+1,gv.NX+nd,-nd+1,gv.NY+nd,pvx,pvy,psxx,psyy,psxy,psi_sxx_x,psi_sxy_x,
                                   psi_vxx,psi_vyx,psi_syy_y,psi_sxy_y,psi_vyy,psi_vxy,psi_vxxs, &gv );
         }
         
         if(gv.FDORDER_TIME==4){
             if(gv.L) {
-                zero_visco_4(-nd+1,gv.NY+nd,-nd+1,gv.NX+nd,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,
+                zero_visco_4(-nd+1,gv.NX+nd,-nd+1,gv.NY+nd,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,
 				vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,
 				svy_1,svy_2,svy_3,svy_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4, &gv );
             } else {
-                zero_elastic_4(-nd+1,gv.NY+nd,-nd+1,gv.NX+nd,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,
+                zero_elastic_4(-nd+1,gv.NX+nd,-nd+1,gv.NY+nd,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,
 				vyx_1,vyx_2,vyx_3,vyx_4,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4 );
             }
         }
@@ -1125,12 +1125,9 @@ int main ( int argc, char **argv )
                                                    pvyx, pvxy, psxx, psyy, psxy,
                                                    pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp,
                                                K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx, &gv );
-                    
-
                              
                          if ( gv.ABS_TYPE ==2 )
-                             update_s_elastic_tti_abs ( gx, gy, pvxx, pvyy,
-                                                       pvyx, pvxy, psxx, psyy, psxy,
+                             update_s_elastic_tti_abs ( gx, gy, pvxx, pvyy, pvyx, pvxy, psxx, psyy, psxy,
                                                        pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp, absorb_coeff);
                      }
 
