@@ -32,6 +32,18 @@ DOC := sofi2D_manual.pdf
 ###############################################################################
 # Compiler / MPI settings
 ###############################################################################
+### CC = C compiler to use
+### CPPFLAGS = common preprocessor flags
+### EXTRA_CPPFLAGS = extra preprocessor flags for sofi2D
+### CFLAGS = common compiler flags
+### CDEPEND = compiler flags to produce dependency files for each object
+### LD = linker to use
+### LDFLAGS = common linker flags
+### EXTRA_LDFLAGS = extra linker flags for sofi2D
+###
+### In case you have trouble with ANSI color escape sequences in your terminal,
+### you can switch off color coding for logging by removing the -DLOG_COLOR
+### flag.
 
 ###############################################################################
 ### GNU compiler with OpenMPI (standard)
@@ -46,7 +58,7 @@ EXTRA_LDFLAGS  := -lmpi
 
 ###############################################################################
 ### Intel compiler (OneAPI) with Intel MPI
-### => module load compiler/latest mpi/latest
+### => GPI: module load compiler/latest mpi/latest
 #CC             := mpicc -cc=icx
 #CPPFLAGS        = -D_GNU_SOURCE -DLOG_COLOR
 #EXTRA_CPPFLAGS := -DLOG_MPI
@@ -81,6 +93,7 @@ LATEX_O   := $(strip ./latex)
 dummy     := $(shell mkdir -p $(FDMOD_O))
 dummy     := $(shell mkdir -p $(MERGE_O))
 dummy     := $(shell mkdir -p $(LATEX_O))
+dummy     := $(shell mkdir -p $(strip $(INSTDIR)))
 FDMOD_EXE := $(strip $(FDMOD))
 MERGE_EXE := $(strip $(MERGE))
 INSTALL   := install -D -p

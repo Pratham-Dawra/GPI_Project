@@ -1,30 +1,54 @@
-To compile the program do:
-cd sofi2D/src
-then
-"make sofi2D"  to compile the standard staggered grid version (SSG)
+This file contains information on how to compile the software. We assume that
+you have successfully checked out the git-repository containing the software
+and you are now reading this file on your local computer system.
 
-(you probably need to change the compiler options in soif2D/src/Makefile)
+The software is written using C99 standard. In order to compile it, you need
+a) a working C compiler (e.g., gcc) and b) a working MPI installation (e.g.,
+OpenMPI). In order to compile the documentation, you require a recent version
+of LaTeX.
 
-To run the program on 4 CPUs do
-cd sofi2D/par
+Go to the "build" directory. Type "make" to get a brief help. The output will
+show available Makefile targets and current compiler settings. If you are 
+happy with the current setup, simply type "make install" to compile the main 
+programs and install them in the specified installation directory. The 
+Makefile supports parallel builds, i.e., if you would like to speed up the
+compilation process, simply use "make -j6 install" or something similar.
 
-mpirun -np 4 ../bin/sofi2D ./in_and_out/sofi2D.json > ./in_and_out/sofi2D.jout
+By default, the compile and link commands won't be shown in full but only an
+abbreviation what the system currently does. In case of problems, please run
+"make V=1 install" to see the detailed commands as they are executed.
 
-you may also use the shell script startSOFI2D.sh
+In case you would like to build the software entirely out of the cloned git
+respository, simply copy the "build" directory to another place and adjust the
+Makefile (BASEDIR, possibly INSTDIR) so the source tree can be found from the
+new location.
 
-The file sofi2D/par/in_and_out/sofi2D.jout shows the obtained screen output.
+After the compilation and installation step, the main programs are located in
+the specified installation directory and ready for use.
 
-The modelling parameters are specified in sofi2D.json. We hope that the
-parameters are more or less self-explanatory. The synthetic seismograms 
-and snapshots are written to the files specified in sofi2D/par/in_and_out/sofi2D.json.
+In case you would like to adjust the compiler settings etc., you can edit the
+Makefile. The variables you need to adjust are at the beginning of the file.
+Usually, a brief explanation is given in the Makefile, i.e., it should be 
+fairly straightforward to make adjustments. Usually, there is no need to 
+change anything below a certain line marked in the Makefile. If you are an
+expert, feel free, though, to adapt the Makefile as required.
 
-In the current distribution the model is generated on the fly
-by the function sofi2D/src/hh.c. This function generates a homogeneous
-medium with Vp=3500 m/s, Vs=2000 m/s, and rho=2000 kg/(m*m*m).
-The function readmod.c can be used to read model info from external grid files.
-See readmod.c for the format of the external files.
-You can change the function which generates the model grid at the beginning of
-sofi2D/src/Makefile.
+The documentation can be built by "make doc". This will compile the LaTeX
+source into a PDF file whose name can be specified in the Makefile. By 
+default, it is "sofi2D_manual.pdf", and the file is located in your build
+directory.
 
-For more information,  please compile the sofi2D manual in ./sofi2D/doc/guide_sofi2D
-or get the manual from https://git.scc.kit.edu/GPIAG-Software/SOFI2D/wikis/home
+The "examples" folder contains various components to run simple tests. Once
+the software has been compiled successfully, you should visit this folder to
+run some basic tests to ensure the software is working as expected.
+
+The software has been successfully compiled and run on various Linux systems.
+At the time of writing, all code compiles without warnings with -Wall and 
+-Wextra compiler flags. The code has been tested with GCC, Intel's compiler
+and Intel's MPI library, and clang (LLVM). The open-source compilers used
+OpenMPI v3 as MPI library but other MPI libraries should work as well as long
+as they implemented the MPI standard. The startup procedure for the software
+might change, though, dependent on what MPI library you use and whether you
+run software directly or through a queuing system like "slurm". Always make
+sure you use the identical MPI library when compiling and running the 
+software.
