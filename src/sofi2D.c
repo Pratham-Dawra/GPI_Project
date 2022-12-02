@@ -900,12 +900,14 @@ int main ( int argc, char **argv )
         /* calculate wavelet for each source point */
         signals = wavelet ( srcpos_loc, nsrc_loc, &gv );
 
-        /* write source wavelet to file */
-        if (0==gv.MPID && 1==gv.SIGOUT) {
-            switch (gv.SIGOUT_FORMAT){
-                case 1: sprintf(file_ext,"su");  break;
-                case 2: sprintf(file_ext,"txt"); break;
-                case 3: sprintf(file_ext,"bin"); break;
+        /* write source wavelet to file in subdomain that contains source */
+        if (signals && 1==gv.SIGOUT) {
+            switch (gv.SIGOUT_FORMAT)
+	      {
+	      case 1: sprintf(file_ext,"su");  break;
+	      case 2: sprintf(file_ext,"txt"); break;
+	      case 3: sprintf(file_ext,"bin"); break;
+	      default: log_fatal("Unknown SIGOUT_FORMAT encountered.\n"); break;
             }
 	    dummy = imatrix(1,3,1,1);
 	    dummy[1][1] = iround(srcpos_loc[1][ishot]/gv.DH);

@@ -108,8 +108,9 @@ void exchange_par(GlobVar *gv) {
     idum[34]  = gv->WRITE_MODELFILES;
 
     idum[35] = gv->ABS_TYPE;
-
     idum[36] = gv->FDORDER_TIME;
+    idum[37] = gv->SIGOUT;
+    idum[38] = gv->SIGOUT_FORMAT;
 
   } /** if (gv->MPID == 0) **/
 
@@ -126,6 +127,7 @@ void exchange_par(GlobVar *gv) {
   MPI_Bcast(&(gv->LOG_FILE),STRING_SIZE,MPI_CHAR,0,MPI_COMM_WORLD);
   MPI_Bcast(&(gv->SIGNAL_FILE),STRING_SIZE,MPI_CHAR,0,MPI_COMM_WORLD);
   MPI_Bcast(&(gv->CHECKPTFILE),STRING_SIZE,MPI_CHAR,0,MPI_COMM_WORLD);
+  MPI_Bcast(&(gv->SIGOUT_FILE),STRING_SIZE,MPI_CHAR,0,MPI_COMM_WORLD);
   
   MPI_Bcast(&(gv->LOG_VERBOSITY),STRING_SIZE,MPI_CHAR,0,MPI_COMM_WORLD);
 
@@ -205,8 +207,9 @@ void exchange_par(GlobVar *gv) {
   gv->WRITE_MODELFILES = idum[34];
 
   gv->ABS_TYPE = idum[35];
-
   gv->FDORDER_TIME = idum[36];
+  gv->SIGOUT = idum[37];
+  gv->SIGOUT_FORMAT = idum[38];
   
   if (gv->L>0) {
     if (gv->MPID != 0) {
