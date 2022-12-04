@@ -211,8 +211,6 @@ void psource(int nt, float **sxx, float **syy,
 void psource_rsg(int nt, float **sxx, float **syy,
                  float   **srcpos_loc, float **signals, int nsrc, GlobVar *gv);
 
-float *rd_sour(int *nts,FILE *fp_source);
-
 float readdsk(FILE *fp_in, int format);
 
 void readbufs(float **sxx, float **syy,

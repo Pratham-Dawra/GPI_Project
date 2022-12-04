@@ -44,6 +44,10 @@ DOC := sofi2D_manual.pdf
 ### In case you have trouble with ANSI color escape sequences in your terminal,
 ### you can switch off color coding for logging by removing the -DLOG_COLOR
 ### flag.
+###
+### Use -DEBUG to compile code with lots of NaN checks enabled. Should only be
+### used for low-level debugging of instability problems. It produces tons of
+### output and slows down the program significantly.
 
 ###############################################################################
 ### GNU compiler with OpenMPI (standard)
@@ -159,9 +163,10 @@ FDMOD_FILES := sofi2D.c \
                prepare_update_s_tti.c \
                prepare_update_s_4.c \
                psource.c \
-               rd_sour.c \
                read_checkpoint.c \
                read_par_json.c \
+               read_srcsig.c \
+               read_su.c \
                readdsk.c \
                readmod_visco.c \
                readmod_elastic.c \
@@ -177,6 +182,8 @@ FDMOD_FILES := sofi2D.c \
                sources.c \
                splitrec.c \
                splitsrc.c \
+               su_gather.c \
+               su_struct.c \
                subgrid_bounds.c \
                surface.c \
                surface_elastic.c \
@@ -225,6 +232,7 @@ FDMOD_FILES := sofi2D.c \
                wavefield_update_v_4.c \
                wavelet.c \
                write_par.c \
+               write_su.c \
                writedsk.c \
                writemod.c \
                zero_elastic.c \
@@ -258,10 +266,10 @@ endif
 
 help:
 	@echo
-	@echo "Usage:"
+	@echo -e "\033[4mUsage:\033[0m"
 	@echo "   $(MAKE) [V=0|1] <target>"
 	@echo
-	@echo "Targets:"
+	@echo -e "\033[4mTargets:\033[0m"
 	@echo "   all       : compile main programs"
 	@echo "   force     : force recompilation of main programs"
 	@echo "   install   : install main programs"
@@ -270,11 +278,11 @@ help:
 	@echo "   distclean : clean up entire build directory"
 	@echo "   uninstall : remove previously installed programs"
 	@echo 
-	@echo "Main programs:"
+	@echo -e "Main programs:"
 	@echo "   $(FDMOD_EXE), $(MERGE_EXE)"
-	@echo "Installation directory:"
+	@echo -e "Installation directory:"
 	@echo "   $(strip $(INSTDIR))"
-	@echo "Compiler / linker and flags:"
+	@echo -e "Compiler / linker and flags:"
 	@echo "   CC: $(CC)"
 	@echo "   CPPFLAGS: $(CPPFLAGS) [$(EXTRA_CPPFLAGS)]"
 	@echo "   CFLAGS: $(CFLAGS)"

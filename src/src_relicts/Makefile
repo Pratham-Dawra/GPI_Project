@@ -90,7 +90,8 @@ SOFI2D_SRC= \
 	prepare_update_s_tti.c \
 	prepare_update_s_4.c \
 	psource.c \
-	rd_sour.c \
+	read_srcsig.c \
+	read_su.c \
 	read_checkpoint.c\
 	read_par_json.c \
 	readdsk.c \
@@ -108,6 +109,8 @@ SOFI2D_SRC= \
 	sources.c \
 	splitrec.c \
 	splitsrc.c \
+	su_gather.c \
+	su_struct.c \
 	subgrid_bounds.c \
 	surface.c \
 	surface_elastic.c \
@@ -156,6 +159,7 @@ SOFI2D_SRC= \
 	wavefield_update_v_4.c \
 	wavelet.c \
 	write_par.c \
+	write_su.c \
 	writedsk.c \
 	writemod.c \
 	zero_elastic.c \

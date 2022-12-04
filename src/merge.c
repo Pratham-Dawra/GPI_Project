@@ -119,7 +119,7 @@ void merge(int nsnap, int type, GlobVar *gv)
 
   if ((gv->SNAP_FORMAT)==3){
     log_info("Use...\n");
-    log_std("%sxmovie n1=%d n2=%d < %s loop=1 label1=\"Y\" label2=\"X\" title=\"%%g\" d1=%f d2=%f f1=%f f2=%f clip=%e%s\n",
+    log_std("%sxmovie n1=%d n2=%d < %s loop=1 label1=\"Y\" label2=\"X\" title=\"%%g\" d1=%f d2=%f f1=%f f2=%f clip=%e sleep=1%s\n",
 	    LOG_COLOR_BOLD,(((gv->NYG)-1)/(gv->IDY))+1,(((gv->NXG)-1)/(gv->IDY))+1,
 	    outfile,gv->DH,gv->DH,gv->DH,gv->DH,max/10.0,LOG_ALL_RESET);
     log_info("...to play the snapshot movie.\n");

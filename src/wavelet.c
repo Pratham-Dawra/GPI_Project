@@ -25,8 +25,8 @@
 
 #include "fd.h"
 #include "logging.h"
+#include "read_srcsig.h"
 #include <complex.h>
-
 
 float **wavelet(float **srcpos_loc, int nsrc, GlobVar *gv) 
 {
@@ -36,7 +36,7 @@ float **wavelet(float **srcpos_loc, int nsrc, GlobVar *gv)
   float n, alpha, phi0deg, phi0, T, fmin, fmax, width, taper, sigmax;
   float ** signals = NULL;
   
-  if (gv->SOURCE_SHAPE==3) psource=rd_sour(&nts,fopen(gv->SIGNAL_FILE,"r"));
+  if (gv->SOURCE_SHAPE==3) psource = read_srcsig(&nts, gv);
 
   /* If there is no source in the current domain, return early as otherwise
      the call to matrix with nsrc=0 will cause memory corruption. It would
@@ -68,7 +68,7 @@ float **wavelet(float **srcpos_loc, int nsrc, GlobVar *gv)
 	else amp=(sin(2.0*PI*(t-tshift)*fc)-0.5*sin(4.0*PI*(t-tshift)*fc));
 	break;
       case 3 :
-	if (nt<=nts) amp=psource[nt];
+	if (nt<=nts) amp=psource[nt-1]; // psource has zero-based index
 	else amp=0.0;
 	break;  /* source wavelet from file SOURCE_FILE */
       case 4 :
@@ -126,7 +126,7 @@ float **wavelet(float **srcpos_loc, int nsrc, GlobVar *gv)
   
   log_info("%d source position(s) in subdomain assigned with source signal.\n",nsrc);
 
-  if (gv->SOURCE_SHAPE==3) free_vector(psource,1,nts);
+  if (gv->SOURCE_SHAPE==3) free(psource);
 
   return signals;
 }
