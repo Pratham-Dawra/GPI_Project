@@ -38,28 +38,24 @@ void update_s_elastic_TTI_interior ( int * gx, int * gy, int nt,
                         float **   sxy, float ** pc11, float ** pc55ipjp, float ** pc13, float ** pc33,
                                     float ** pc15, float ** pc35, float ** pc15ipjp, float ** pc35ipjp, GlobVar *gv ) 
 {
-    int i,j;
-    double time1=0.0, time2=0.0;
+  int i,j;
+  double time1=0.0, time2=0.0;
 
-    if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
-        time1=MPI_Wtime();
-	log_debug("Updating stress components...\n");
+  if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+    time1=MPI_Wtime();
+    log_debug("Updating stress components...\n");
+  }
+ 
+  for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+    for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+      wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33, pc15, pc35, pc15ipjp, pc35ipjp);
     }
-    
-
-    for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-        for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-
-            wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33, pc15, pc35, pc15ipjp, pc35ipjp);
-
-        }
-    }
-    
-    
-    if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
-        time2=MPI_Wtime();
-        log_debug("Finished updating stress components (real time: %4.3fs).\n",time2-time1 );
-    }
+  }
+  
+  if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+    time2=MPI_Wtime();
+    log_debug("Finished updating stress components (real time: %4.3fs).\n",time2-time1 );
+  }
 }
 
 

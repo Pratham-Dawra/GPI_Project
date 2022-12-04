@@ -29,163 +29,90 @@
 
 #include "fd.h"
 
+void update_v_abs ( int *gx, int *gy, 
+		    float **vx, float **vy, float **sxx, float **syy, float **sxy,  
+		    float **rip, float **rjp, float **absorb_coeff,  GlobVar *gv) 
+{
+  int i, j;
+  float sxx_x, syy_y, sxy_y, sxy_x;
 
-void update_v_abs ( int * gx, int * gy, 
-		    float **  vx, float ** vy, float ** sxx, float ** syy, float ** sxy,  
-		    float  **rip, float **rjp, float ** absorb_coeff,float *hc, GlobVar *gv) {
+  /* ------------------------------------------------------------
+   * Important!
+   * rip and rjp are reciprocal values of averaged densities
+   * ------------------------------------------------------------ */
+  
+  /* left boundary */
+  for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      gv->FDOP_V( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy );
+      wavefield_update_v( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
+      /* Damping the wavfield */
+      abs_update_v (i, j, vx,vy, absorb_coeff);
+    }
+  }
 
-	int i, j, fdoh;
-	float sxx_x, syy_y, sxy_y, sxy_x;
+  /* right boundary */
+  for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      gv->FDOP_V( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy );
+      wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
+      abs_update_v (i, j, vx,vy, absorb_coeff);
+    }
+  }
 
-	fdoh=gv->FDORDER/2;
-	
-	/* Pointer to function */
-	void ( *FD_op_v[7] ) ();
-	
-	/* array with locations of the fd-op-functions */
-	FD_op_v[1] = &operator_v_fd2;
-	FD_op_v[2] = &operator_v_fd4;
-	FD_op_v[3] = &operator_v_fd6;
-	FD_op_v[4] = &operator_v_fd8;
-	FD_op_v[5] = &operator_v_fd10;
-	FD_op_v[6] = &operator_v_fd12;
+  /* top boundary */
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+      gv->FDOP_V( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy );
+      wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
+      abs_update_v (i, j, vx,vy, absorb_coeff);
+    }
+  }
 
+  /* bottom boundary */
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+      gv->FDOP_V( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy );
+      wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
+      abs_update_v (i, j, vx,vy, absorb_coeff);
+    }
+  }
 
-	/* ------------------------------------------------------------
-	 * Important!
-	 * rip and rjp are reciprocal values of averaged densities
-	 * ------------------------------------------------------------ */
-	
+  /* corners */
 
+  /*left-top*/
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      gv->FDOP_V( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy );
+      wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
+      abs_update_v (i, j, vx,vy, absorb_coeff);
+    }
+  }
+  
+  /*left-bottom*/
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      gv->FDOP_V( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy );
+      wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
+      abs_update_v (i, j, vx,vy, absorb_coeff);
+    }
+  }
 
-/* left boundary */
-
-	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-			
-			
-			FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
-
-			wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
-			
-			/* Damping the wavfield */
-			abs_update_v (i, j, vx,vy, absorb_coeff);
-
-		}
-	}
-
-	/* right boundary */
-
-
-	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-
-
-			FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
-			
-			wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
-			
-			abs_update_v (i, j, vx,vy, absorb_coeff);
-
-		}
-	}
-
-
-
-	/* top boundary */
-
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-
-			FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
-
-			wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
-			
-			abs_update_v (i, j, vx,vy, absorb_coeff);
-		
-
-		}
-	}
-
-
-
-	/* bottom boundary */
-
-
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-
-			FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
-
-			wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
-			
-			abs_update_v (i, j, vx,vy, absorb_coeff);
-		}
-	}
-
-	/* corners */
-
-	/*left-top*/
-
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-
-			FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
-
-			wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
-			
-			abs_update_v (i, j, vx,vy, absorb_coeff);
-
-		}
-	}
-
-
-	/*left-bottom*/
-
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-
-			FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
-
-			wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
-			
-			abs_update_v (i, j, vx,vy, absorb_coeff);
-
-		}
-	}
-
-
-
-	/* right-top */
-
-
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-
-			FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
-
-			wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
-			
-			abs_update_v (i, j, vx,vy, absorb_coeff);
-
-		}
-	}
-
-
-	/* right-bottom */
-
-
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-
-
-			FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
-
-			wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
-			
-			abs_update_v (i, j, vx,vy, absorb_coeff);
-
-		}
-	}
-	
+  /* right-top */
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      gv->FDOP_V( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy );
+      wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
+      abs_update_v (i, j, vx,vy, absorb_coeff);
+    }
+  }
+  
+  /* right-bottom */
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      gv->FDOP_V( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy );
+      wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
+      abs_update_v (i, j, vx,vy, absorb_coeff);
+    }
+  }
 }

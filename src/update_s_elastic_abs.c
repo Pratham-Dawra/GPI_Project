@@ -32,124 +32,93 @@
 void update_s_elastic_abs ( int * gx, int * gy, int nt,
                             float **  vx, float **   vy, float **   sxx, float **   syy,
                             float **   sxy, float ** pi, float ** u, float ** uipjp,
-                            float ** absorb_coeff, float *hc, GlobVar *gv )
+                            float ** absorb_coeff, GlobVar *gv )
 {
-	int i,j,fdoh;
-	float  vxx, vyy, vxy, vyx;
-	double time1=0.0, time2=0.0;
+  int i,j;
+  float  vxx, vyy, vxy, vyx;
+  double time1=0.0, time2=0.0;
 
- 	fdoh=gv->FDORDER/2;
+  if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+    time1=MPI_Wtime();
+    log_debug("Updating stress components...\n");
+  }
 
-	/*Pointer array to the locations of the fd-operator functions*/
-	void ( *FD_op_s[7] ) ();
-	FD_op_s[1] = &operator_s_fd2;
-	FD_op_s[2] = &operator_s_fd4;
-	FD_op_s[3] = &operator_s_fd6;
-	FD_op_s[4] = &operator_s_fd8;
-	FD_op_s[5] = &operator_s_fd10;
-	FD_op_s[6] = &operator_s_fd12;
+  /* left boundary */
+  for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
+      abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
+    }
+  }
 
-	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
-		time1=MPI_Wtime();
-		log_debug("Updating stress components...\n");
-	}
+  /* right boundary */
+  for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
+      abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
+    }
+  }
 
+  /* top boundary */
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
+      abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
+    }
+  }
 
+  /* bottom boundary */
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
+      abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
+    }
+  }
 
-	/* left boundary */
-	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
+  /* corners */
 
-			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
+  /*left-top*/
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
+      abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
+    }
+  }
 
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
+  /*left-bottom*/
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
+      abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
+    }
+  }
 
-	/* right boundary */
-	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
+  /* right-top */
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
+      abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
+    }
+  }
 
-			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
+  /* right-bottom */
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
+      abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
+    }
+  }
 
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-
-		}
-	}
-
-	/* top boundary */
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
-
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
-
-	/* bottom boundary */
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
-
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
-
-	/* corners */
-
-	/*left-top*/
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
-
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-
-		}
-	}
-
-	/*left-bottom*/
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
-
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
-
-	/* right-top */
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
-
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
-
-	/* right-bottom */
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp, gv );
-
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
-
-	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
-		time2=MPI_Wtime();
-		log_debug("Finished updating stress components (real time: %4.3fs).\n",time2-time1);
-	}
+  if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+    time2=MPI_Wtime();
+    log_debug("Finished updating stress components (real time: %4.3fs).\n",time2-time1);
+  }
 }

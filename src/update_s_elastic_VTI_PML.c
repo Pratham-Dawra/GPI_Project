@@ -32,156 +32,95 @@
 
 void update_s_elastic_VTI_PML ( int nx2, int ny2, int * gx, int * gy, 
                             float **  vx, float **   vy, float **   sxx, float **   syy,
-                            float **   sxy, float ** pc11, float ** pc13, float **pc33, float ** pc55ipjp, float *hc,
+                            float **   sxy, float ** pc11, float ** pc13, float **pc33, float ** pc55ipjp,
                             float * K_x, float * a_x, float * b_x, float * K_x_half, float * a_x_half, float * b_x_half,
                             float * K_y, float * a_y, float * b_y, float * K_y_half, float * a_y_half, float * b_y_half,
                             float ** psi_vxx, float ** psi_vyy, float ** psi_vxy, float ** psi_vyx, GlobVar *gv )
 {
-	int i,j, h1,fdoh;
-	float  vxx, vyy, vxy, vyx;
+  int i,j, h1;
+  float  vxx, vyy, vxy, vyx;
 
-	fdoh=gv->FDORDER/2;
-	
-	/*Pointer array to the locations of the fd-operator functions*/
-	void ( *FD_op_s[7] ) ();
-	FD_op_s[1] = &operator_s_fd2;
-	FD_op_s[2] = &operator_s_fd4;
-	FD_op_s[3] = &operator_s_fd6;
-	FD_op_s[4] = &operator_s_fd8;
-	FD_op_s[5] = &operator_s_fd10;
-	FD_op_s[6] = &operator_s_fd12;
+  /* left boundary */
+  for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      cpml_update_s_x ( i,j,&vxx,&vyx,K_x,a_x,b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
+      wavefield_update_s_el_vti (i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33);
+    }
+  }
+  
+  /* right boundary */
+  for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      h1 = ( i-nx2+2*gv->FW );
+      cpml_update_s_x ( h1,j,&vxx,&vyx,K_x,a_x,b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
+      wavefield_update_s_el_vti (i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33);
+    }
+  }
 
-	
+  /* top boundary */
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      cpml_update_s_y ( i,j,&vxy,&vyy,K_y,a_y,b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
+      wavefield_update_s_el_vti (i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33);
+    }
+  }
 
+  /* bottom boundary */
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      h1 = ( j-ny2+2*gv->FW );
+      cpml_update_s_y ( i,h1,&vxy,&vyy,K_y,a_y,b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
+      wavefield_update_s_el_vti (i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33);
+    }
+  }
 
-	/* interior */
-	/*for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
+  /* corners */
+  
+  /*left-top*/
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      cpml_update_s_x ( i,j,&vxx,&vyx,K_x,a_x,b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
+      cpml_update_s_y ( i,j,&vxy,&vyy,K_y,a_y,b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
+      wavefield_update_s_el_vti (i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33);
+    }
+  }
 
-			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp );
-		}
-	}*/
-	/* left boundary */
-	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
+  /*left-bottom*/
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      cpml_update_s_x ( i,j,&vxx,&vyx,K_x,a_x,b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
+      h1 = ( j-ny2+2*gv->FW );
+      cpml_update_s_y ( i,h1,&vxy,&vyy,K_y,a_y,b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
+      wavefield_update_s_el_vti (i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33);
+    }
+  }
 
-			cpml_update_s_x ( i,j,&vxx,&vyx,K_x,a_x,
-			               b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
+  /* right-top */
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      h1 = ( i-nx2+2*gv->FW );
+      cpml_update_s_x ( h1,j,&vxx,&vyx,K_x,a_x,b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
+      cpml_update_s_y ( i,j,&vxy,&vyy,K_y,a_y, b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
+      wavefield_update_s_el_vti (i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33);
+    }
+  }
 
-			wavefield_update_s_el_vti (i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33);
-		}
-	}
-
-	/* right boundary */
-	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-			h1 = ( i-nx2+2*gv->FW );
-
-			cpml_update_s_x ( h1,j,&vxx,&vyx,K_x,a_x,
-			               b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
-
-			wavefield_update_s_el_vti (i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33);
-
-
-		}
-	}
-
-	/* top boundary */
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-			cpml_update_s_y ( i,j,&vxy,&vyy,K_y,a_y,
-			               b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
-
-			wavefield_update_s_el_vti (i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33);
-		}
-	}
-
-	/* bottom boundary */
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-			h1 = ( j-ny2+2*gv->FW );
-			cpml_update_s_y ( i,h1,&vxy,&vyy,K_y,a_y,
-			               b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
-
-			wavefield_update_s_el_vti (i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33);
-		}
-	}
-
-	/* corners */
-
-	/*left-top*/
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-			cpml_update_s_x ( i,j,&vxx,&vyx,K_x,a_x,
-			               b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
-
-			cpml_update_s_y ( i,j,&vxy,&vyy,K_y,a_y,
-			               b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
-
-			wavefield_update_s_el_vti (i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33);
-
-		}
-	}
-
-	/*left-bottom*/
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-			cpml_update_s_x ( i,j,&vxx,&vyx,K_x,a_x,
-			               b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
-
-			h1 = ( j-ny2+2*gv->FW );
-
-			cpml_update_s_y ( i,h1,&vxy,&vyy,K_y,a_y,
-			               b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
-
-			wavefield_update_s_el_vti (i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33);
-		}
-	}
-
-	/* right-top */
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-			h1 = ( i-nx2+2*gv->FW );
-			cpml_update_s_x ( h1,j,&vxx,&vyx,K_x,a_x,
-			               b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
-
-			cpml_update_s_y ( i,j,&vxy,&vyy,K_y,a_y,
-			               b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
-
-			wavefield_update_s_el_vti (i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33);
-		}
-	}
-
-	/* right-bottom */
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-			h1 = ( i-nx2+2*gv->FW );
-			cpml_update_s_x ( h1,j,&vxx,&vyx,K_x,a_x,
-			               b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
-
-			h1 = ( j-ny2+2*gv->FW );
-			cpml_update_s_y ( i,h1,&vxy,&vyy,K_y,a_y,
-			               b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
-
-			wavefield_update_s_el_vti (i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33);
-		}
-	}
-
-
-	
+  /* right-bottom */
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      h1 = ( i-nx2+2*gv->FW );
+      cpml_update_s_x ( h1,j,&vxx,&vyx,K_x,a_x,b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
+      h1 = ( j-ny2+2*gv->FW );
+      cpml_update_s_y ( i,h1,&vxy,&vyy,K_y,a_y,b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
+      wavefield_update_s_el_vti (i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pc11,pc55ipjp,pc13,pc33);
+    }
+  }
 }

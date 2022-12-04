@@ -42,194 +42,153 @@ void update_s_visc_TTI_PML ( int nx2, int ny2, int *gx, int *gy,
                              float *bip, float *cip, 
                             float * K_x, float * a_x, float * b_x, float * K_x_half, float * a_x_half, float * b_x_half,
                             float * K_y, float * a_y, float * b_y, float * K_y_half, float * a_y_half, float * b_y_half,
-                            float ** psi_vxx, float ** psi_vyy, float ** psi_vxy, float ** psi_vyx, GlobVar *gv ) {
+                            float ** psi_vxx, float ** psi_vyy, float ** psi_vxy, float ** psi_vyx, GlobVar *gv ) 
+{
+  int i,j, h1;
 
-	int i,j, h1;
-
-	/* interior */
-	/*for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc );
-
-			wavefield_update_s_el ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pi,u,uipjp );
-		}
-	}*/
-
-    /* left boundary */
-	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-
-			cpml_update_s_x ( i,j,&pvxx[j][i],&pvyx[j][i],K_x,a_x,
-			               b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
-        }
+  /* left boundary */
+  for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      cpml_update_s_x ( i,j,&pvxx[j][i],&pvyx[j][i],K_x,a_x,
+			b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
     }
+  }
 
-    for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-        for ( i=gx[1]+2; i<=gx[2]; i++ ) {
-            wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
-                                         bip,  cip, gv);
-		}
-	}
-
-	/* right boundary */
-	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-
-			h1 = ( i-nx2+2*gv->FW );
-
-            cpml_update_s_x ( h1,j,&pvxx[j][i],&pvyx[j][i],K_x,a_x,
-                           b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
-        }
+  for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+    for ( i=gx[1]+2; i<=gx[2]; i++ ) {
+      wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
+				    pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+				    pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+				    bip,  cip, gv);
     }
+  }
 
-    for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-        for ( i=gx[3]+1; i<=gx[4]-2; i++ ) {
+  /* right boundary */
+  for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      h1 = ( i-nx2+2*gv->FW );
+      cpml_update_s_x ( h1,j,&pvxx[j][i],&pvyx[j][i],K_x,a_x,
+			b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
+    }
+  }
+
+  for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]-2; i++ ) {
+      wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
+				    pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+				    pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+				    bip,  cip, gv);
+    }
+  }
+
+  /* top boundary */
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+      cpml_update_s_y ( i,j,&pvxy[j][i],&pvyy[j][i],K_y,a_y,
+			b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
+    }
+  }
+  for ( j=gy[1]+2; j<=gy[2]; j++ ) {
+    for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+      wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
+				    pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+				    pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+				    bip,  cip, gv);
+    }
+  }
+
+  /* bottom boundary */
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+      h1 = ( j-ny2+2*gv->FW );
+      cpml_update_s_y ( i,h1,&pvxy[j][i],&pvyy[j][i],K_y,a_y,
+			b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
+    }
+  }
+  for ( j=gy[3]+1; j<=gy[4]-2; j++ ) {
+    for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+      wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
+				    pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+				    pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+				    bip,  cip, gv);
+    }
+  }
+
+  /* corners */
   
-            wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
-                                         bip,  cip, gv);
-
-        }
+  /*left-top*/
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      cpml_update_s_x ( i,j,&pvxx[j][i],&pvyx[j][i],K_x,a_x,
+			b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
+      cpml_update_s_y ( i,j,&pvxy[j][i],&pvyy[j][i],K_y,a_y,
+			b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
     }
-
-    /* top boundary */
-    for ( j=gy[1]; j<=gy[2]; j++ ) {
-        for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-
-            cpml_update_s_y ( i,j,&pvxy[j][i],&pvyy[j][i],K_y,a_y,
-                           b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
-        }
+  }
+  for ( j=gy[1]+2; j<=gy[2]; j++ ) {
+    for ( i=gx[1]+2; i<=gx[2]; i++ ) {
+      wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
+				    pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+				    pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+				    bip,  cip, gv);
     }
-    for ( j=gy[1]+2; j<=gy[2]; j++ ) {
-        for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+  }
 
-            wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
-                                         bip,  cip, gv);
-
-        }
+  /*left-bottom*/
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      cpml_update_s_x ( i,j,&pvxx[j][i],&pvyx[j][i],K_x,a_x,
+			b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
+      h1 = ( j-ny2+2*gv->FW );
+      cpml_update_s_y ( i,h1,&pvxy[j][i],&pvyy[j][i],K_y,a_y,
+			b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
     }
-
-    /* bottom boundary */
-    for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-        for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-
-            h1 = ( j-ny2+2*gv->FW );
-            cpml_update_s_y ( i,h1,&pvxy[j][i],&pvyy[j][i],K_y,a_y,
-                           b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
-            
-        }
+  }
+  for ( j=gy[3]+1; j<=gy[4]-2; j++ ) {
+    for ( i=gx[1]+2; i<=gx[2]; i++ ) {
+      wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
+				    pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+				    pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+				    bip,  cip, gv);
     }
-    for ( j=gy[3]+1; j<=gy[4]-2; j++ ) {
-        for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+  }
 
-            wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
-                                         bip,  cip, gv);
-
-        }
+  /* right-top */
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      h1 = ( i-nx2+2*gv->FW );
+      cpml_update_s_x ( h1,j,&pvxx[j][i],&pvyx[j][i],K_x,a_x,
+			b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
+      cpml_update_s_y ( i,j,&pvxy[j][i],&pvyy[j][i],K_y,a_y,
+			b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
     }
-
-    /* corners */
-
-    /*left-top*/
-    for ( j=gy[1]; j<=gy[2]; j++ ) {
-        for ( i=gx[1]; i<=gx[2]; i++ ) {
-
-            cpml_update_s_x ( i,j,&pvxx[j][i],&pvyx[j][i],K_x,a_x,
-                           b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
-
-            cpml_update_s_y ( i,j,&pvxy[j][i],&pvyy[j][i],K_y,a_y,
-                           b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
-        }
+  }
+  for ( j=gy[1]+2; j<=gy[2]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]-2; i++ ) {
+      wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
+				    pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+				    pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+				    bip,  cip, gv);
     }
-    for ( j=gy[1]+2; j<=gy[2]; j++ ) {
-        for ( i=gx[1]+2; i<=gx[2]; i++ ) {
-
-            wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
-                                         bip,  cip, gv);
-
-        }
+  }
+  
+  /* right-bottom */
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      h1 = ( i-nx2+2*gv->FW );
+      cpml_update_s_x ( h1,j,&pvxx[j][i],&pvyx[j][i],K_x,a_x,
+			b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
+      h1 = ( j-ny2+2*gv->FW );
+      cpml_update_s_y ( i,h1,&pvxy[j][i],&pvyy[j][i],K_y,a_y,
+			b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
     }
-
-    /*left-bottom*/
-    for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-        for ( i=gx[1]; i<=gx[2]; i++ ) {
-
-            cpml_update_s_x ( i,j,&pvxx[j][i],&pvyx[j][i],K_x,a_x,
-                           b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
-
-            h1 = ( j-ny2+2*gv->FW );
-
-            cpml_update_s_y ( i,h1,&pvxy[j][i],&pvyy[j][i],K_y,a_y,
-                           b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
-           
-        }
+  }
+  for ( j=gy[3]+1; j<=gy[4]-2; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]-2; i++ ) {
+      wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
+				    pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+				    pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+				    bip,  cip, gv);
     }
-    for ( j=gy[3]+1; j<=gy[4]-2; j++ ) {
-        for ( i=gx[1]+2; i<=gx[2]; i++ ) {
-            
-            wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
-                                         bip,  cip, gv);
-
-            
-        }
-    }
-
-    /* right-top */
-    for ( j=gy[1]; j<=gy[2]; j++ ) {
-        for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-
-            h1 = ( i-nx2+2*gv->FW );
-            cpml_update_s_x ( h1,j,&pvxx[j][i],&pvyx[j][i],K_x,a_x,
-                           b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
-
-            cpml_update_s_y ( i,j,&pvxy[j][i],&pvyy[j][i],K_y,a_y,
-                           b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
-        }
-    }
-    for ( j=gy[1]+2; j<=gy[2]; j++ ) {
-        for ( i=gx[3]+1; i<=gx[4]-2; i++ ) {
-
-            wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
-                                         bip,  cip, gv);
-
-            
-        }
-    }
-
-    /* right-bottom */
-    for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-        for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-
-            h1 = ( i-nx2+2*gv->FW );
-            cpml_update_s_x ( h1,j,&pvxx[j][i],&pvyx[j][i],K_x,a_x,
-                           b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
-
-            h1 = ( j-ny2+2*gv->FW );
-            cpml_update_s_y ( i,h1,&pvxy[j][i],&pvyy[j][i],K_y,a_y,
-                           b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
-
-        }
-    }
-    for ( j=gy[3]+1; j<=gy[4]-2; j++ ) {
-        for ( i=gx[3]+1; i<=gx[4]-2; i++ ) {
-            wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
-                                         bip,  cip, gv);
-
-        }
-    }
+  }
 }

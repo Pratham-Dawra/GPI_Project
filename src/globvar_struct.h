@@ -27,6 +27,9 @@
 
 #define STRING_SIZE 256
 
+typedef void (*FDop_s_fct)(int i, int j, float *vxx, float *vyx,float *vxy,float *vyy, float **vx, float **vy);
+typedef void (*FDop_v_fct)(int i, int j, float *sxx_x, float *sxy_x, float *sxy_y, float *syy_y, float **sxx, float **syy, float **sxy);
+
 typedef struct {
 //struct ModelVar {
     // Models
@@ -106,6 +109,8 @@ typedef struct {
     float DT;                             // time increment (of modelling) [s]
     int   FDORDER_TIME;                   // temporal FD order
     int   NT;                           //// number of timesteps (=iround(TIME/DT))
+    FDop_s_fct FDOP_S;                    // function pointer for FD operator
+    FDop_v_fct FDOP_V;                    // function pointer for FD operator
     /* MPI-variables */
     int   MAXRELERROR;                    // switch of maximum relative group velocity error
     int   NPROCX;                         // number of processors in x-direction

@@ -32,209 +32,112 @@
 
 void update_v_PML ( int nx2, int ny2, int * gx, int * gy, int nt, float **  vx, float ** vy,
                     float ** sxx, float ** syy, float ** sxy,  float  **rip, float **rjp,
-                    float *hc, float * K_x, float * a_x, float * b_x, float * K_x_half, float * a_x_half,
+                    float * K_x, float * a_x, float * b_x, float * K_x_half, float * a_x_half,
                     float * b_x_half, float * K_y, float * a_y, float * b_y, float * K_y_half, float * a_y_half, float * b_y_half,
                     float ** psi_sxx_x, float ** psi_syy_y, float ** psi_sxy_y, float ** psi_sxy_x, GlobVar *gv )
 {
-
-	int i, j, h1,fdoh;
-	float sxx_x, syy_y, sxy_y, sxy_x;
-	double time1=0.0, time2=0.0;
+  int i, j, h1;
+  float sxx_x, syy_y, sxy_y, sxy_x;
+  double time1=0.0, time2=0.0;
  
-	fdoh=gv->FDORDER/2;
+  if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+    time1=MPI_Wtime();
+    log_debug("Updating particle velocities...\n");
+  }
 
-	/*Pointer array to the locations of the fd-operator functions*/
-	void ( *FD_op_v[7] ) ();
-	FD_op_v[1] = &operator_v_fd2;
-	FD_op_v[2] = &operator_v_fd4;
-	FD_op_v[3] = &operator_v_fd6;
-	FD_op_v[4] = &operator_v_fd8;
-	FD_op_v[5] = &operator_v_fd10;
-	FD_op_v[6] = &operator_v_fd12;
-
-	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
-		time1=MPI_Wtime();
-		log_debug("Updating particle velocities...\n");
-	}
-
-	/* ------------------------------------------------------------
-	 * Important!
-	 * rip and rjp are reciprocal values of averaged densities
-	 * ------------------------------------------------------------ */
-
-	/*-------------------------update-CPML-Boundarys------------------------------------*/
+  /* ------------------------------------------------------------
+   * Important!
+   * rip and rjp are reciprocal values of averaged densities
+   * ------------------------------------------------------------ */
+  
+  /*-------------------------update-CPML-Boundarys------------------------------------*/
 	
-	/* interior */
-	/*for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-			FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
-			wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp );
-
-		}
-	}*/
-
-	/* left boundary */
-
-	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-
-			FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
-
-			cpml_update_v_x ( i,j,&sxx_x, &sxy_x,K_x,a_x, b_x,K_x_half,
-			                  a_x_half,b_x_half ,psi_sxx_x,psi_sxy_x );
-
-			wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
-
-		}
-	}
-
-	/* right boundary */
-
-
-	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-
-
-			FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
-
-			h1 = ( i-nx2+2*gv->FW );
-			cpml_update_v_x ( h1,j,&sxx_x, &sxy_x,K_x,a_x, b_x,K_x_half,
-			                  a_x_half,b_x_half ,psi_sxx_x,psi_sxy_x );
-			
-			wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
-
-		}
-	}
-
-
-
-	/* top boundary */
-
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-
-			FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
-			
-			cpml_update_v_y (i,j,&sxy_y,&syy_y,K_y,a_y,b_y,K_y_half,a_y_half,b_y_half ,
-					 psi_syy_y,psi_sxy_y);
-
-			wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
-		
-
-		}
-	}
-
-
-
-	/* bottom boundary */
-
-
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-
-			FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
-
-			h1 = ( j-ny2+2*gv->FW );
-
-			cpml_update_v_y (i,h1,&sxy_y,&syy_y,K_y,a_y,b_y,K_y_half,a_y_half,b_y_half ,
-					 psi_syy_y,psi_sxy_y);
-
-			wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
-		}
-	}
-
-	/* corners */
-
-	/*left-top*/
-
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-
-			FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
-
-			cpml_update_v_x ( i,j,&sxx_x, &sxy_x,K_x,a_x, b_x,K_x_half,
-			                  a_x_half,b_x_half ,psi_sxx_x,psi_sxy_x );
-			
-			cpml_update_v_y (i,j,&sxy_y,&syy_y,K_y,a_y,b_y,K_y_half,a_y_half,b_y_half ,
-					 psi_syy_y,psi_sxy_y);
-
-			wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
-
-		}
-	}
-
-
-	/*left-bottom*/
-
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-
-			FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
-
-			cpml_update_v_x ( i,j,&sxx_x, &sxy_x,K_x,a_x, b_x,K_x_half,
-			                  a_x_half,b_x_half ,psi_sxx_x,psi_sxy_x );
-			
-			h1 = ( j-ny2+2*gv->FW );
-
-			cpml_update_v_y (i,h1,&sxy_y,&syy_y,K_y,a_y,b_y,K_y_half,a_y_half,b_y_half ,
-					 psi_syy_y,psi_sxy_y);
-
-			wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
-
-		}
-	}
-
-
-
-	/* right-top */
-
-
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-
-
-			FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
-
-			h1 = ( i-nx2+2*gv->FW );
-
-			cpml_update_v_x ( h1,j,&sxx_x, &sxy_x,K_x,a_x, b_x,K_x_half,
-			                  a_x_half,b_x_half ,psi_sxx_x,psi_sxy_x );
-			
-			cpml_update_v_y (i,j,&sxy_y,&syy_y,K_y,a_y,b_y,K_y_half,a_y_half,b_y_half ,
-					 psi_syy_y,psi_sxy_y);
-
-			wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
-
-		}
-	}
-
-
-	/* right-bottom */
-
-
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-
-
-			FD_op_v[fdoh] ( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy,hc );
-
-			h1 = ( i-nx2+2*gv->FW );
-
-			cpml_update_v_x ( h1,j,&sxx_x, &sxy_x,K_x,a_x, b_x,K_x_half,
-			                  a_x_half,b_x_half ,psi_sxx_x,psi_sxy_x );
-
-			h1 = ( j-ny2+2*gv->FW );
-
-			cpml_update_v_y (i,h1,&sxy_y,&syy_y,K_y,a_y,b_y,K_y_half,a_y_half,b_y_half ,
-					 psi_syy_y,psi_sxy_y);
-
-			wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
-
-		}
-	}
-
-	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
-		time2=MPI_Wtime();
-		log_debug("Finished updating particle velocities (real time: %4.3fs).\n",time2-time1);
-	}
+  /* left boundary */
+  for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      gv->FDOP_V( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy );
+      cpml_update_v_x ( i,j,&sxx_x, &sxy_x,K_x,a_x, b_x,K_x_half, a_x_half,b_x_half ,psi_sxx_x,psi_sxy_x );
+      wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
+    }
+  }
+
+  /* right boundary */
+  for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      gv->FDOP_V( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy );
+      h1 = ( i-nx2+2*gv->FW );
+      cpml_update_v_x ( h1,j,&sxx_x, &sxy_x,K_x,a_x, b_x,K_x_half, a_x_half,b_x_half ,psi_sxx_x,psi_sxy_x );
+      wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
+    }
+  }
+
+  /* top boundary */
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+      gv->FDOP_V( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy );
+      cpml_update_v_y (i,j,&sxy_y,&syy_y,K_y,a_y,b_y,K_y_half,a_y_half,b_y_half,psi_syy_y,psi_sxy_y);
+      wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
+    }
+  }
+  
+  /* bottom boundary */
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+      gv->FDOP_V( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy );
+      h1 = ( j-ny2+2*gv->FW );
+      cpml_update_v_y (i,h1,&sxy_y,&syy_y,K_y,a_y,b_y,K_y_half,a_y_half,b_y_half,psi_syy_y,psi_sxy_y);
+      wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
+    }
+  }
+
+  /* corners */
+
+  /*left-top*/
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      gv->FDOP_V( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy );
+      cpml_update_v_x ( i,j,&sxx_x, &sxy_x,K_x,a_x, b_x,K_x_half,a_x_half,b_x_half,psi_sxx_x,psi_sxy_x );
+      cpml_update_v_y (i,j,&sxy_y,&syy_y,K_y,a_y,b_y,K_y_half,a_y_half,b_y_half,psi_syy_y,psi_sxy_y);
+      wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
+    }
+  }
+
+  /*left-bottom*/
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      gv->FDOP_V( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy );
+      cpml_update_v_x ( i,j,&sxx_x, &sxy_x,K_x,a_x, b_x,K_x_half,a_x_half,b_x_half ,psi_sxx_x,psi_sxy_x );
+      h1 = ( j-ny2+2*gv->FW );
+      cpml_update_v_y (i,h1,&sxy_y,&syy_y,K_y,a_y,b_y,K_y_half,a_y_half,b_y_half,psi_syy_y,psi_sxy_y);
+      wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
+    }
+  }
+
+  /* right-top */
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      gv->FDOP_V( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy );
+      h1 = ( i-nx2+2*gv->FW );
+      cpml_update_v_x ( h1,j,&sxx_x, &sxy_x,K_x,a_x, b_x,K_x_half,a_x_half,b_x_half ,psi_sxx_x,psi_sxy_x );
+      cpml_update_v_y (i,j,&sxy_y,&syy_y,K_y,a_y,b_y,K_y_half,a_y_half,b_y_half,psi_syy_y,psi_sxy_y);
+      wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
+    }
+  }
+  
+  /* right-bottom */
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      gv->FDOP_V( i,j,&sxx_x, &sxy_x, &sxy_y,&syy_y, sxx,syy,sxy );
+      h1 = ( i-nx2+2*gv->FW );
+      cpml_update_v_x ( h1,j,&sxx_x, &sxy_x,K_x,a_x, b_x,K_x_half,a_x_half,b_x_half ,psi_sxx_x,psi_sxy_x );
+      h1 = ( j-ny2+2*gv->FW );
+      cpml_update_v_y (i,h1,&sxy_y,&syy_y,K_y,a_y,b_y,K_y_half,a_y_half,b_y_half,psi_syy_y,psi_sxy_y);
+      wavefield_update_v ( i,j,sxx_x,sxy_x,sxy_y,syy_y,vx,vy, rip, rjp, gv );
+    }
+  }
+
+  if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+    time2=MPI_Wtime();
+    log_debug("Finished updating particle velocities (real time: %4.3fs).\n",time2-time1);
+  }
 }

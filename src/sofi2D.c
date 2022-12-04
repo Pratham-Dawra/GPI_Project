@@ -592,8 +592,12 @@ int main ( int argc, char **argv )
     
     log_debug("Memory allocation for PE %d was successful.\n", gv.MPID);
     
+    /* initialize FD operators */
+    initfd(&gv);
+
     /* Holberg coefficients for FD operators*/
     hc = holbergcoeff(&gv);
+
     /* Reading source positions from SOURCE_FILE */
     srcpos = sources(&nsrc, &gv);
 
@@ -980,13 +984,13 @@ int main ( int argc, char **argv )
                 
                 if ( gv.FW ) {
                     if ( gv.ABS_TYPE==1 ) {
-                        update_v_PML ( gv.NX, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, prip, prjp, hc,
+                        update_v_PML ( gv.NX, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, prip, prjp,
                                       K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half,
                                       a_y_half, b_y_half, psi_sxx_x, psi_syy_y, psi_sxy_y, psi_sxy_x, &gv );
                     }
 
                     if ( gv.ABS_TYPE == 2 ) {
-                        update_v_abs ( gx, gy, pvx, pvy, psxx, psyy, psxy, prip, prjp, absorb_coeff, hc, &gv );
+                        update_v_abs ( gx, gy, pvx, pvy, psxx, psyy, psxy, prip, prjp, absorb_coeff, &gv );
                     }
 #ifdef EBUG
 		    debug_check_matrix(pvx, nt, gv.NX, gv.NY, 122, 0, "pvx");
@@ -1000,13 +1004,13 @@ int main ( int argc, char **argv )
 				      srcpos_loc, signals, nsrc_loc, hc,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4, &gv );
                 if ( gv.FW ) {
                     if ( gv.ABS_TYPE==1 ) {
-                        update_v_PML_4 ( gv.NX, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, prip, prjp, hc,
+                        update_v_PML_4 ( gv.NX, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, prip, prjp,
                                            K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half,
                                            a_y_half, b_y_half, psi_sxx_x, psi_syy_y, psi_sxy_y, psi_sxy_x,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4, &gv );
                     }
 
                     if ( gv.ABS_TYPE == 2 ) {
-                        update_v_abs_4 ( gx, gy, nt, pvx, pvy, psxx, psyy, psxy, prip, prjp, absorb_coeff, hc,svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4, &gv );
+                        update_v_abs_4 ( gx, gy, nt, pvx, pvy, psxx, psyy, psxy, prip, prjp, absorb_coeff, svx_1,svx_2,svx_3,svx_4,svy_1,svy_2,svy_3,svy_4, &gv );
                     }
                 }
                 
@@ -1029,7 +1033,7 @@ int main ( int argc, char **argv )
             exchange_v ( nd, pvx, pvy, bufferlef_to_rig, bufferrig_to_lef, buffertop_to_bot, bufferbot_to_top, &gv );
             
             if ((gv.WEQ==7) || (gv.WEQ==8)) { /* TTI */
-                v_derivatives(pvx, pvy, pvxx, pvyy, pvyx, pvxy,hc, &gv);
+                v_derivatives(pvx, pvy, pvxx, pvyy, pvyx, pvxy, &gv);
                 exchange_v ( nd, pvxx, pvyy, bufferlef_to_rig, bufferrig_to_lef, buffertop_to_bot, bufferbot_to_top, &gv );
                 exchange_v ( nd, pvyx, pvxy, bufferlef_to_rig, bufferrig_to_lef, buffertop_to_bot, bufferbot_to_top, &gv );
             }
@@ -1051,39 +1055,40 @@ int main ( int argc, char **argv )
                     
                     if ( gv.FW ) {
                         if ( gv.ABS_TYPE ==1 )
-                            update_s_elastic_PML ( gv.NX, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, ppi, pu, puipjp, hc,
+                            update_s_elastic_PML ( gv.NX, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, ppi, pu, puipjp,
                                                   K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx, &gv );
                         if ( gv.ABS_TYPE ==2 )
                             update_s_elastic_abs ( gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
-                                                  ppi, pu, puipjp, absorb_coeff, hc, &gv );
+                                                  ppi, pu, puipjp, absorb_coeff, &gv );
                     }
                     break;
 
                 case 4:  /* viscoelastic */
                     update_s_visc_interior ( gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq, fipjp,
-                                            f, g, bip, bjm, cip, cjm, d, e, dip, hc, &gv );
+                                            f, g, bip, bjm, cip, cjm, d, e, dip, &gv );
                     if ( gv.FW ) {
                         if ( gv.ABS_TYPE ==1 )
-                            update_s_visc_PML ( gv.NX, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, hc, pr, pp, pq, fipjp,
+                            update_s_visc_PML ( gv.NX, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq, fipjp,
                                                f, g, bip, bjm, cip, cjm, d, e, dip,K_x, a_x, b_x, K_x_half, a_x_half, b_x_half,
                                                K_y, a_y, b_y, K_y_half, a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx, &gv );
                         if ( gv.ABS_TYPE ==2 )
                             update_s_visc_abs ( gx,gy, pvx, pvy, psxx, psyy, psxy, pr,
                                                pp, pq, fipjp, f, g, bip, bjm, cip, cjm, d, e, dip,
-                                               absorb_coeff,hc, &gv );
+                                               absorb_coeff, &gv );
                     }
                     break;
                    case 5: /* elastic VTI */
                         update_s_elastic_VTI_interior ( gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
-                                                       pc11, pc55ipjp, pc13, pc33, hc, &gv );
+                                                       pc11, pc55ipjp, pc13, pc33, &gv );
                     
                     if ( gv.FW ) {
                         if ( gv.ABS_TYPE ==1 )
-                            update_s_elastic_VTI_PML ( gv.NX, gv.NY, gx, gy, pvx, pvy, psxx, psyy, psxy, pc11, pc13, pc33, pc55ipjp, hc,
-                                                  K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx, &gv );
+                            update_s_elastic_VTI_PML ( gv.NX, gv.NY, gx, gy, pvx, pvy, psxx, psyy, psxy, pc11, pc13, pc33, pc55ipjp,
+						       K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half, b_y_half, 
+						       psi_vxx, psi_vyy, psi_vxy, psi_vyx, &gv );
                         if ( gv.ABS_TYPE ==2 )
                             update_s_elastic_vti_abs ( gx, gy, pvx, pvy, psxx, psyy, psxy,
-                                                  pc11, pc55ipjp, pc13, pc33, absorb_coeff, hc, &gv );
+						       pc11, pc55ipjp, pc13, pc33, absorb_coeff, &gv );
                     }
 #ifdef EBUG
 		    debug_check_matrix(psxx, nt, gv.NX, gv.NY, 555, 0, "psxx");
@@ -1095,18 +1100,18 @@ int main ( int argc, char **argv )
                     case 6: /* viscoelastic VTI */
                         update_s_visc_VTI_interior ( gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq,
 						     pc55ipjpu, pc13u, pc11u,  pc33u, pc55ipjpd,  pc13d, pc11d,  pc33d,
-						     bip,  cip, hc, &gv);
+						     bip,  cip, &gv);
                     if ( gv.FW ) {
                         if ( gv.ABS_TYPE ==1 )
                             update_s_visc_VTI_PML ( gv.NX, gv.NY, gx, gy, pvx, pvy, psxx, psyy, psxy, pr, pp, pq,
 						    pc55ipjpu, pc13u, pc11u,  pc33u, pc55ipjpd,  pc13d, pc11d,  pc33d,
-						    bip,  cip, hc, 
+						    bip,  cip,
 						    K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half, 
 						    b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx, &gv );
                         if ( gv.ABS_TYPE ==2 )
                             update_s_visc_vti_abs ( gx, gy, pvx, pvy, psxx, psyy, psxy, pr, pp, pq,
 						    pc55ipjpu, pc13u, pc11u,  pc33u, pc55ipjpd,  pc13d, pc11d,  pc33d,
-						    bip,  cip, absorb_coeff, hc, &gv );
+						    bip,  cip, absorb_coeff, &gv );
                     }
 #ifdef EBUG
 		    debug_check_matrix(psxx, nt, gv.NX, gv.NY, 666, 0, "psxx");
@@ -1174,14 +1179,14 @@ int main ( int argc, char **argv )
                     update_s_visc_interior_4 ( gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq, fipjp,f, g, bip, bjm, cip, cjm, d, e, dip, hc ,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4, &gv);
                     if ( gv.FW ) {
                         if ( gv.ABS_TYPE ==1 ) {
-                            update_s_visc_PML_4 ( gv.NX, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, hc, pr, pp, pq, fipjp,
+                            update_s_visc_PML_4 ( gv.NX, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq, fipjp,
                                                  f, g, bip, bjm, cip, cjm, d, e, dip,K_x, a_x, b_x, K_x_half, a_x_half, b_x_half,
                                                  K_y, a_y, b_y, K_y_half, a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx ,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4, &gv);
                         }
                         if ( gv.ABS_TYPE !=1 ) {
                             update_s_visc_abs_4 ( gx,gy, nt, pvx, pvy, psxx, psyy, psxy, pr,
                                                  pp, pq, fipjp, f, g, bip, bjm, cip, cjm, d, e, dip,
-                                                 absorb_coeff,hc ,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4, &gv);
+                                                 absorb_coeff,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4,pr_2,pr_3,pr_4,pp_2,pp_3,pp_4,pq_2,pq_3,pq_4, &gv);
                         }
                     }
                     /* Shift memory variables one time step back */
@@ -1193,11 +1198,14 @@ int main ( int argc, char **argv )
                     
                     if ( gv.FW ) {
                         if ( gv.ABS_TYPE ==1 )
-                            update_s_elastic_PML_4 ( gv.NX, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, ppi, pu, puipjp, hc,
-                                                  K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4, &gv);
+                            update_s_elastic_PML_4 ( gv.NX, gv.NY, gx, gy, nt, pvx, pvy, psxx, psyy, psxy, ppi, pu, puipjp,
+						     K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y, K_y_half, 
+						     a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx,vxx_1,vxx_2,vxx_3,vxx_4,
+						     vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4, &gv);
                         if ( gv.ABS_TYPE !=1 )
                             update_s_elastic_abs_4 ( gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
-                                                  ppi, pu, puipjp, absorb_coeff, hc,vxx_1,vxx_2,vxx_3,vxx_4,vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4, &gv);
+						     ppi, pu, puipjp, absorb_coeff, vxx_1,vxx_2,vxx_3,vxx_4,
+						     vyy_1,vyy_2,vyy_3,vyy_4,vxy_1,vxy_2,vxy_3,vxy_4,vyx_1,vyx_2,vyx_3,vyx_4, &gv);
                     }
                 }
                 /* Shift spartial derivations from the velocity one time step back */

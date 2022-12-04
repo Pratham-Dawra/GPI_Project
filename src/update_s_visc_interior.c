@@ -34,44 +34,27 @@ void update_s_visc_interior ( int *gx, int *gy, int nt,
                               float **vx, float **vy, float **sxx, float **syy,
                               float **sxy, float ***r, float *** p, float ***q,
                               float ** fipjp, float **f, float **g, float *bip, float *bjm, float *cip,
-                              float *cjm, float ***d, float ***e, float ***dip,
-                              float *hc, GlobVar *gv ) {
+                              float *cjm, float ***d, float ***e, float ***dip, GlobVar *gv ) 
+{
+  int i,j;
+  float  vxx, vyy, vxy, vyx;
+  double time1=0.0, time2=0.0;
 
-	int i,j,fdoh;
-	float  vxx, vyy, vxy, vyx;
-	double time1=0.0, time2=0.0;
-
-    fdoh = gv->FDORDER/2;
-    
-    /*Pointer array to the locations of the fd-operator functions*/
-    void ( *FD_op_s[7] ) ();
-    FD_op_s[1] = &operator_s_fd2;
-    FD_op_s[2] = &operator_s_fd4;
-    FD_op_s[3] = &operator_s_fd6;
-    FD_op_s[4] = &operator_s_fd8;
-    FD_op_s[5] = &operator_s_fd10;
-    FD_op_s[6] = &operator_s_fd12;
-    
-
-	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
-		time1=MPI_Wtime();
-		log_debug("Updating stress components...\n");
-	}
-
-
-		for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-			for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-				
-                FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-                
-                wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-                                              fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
-				
-			}
-		}
+  if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+    time1=MPI_Wtime();
+    log_debug("Updating stress components...\n");
+  }
+  
+  for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+    for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
+				fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
+    }
+  }
 		
-	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
-		time2=MPI_Wtime();
-		log_debug("Finished updating stess components (real time: %4.3fs).\n",time2-time1 );
-	}
+  if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+    time2=MPI_Wtime();
+    log_debug("Finished updating stess components (real time: %4.3fs).\n",time2-time1 );
+  }
 }

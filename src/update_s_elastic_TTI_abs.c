@@ -33,93 +33,81 @@ void update_s_elastic_tti_abs ( int * gx, int * gy,
                                float **   sxx, float **   syy,
                             float **   sxy, float ** pc11, float ** pc55ipjp, float ** pc13, float ** pc33,
                                            float ** pc15, float ** pc35, float ** pc15ipjp, float ** pc35ipjp,
-                               float ** absorb_coeff) {
+                               float ** absorb_coeff) 
+{
+  int i,j;
+  
+  /* left boundary */
+  for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
+				 pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
+      abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
+    }
+  }
 
-	int i,j;
+  /* right boundary */
+  for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
+				 pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
+      abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
+    }
+  }
 
+  /* top boundary */
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+      wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
+				 pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
+      abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
+    }
+  }
 
-	/* left boundary */
-	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
+  /* bottom boundary */
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+      wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
+				 pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
+      abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
+    }
+  }
 
-            wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
-                                       pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
-            
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
+  /* corners */
+  
+  /*left-top*/
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
+				 pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
+      abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
+    }
+  }
 
-	/* right boundary */
-	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+  /*left-bottom*/
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
+				 pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
+      abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
+    }
+  }
+  
+  /* right-top */
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
+				 pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
+      abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
+    }
+  }
 
-            wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
-                                       pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-
-		}
-	}
-
-	/* top boundary */
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-
-            wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
-                                       pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
-
-	/* bottom boundary */
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-
-            wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
-                                       pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
-
-	/* corners */
-
-	/*left-top*/
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-
-            wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
-                                       pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-
-		}
-	}
-
-	/*left-bottom*/
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-
-            wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
-                                       pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
-
-	/* right-top */
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-
-            wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
-                                       pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
-
-	/* right-bottom */
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-
-            wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
-                                       pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
+  /* right-bottom */
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      wavefield_update_s_el_tti (i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,
+				 pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
+      abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
+    }
+  }
 }

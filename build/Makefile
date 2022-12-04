@@ -138,7 +138,7 @@ FDMOD_FILES := sofi2D.c \
                checkfd.c \
                cpml_update.c \
                debug_buffers.c \
-	       exchange_par.c \
+               exchange_par.c \
                exchange_s.c \
                exchange_v.c \
                hh_elastic.c \
@@ -148,6 +148,7 @@ FDMOD_FILES := sofi2D.c \
                hh_visco_TTI.c \
                hh_visco_VTI.c \
                holbergcoeff.c \
+               initfd.c \
                initproc.c \
                json_parser.c \
                logging.c \
@@ -155,8 +156,6 @@ FDMOD_FILES := sofi2D.c \
                matcopy_elastic.c \
                mergemod.c \
                outseis_glob.c \
-               operators_s.c \
-               operators_v.c \
                PML_pro.c \
                prepare_update_s.c \
                prepare_update_s_vti.c \

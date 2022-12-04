@@ -32,178 +32,109 @@
 
 void update_s_visc_PML ( int nx2, int ny2, int *gx, int *gy, int nt,
                          float **  vx, float **   vy,float **   sxx, float **   syy,
-                         float **   sxy, float *hc, float ***r, float ***p, float ***q,
+                         float **   sxy, float ***r, float ***p, float ***q,
                          float **fipjp, float **f, float **g, float *bip, float *bjm,
                          float *cip, float *cjm, float ***d, float ***e, float ***dip,
                          float * K_x, float * a_x, float * b_x, float * K_x_half, float * a_x_half, float * b_x_half,
                          float * K_y, float * a_y, float * b_y, float * K_y_half, float * a_y_half, float * b_y_half,
-                         float ** psi_vxx, float ** psi_vyy, float ** psi_vxy, float ** psi_vyx, GlobVar *gv ) {
+                         float ** psi_vxx, float ** psi_vyy, float ** psi_vxy, float ** psi_vyx, GlobVar *gv ) 
+{
+  int i,j, h1;
+  float  vxx, vyy, vxy, vyx;
+  double time1=0.0, time2=0.0;
+  
+  if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+    time1=MPI_Wtime();
+    log_debug("Updating stress components...\n");
+  }
+  
+  /* left boundary */
+  for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      cpml_update_s_x ( i,j,&vxx,&vyx,K_x,a_x,b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
+      wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
+    }
+  }
 
-	int i,j, h1, fdoh;
-	float  vxx, vyy, vxy, vyx;
-	double time1=0.0, time2=0.0;
-    
-   	/*Pointer array to the locations of the fd-operator functions*/
-	fdoh=gv->FDORDER/2;
-	void ( *FD_op_s[7] ) ();
-	FD_op_s[1] = &operator_s_fd2;
-	FD_op_s[2] = &operator_s_fd4;
-	FD_op_s[3] = &operator_s_fd6;
-	FD_op_s[4] = &operator_s_fd8;
-	FD_op_s[5] = &operator_s_fd10;
-	FD_op_s[6] = &operator_s_fd12;
+  /* right boundary */
+  for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      h1 = ( i-nx2+2*gv->FW );
+      cpml_update_s_x ( h1,j,&vxx,&vyx,K_x,a_x,b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
+      wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
+    }
+  }
+  
+  /* top boundary */
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      cpml_update_s_y ( i,j,&vxy,&vyy,K_y,a_y,b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
+      wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
+    }
+  }
 
+  /* bottom boundary */
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      h1 = ( j-ny2+2*gv->FW );
+      cpml_update_s_y ( i,h1,&vxy,&vyy,K_y,a_y,b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
+      wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
+    }
+  }
 
+  /* corners */
 
-	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
-		time1=MPI_Wtime();
-		log_debug("Updating stress components...\n");
-	}
+  /*left-top*/
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      cpml_update_s_x ( i,j,&vxx,&vyx,K_x,a_x,b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
+      cpml_update_s_y ( i,j,&vxy,&vyy,K_y,a_y,b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
+      wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
+    }
+  }
 
+  /*left-bottom*/
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[1]; i<=gx[2]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      cpml_update_s_x ( i,j,&vxx,&vyx,K_x,a_x,b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
+      h1 = ( j-ny2+2*gv->FW );
+      cpml_update_s_y ( i,h1,&vxy,&vyy,K_y,a_y,b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
+      wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
+    }
+  }
 
+  /* right-top */
+  for ( j=gy[1]; j<=gy[2]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      h1 = ( i-nx2+2*gv->FW );
+      cpml_update_s_x ( h1,j,&vxx,&vyx,K_x,a_x,b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
+      cpml_update_s_y ( i,j,&vxy,&vyy,K_y,a_y,b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
+      wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
+    }
+  }
 
-		/* interior */
-		/*for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-			for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-				FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-				wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
-			}
-		}*/
-		
-		/* left boundary */
-	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-			cpml_update_s_x ( i,j,&vxx,&vyx,K_x,a_x,
-			               b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
-
-			wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
-		}
-	}
-
-	/* right boundary */
-	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-			h1 = ( i-nx2+2*gv->FW );
-
-			cpml_update_s_x ( h1,j,&vxx,&vyx,K_x,a_x,
-			               b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
-
-			wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
-
-		}
-	}
-
-	/* top boundary */
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-			cpml_update_s_y ( i,j,&vxy,&vyy,K_y,a_y,
-			               b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
-
-			wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
-		}
-	}
-
-	/* bottom boundary */
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-			h1 = ( j-ny2+2*gv->FW );
-			cpml_update_s_y ( i,h1,&vxy,&vyy,K_y,a_y,
-			               b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
-
-			wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
-		}
-	}
-
-	/* corners */
-
-	/*left-top*/
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-			cpml_update_s_x ( i,j,&vxx,&vyx,K_x,a_x,
-			               b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
-
-			cpml_update_s_y ( i,j,&vxy,&vyy,K_y,a_y,
-			               b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
-
-			wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
-
-		}
-	}
-
-	/*left-bottom*/
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-			cpml_update_s_x ( i,j,&vxx,&vyx,K_x,a_x,
-			               b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
-
-			h1 = ( j-ny2+2*gv->FW );
-
-			cpml_update_s_y ( i,h1,&vxy,&vyy,K_y,a_y,
-			               b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
-
-			wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
-		}
-	}
-
-	/* right-top */
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-			h1 = ( i-nx2+2*gv->FW );
-			cpml_update_s_x ( h1,j,&vxx,&vyx,K_x,a_x,
-			               b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
-
-			cpml_update_s_y ( i,j,&vxy,&vyy,K_y,a_y,
-			               b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
-
-			wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
-		}
-	}
-
-	/* right-bottom */
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-			FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc, gv );
-
-			h1 = ( i-nx2+2*gv->FW );
-			cpml_update_s_x ( h1,j,&vxx,&vyx,K_x,a_x,
-			               b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
-
-			h1 = ( j-ny2+2*gv->FW );
-			cpml_update_s_y ( i,h1,&vxy,&vyy,K_y,a_y,
-			               b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
-
-			wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,
-				                          fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
-		}
-	}
-
-
-
-	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
-		time2=MPI_Wtime();
-		log_debug("Finished updating stress components (real time: %4.3fs).\n",time2-time1);
-	}
+  /* right-bottom */
+  for ( j=gy[3]+1; j<=gy[4]; j++ ) {
+    for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      h1 = ( i-nx2+2*gv->FW );
+      cpml_update_s_x ( h1,j,&vxx,&vyx,K_x,a_x,b_x, K_x_half, a_x_half, b_x_half ,psi_vxx,psi_vyx );
+      h1 = ( j-ny2+2*gv->FW );
+      cpml_update_s_y ( i,h1,&vxy,&vyy,K_y,a_y,b_y, K_y_half, a_y_half, b_y_half ,psi_vyy,psi_vxy );
+      wavefield_update_s_visc ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,r,p,q,fipjp,f,g,bip,bjm,cip,cjm,d,e,dip, gv );
+    }
+  }
+  
+  if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+    time2=MPI_Wtime();
+    log_debug("Finished updating stress components (real time: %4.3fs).\n",time2-time1);
+  }
 }
 

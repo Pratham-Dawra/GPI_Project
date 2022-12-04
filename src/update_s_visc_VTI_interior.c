@@ -35,47 +35,27 @@ void update_s_visc_VTI_interior (int *gx, int *gy, int nt,
                               float ***pr, float ***pp, float ***pq,
                              float ** pc55ipjpu, float ** pc13u, float **pc11u, float **pc33u,
                              float *** pc55ipjpd, float *** pc13d, float ***pc11d, float ***pc33d,
-                             float *bip, float *cip, float *hc, GlobVar *gv)
+                             float *bip, float *cip, GlobVar *gv)
 {
+  int i,j;
+  float  vxx, vyy, vxy, vyx;
+  double time1=0.0, time2=0.0;
 
-
-	int i,j,fdoh;
-	float  vxx, vyy, vxy, vyx;
-	double time1=0.0, time2=0.0;
-
-    fdoh = gv->FDORDER/2;
-    
-    /*Pointer array to the locations of the fd-operator functions*/
-    void ( *FD_op_s[7] ) ();
-    FD_op_s[1] = &operator_s_fd2;
-    FD_op_s[2] = &operator_s_fd4;
-    FD_op_s[3] = &operator_s_fd6;
-    FD_op_s[4] = &operator_s_fd8;
-    FD_op_s[5] = &operator_s_fd10;
-    FD_op_s[6] = &operator_s_fd12;
-    
-
-	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
-		time1=MPI_Wtime();
-		log_debug("Updating stress components...\n");
-	}
-
-
-		for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-			for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-				
-                FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc,gv );
-                
-                  wavefield_update_s_visc_VTI ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pr, pp, pq,
-                    pc55ipjpu, pc13u, pc11u,  pc33u, pc55ipjpd,  pc13d, pc11d,  pc33d,
-                                       bip,  cip, gv);
-                  
-				
-			}
-		}
+  if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+    time1=MPI_Wtime();
+    log_debug("Updating stress components...\n");
+  }
+  
+  for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+    for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+      gv->FDOP_S( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy );
+      wavefield_update_s_visc_VTI ( i,j,vxx,vyx,vxy,vyy,sxy,sxx,syy,pr, pp, pq,
+				    pc55ipjpu, pc13u, pc11u,  pc33u, pc55ipjpd,  pc13d, pc11d,  pc33d, bip,  cip, gv);
+    }
+  }
 		
-	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
-		time2=MPI_Wtime();
-		log_debug("Finished updating stress components (real time: %4.3fs).\n",time2-time1);
-	}
+  if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+    time2=MPI_Wtime();
+    log_debug("Finished updating stress components (real time: %4.3fs).\n",time2-time1);
+  }
 }

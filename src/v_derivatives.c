@@ -22,30 +22,17 @@
 
 #include "fd.h"
 
-void v_derivatives(float **  vx, float **   vy, float **  pvxx, float **   pvyy, float **  pvyx, float **   pvxy, float *hc, GlobVar *gv ){
-
-	int i, j, fdoh;
-    float  vxx, vyy, vxy, vyx;
-
-    
-    
-    fdoh=gv->FDORDER/2;
-    /*Pointer array to the locations of the fd-operator functions*/
-    void ( *FD_op_s[7] ) ();
-    FD_op_s[1] = &operator_s_fd2;
-    FD_op_s[2] = &operator_s_fd4;
-    FD_op_s[3] = &operator_s_fd6;
-    FD_op_s[4] = &operator_s_fd8;
-    FD_op_s[5] = &operator_s_fd10;
-    FD_op_s[6] = &operator_s_fd12;
-    
-    for (j=1;j<=gv->NY;j++){
-		for (i=1;i<=gv->NX;i++){
-            FD_op_s[fdoh] ( i,j,&vxx,&vyx,&vxy,&vyy,vx,vy,hc,gv );
-            pvxx[j][i]=vxx;
-            pvyy[j][i]=vyy;
-            pvyx[j][i]=vyx;
-            pvxy[j][i]=vxy;
-		}
-	}
+void v_derivatives(float **vx, float **vy, float **pvxx, float **pvyy, float **pvyx, float **pvxy, GlobVar *gv)
+{
+  float vxx, vyy, vxy, vyx;
+  
+  for (int j=1; j<=gv->NY; j++){
+    for (int i=1; i<=gv->NX; i++){
+      gv->FDOP_S(i,j,&vxx,&vyx,&vxy,&vyy,vx,vy);
+      pvxx[j][i] = vxx;
+      pvyy[j][i] = vyy;
+      pvyx[j][i] = vyx;
+      pvxy[j][i] = vxy;
+    }
+  }
 }

@@ -35,255 +35,230 @@ void update_s_elastic_interior ( int * gx, int * gy, int nt,
                         float **  vx, float **   vy, float **   sxx, float **   syy,
                         float **   sxy, float ** pi, float ** u, float ** uipjp, float *hc, GlobVar *gv )
 {
-	int i,j;
-	float fipjp, f, g;
-	float  vxx, vyy, vxy, vyx;
-	float  dhi;
-	double time1=0.0, time2=0.0;
-
-	dhi = 1.0/gv->DH;
-
-	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
-		time1=MPI_Wtime();
-		log_debug("Updating stress components...\n");
-	}
-
+  int i,j;
+  float fipjp, f, g;
+  float  vxx, vyy, vxy, vyx;
+  float  dhi;
+  double time1=0.0, time2=0.0;
+  
+  dhi = 1.0/gv->DH;
+  
+  if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+    time1=MPI_Wtime();
+    log_debug("Updating stress components...\n");
+  }
+  	
+  switch ( gv->FDORDER ) {
+  case 2:
+    for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+      for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+	/* spatial derivatives of the components of the velocities */
+	/* using Holberg coefficients */
+	vxx = hc[1]* ( vx[j][i]  -vx[j][i-1] ) *dhi;
+	vyy = hc[1]* ( vy[j][i]  -vy[j-1][i] ) *dhi;
+	vyx = hc[1]* ( vy[j][i+1]-vy[j][i] ) *dhi;
+	vxy = hc[1]* ( vx[j+1][i]-vx[j][i] ) *dhi;
 	
+	/* updating components of the stress tensor, partially */
+	fipjp=uipjp[j][i]*gv->DT;
+	f=u[j][i]*gv->DT;
+	g=pi[j][i]*gv->DT;
 	
-	switch ( gv->FDORDER ) {
-
-	case 2:
-		for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-
-
-				/* spatial derivatives of the components of the velocities */
-				/* using Holberg coefficients */
-				vxx = hc[1]* ( vx[j][i]  -vx[j][i-1] ) *dhi;
-				vyy = hc[1]* ( vy[j][i]  -vy[j-1][i] ) *dhi;
-				vyx = hc[1]* ( vy[j][i+1]-vy[j][i] ) *dhi;
-				vxy = hc[1]* ( vx[j+1][i]-vx[j][i] ) *dhi;
-
-				/* updating components of the stress tensor, partially */
-				fipjp=uipjp[j][i]*gv->DT;
-				f=u[j][i]*gv->DT;
-				g=pi[j][i]*gv->DT;
-
-				sxy[j][i]+= ( fipjp* ( vxy+vyx ) );
-				sxx[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vyy );
-				syy[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vxx );
-			}
-		}
-		break;
-
-	case 4:
-		for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-				vxx = ( hc[1]* ( vx[j][i]  -vx[j][i-1] )
-				        + hc[2]* ( vx[j][i+1]-vx[j][i-2] )
-				      ) *dhi;
-				vyy = ( hc[1]* ( vy[j][i]  -vy[j-1][i] )
-				        + hc[2]* ( vy[j+1][i]-vy[j-2][i] )
-				      ) *dhi;
-				vyx = ( hc[1]* ( vy[j][i+1]-vy[j][i] )
-				        + hc[2]* ( vy[j][i+2]-vy[j][i-1] )
-				      ) *dhi;
-				vxy = ( hc[1]* ( vx[j+1][i]-vx[j][i] )
-				        + hc[2]* ( vx[j+2][i]-vx[j-1][i] )
-				      ) *dhi;
-
-				fipjp=uipjp[j][i]*gv->DT;
-				f=u[j][i]*gv->DT;
-				g=pi[j][i]*gv->DT;
-
-				sxy[j][i]+= ( fipjp* ( vxy+vyx ) );
-				sxx[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vyy );
-				syy[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vxx );
-			}
-		}
-		break;
-
-	case 6:
-		for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-				vxx = ( hc[1]* ( vx[j][i]  -vx[j][i-1] )
-				        + hc[2]* ( vx[j][i+1]-vx[j][i-2] )
-				        + hc[3]* ( vx[j][i+2]-vx[j][i-3] )
-				      ) *dhi;
-				vyy = ( hc[1]* ( vy[j][i]  -vy[j-1][i] )
-				        + hc[2]* ( vy[j+1][i]-vy[j-2][i] )
-				        + hc[3]* ( vy[j+2][i]-vy[j-3][i] )
-				      ) *dhi;
-				vyx = ( hc[1]* ( vy[j][i+1]-vy[j][i] )
-				        + hc[2]* ( vy[j][i+2]-vy[j][i-1] )
-				        + hc[3]* ( vy[j][i+3]-vy[j][i-2] )
-				      ) *dhi;
-				vxy = ( hc[1]* ( vx[j+1][i]-vx[j][i] )
-				        + hc[2]* ( vx[j+2][i]-vx[j-1][i] )
-				        + hc[3]* ( vx[j+3][i]-vx[j-2][i] )
-				      ) *dhi;
-
-				fipjp=uipjp[j][i]*gv->DT;
-				f=u[j][i]*gv->DT;
-				g=pi[j][i]*gv->DT;
-
-				sxy[j][i]+= ( fipjp* ( vxy+vyx ) );
-				sxx[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vyy );
-				syy[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vxx );
-			}
-		}
-		break;
-
-	case 8:
-		for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-				vxx = ( hc[1]* ( vx[j][i]  -vx[j][i-1] )
-				        + hc[2]* ( vx[j][i+1]-vx[j][i-2] )
-				        + hc[3]* ( vx[j][i+2]-vx[j][i-3] )
-				        + hc[4]* ( vx[j][i+3]-vx[j][i-4] )
-				      ) *dhi;
-				vyy = ( hc[1]* ( vy[j][i]  -vy[j-1][i] )
-				        + hc[2]* ( vy[j+1][i]-vy[j-2][i] )
-				        + hc[3]* ( vy[j+2][i]-vy[j-3][i] )
-				        + hc[4]* ( vy[j+3][i]-vy[j-4][i] )
-				      ) *dhi;
-				vyx = ( hc[1]* ( vy[j][i+1]-vy[j][i] )
-				        + hc[2]* ( vy[j][i+2]-vy[j][i-1] )
-				        + hc[3]* ( vy[j][i+3]-vy[j][i-2] )
-				        + hc[4]* ( vy[j][i+4]-vy[j][i-3] )
-				      ) *dhi;
-				vxy = ( hc[1]* ( vx[j+1][i]-vx[j][i] )
-				        + hc[2]* ( vx[j+2][i]-vx[j-1][i] )
-				        + hc[3]* ( vx[j+3][i]-vx[j-2][i] )
-				        + hc[4]* ( vx[j+4][i]-vx[j-3][i] )
-				      ) *dhi;
-
-				fipjp=uipjp[j][i]*gv->DT;
-				f=u[j][i]*gv->DT;
-				g=pi[j][i]*gv->DT;
-
-				sxy[j][i]+= ( fipjp* ( vxy+vyx ) );
-				sxx[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vyy );
-				syy[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vxx );
-			}
-		}
-		break;
-
-	case 10:
-		for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-				vxx = ( hc[1]* ( vx[j][i]  -vx[j][i-1] )
-				        + hc[2]* ( vx[j][i+1]-vx[j][i-2] )
-				        + hc[3]* ( vx[j][i+2]-vx[j][i-3] )
-				        + hc[4]* ( vx[j][i+3]-vx[j][i-4] )
-				        + hc[5]* ( vx[j][i+4]-vx[j][i-5] )
-				      ) *dhi;
-				vyy = ( hc[1]* ( vy[j][i]  -vy[j-1][i] )
-				        + hc[2]* ( vy[j+1][i]-vy[j-2][i] )
-				        + hc[3]* ( vy[j+2][i]-vy[j-3][i] )
-				        + hc[4]* ( vy[j+3][i]-vy[j-4][i] )
-				        + hc[5]* ( vy[j+4][i]-vy[j-5][i] )
-				      ) *dhi;
-				vyx = ( hc[1]* ( vy[j][i+1]-vy[j][i] )
-				        + hc[2]* ( vy[j][i+2]-vy[j][i-1] )
-				        + hc[3]* ( vy[j][i+3]-vy[j][i-2] )
-				        + hc[4]* ( vy[j][i+4]-vy[j][i-3] )
-				        + hc[5]* ( vy[j][i+5]-vy[j][i-4] )
-				      ) *dhi;
-				vxy = ( hc[1]* ( vx[j+1][i]-vx[j][i] )
-				        + hc[2]* ( vx[j+2][i]-vx[j-1][i] )
-				        + hc[3]* ( vx[j+3][i]-vx[j-2][i] )
-				        + hc[4]* ( vx[j+4][i]-vx[j-3][i] )
-				        + hc[5]* ( vx[j+5][i]-vx[j-4][i] )
-				      ) *dhi;
-
-				fipjp=uipjp[j][i]*gv->DT;
-				f=u[j][i]*gv->DT;
-				g=pi[j][i]*gv->DT;
-
-				sxy[j][i]+= ( fipjp* ( vxy+vyx ) );
-				sxx[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vyy );
-				syy[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vxx );
-
-			}
-		}
-		break;
-
-	case 12:
-		for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-				vxx = ( hc[1]* ( vx[j][i]  -vx[j][i-1] )
-				        + hc[2]* ( vx[j][i+1]-vx[j][i-2] )
-				        + hc[3]* ( vx[j][i+2]-vx[j][i-3] )
-				        + hc[4]* ( vx[j][i+3]-vx[j][i-4] )
-				        + hc[5]* ( vx[j][i+4]-vx[j][i-5] )
-				        + hc[6]* ( vx[j][i+5]-vx[j][i-6] )
-				      ) *dhi;
-				vyy = ( hc[1]* ( vy[j][i]  -vy[j-1][i] )
-				        + hc[2]* ( vy[j+1][i]-vy[j-2][i] )
-				        + hc[3]* ( vy[j+2][i]-vy[j-3][i] )
-				        + hc[4]* ( vy[j+3][i]-vy[j-4][i] )
-				        + hc[5]* ( vy[j+4][i]-vy[j-5][i] )
-				        + hc[6]* ( vy[j+5][i]-vy[j-6][i] )
-				      ) *dhi;
-				vyx = ( hc[1]* ( vy[j][i+1]-vy[j][i] )
-				        + hc[2]* ( vy[j][i+2]-vy[j][i-1] )
-				        + hc[3]* ( vy[j][i+3]-vy[j][i-2] )
-				        + hc[4]* ( vy[j][i+4]-vy[j][i-3] )
-				        + hc[5]* ( vy[j][i+5]-vy[j][i-4] )
-				        + hc[6]* ( vy[j][i+6]-vy[j][i-5] )
-				      ) *dhi;
-				vxy = ( hc[1]* ( vx[j+1][i]-vx[j][i] )
-				        + hc[2]* ( vx[j+2][i]-vx[j-1][i] )
-				        + hc[3]* ( vx[j+3][i]-vx[j-2][i] )
-				        + hc[4]* ( vx[j+4][i]-vx[j-3][i] )
-				        + hc[5]* ( vx[j+5][i]-vx[j-4][i] )
-				        + hc[6]* ( vx[j+6][i]-vx[j-5][i] )
-				      ) *dhi;
-
-				fipjp=uipjp[j][i]*gv->DT;
-				f=u[j][i]*gv->DT;
-				g=pi[j][i]*gv->DT;
-
-				sxy[j][i]+= ( fipjp* ( vxy+vyx ) );
-				sxx[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vyy );
-				syy[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vxx );
-			}
-		}
-		break;
-
-	default: /* CASE 2 */
-		for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-
-
-				/* spatial derivatives of the components of the velocities */
-				/* using Holberg coefficients */
-				vxx = hc[1]* ( vx[j][i]  -vx[j][i-1] ) *dhi;
-				vyy = hc[1]* ( vy[j][i]  -vy[j-1][i] ) *dhi;
-				vyx = hc[1]* ( vy[j][i+1]-vy[j][i] ) *dhi;
-				vxy = hc[1]* ( vx[j+1][i]-vx[j][i] ) *dhi;
-
-				/* updating components of the stress tensor, partially */
-				fipjp=uipjp[j][i]*gv->DT;
-				f=u[j][i]*gv->DT;
-				g=pi[j][i]*gv->DT;
-
-				sxy[j][i]+= ( fipjp* ( vxy+vyx ) );
-				sxx[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vyy );
-				syy[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vxx );
-			}
-		}
-		break;
-
-	} /* end of switch(gv->FDORDER) */
-
-
-
-	if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
-		time2=MPI_Wtime();
-		log_debug("Finished updating stress components (real time: %4.3fs).\n",time2-time1);
-	}
+	sxy[j][i]+= ( fipjp* ( vxy+vyx ) );
+	sxx[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vyy );
+	syy[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vxx );
+      }
+    }
+    break;
+  case 4:
+    for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+      for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+	vxx = ( hc[1]* ( vx[j][i]  -vx[j][i-1] )
+		+ hc[2]* ( vx[j][i+1]-vx[j][i-2] )
+		) *dhi;
+	vyy = ( hc[1]* ( vy[j][i]  -vy[j-1][i] )
+		+ hc[2]* ( vy[j+1][i]-vy[j-2][i] )
+		) *dhi;
+	vyx = ( hc[1]* ( vy[j][i+1]-vy[j][i] )
+		+ hc[2]* ( vy[j][i+2]-vy[j][i-1] )
+		) *dhi;
+	vxy = ( hc[1]* ( vx[j+1][i]-vx[j][i] )
+		+ hc[2]* ( vx[j+2][i]-vx[j-1][i] )
+		) *dhi;
+	fipjp=uipjp[j][i]*gv->DT;
+	f=u[j][i]*gv->DT;
+	g=pi[j][i]*gv->DT;
+	sxy[j][i]+= ( fipjp* ( vxy+vyx ) );
+	sxx[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vyy );
+	syy[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vxx );
+      }
+    }
+    break;
+  case 6:
+    for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+      for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+	vxx = ( hc[1]* ( vx[j][i]  -vx[j][i-1] )
+		+ hc[2]* ( vx[j][i+1]-vx[j][i-2] )
+		+ hc[3]* ( vx[j][i+2]-vx[j][i-3] )
+		) *dhi;
+	vyy = ( hc[1]* ( vy[j][i]  -vy[j-1][i] )
+		+ hc[2]* ( vy[j+1][i]-vy[j-2][i] )
+		+ hc[3]* ( vy[j+2][i]-vy[j-3][i] )
+		) *dhi;
+	vyx = ( hc[1]* ( vy[j][i+1]-vy[j][i] )
+		+ hc[2]* ( vy[j][i+2]-vy[j][i-1] )
+		+ hc[3]* ( vy[j][i+3]-vy[j][i-2] )
+		) *dhi;
+	vxy = ( hc[1]* ( vx[j+1][i]-vx[j][i] )
+		+ hc[2]* ( vx[j+2][i]-vx[j-1][i] )
+		+ hc[3]* ( vx[j+3][i]-vx[j-2][i] )
+		) *dhi;
+	fipjp=uipjp[j][i]*gv->DT;
+	f=u[j][i]*gv->DT;
+	g=pi[j][i]*gv->DT;
+	sxy[j][i]+= ( fipjp* ( vxy+vyx ) );
+	sxx[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vyy );
+	syy[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vxx );
+      }
+    }
+    break;
+  case 8:
+    for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+      for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+	vxx = ( hc[1]* ( vx[j][i]  -vx[j][i-1] )
+		+ hc[2]* ( vx[j][i+1]-vx[j][i-2] )
+		+ hc[3]* ( vx[j][i+2]-vx[j][i-3] )
+		+ hc[4]* ( vx[j][i+3]-vx[j][i-4] )
+		) *dhi;
+	vyy = ( hc[1]* ( vy[j][i]  -vy[j-1][i] )
+		+ hc[2]* ( vy[j+1][i]-vy[j-2][i] )
+		+ hc[3]* ( vy[j+2][i]-vy[j-3][i] )
+		+ hc[4]* ( vy[j+3][i]-vy[j-4][i] )
+		) *dhi;
+	vyx = ( hc[1]* ( vy[j][i+1]-vy[j][i] )
+		+ hc[2]* ( vy[j][i+2]-vy[j][i-1] )
+		+ hc[3]* ( vy[j][i+3]-vy[j][i-2] )
+		+ hc[4]* ( vy[j][i+4]-vy[j][i-3] )
+		) *dhi;
+	vxy = ( hc[1]* ( vx[j+1][i]-vx[j][i] )
+		+ hc[2]* ( vx[j+2][i]-vx[j-1][i] )
+		+ hc[3]* ( vx[j+3][i]-vx[j-2][i] )
+		+ hc[4]* ( vx[j+4][i]-vx[j-3][i] )
+		) *dhi;
+	fipjp=uipjp[j][i]*gv->DT;
+	f=u[j][i]*gv->DT;
+	g=pi[j][i]*gv->DT;
+	sxy[j][i]+= ( fipjp* ( vxy+vyx ) );
+	sxx[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vyy );
+	syy[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vxx );
+      }
+    }
+    break;
+  case 10:
+    for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+      for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+	vxx = ( hc[1]* ( vx[j][i]  -vx[j][i-1] )
+		+ hc[2]* ( vx[j][i+1]-vx[j][i-2] )
+		+ hc[3]* ( vx[j][i+2]-vx[j][i-3] )
+		+ hc[4]* ( vx[j][i+3]-vx[j][i-4] )
+		+ hc[5]* ( vx[j][i+4]-vx[j][i-5] )
+		) *dhi;
+	vyy = ( hc[1]* ( vy[j][i]  -vy[j-1][i] )
+		+ hc[2]* ( vy[j+1][i]-vy[j-2][i] )
+		+ hc[3]* ( vy[j+2][i]-vy[j-3][i] )
+		+ hc[4]* ( vy[j+3][i]-vy[j-4][i] )
+		+ hc[5]* ( vy[j+4][i]-vy[j-5][i] )
+		) *dhi;
+	vyx = ( hc[1]* ( vy[j][i+1]-vy[j][i] )
+		+ hc[2]* ( vy[j][i+2]-vy[j][i-1] )
+		+ hc[3]* ( vy[j][i+3]-vy[j][i-2] )
+		+ hc[4]* ( vy[j][i+4]-vy[j][i-3] )
+		+ hc[5]* ( vy[j][i+5]-vy[j][i-4] )
+		) *dhi;
+	vxy = ( hc[1]* ( vx[j+1][i]-vx[j][i] )
+		+ hc[2]* ( vx[j+2][i]-vx[j-1][i] )
+		+ hc[3]* ( vx[j+3][i]-vx[j-2][i] )
+		+ hc[4]* ( vx[j+4][i]-vx[j-3][i] )
+		+ hc[5]* ( vx[j+5][i]-vx[j-4][i] )
+		) *dhi;
+	fipjp=uipjp[j][i]*gv->DT;
+	f=u[j][i]*gv->DT;
+	g=pi[j][i]*gv->DT;
+	sxy[j][i]+= ( fipjp* ( vxy+vyx ) );
+	sxx[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vyy );
+	syy[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vxx );
+      }
+    }
+    break;
+  case 12:
+    for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+      for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+	vxx = ( hc[1]* ( vx[j][i]  -vx[j][i-1] )
+		+ hc[2]* ( vx[j][i+1]-vx[j][i-2] )
+		+ hc[3]* ( vx[j][i+2]-vx[j][i-3] )
+		+ hc[4]* ( vx[j][i+3]-vx[j][i-4] )
+		+ hc[5]* ( vx[j][i+4]-vx[j][i-5] )
+		+ hc[6]* ( vx[j][i+5]-vx[j][i-6] )
+		) *dhi;
+	vyy = ( hc[1]* ( vy[j][i]  -vy[j-1][i] )
+		+ hc[2]* ( vy[j+1][i]-vy[j-2][i] )
+		+ hc[3]* ( vy[j+2][i]-vy[j-3][i] )
+		+ hc[4]* ( vy[j+3][i]-vy[j-4][i] )
+		+ hc[5]* ( vy[j+4][i]-vy[j-5][i] )
+		+ hc[6]* ( vy[j+5][i]-vy[j-6][i] )
+		) *dhi;
+	vyx = ( hc[1]* ( vy[j][i+1]-vy[j][i] )
+		+ hc[2]* ( vy[j][i+2]-vy[j][i-1] )
+		+ hc[3]* ( vy[j][i+3]-vy[j][i-2] )
+		+ hc[4]* ( vy[j][i+4]-vy[j][i-3] )
+		+ hc[5]* ( vy[j][i+5]-vy[j][i-4] )
+		+ hc[6]* ( vy[j][i+6]-vy[j][i-5] )
+		) *dhi;
+	vxy = ( hc[1]* ( vx[j+1][i]-vx[j][i] )
+		+ hc[2]* ( vx[j+2][i]-vx[j-1][i] )
+		+ hc[3]* ( vx[j+3][i]-vx[j-2][i] )
+		+ hc[4]* ( vx[j+4][i]-vx[j-3][i] )
+		+ hc[5]* ( vx[j+5][i]-vx[j-4][i] )
+		+ hc[6]* ( vx[j+6][i]-vx[j-5][i] )
+		) *dhi;
+	
+	fipjp=uipjp[j][i]*gv->DT;
+	f=u[j][i]*gv->DT;
+	g=pi[j][i]*gv->DT;
+	sxy[j][i]+= ( fipjp* ( vxy+vyx ) );
+	sxx[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vyy );
+	syy[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vxx );
+      }
+    }
+    break;
+  default: /* CASE 2 */
+    for ( j=gy[2]+1; j<=gy[3]; j++ ) {
+      for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+	
+	/* spatial derivatives of the components of the velocities */
+	/* using Holberg coefficients */
+	vxx = hc[1]* ( vx[j][i]  -vx[j][i-1] ) *dhi;
+	vyy = hc[1]* ( vy[j][i]  -vy[j-1][i] ) *dhi;
+	vyx = hc[1]* ( vy[j][i+1]-vy[j][i] ) *dhi;
+	vxy = hc[1]* ( vx[j+1][i]-vx[j][i] ) *dhi;
+	
+	/* updating components of the stress tensor, partially */
+	fipjp=uipjp[j][i]*gv->DT;
+	f=u[j][i]*gv->DT;
+	g=pi[j][i]*gv->DT;
+	
+	sxy[j][i]+= ( fipjp* ( vxy+vyx ) );
+	sxx[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vyy );
+	syy[j][i]+= ( g* ( vxx+vyy ) )- ( 2.0*f*vxx );
+      }
+    }
+    break;
+  } /* end of switch(gv->FDORDER) */
+  
+  if ( ( gv->MPID==0 ) && ( ( nt+ ( gv->OUTNTIMESTEPINFO-1 ) ) %gv->OUTNTIMESTEPINFO ) ==0 ) {
+    time2=MPI_Wtime();
+    log_debug("Finished updating stress components (real time: %4.3fs).\n",time2-time1);
+  }
 }
 
 
