@@ -36,7 +36,7 @@ static const char *level_colors[]  = { LOG_COLOR_REDBG, LOG_COLOR_RED, LOG_COLOR
 #endif // LOG_COLOR
 
 static const char* level_strings[] = { "FATAL", "ERROR", "WARN", "", "INFO", "DEBUG" };
-static unsigned int log_minlevel   = LOG_INFO;
+static log_Level log_minlevel      = LOG_INFO;
 static FILE* fpstd                 = NULL;
 static FILE* fperr                 = NULL;
 static struct timespec ts_start;
