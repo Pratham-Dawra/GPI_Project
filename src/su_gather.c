@@ -23,35 +23,17 @@
 
 #include "su_gather.h"
 #include "logging.h"
+#include "util.h"
 #include <stdlib.h>
 
 
 void malloc_SUgather(SUgather *gather, size_t nt, unsigned short ns)
 {
-  size_t len, i;
-  float *ptr;
-
   // allocate header[nt]
   gather->header = (SUhead*)calloc(nt, sizeof(SUhead));
   if (!gather->header) log_fatal("Could not allocate trace header memory buffer for SUgather.\n");
 
-  // allocate data
-  len = sizeof(float*)*ns+sizeof(float)*nt*ns;
-  gather->data = (float**)malloc(len);
-  if (!gather->data) log_fatal("Could not allocate trace data memory buffer for SUgather.\n");
-
-  // data[nt][ns], nt slow axis, ns fast axis
-  ptr = (float*)(gather->data+ns);
-  for (i=0; i<nt; ++i) {
-    gather->data[i] = (ptr+ns*i); 
-  } 
-
-  // data[ns][nt], ns slow axis, nt fast axis
-  /*   ptr = (float*)(gather->data+ns); */
-  /*   for (size_t i=0; i<ns; ++i) { */
-  /*     gather->data[i] = (ptr+nt*i); */
-  /*   } */
-  
+  gather->data = matrix_c((int)nt, (int)ns);
   gather->nt = nt;
   gather->ns = ns;
   

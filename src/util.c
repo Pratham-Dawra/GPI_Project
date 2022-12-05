@@ -25,8 +25,10 @@
 #define NR_END 1
 #define FREE_ARG char *
 
-#include "fd.h"
+#include "util.h"
 #include "logging.h"
+#include <math.h>
+#include <stdlib.h>
 
 #define UNUSED(x) (void)(x)
 
@@ -473,4 +475,32 @@ void free_i3tensor(int ***t, int nrl, int nrh, int ncl, int nch, int ndl, int nd
   UNUSED(nrh);
   UNUSED(nch);
   UNUSED(ndh);
+}
+
+float **matrix_c(int nx, int ny)
+{
+  /* allocate memory for matrix[0...nx-1][0...ny-1] with the fast axis being y;
+   * alocation is handled as single malloc to avoid memory fragmentation */
+  size_t len = sizeof(float*)*ny*+sizeof(float)*nx*ny;
+  float **buffer = (float**)malloc(len);
+  if (!buffer) log_fatal("Allocation failed in matrix_c.\n");
+  float *ptr = (float*)(buffer+ny);
+  // data[nx][ny], nx slow axis, ny fast axis
+  for (int i=0; i<nx; ++i) {
+    buffer[i] = (ptr+ny*i); 
+  } 
+  // data[ny][nx], ny slow axis, nx fast axis
+  /*   for (int i=0; i<ny; ++i) { */
+  /*     buffer[i] = (ptr+nx*i); */
+  /*   } */
+  
+  return buffer;
+}
+
+float *vector_c(int nx)
+{
+  /* allocate memory for vector[0...nx-1]; */ 
+  float *buffer = (float*)malloc(sizeof(float)*nx);
+  if (!buffer) log_fatal("Allocation failed in vector_c.\n");
+  return buffer;
 }
