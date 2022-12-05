@@ -53,7 +53,7 @@ int main ( int argc, char **argv )
     /* variables in main */
     int ns, nseismograms = 0, nt, nd, fdo3;
     int lsnap, nsnap = 0, lsamp = 0, buffsize;
-    int ntr = 0, ntr_loc = 0, ntr_glob = 0, nsrc = 0, nsrc_loc = 0;
+    int ntr = 0, ntr_loc = 0, ntr_glob = 0, nsrc = 0, nsrc_loc = 0, infocounter = 0;
     int ishot, nshots; /* Added ishot and nshots for multiple shots */
     int **dummy = NULL;
     /*Limits for local grids defined in subgrid_bounds.c */
@@ -67,8 +67,8 @@ int main ( int argc, char **argv )
     char *buff_addr, ext[10];
     double time1 = 0.0, time2 = 0.0, time3 = 0.0, time4 = 0.0;
     double time5 = 0.0, time6 = 0.0, time7 = 0.0, time8 = 0.0;
-    double time_av_v_update = 0.0, time_av_s_update = 0.0,
-    time_av_v_exchange = 0.0, time_av_s_exchange = 0.0, time_av_timestep = 0.0;
+    double time_av_v_update = 0.0, time_av_s_update = 0.0, 
+      time_av_v_exchange = 0.0, time_av_s_exchange = 0.0, time_av_timestep = 0.0;
     
     float **psxx = NULL, **psxy = NULL, **psyy = NULL;
     float **pvx = NULL, **pvy = NULL, ***pr = NULL;
@@ -956,6 +956,7 @@ int main ( int argc, char **argv )
         lsamp = gv.NDT;
         
         subgrid_bounds ( 1, gv.NX, 1, gv.NY, gx, gy, &gv );
+
         /*---------------------------------------------------------------*/
         /*----------------------  loop over timesteps  ------------------*/
         /*---------------------------------------------------------------*/
@@ -967,7 +968,7 @@ int main ( int argc, char **argv )
 	      log_fatal("Simulation is unstable!\n");
             }
 
-            if ( ( gv.MPID == 0 ) && ( ( nt + ( gv.OUTNTIMESTEPINFO - 1 ) ) % gv.OUTNTIMESTEPINFO ) == 0 ) {
+	    if ( (gv.MPID == 0) && ((nt-1)%gv.OUTNTIMESTEPINFO==0) ) {
 	      log_info("Computing time step %d of %d.\n", nt, gv.NT);
 	      time3 = MPI_Wtime();
             }
@@ -1019,8 +1020,7 @@ int main ( int argc, char **argv )
                 shift_s2=svy_4;svy_4=svy_3;svy_3=svy_2;svy_2=svy_1;svy_1=shift_s2;
             }
         
-            if ( ( gv.MPID == 0 )
-                && ( ( nt + ( gv.OUTNTIMESTEPINFO - 1 ) ) % gv.OUTNTIMESTEPINFO ) == 0 ) {
+	    if ( (gv.MPID == 0) && ((nt-1)%gv.OUTNTIMESTEPINFO==0) ) {
                 time4 = MPI_Wtime();
                 time_av_v_update += ( time4 - time3 );
                 log_debug("Starting particle velocity exchange between PEs...\n");
@@ -1038,11 +1038,10 @@ int main ( int argc, char **argv )
                 exchange_v ( nd, pvyx, pvxy, bufferlef_to_rig, bufferrig_to_lef, buffertop_to_bot, bufferbot_to_top, &gv );
             }
             
-            if ( ( gv.MPID == 0 )
-                && ( ( nt + ( gv.OUTNTIMESTEPINFO - 1 ) ) % gv.OUTNTIMESTEPINFO ) == 0 ) {
+	    if ( (gv.MPID == 0) && ((nt-1)%gv.OUTNTIMESTEPINFO==0) ) {
                 time5 = MPI_Wtime();
                 time_av_v_exchange += ( time5 - time4 );
-                log_debug("Finished particle velocity exchange between PEs (real time: %4.3fs).\n", time5 - time4);
+                log_debug("Finished particle velocity exchange between PEs (real time: %.4fs).\n", time5 - time4);
             }
             /*---------------------------------------------------------------*/
             /* stress update ------------------------------------------------*/
@@ -1228,8 +1227,7 @@ int main ( int argc, char **argv )
                     surface_elastic ( 1, pvx, pvy, psxx, psyy, psxy, ppi, pu, hc, K_x, a_x, b_x, psi_vxxs, &gv );
             }
             
-            if ( ( gv.MPID == 0 )
-                && ( ( nt + ( gv.OUTNTIMESTEPINFO - 1 ) ) % gv.OUTNTIMESTEPINFO ) == 0 ) {
+	    if ( (gv.MPID == 0) && ((nt-1)%gv.OUTNTIMESTEPINFO==0) ) {
                 time6 = MPI_Wtime();
                 time_av_s_update += ( time6 - time5 );
                 log_debug("Starting stress exchange between PEs...\n");
@@ -1239,11 +1237,10 @@ int main ( int argc, char **argv )
             /*---------------------------------------------------------------*/
 	    exchange_s (nd, psxx, psyy, psxy, bufferlef_to_rig, bufferrig_to_lef, buffertop_to_bot, bufferbot_to_top, &gv );
             
-            if ( ( gv.MPID == 0 )	&& ( ( nt + ( gv.OUTNTIMESTEPINFO - 1 ) ) % gv.OUTNTIMESTEPINFO ) == 0 ) {
-                
+	    if ( (gv.MPID == 0) && ((nt-1)%gv.OUTNTIMESTEPINFO==0) ) {               
                 time7 = MPI_Wtime();
                 time_av_s_exchange += ( time7 - time6 );
-                log_debug("Finished stress exchange between PEs (real time: %4.3fs).\n", time7 - time6);
+                log_debug("Finished stress exchange between PEs (real time: %.4fs).\n", time7 - time6);
             }
             
             /* store amplitudes at receivers in section-arrays */
@@ -1260,11 +1257,16 @@ int main ( int argc, char **argv )
                 lsnap = lsnap + iround ( gv.TSNAPINC/gv.DT );
             }
             
-            if ( ( gv.MPID == 0 )	&& ( ( nt + ( gv.OUTNTIMESTEPINFO - 1 ) ) % gv.OUTNTIMESTEPINFO ) == 0 ) {
-                
-                time8 = MPI_Wtime();
-                time_av_timestep += ( time8 - time3 );
-                log_info("Total real time for timestep %d: %4.3fs.\n", nt, time8 - time3);
+             if ( (gv.MPID == 0) && ((nt-1)%gv.OUTNTIMESTEPINFO==0) ) {
+	       ++infocounter;
+	       time8 = MPI_Wtime();
+	       time_av_timestep += ( time8 - time3 );
+
+	       // when we reach this point, we have completed nt out of gv.NT time steps; however, the
+	       // time_av_timestep variable has only been updated every gv.OUTNTIMESTEPINFO time step;
+	       // use infocounter to calculate correct average
+	       log_info("Total real time for time step %d: %.4fs. Shot %d, time left: %.2lfs.\n", nt, time8 - time3, ishot, 
+			(gv.NT-nt)*time_av_timestep/(double)infocounter);
             }
         }
         /*---------------------------------------------------------------*/
@@ -1534,21 +1536,21 @@ if ( gv.WEQ==4 ) { /*viscoelastic wave equation */
     MPI_Barrier (MPI_COMM_WORLD);
 
     if (gv.MPID == 0) {
-      time_av_v_update = time_av_v_update / (double)gv.NT;
-      time_av_s_update = time_av_s_update / (double)gv.NT;
-      time_av_v_exchange = time_av_v_exchange / (double)gv.NT;
-      time_av_s_exchange = time_av_s_exchange / (double)gv.NT;
-      time_av_timestep = time_av_timestep / (double)gv.NT;
-      log_info("Average times for\n");
-      log_info("  velocity update: .. %5.6fs.\n", time_av_v_update);
-      log_info("  stress update: .... %5.6fs.\n", time_av_s_update);
-      log_info("  velocity exchange:  %5.6fs.\n", time_av_v_exchange);
-      log_info("  stress exchange: .. %5.6fs.\n", time_av_s_exchange);
-      log_info("  time step: ........ %5.6fs.\n", time_av_timestep);
+      time_av_v_update = time_av_v_update / (double)infocounter;
+      time_av_s_update = time_av_s_update / (double)infocounter;
+      time_av_v_exchange = time_av_v_exchange / (double)infocounter;
+      time_av_s_exchange = time_av_s_exchange / (double)infocounter;
+      time_av_timestep = time_av_timestep / (double)infocounter;
+      log_info("Approximate average times for\n");
+      log_info("  velocity update: .. %.6lfs.\n", time_av_v_update);
+      log_info("  stress update: .... %.6lfs.\n", time_av_s_update);
+      log_info("  velocity exchange:  %.6lfs.\n", time_av_v_exchange);
+      log_info("  stress exchange: .. %.6lfs.\n", time_av_s_exchange);
+      log_info("  time step: ........ %.6lfs.\n", time_av_timestep);
       cpu_time = clock()-cpu_time1;
-      log_info("CPU time of program per PE: %lis.\n",cpu_time/CLOCKS_PER_SEC);
+      log_info("CPU time of program per PE: %.3lfs.\n",(double)cpu_time/(double)CLOCKS_PER_SEC);
       time8 = MPI_Wtime();
-      log_info("Total real time of program: %4.3fs.\n", time8-time1);
+      log_info("Total real time of program: %.3lfs.\n", time8-time1);
     }
     
     /* finalize logging */
