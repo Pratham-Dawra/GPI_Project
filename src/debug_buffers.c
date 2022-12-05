@@ -29,7 +29,7 @@ bool debug_check_vector(float *vector, int nt, size_t len, int id, int min_nt, c
 
   if (nt<min_nt) { return b_err; }
 
-  int log_level = log_get_level();
+  log_Level log_level = log_get_level();
   log_set_level(LOG_DEBUG);
 
   log_debug("(ID=%d): nt=%d, checking vector %s, len %zu\n", id,nt,cbuf,len);
@@ -69,7 +69,7 @@ bool debug_check_matrix(float **matrix, int nt, size_t lenx, size_t leny, int id
   
   if (nt<min_nt) { return b_err; }
 
-  int log_level = log_get_level();
+  log_Level log_level = log_get_level();
   log_set_level(LOG_DEBUG);
 
   log_debug("(ID=%d): nt=%d, checking matrix %s, lenx %zu, leny %zu\n", id,nt,cbuf,lenx,leny);
