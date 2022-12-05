@@ -16,63 +16,102 @@
  * along with SOFI2D. See file COPYING and/or 
   * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
-/*------------------------------------------------------------------------
- *   Read elastic model properties (vp,vs,density) from files
- *   This file contains function readmod, which has the purpose
- *   to read data from model-files for viscoelastic simulation
- *
- *  ----------------------------------------------------------------------*/
 
+/*------------------------------------------------------------------------
+ *   Read elastic model properties (vp,vs,rho) from files
+ *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
 #include "logging.h"
+#include "read_su.h"
+#include <unistd.h>
+#include <stdbool.h>
 
 void readmod_elastic(float **rho, float **pi, float **u, GlobVar *gv) 
 {
-  
-  /* local variables */
-  float rhov, muv, piv, vp, vs;
-  int ii, jj;
+  float muv, piv;
+  int ii, jj, ny;
   char filename[STRING_SIZE+16];
+  bool b_issu = false;
+  
+  const char *model[] = { "P-wave velocity model", "S-wave velocity model", "density model" };
+  const char *suffix[] = { "vp", "vs", "rho" };
+  const char *suffix_su[] = { "vp.su", "vs.su", "rho.su" };
+  
+  enum PARAMOD {
+    P_VP = 0,
+    P_VS,
+    P_RHO,
+    NPARA
+  };
 
-  log_infoc(0, "Reading P-wave velocity model: %s.vp\n", gv->MFILE);
-  sprintf(filename,"%s.vp",gv->MFILE);
-  FILE *fp_vp=fopen(filename,"r");
-  if (!fp_vp) log_fatal("Could not open P-wave velocity model %s.\n", filename);
+  FILE *fp[NPARA];
 
-  log_infoc(0, "Reading S-wave velocity model: %s.vs\n",gv->MFILE);
-  sprintf(filename,"%s.vs",gv->MFILE);
-  FILE *fp_vs=fopen(filename,"r");
-  if (!fp_vs) log_fatal("Could not open S-wave velocity model %s.\n", filename);
+  /* test for SU model - otherwise we read standard binary */
+  sprintf(filename,"%s.%s", gv->MFILE, suffix_su[0]);
+  if (!access(filename, R_OK)) b_issu = true;
 
-  log_infoc(0, "Reading density model: %s.rho\n",gv->MFILE);
-  sprintf(filename,"%s.rho",gv->MFILE);
-  FILE *fp_rho=fopen(filename,"r");
-  if (!fp_rho) log_fatal("Could not open density model %s\n", filename);
+  for (int i=0; i<NPARA; ++i) {
+    if (b_issu) {
+      sprintf(filename,"%s.%s", gv->MFILE, suffix_su[i]);
+    } else {
+      sprintf(filename,"%s.%s", gv->MFILE, suffix[i]);
+    }
+    log_infoc(0, "Reading %s: %s\n", model[i], filename);
+    fp[i] = fopen(filename,"rb");
+    if (!fp[i]) log_fatal("Could not open %s %s.\n", model[i], filename);
+  }
 
+  /* if we read SU format, we can perform additional cross-checks; however, coordinates are not used atm */
+  if (b_issu) {
+    size_t nx;
+    unsigned short ns, dt;
+    short int delrt;
+    for (int i=0; i<NPARA; ++i) {
+      nx = su_get_nt(fp[i], &ns, &dt, &delrt);
+      if (nx < (unsigned)gv->NXG) log_fatal("%s has fewer than NX=%d traces.\n", model[i], gv->NXG);
+      else if (nx > (unsigned)gv->NXG) log_warnc(0, "%s has more than NX=%d traces; ignoring add. traces.\n", model[i], gv->NXG);
+      if (ns < (unsigned short)gv->NYG) log_fatal("%s has fewer than NY=%d samples.\n", model[i], gv->NYG);
+      else if (ns > (unsigned short)gv->NYG) log_warnc(0, "%s has more than NY=%d samples; ignoring add. samples.\n", model[i], gv->NYG);
+    }
+    ny = (int)ns;
+  } else {
+    ny = gv->NYG;
+  }
+
+  float **para = matrix_c(NPARA, ny);
+  
   /* loop over global grid */
-  for (int i=1;i<=gv->NXG;i++){
+  for (int i=1;i<=gv->NXG;i++) {
+    if (b_issu) {
+      su_read_trace(fp[P_VP], 0, (unsigned short)ny, false, NULL, &(para[P_VP][0]));
+      su_read_trace(fp[P_VS], 0, (unsigned short)ny, false, NULL, &(para[P_VS][0]));
+      su_read_trace(fp[P_RHO], 0, (unsigned short)ny, false, NULL, &(para[P_RHO][0]));
+    } else {
+      fread(&(para[P_VP][0]), sizeof(float), ny, fp[P_VP]);
+      fread(&(para[P_VS][0]), sizeof(float), ny, fp[P_VS]);
+      fread(&(para[P_RHO][0]), sizeof(float), ny, fp[P_RHO]);
+    }
     for (int j=1;j<=gv->NYG;j++){
-      fread(&vp, sizeof(float), 1, fp_vp);
-      fread(&vs, sizeof(float), 1, fp_vs);
-      fread(&rhov, sizeof(float), 1, fp_rho);
-      muv=vs*vs*rhov;
-      piv=vp*vp*rhov;
+      muv=para[P_VS][j-1]*para[P_VS][j-1]*para[P_RHO][j-1];
+      piv=para[P_VP][j-1]*para[P_VP][j-1]*para[P_RHO][j-1];
       /* only the PE which belongs to the current global gridpoint 
 	 is saving model parameters in his local arrays */
       if ((gv->POS[1]==((i-1)/gv->NX)) && (gv->POS[2]==((j-1)/gv->NY))) {
 	ii=i-gv->POS[1]*gv->NX;
 	jj=j-gv->POS[2]*gv->NY;
 	u[jj][ii]=muv;
-	rho[jj][ii]=rhov;
+	rho[jj][ii]=para[P_RHO][j-1];
 	pi[jj][ii]=piv;
       }
     }
   }
 
-  fclose(fp_vp);
-  fclose(fp_vs);
-  fclose(fp_rho);
+  if (para) free(para);
 
+  for (int i=0; i<NPARA; ++i) {
+    fclose(fp[i]);
+  }
+  
   return;
 }
