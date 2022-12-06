@@ -24,7 +24,7 @@
 #include "fd.h"
 
 void wavefield_update_s_visc_TTI ( int i, int j,float  **vxx, float **vyx,float **vxy,float **vyy,
-                              float **sxy, float **sxx, float ** syy, float ***p, float ***r,
+                              float **sxy, float **sxx, float ** syy, float ***r, float ***p,
                                   float ***q,
                                   float ** pc11u, float **pc33u, float **pc13u, float ** pc15u, float ** pc35u,
                                  float ** pc55ipjpu, float ** pc15ipjpu,float ** pc35ipjpu,
