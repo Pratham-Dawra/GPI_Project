@@ -217,10 +217,10 @@ void write_par(GlobVar *gv)
 	log_std("p\n");
 	break;
       case 3:
-	log_info("curl, div\n");
+	log_std("curl, div\n");
 	break;
       case 4:
-	log_info("vx, vy, p, curl, div\n");
+	log_std("vx, vy, p, curl, div\n");
 	break;
       default:
 	log_fatal("Sorry, incorrect specification of parameter SNAP (snapshot output)!\n");
