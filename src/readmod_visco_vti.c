@@ -32,7 +32,8 @@ void readmod_visco_vti (float **rho, float **pc11, float **pc33, float **pc13,fl
 {
   float c11, c33, c13, c55, tau11, tau33, tau13, tau55;
   float *pts, sumc11, sumc13, sumc33, sumc55;
-  int ii, jj, ny;
+  int ii, jj;
+  size_t ny;
   char filename[STRING_SIZE+16];
   bool b_issu = false;
 
@@ -81,12 +82,12 @@ void readmod_visco_vti (float **rho, float **pc11, float **pc33, float **pc13,fl
       if (ns < (unsigned short)gv->NYG) log_fatal("%s has fewer than NY=%d samples.\n", model[i], gv->NYG);
       else if (ns > (unsigned short)gv->NYG) log_warnc(0, "%s has more than NY=%d samples; ignoring add. samples.\n", model[i], gv->NYG);
     }
-    ny = (int)ns;
+    ny = ns;
   } else {
-    ny = gv->NYG;
+    ny = (size_t)(gv->NYG);
   }
 
-  float **para = matrix_c(NPARA, ny);
+  float **para = (float**)malloc2d(NPARA, ny, sizeof(float));
 
   /* vector for maxwellbodies */
   pts=vector(1,gv->L);

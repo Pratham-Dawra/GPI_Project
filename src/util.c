@@ -477,30 +477,202 @@ void free_i3tensor(int ***t, int nrl, int nrh, int ncl, int nch, int ndl, int nd
   UNUSED(ndh);
 }
 
-float **matrix_c(int nx, int ny)
+/* =========== Contiguous memory routines =========== */
+
+void *malloc1d(size_t n1,  size_t typesize)
 {
-  /* allocate memory for matrix[0...nx-1][0...ny-1] with the fast axis being y;
-   * alocation is handled as single malloc to avoid memory fragmentation */
-  size_t len = sizeof(float*)*ny*+sizeof(float)*nx*ny;
-  float **buffer = (float**)malloc(len);
-  if (!buffer) log_fatal("Allocation failed in matrix_c.\n");
-  float *ptr = (float*)(buffer+ny);
-  // data[nx][ny], nx slow axis, ny fast axis
-  for (int i=0; i<nx; ++i) {
-    buffer[i] = (ptr+ny*i); 
-  } 
-  // data[ny][nx], ny slow axis, nx fast axis
-  /*   for (int i=0; i<ny; ++i) { */
-  /*     buffer[i] = (ptr+nx*i); */
-  /*   } */
+  /* allocate memory for vector[0...n1-1] */ 
+
+  size_t len = n1*typesize;
+
+  void *buffer = malloc(len);
+  if (!buffer) log_fatal("malloc of size %zu failed in malloc1d().\n", len);
+
+  return buffer;
+}
+
+void* calloc1d(size_t n1, size_t typesize)
+{
+  void *buffer = calloc(n1, typesize);
+  if (!buffer) log_fatal("calloc of size %zu failed in calloc1d().\n", n1*typesize);
   
   return buffer;
 }
 
-float *vector_c(int nx)
+void **malloc2d(size_t n1, size_t n2, size_t typesize) 
 {
-  /* allocate memory for vector[0...nx-1]; */ 
-  float *buffer = (float*)malloc(sizeof(float)*nx);
-  if (!buffer) log_fatal("Allocation failed in vector_c.\n");
+  /* allocate memory for matrix[0...n1-1][0...n2-1] with the fast axis being n2;
+     allocation is handled as single malloc to avoid memory fragmentation */
+
+  size_t stride = n2*typesize;
+  void **buffer = malloc(n1*sizeof(void*)+n1*stride);
+  if (!buffer) log_fatal("malloc of size %zu failed in malloc2d().\n", n1*sizeof(void*)+n1*stride);
+
+  unsigned char *ptr = (unsigned char*)(buffer+n1);
+  for(size_t i=0; i<n1; i++) {
+    buffer[i] = &ptr[i*stride];
+  }
+
   return buffer;
 }
+
+void **calloc2d(size_t n1, size_t n2, size_t typesize) 
+{
+  size_t stride = n2*typesize;
+
+  void **buffer = calloc(n1, sizeof(void*)+stride);
+  if (!buffer) log_fatal("calloc of size %zu failed in calloc2d().\n", n1*(sizeof(void*)+stride));
+
+  unsigned char *ptr = (unsigned char*)(buffer+n1);
+  for(size_t i=0; i<n1; i++) {
+    buffer[i] = &ptr[i*stride];
+  }
+
+  return buffer;
+}
+
+void ***malloc3d(size_t n1, size_t n2, size_t n3, size_t typesize)
+{
+  /* allocate memory for cube[0...n1-1][0...n2-1][0...n3-1] with the fast axis 
+     being n3; allocation is handled as single malloc to avoid memory fragmentation */
+
+  size_t stride1 = n2*n3*typesize;
+  size_t stride2 = n3*typesize;
+  void ***buffer = malloc(n1*sizeof(void**)+n1*n2*sizeof(void*)+n1*stride1);
+  if (!buffer) log_fatal("malloc of size %zu failed in malloc3d().\n", n1*(sizeof(void**)+n2*sizeof(void*)+stride1));
+
+  void **p2 = (void**)(buffer+n1);
+  unsigned char *p3 = (unsigned char*)(p2+n1*n2);
+  for(size_t i=0; i<n1; i++) {
+    buffer[i] = &p2[i*n2];
+  }
+  for(size_t i=0; i<n1; i++) {
+    for(size_t j=0; j<n2; j++) {
+      p2[i*n2+j] = &p3[i*stride1+j*stride2];
+    }
+  }
+  
+  return buffer;
+}
+
+void ***calloc3d(size_t n1, size_t n2, size_t n3, size_t typesize)
+{
+  size_t stride1 = n2*n3*typesize;
+  size_t stride2 = n3*typesize;
+  void ***buffer = calloc1d(n1, sizeof(void**)+n2*sizeof(void*)+stride1);
+  if (!buffer) log_fatal("calloc of size %zu failed in calloc3d().\n", n1*(sizeof(void**)+n2*sizeof(void*)+stride1));
+  
+  void **p2 = (void**)(buffer+n1);
+  unsigned char *p3 = (unsigned char*)(p2+n1*n2);
+  for(size_t i=0; i<n1; i++) {
+    buffer[i] = &p2[i*n2];
+  }
+  for(size_t i=0; i<n1; i++) {
+    for(size_t j=0; j<n2; j++) {
+      p2[i*n2+j] = &p3[i*stride1+j*stride2];
+    }
+  }
+  
+  return buffer;
+}
+
+
+
+
+#ifdef UTIL_C_MAIN
+
+#include <assert.h>
+
+// test main program
+int main (void)
+{
+  size_t n1 = 7;
+  size_t n2 = 5;
+  size_t n3 = 3;
+
+  float *data1 = (float*)malloc1d(n1, sizeof(float));
+  assert(data1);
+  size_t count = 0;
+  for (size_t i=0; i<n1; ++i) {
+    data1[i] = count++;
+  }
+  for (size_t i=0; i<n1; ++i) {
+    printf("n1: %zd, address: %p, value: %f\n", i, &(data1[i]), data1[i]);
+  }
+  free(data1);
+
+  printf("==============================\n");
+  
+  data1 = (float*)calloc1d(n1, sizeof(float));
+  for (size_t i=0; i<n1; ++i) {
+    printf("n1: %zd, address: %p, value: %f\n", i, &(data1[i]), data1[i]);
+  }
+  free(data1);
+
+  printf("==============================\n");
+  
+  float **data2 = (float**)malloc2d(n1, n2, sizeof(float));
+  assert(data2);
+  count = 0;
+  for (size_t i=0; i<n1; ++i) {
+    for (size_t j=0; j<n2; ++j) {
+      data2[i][j] = count++; // OR *(*(buffer+i)+j) = count++
+    }
+  }
+  for (size_t i=0; i<n1; ++i) {
+    for (size_t j=0; j<n2; ++j) {
+      printf("n1: %zd, n2: %zd, address: %p, value: %f\n", i, j, &(data2[i][j]), data2[i][j]);
+    }
+  } 
+  free(data2);
+
+  printf("==============================\n");
+
+  data2 = (float**)calloc2d(n1, n2, sizeof(float));
+  assert(data2);
+  for (size_t i=0; i<n1; ++i) {
+    for (size_t j=0; j<n2; ++j) {
+      printf("n1: %zd, n2: %zd, address: %p, value: %f\n", i, j, &(data2[i][j]), data2[i][j]);
+    }
+  } 
+  free(data2);
+
+  printf("==============================\n");
+    
+  float ***data3 = (float***)malloc3d(n1, n2, n3, sizeof(float));
+  assert(data3);
+  count = 0;
+  for (size_t i=0; i<n1; ++i) {
+    for (size_t j=0; j<n2; ++j) {
+      for (size_t k=0; k<n3; ++k) {
+	data3[i][j][k] = count++; // OR *(*(*(buffer+i)+j)+k) = count++
+      }
+    }
+  }
+  for (size_t i=0; i<n1; ++i) {
+    for (size_t j=0; j<n2; ++j) {
+      for (size_t k=0; k<n3; ++k) {
+	printf("n1: %ld, n2: %ld, n3: %ld, address: %p, value: %f\n", i, j, k, &(data3[i][j][k]), data3[i][j][k]);
+      }
+    }
+  }
+  free(data3);
+
+  printf("==============================\n");
+
+  data3 = (float***)calloc3d(n1, n2, n3, sizeof(float));
+  assert(data3);
+  
+  for (size_t i=0; i<n1; ++i) {
+    for (size_t j=0; j<n2; ++j) {
+      for (size_t k=0; k<n3; ++k) {
+	printf("n1: %ld, n2: %ld, n3: %ld, address: %p, value: %f\n", i, j, k, &(data3[i][j][k]), data3[i][j][k]);
+      }
+    }
+  }
+  free(data3);
+
+  return 0;
+}
+
+#endif

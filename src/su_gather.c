@@ -33,7 +33,7 @@ void malloc_SUgather(SUgather *gather, size_t nt, unsigned short ns)
   gather->header = (SUhead*)calloc(nt, sizeof(SUhead));
   if (!gather->header) log_fatal("Could not allocate trace header memory buffer for SUgather.\n");
 
-  gather->data = matrix_c((int)nt, (int)ns);
+  gather->data = (float**)malloc2d(nt, (size_t)ns, sizeof(float));
   gather->nt = nt;
   gather->ns = ns;
   

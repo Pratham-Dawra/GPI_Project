@@ -37,10 +37,11 @@ void readmod_visco_tti(float **rho, float **pc11, float **pc33, float **pc13, fl
   float a1, a3, a4, a5, a6, t;
   float c11t, c33t, c55t, c13t, c15t, c35t;
   
-  int ii, jj, ny;
+  int ii, jj;
+  size_t ny;
   char filename[STRING_SIZE+16];
   bool b_issu = false;
-
+  
   const char *model[] = { "P-wave velocity model", "S-wave velocity model", "density model",
 			  "Epsilon model", "Delta model", "Theta model", "Quality factor Qp model", "Quality factor Qs model" };
   const char *suffix[] = { "vp", "vs", "rho", "epsilon", "delta", "theta", "qp", "qs" };
@@ -87,13 +88,13 @@ void readmod_visco_tti(float **rho, float **pc11, float **pc33, float **pc13, fl
       if (ns < (unsigned short)gv->NYG) log_fatal("%s has fewer than NY=%d samples.\n", model[i], gv->NYG);
       else if (ns > (unsigned short)gv->NYG) log_warnc(0, "%s has more than NY=%d samples; ignoring add. samples.\n", model[i], gv->NYG);
     }
-    ny = (int)ns;
+    ny = ns;
   } else {
-    ny = gv->NYG;
+    ny = (size_t)(gv->NYG);
   }
 
-  float **para = matrix_c(NPARA, ny);
- 
+  float **para = (float**)malloc2d(NPARA, ny, sizeof(float));
+  
   /* vector for maxwellbodies */
   pts=vector(1,gv->L);
   for (int l=1;l<=gv->L;l++) {
