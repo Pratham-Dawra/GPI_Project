@@ -14,12 +14,12 @@
 			"DH" : "2.0",
 
 "Time Stepping" : "comment",
-			"TIME" : "0.5",
+			"TIME" : "0.2",
 			"DT" : "1.0e-4",
 
             
 "Wave Equation" : "comment",
-			"WEQ" : "7",
+			"WEQ" : "1",
 			"WEQ values : 1:acoustic, 2:viscoacoustic, 3:elastic, " : "comment",
 			"WEQ values : 4:viscoelastic, 5:elastic VTI, 6:viscoelastic VTI, " : "comment",
 			"WEQ values : 7:elastic TTI, 8:viscoelastic TTI, " : "comment",
@@ -30,13 +30,13 @@
 			"SOURCE_SHAPE values: ricker=1;fumue=2;from_SIGNAL_FILE=3;SIN**3=4;Berlage=5;Klauder=6" : "comment",
 			"SIGNAL_FILE" : "signal_mseis.tz",
 			
-			"SIGOUT" : "0",
+			"SIGOUT" : "1",
 			"Output source wavelet: yes=1, no=else" : "comment",
-			"SIGOUT_FILE" : "./sources/signal_out301",
+			"SIGOUT_FILE" : "./weq1/signal_out",
 			"SIGOUT_FORMAT" : "1",
 			"Supported output formats for SIGOUT_FORMAT: SU=1, ASCII=2, BINARY=3" : "comment",
 
-			"SOURCE_TYPE" : "3",
+			"SOURCE_TYPE" : "1",
 			"SOURCE_TYPE values (point_source): explosive=1;force_in_x=2;force_in_y=3;custom_force=4" : "comment",
 
 			"SRCREC" : "1",
@@ -56,15 +56,15 @@
 
 "Q-approximation" : "comment",
 			"L" : "1",
-			"FL1" : "50.0",
-			"TAU" : "0.1",
+			"FL1" : "50.0", 
+			"TAU" : "0.0001",
 
 "Boundary Conditions" : "comment",
                         "FREE_SURF" : "0",
                         "BOUNDARY" : "0",
 
 			"FW" : "20",
-			"ABS_TYPE" : "1",
+			"ABS_TYPE" : "2",
 			"ABS_TYPE values : CPML-Boundary=1; Damping-Boundary=2" : "comment",
 			
 			"Parameter for CPML (ABS_TYPE=1)" : "comment",
@@ -78,18 +78,17 @@
 
 
 "Snapshots" : "comment",
-			"SNAP" : "1",
-			"TSNAP1" : "0.01",
-			"TSNAP2" : "0.5",
-			"TSNAPINC" : "0.01",
-			"IDX" : "1",
-			"IDY" : "1",
+			"SNAP" : "4",
+			"TSNAP1" : "0.06",
+			"TSNAP2" : "0.18",
+			"TSNAPINC" : "0.04",
+			"IDX" : "2",
+			"IDY" : "2",
 			"SNAP_FORMAT" : "3",
-			"SNAP_FILE" : "./snap/hh_e_t",
-
+			"SNAP_FILE" : "./weq1/snap",
 
 "Receiver" : "comment",
-			"SEISMO" : "0",
+			"SEISMO" : "4",
 			"READREC" : "1",
 			"REC_FILE" : "./receiver/receiver.dat",
 			"REFRECX, REFRECY" : "0.0 , 0.0",
@@ -105,14 +104,13 @@
 			"DRX" : "4",
 
 "Seismograms" : "comment",
-			"NDT" : "5",
+			"NDT" : "10",
 			"SEIS_FORMAT" : "1",
-			"SEIS_FILE" : "./su/Test_t301",
+			"SEIS_FILE" : "./weq1/seis",
 
 "Monitoring the simulation" : "comment",
 			"LOG_FILE" : "./log/test.log",
 			"LOG" : "0",
-			"LOG_VERBOSITY" : "INFO",
 			"OUT_TIMESTEP_INFO" : "100",
 
 "Checkpoints" : "comment",
