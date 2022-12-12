@@ -154,7 +154,7 @@ void checkfd(float **prho, float **ppi, float **pu,
     log_info("wavelength in the following simulation will be %.3fm. Thus,\n", cmin/fmax);
     log_info("the recommended value is DH=%.3fm. Your value: DH=%.3fm\n", dhstab, gv->DH);
     if (gv->DH>dhstab) {
-      log_warn("Grid dispersion will influence wave propagation, choose a smaller grid spacing (DH).");
+      log_warn("Grid dispersion will influence wave propagation, choose a smaller grid spacing (DH).\n");
     }
 
     log_info("------------------------- Stability check -------------------\n");

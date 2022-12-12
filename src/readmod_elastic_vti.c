@@ -53,7 +53,14 @@ void readmod_elastic_vti(float **rho, float **pc11, float **pc33, float **pc13,f
 
   /* test for SU model - otherwise we read standard binary */
   sprintf(filename,"%s.%s", gv->MFILE, suffix_su[0]);
-  if (!access(filename, R_OK)) b_issu = true;
+  if (!access(filename, R_OK)) {
+    b_issu = true;
+    log_infoc(0, "Reading models in SU format.\n");
+    sprintf(filename,"%s.%s", gv->MFILE, suffix[0]);
+    if (!access(filename, R_OK)) {
+      log_warnc(0, "Models are also available as plain binary files. Check consistency, if applicable.\n");
+    }
+  }
 
   for (int i=0; i<NPARA; ++i) {
     if (b_issu) {
