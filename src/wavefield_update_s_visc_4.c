@@ -1,3 +1,4 @@
+
 /*---------------------------------------------------------------------------------
  * Copyright (C) 2015 For the list of authors, see file AUTHORS.
  *
@@ -23,61 +24,72 @@
 
 #include "fd.h"
 
-void wavefield_update_s_visc_4 ( int i, int j,float   vxx, float  vyx,float vxy,float  vyy, float **sxy,
-                              float **sxx, float ** syy, float ***r, float ***p,
-                              float ***q,float **fipjp, float **f, float **g, float *bip,
-                              float *bjm,float *cip, float *cjm, float ***d, float ***e, float ***dip ,  float ** vxx_1,float ** vxx_2,float ** vxx_3,float ** vxx_4,float ** vyy_1,float ** vyy_2,float ** vyy_3,float ** vyy_4,float ** vxy_1,float ** vxy_2,float ** vxy_3,float ** vxy_4,float ** vyx_1,float ** vyx_2,float ** vyx_3,float ** vyx_4,float ***r_2,float ***r_3,float ***r_4, float ***p_2, float ***p_3, float ***p_4, float ***q_2, float ***q_3, float ***q_4, GlobVar *gv)
+void wavefield_update_s_visc_4(int i, int j, float vxx, float vyx, float vxy, float vyy, float **sxy,
+                               float **sxx, float **syy, float ***r, float ***p,
+                               float ***q, float **fipjp, float **f, float **g, float *bip,
+                               float *bjm, float *cip, float *cjm, float ***d, float ***e, float ***dip, float **vxx_1,
+                               float **vxx_2, float **vxx_3, float **vxx_4, float **vyy_1, float **vyy_2, float **vyy_3,
+                               float **vyy_4, float **vxy_1, float **vxy_2, float **vxy_3, float **vxy_4, float **vyx_1,
+                               float **vyx_2, float **vyx_3, float **vyx_4, float ***r_2, float ***r_3, float ***r_4,
+                               float ***p_2, float ***p_3, float ***p_4, float ***q_2, float ***q_3, float ***q_4,
+                               GlobVar * gv)
 {
-    int l;
-    float  dthalbe;
-    float sumr=0.0, sump=0.0, sumq=0.0;
-    float c1, c2, c3, c4; /* Coefficients for Adam Bashforth */
-    c1=13.0/12.0; c2=-5.0/24.0; c3=1.0/6.0; c4=-1.0/24.0;
-    float sumxx=0.0,sumyy=0.0,sumxy=0.0,sumyx=0.0;
-    float  dhi;
+    float c1, c2, c3, c4;       /* Coefficients for Adam Bashforth */
+    c1 = 13.0 / 12.0;
+    c2 = -5.0 / 24.0;
+    c3 = 1.0 / 6.0;
+    c4 = -1.0 / 24.0;
+    float sumxx = 0.0, sumyy = 0.0, sumxy = 0.0, sumyx = 0.0;
     float ctemp;
-    
-    dhi = 1.0/gv->DH;
-    dthalbe = gv->DT/2.0;
-    
+
+    float dhi = 1.0f / gv->DH;
+    float dthalbe = gv->DT / 2.0;
+
     // Save derviations
-    vxx_1[j][i]=vxx*gv->DH;
-    vyy_1[j][i]=vyy*gv->DH;
-    vxy_1[j][i]=vxy*gv->DH;
-    vyx_1[j][i]=vyx*gv->DH;
-    
-    sumr=sump=sumq=0.0;
-    for ( l=1; l<=gv->L; l++ ) {
-        sumr+=c1*r[j][i][l]+c2*r_2[j][i][l]+c3*r_3[j][i][l]+c4*r_4[j][i][l];
-        sump+=c1*p[j][i][l]+c2*p_2[j][i][l]+c3*p_3[j][i][l]+c4*p_4[j][i][l];
-        sumq+=c1*q[j][i][l]+c2*q_2[j][i][l]+c3*q_3[j][i][l]+c4*q_4[j][i][l];
+    vxx_1[j][i] = vxx * gv->DH;
+    vyy_1[j][i] = vyy * gv->DH;
+    vxy_1[j][i] = vxy * gv->DH;
+    vyx_1[j][i] = vyx * gv->DH;
+
+    float sumr = 0.0f, sump = 0.0f, sumq = 0.0f;
+    for (int l = 1; l <= gv->L; l++) {
+        sumr += c1 * r[j][i][l] + c2 * r_2[j][i][l] + c3 * r_3[j][i][l] + c4 * r_4[j][i][l];
+        sump += c1 * p[j][i][l] + c2 * p_2[j][i][l] + c3 * p_3[j][i][l] + c4 * p_4[j][i][l];
+        sumq += c1 * q[j][i][l] + c2 * q_2[j][i][l] + c3 * q_3[j][i][l] + c4 * q_4[j][i][l];
     }
-    
+
     // Calculate Adams-Bashforth stuff
-    sumxx=c1*vxx_1[j][i]+c2*vxx_2[j][i]+c3*vxx_3[j][i]+c4*vxx_4[j][i];
-    sumyy=c1*vyy_1[j][i]+c2*vyy_2[j][i]+c3*vyy_3[j][i]+c4*vyy_4[j][i];
-    sumxy=c1*vxy_1[j][i]+c2*vxy_2[j][i]+c3*vxy_3[j][i]+c4*vxy_4[j][i];
-    sumyx=c1*vyx_1[j][i]+c2*vyx_2[j][i]+c3*vyx_3[j][i]+c4*vyx_4[j][i];
-    
+    sumxx = c1 * vxx_1[j][i] + c2 * vxx_2[j][i] + c3 * vxx_3[j][i] + c4 * vxx_4[j][i];
+    sumyy = c1 * vyy_1[j][i] + c2 * vyy_2[j][i] + c3 * vyy_3[j][i] + c4 * vyy_4[j][i];
+    sumxy = c1 * vxy_1[j][i] + c2 * vxy_2[j][i] + c3 * vxy_3[j][i] + c4 * vxy_4[j][i];
+    sumyx = c1 * vyx_1[j][i] + c2 * vyx_2[j][i] + c3 * vyx_3[j][i] + c4 * vyx_4[j][i];
+
     /* updating components of the stress tensor, partially */
-    sxy[j][i] += ( fipjp[j][i]* ( sumxy+sumyx ) )*dhi + ( dthalbe*sumr );
-    sxx[j][i] += ( g[j][i]* ( sumxx+sumyy )*dhi )- ( 2.0*f[j][i]*sumyy*dhi ) + ( dthalbe*sump );
-    syy[j][i] += ( g[j][i]* (sumxx+sumyy)*dhi )- ( 2.0*f[j][i]*sumxx*dhi ) + ( dthalbe*sumq );
-    
-    sumr=sump=sumq=0.0;
-    for ( l=1; l<=gv->L; l++ ) {
-        ctemp=2*(1-cip[l])/c1;
-        r_4[j][i][l] = bip[l]* ( r[j][i][l]*cip[l]-ctemp*c2*(r[j][i][l]+r_2[j][i][l])-ctemp*c3*(r_2[j][i][l]+r_3[j][i][l])-ctemp*c4*(r_3[j][i][l]+r_4[j][i][l])- ( dip[j][i][l]* ( sumxy+sumyx)*dhi ) );
-        p_4[j][i][l] = bjm[l]* ( p[j][i][l]*cjm[l]-ctemp*c2*(p[j][i][l]+p_2[j][i][l])-ctemp*c3*(p_2[j][i][l]+p_3[j][i][l])-ctemp*c4*(p_3[j][i][l]+p_4[j][i][l])- ( e[j][i][l]* ( sumxx+sumyy )*dhi ) + ( 2.0*d[j][i][l]*sumyy*dhi ) );
-        q_4[j][i][l] = bjm[l]* ( q[j][i][l]*cjm[l]-ctemp*c2*(q[j][i][l]+q_2[j][i][l])-ctemp*c3*(q_2[j][i][l]+q_3[j][i][l])-ctemp*c4*(q_3[j][i][l]+q_4[j][i][l])- ( e[j][i][l]* ( sumxx+sumyy )*dhi ) + ( 2.0*d[j][i][l]*sumxx*dhi ) );
-        sumr+=c1*r_4[j][i][l]+c2*r[j][i][l]+c3*r_2[j][i][l]+c4*r_3[j][i][l];
-        sump+=c1*p_4[j][i][l]+c2*p[j][i][l]+c3*p_2[j][i][l]+c4*p_3[j][i][l];
-        sumq+=c1*q_4[j][i][l]+c2*q[j][i][l]+c3*q_2[j][i][l]+c4*q_3[j][i][l];
+    sxy[j][i] += (fipjp[j][i] * (sumxy + sumyx)) * dhi + (dthalbe * sumr);
+    sxx[j][i] += (g[j][i] * (sumxx + sumyy) * dhi) - (2.0 * f[j][i] * sumyy * dhi) + (dthalbe * sump);
+    syy[j][i] += (g[j][i] * (sumxx + sumyy) * dhi) - (2.0 * f[j][i] * sumxx * dhi) + (dthalbe * sumq);
+
+    sumr = sump = sumq = 0.0f;
+    for (int l = 1; l <= gv->L; l++) {
+        ctemp = 2 * (1 - cip[l]) / c1;
+        r_4[j][i][l] =
+            bip[l] * (r[j][i][l] * cip[l] - ctemp * c2 * (r[j][i][l] + r_2[j][i][l]) -
+                      ctemp * c3 * (r_2[j][i][l] + r_3[j][i][l]) - ctemp * c4 * (r_3[j][i][l] + r_4[j][i][l]) -
+                      (dip[j][i][l] * (sumxy + sumyx) * dhi));
+        p_4[j][i][l] =
+            bjm[l] * (p[j][i][l] * cjm[l] - ctemp * c2 * (p[j][i][l] + p_2[j][i][l]) -
+                      ctemp * c3 * (p_2[j][i][l] + p_3[j][i][l]) - ctemp * c4 * (p_3[j][i][l] + p_4[j][i][l]) -
+                      (e[j][i][l] * (sumxx + sumyy) * dhi) + (2.0 * d[j][i][l] * sumyy * dhi));
+        q_4[j][i][l] =
+            bjm[l] * (q[j][i][l] * cjm[l] - ctemp * c2 * (q[j][i][l] + q_2[j][i][l]) -
+                      ctemp * c3 * (q_2[j][i][l] + q_3[j][i][l]) - ctemp * c4 * (q_3[j][i][l] + q_4[j][i][l]) -
+                      (e[j][i][l] * (sumxx + sumyy) * dhi) + (2.0 * d[j][i][l] * sumxx * dhi));
+        sumr += c1 * r_4[j][i][l] + c2 * r[j][i][l] + c3 * r_2[j][i][l] + c4 * r_3[j][i][l];
+        sump += c1 * p_4[j][i][l] + c2 * p[j][i][l] + c3 * p_2[j][i][l] + c4 * p_3[j][i][l];
+        sumq += c1 * q_4[j][i][l] + c2 * q[j][i][l] + c3 * q_2[j][i][l] + c4 * q_3[j][i][l];
     }
-    
-    sxy[j][i]+= ( dthalbe*sumr );
-    sxx[j][i]+= ( dthalbe*sump );
-    syy[j][i]+= ( dthalbe*sumq );
-    
-    
+
+    sxy[j][i] += (dthalbe * sumr);
+    sxx[j][i] += (dthalbe * sump);
+    syy[j][i] += (dthalbe * sumq);
 }

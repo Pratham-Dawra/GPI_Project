@@ -23,27 +23,30 @@
   bool b_err:       true if at least one NaN or INF has been 
                     found, otherwise false
  */
-bool debug_check_vector(float *vector, int nt, size_t len, int id, int min_nt, const char *cbuf) {
+bool debug_check_vector(float *vector, int nt, size_t len, int id, int min_nt, const char *cbuf)
+{
 
-  bool b_err = false;
+    bool b_err = false;
 
-  if (nt<min_nt) { return b_err; }
-
-  log_Level log_level = log_get_level();
-  log_set_level(LOG_DEBUG);
-
-  log_debug("(ID=%d): nt=%d, checking vector %s, len %zu\n", id,nt,cbuf,len);
-  for (size_t i=1; i<=len; ++i) {
-    if (isnan(vector[i]) || isinf(vector[i])) {
-      b_err = true;
-      log_debug("(ID=%d): nt=%d, i=%zu, %s[i]=%f\n", id,nt,i,cbuf,vector[i]);
+    if (nt < min_nt) {
+        return b_err;
     }
-  }
 
-  /* revert to previous log level */
-  log_set_level(log_level);
+    log_Level log_level = log_get_level();
+    log_set_level(LOG_DEBUG);
 
-  return b_err;
+    log_debug("(ID=%d): nt=%d, checking vector %s, len %zu\n", id, nt, cbuf, len);
+    for (size_t i = 1; i <= len; ++i) {
+        if (isnan(vector[i]) || isinf(vector[i])) {
+            b_err = true;
+            log_debug("(ID=%d): nt=%d, i=%zu, %s[i]=%f\n", id, nt, i, cbuf, vector[i]);
+        }
+    }
+
+    /* revert to previous log level */
+    log_set_level(log_level);
+
+    return b_err;
 }
 
 /*
@@ -63,27 +66,30 @@ bool debug_check_vector(float *vector, int nt, size_t len, int id, int min_nt, c
   bool b_err:       true if at least one NaN or INF has been 
                     found, otherwise false
  */
-bool debug_check_matrix(float **matrix, int nt, size_t lenx, size_t leny, int id, int min_nt, const char *cbuf) {
-    
-  bool b_err = false;
-  
-  if (nt<min_nt) { return b_err; }
+bool debug_check_matrix(float **matrix, int nt, size_t lenx, size_t leny, int id, int min_nt, const char *cbuf)
+{
 
-  log_Level log_level = log_get_level();
-  log_set_level(LOG_DEBUG);
+    bool b_err = false;
 
-  log_debug("(ID=%d): nt=%d, checking matrix %s, lenx %zu, leny %zu\n", id,nt,cbuf,lenx,leny);
-  for (size_t i=1; i<=lenx; ++i) {
-    for (size_t j=1; j<leny; ++j) {
-      if (isnan(matrix[j][i]) || isinf(matrix[j][i])) {
-	b_err = true;
-	log_debug("(ID=%d): nt=%d, i=%zu, j=%zu, %s[j][i]=%f\n", id,nt,i,j,cbuf,matrix[j][i]);
-      }
+    if (nt < min_nt) {
+        return b_err;
     }
-  }
 
-  /* revert to previous log level */
-  log_set_level(log_level);
+    log_Level log_level = log_get_level();
+    log_set_level(LOG_DEBUG);
 
-  return b_err;
+    log_debug("(ID=%d): nt=%d, checking matrix %s, lenx %zu, leny %zu\n", id, nt, cbuf, lenx, leny);
+    for (size_t i = 1; i <= lenx; ++i) {
+        for (size_t j = 1; j < leny; ++j) {
+            if (isnan(matrix[j][i]) || isinf(matrix[j][i])) {
+                b_err = true;
+                log_debug("(ID=%d): nt=%d, i=%zu, j=%zu, %s[j][i]=%f\n", id, nt, i, j, cbuf, matrix[j][i]);
+            }
+        }
+    }
+
+    /* revert to previous log level */
+    log_set_level(log_level);
+
+    return b_err;
 }

@@ -1,3 +1,4 @@
+
 /*------------------------------------------------------------------------
  * Copyright (C) 2011 For the list of authors, see file AUTHORS.
  *
@@ -16,12 +17,12 @@
  * along with SOFI2D. See file COPYING and/or 
   * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
+
 /*------------------------------------------------------------------------
  *   Write one single amplitude on disk                                   
- *
  *  ----------------------------------------------------------------------*/
-#include <stdio.h>
 
+#include <stdio.h>
 #include "fd.h"
 #include "logging.h"
 
@@ -32,20 +33,20 @@ format=2  :  ASCII
 format=3  :  BINARY (IEEE)
 */
 
-void writedsk(FILE *fp_out, float amp, int format) 
+void writedsk(FILE *fp_out, float amp, int format)
 {
-  switch(format) {
-  case 1 : /* SU*/
-    log_fatal("Sorry, SU format for snapshots not implemented.\n");
-    break;
-  case 2 :  /*ASCII*/
-    fprintf(fp_out,"%e\n", amp);
-    break;
-  case 3 :   /* BINARY */
-    fwrite(&amp, sizeof(float), 1, fp_out);
-    break;
-  default :
-    log_error("Unknown format for the snapshot data.\n");
-    log_fatal("Cannot write snapshot data to disk.\n");
-  }
+    switch (format) {
+      case 1:                  /* SU */
+          log_fatal("Sorry, SU format for snapshots not implemented.\n");
+          break;
+      case 2:                  /*ASCII*/ 
+	  fprintf(fp_out, "%e\n", amp);
+          break;
+      case 3:                  /* BINARY */
+          fwrite(&amp, sizeof(float), 1, fp_out);
+          break;
+      default:
+          log_error("Unknown format for the snapshot data.\n");
+          log_fatal("Cannot write snapshot data to disk.\n");
+    }
 }

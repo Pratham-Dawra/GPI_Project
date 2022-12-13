@@ -4,10 +4,10 @@
 
 #include "globvar_struct.h"
 
-/* Read source signature file.
- * @param[out] ns number of samples
- * @param[in] gv global variable structure
- * @return float buffer with source signature values
+/*! Read source signature file.
+ *  @param[out] ns number of samples
+ *  @param[in] gv global variable structure
+ *  @return float buffer with source signature values
  */
 float *read_srcsig(int *ns, const GlobVar *gv);
 

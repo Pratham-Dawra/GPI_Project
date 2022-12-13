@@ -1,3 +1,4 @@
+
 /*------------------------------------------------------------------------
  * Copyright (C) 2011 For the list of authors, see file AUTHORS.
  *
@@ -27,90 +28,95 @@
 #include "globvar_struct.h"
 #include "logging.h"
 
-void check_fs(GlobVar *gv) {
-  
-  int fserr = 0;
-  
+void check_fs(GlobVar *gv)
+{
+    int fserr = 0;
+
   /********************************************/
   /* Check output directories as required     */
   /********************************************/
 
-  if (gv->LOG > 0) {
-    /* check log file directory */
-    char *dirc = strdup(gv->LOG_FILE);
-    if (!dirc) log_fatal("Could not copy string in check_fs.c - memory issue encountered.\n");
-    char *dname = dirname(dirc);
-    if (access(dname, W_OK) != 0) {
-      log_error("Cannot write to log directory %s.\n", dname);
-      fserr = 1;
-    } else {
-      log_infoc(0, "Filesystem check: log file directory %s is writable.\n", dname);
+    if (gv->LOG > 0) {
+        /* check log file directory */
+        char *dirc = strdup(gv->LOG_FILE);
+        if (!dirc)
+            log_fatal("Could not copy string in check_fs.c - memory issue encountered.\n");
+        char *dname = dirname(dirc);
+        if (access(dname, W_OK) != 0) {
+            log_error("Cannot write to log directory %s.\n", dname);
+            fserr = 1;
+        } else {
+            log_infoc(0, "Filesystem check: log file directory %s is writable.\n", dname);
+        }
+        free(dirc);
     }
-    free(dirc);
-  }
-  
-  if (gv->SEISMO > 0) {
-    /* check seismogram directory */
-    char *dirc = strdup(gv->SEIS_FILE);
-    if (!dirc) log_fatal("Could not copy string in check_fs.c - memory issue encountered.\n");
-    char *dname = dirname(dirc);
-    if (access(dname, W_OK) != 0) {
-      log_error("Cannot write to seismogram directory %s.\n", dname);
-      fserr = 1;
-    } else {
-      log_infoc(0, "Filesystem check: seismogram directory %s is writable.\n", dname);
-    }
-    free(dirc);
-  }
 
-  if (gv->SNAP > 0) {
-    /* check snapshot directory */
-    char *dirc = strdup(gv->SNAP_FILE);
-    if (!dirc) log_fatal("Could not copy string in check_fs.c - memory issue encountered.\n");
-    char *dname = dirname(dirc);
-    if (access(dname, W_OK) != 0) {
-      log_error("Cannot write to snapshot directory %s.\n", dname);
-      fserr = 1;
-    } else {
-      log_infoc(0, "Filesystem check: snapshot directory %s is writable.\n", dname);
+    if (gv->SEISMO > 0) {
+        /* check seismogram directory */
+        char *dirc = strdup(gv->SEIS_FILE);
+        if (!dirc)
+            log_fatal("Could not copy string in check_fs.c - memory issue encountered.\n");
+        char *dname = dirname(dirc);
+        if (access(dname, W_OK) != 0) {
+            log_error("Cannot write to seismogram directory %s.\n", dname);
+            fserr = 1;
+        } else {
+            log_infoc(0, "Filesystem check: seismogram directory %s is writable.\n", dname);
+        }
+        free(dirc);
     }
-    free(dirc);
-  }
 
-  if (gv->WRITE_MODELFILES > 0) {
-    /* check model file directory */
-    char *dirc = strdup(gv->MFILE);
-    if (!dirc) log_fatal("Could not copy string in check_fs.c - memory issue encountered.\n");
-    char *dname = dirname(dirc);
-    if (access(dname, W_OK) != 0) {
-      log_error("Cannot write to model file directory %s.\n", dname);
-      fserr = 1;
-    } else {
-      log_infoc(0, "Filesystem check: model file directory %s is writable.\n", dname);
+    if (gv->SNAP > 0) {
+        /* check snapshot directory */
+        char *dirc = strdup(gv->SNAP_FILE);
+        if (!dirc)
+            log_fatal("Could not copy string in check_fs.c - memory issue encountered.\n");
+        char *dname = dirname(dirc);
+        if (access(dname, W_OK) != 0) {
+            log_error("Cannot write to snapshot directory %s.\n", dname);
+            fserr = 1;
+        } else {
+            log_infoc(0, "Filesystem check: snapshot directory %s is writable.\n", dname);
+        }
+        free(dirc);
     }
-    free(dirc);
-  }
-  
-  if (1 == gv->SIGOUT) {
-    /* check signal output directory */
-    char *dirc = strdup(gv->SIGOUT_FILE);
-    if (!dirc) log_fatal("Could not copy string in check_fs.c - memory issue encountered.\n");
-    char *dname = dirname(dirc);
-    if (access(dname, W_OK) != 0) {
-      log_error("Cannot write to source output directory %s.\n", dname);
-      fserr = 1;
-    } else {
-      log_infoc(0, "Filesystem check: source output directory %s is writable.\n", dname);
+
+    if (gv->WRITE_MODELFILES > 0) {
+        /* check model file directory */
+        char *dirc = strdup(gv->MFILE);
+        if (!dirc)
+            log_fatal("Could not copy string in check_fs.c - memory issue encountered.\n");
+        char *dname = dirname(dirc);
+        if (access(dname, W_OK) != 0) {
+            log_error("Cannot write to model file directory %s.\n", dname);
+            fserr = 1;
+        } else {
+            log_infoc(0, "Filesystem check: model file directory %s is writable.\n", dname);
+        }
+        free(dirc);
     }
-    free(dirc);
-  }
-  
+
+    if (1 == gv->SIGOUT) {
+        /* check signal output directory */
+        char *dirc = strdup(gv->SIGOUT_FILE);
+        if (!dirc)
+            log_fatal("Could not copy string in check_fs.c - memory issue encountered.\n");
+        char *dname = dirname(dirc);
+        if (access(dname, W_OK) != 0) {
+            log_error("Cannot write to source output directory %s.\n", dname);
+            fserr = 1;
+        } else {
+            log_infoc(0, "Filesystem check: source output directory %s is writable.\n", dname);
+        }
+        free(dirc);
+    }
+
   /********************************************/
   /* ERROR                                    */
   /********************************************/
-  if (fserr) {
-    log_fatal("Error(s) encountered while checking filesystem for correct permissions.\n");
-  }
+    if (fserr) {
+        log_fatal("Error(s) encountered while checking filesystem for correct permissions.\n");
+    }
 
-  return;
+    return;
 }

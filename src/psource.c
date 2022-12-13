@@ -1,3 +1,4 @@
+
 /*------------------------------------------------------------------------
  * Copyright (C) 2011 For the list of authors, see file AUTHORS.
  *
@@ -16,58 +17,38 @@
  * along with SOFI2D. See file COPYING and/or 
   * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
+
 /*------------------------------------------------------------------------
  *   generate P-wave source at source nodes
- *
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
 
-void psource(int nt, float ** sxx, float ** syy,
-		float **  srcpos_loc, float ** signals, int nsrc, GlobVar *gv){
+void psource(int nt, float **sxx, float **syy, float **srcpos_loc, float **signals, int nsrc, GlobVar *gv)
+{
+    float amp = 0.0f;
+    int i, j;
 
-	int i, j, l;
-	float amp=0;
+    /* adding source wavelet to stress components (explosive source) at source points */
 
-	/* adding source wavelet to stress components 
-	   (explosive source) at source points */
+    for (int l = 1; l <= nsrc; l++) {
+        i = (int)srcpos_loc[1][l];
+        j = (int)srcpos_loc[2][l];
 
-/*	if (RSG){
-		for (l=1;l<=nsrc;l++) {
-			i=(int)srcpos_loc[1][l];
-			j=(int)srcpos_loc[2][l];
+        //amp=signals[l][nt]; //unscaled explosive source
+        amp = (signals[l][nt]) / (gv->DH * gv->DH); //scaled explosive source, seismic Moment = 1 Nm
 
-			//amp=signals[l][nt]/4.0; //unscaled explosive source
-			//amp=(signals[l][nt])/(4.0*gv->DH*gv->DH); //scaled explosive source, seismic Moment = 1 Nm
-			if(nt==1){amp=signals[l][nt+1]/(2.0*gv->DH*gv->DH);}
-	                if((nt>1)&&(nt<gv->NT)){amp=(signals[l][nt+1]-signals[l][nt-1])/(2.0*gv->DH*gv->DH);}
-        	        if(nt==gv->NT){amp=-signals[l][nt-1]/(2.0*gv->DH*gv->DH);}
+        if (nt == 1) {
+            amp = signals[l][nt + 1] / (2.0 * gv->DH * gv->DH);
+        }
+        if ((nt > 1) && (nt < gv->NT)) {
+            amp = (signals[l][nt + 1] - signals[l][nt - 1]) / (2.0 * gv->DH * gv->DH);
+        }
+        if (nt == gv->NT) {
+            amp = -signals[l][nt - 1] / (2.0 * gv->DH * gv->DH);
+        }
 
-			sxx[j][i]+=amp;
-			sxx[j][i+1]+=amp;
-			sxx[j+1][i]+=amp;
-			sxx[j+1][i+1]+=amp;
-
-			syy[j][i]+=amp;
-			syy[j][i+1]+=amp;
-			syy[j+1][i]+=amp;
-			syy[j+1][i+1]+=amp;
-		}
-
-	}else{*/
-
-		for (l=1;l<=nsrc;l++) {
-			i=(int)srcpos_loc[1][l];
-			j=(int)srcpos_loc[2][l];
-
-			//amp=signals[l][nt]; //unscaled explosive source
-			amp=(signals[l][nt])/(gv->DH*gv->DH); //scaled explosive source, seismic Moment = 1 Nm
-			
-			if(nt==1){amp=signals[l][nt+1]/(2.0*gv->DH*gv->DH);}
-                        if((nt>1)&&(nt<gv->NT)){amp=(signals[l][nt+1]-signals[l][nt-1])/(2.0*gv->DH*gv->DH);}
-                        if(nt==gv->NT){amp=-signals[l][nt-1]/(2.0*gv->DH*gv->DH);}
-
-			sxx[j][i]+=amp;
-			syy[j][i]+=amp;
-	}
+        sxx[j][i] += amp;
+        syy[j][i] += amp;
+    }
 }

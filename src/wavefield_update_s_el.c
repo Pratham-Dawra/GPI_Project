@@ -1,3 +1,4 @@
+
 /*---------------------------------------------------------------------------------
  * Copyright (C) 2015 For the list of authors, see file AUTHORS.
  *
@@ -17,24 +18,21 @@
   * <http://www.gnu.org/licenses/gpl-2.0.html>.
 ---------------------------------------------------------------------------------*/
 
-/* $Id: wavefield_update_s_el.c 819 2015-04-17 11:07:06Z tmetz $ */
-
-/*Update Function of the stress-Wavefields in the elastic case*/
+/*
+ * Update Function of the stress-Wavefields in the elastic case
+ */
 
 #include "fd.h"
 
-void wavefield_update_s_el ( int i, int j,float   vxx, float  vyx,float vxy,float  vyy, float **sxy,
-                   float **sxx, float ** syy, float ** pi, float ** u, float ** uipjp, GlobVar *gv ) {
+void wavefield_update_s_el(int i, int j, float vxx, float vyx, float vxy, float vyy, float **sxy,
+                           float **sxx, float **syy, float **pi, float **u, float **uipjp, GlobVar *gv)
+{
+    float fipjp = uipjp[j][i] * gv->DT;
+    float f = u[j][i] * gv->DT;
+    float g = pi[j][i] * gv->DT;
 
-	float fipjp, f, g;
-
-	fipjp=uipjp[j][i]*gv->DT;
-	f = u[j][i]*gv->DT;
-	g = pi[j][i]*gv->DT;
-
-	/*Update  */
-	sxy[j][i] += fipjp* ( vyx+vxy );
-	sxx[j][i] += ( g* ( vxx+vyy ) )- ( 2.0*f*vyy );
-	syy[j][i] += ( g* ( vxx+vyy ) )- ( 2.0*f*vxx );
-
+    /* Update  */
+    sxy[j][i] += fipjp * (vyx + vxy);
+    sxx[j][i] += (g * (vxx + vyy)) - (2.0f * f * vyy);
+    syy[j][i] += (g * (vxx + vyy)) - (2.0f * f * vxx);
 }

@@ -1,3 +1,4 @@
+
 /*------------------------------------------------------------------------
  * Copyright (C) 2011 For the list of authors, see file AUTHORS.
  *
@@ -16,12 +17,12 @@
  * along with SOFI2D. See file COPYING and/or 
   * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
+
 /*------------------------------------------------------------------------
  *   Read one single amplitude from file                                   
- *
  *  ----------------------------------------------------------------------*/
-#include <stdio.h>
 
+#include <stdio.h>
 #include "fd.h"
 #include "logging.h"
 
@@ -32,24 +33,23 @@ format=2  :  ASCII
 format=3  :  BINARY (IEEE)
 */
 
-float readdsk(FILE *fp_in, int format) 
+float readdsk(FILE *fp_in, int format)
 {
-  float amp=0.0;
+    float amp = 0.0f;
 
-  switch(format) 
-    {
-    case 1 : /* SU*/ 
-      log_fatal("Sorry, SU-format for snapshots not implemented yet.\n");
-      break;
-    case 2 :  /*ASCII*/
-      fscanf(fp_in,"%e\n", &amp); 
-      break;
-    case 3 :   /* BINARY */
-      fread(&amp, sizeof(float), 1, fp_in);
-      break;  
-    default :
-      log_error("Unknown format for the snapshot data.\n");
-      log_fatal("Unsupported format, no files processed.\n");
+    switch (format) {
+      case 1:                  /* SU */
+          log_fatal("Sorry, SU-format for snapshots not implemented yet.\n");
+          break;
+      case 2:                  /*ASCII*/ 
+	  fscanf(fp_in, "%e\n", &amp);
+          break;
+      case 3:                  /* BINARY */
+          fread(&amp, sizeof(float), 1, fp_in);
+          break;
+      default:
+          log_error("Unknown format for the snapshot data.\n");
+          log_fatal("Unsupported format, no files processed.\n");
     }
-  return amp;
+    return amp;
 }

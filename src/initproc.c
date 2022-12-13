@@ -1,3 +1,4 @@
+
 /*------------------------------------------------------------------------
  * Copyright (C) 2011 For the list of authors, see file AUTHORS.
  *
@@ -16,54 +17,60 @@
  * along with SOFI2D. See file COPYING and/or 
   * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
+
 /* -------------------------------------------------------------
  * This is function initproc.
  * Dividing the 2-D FD grid into domains and assigning the
  * PEs to these domains,
- *
  * -------------------------------------------------------------*/
 
 #include "fd.h"
 #include "logging.h"
 
-void initproc(GlobVar *gv)	
+void initproc(GlobVar *gv)
 {
-  if ((gv->NPROC != gv->NP)  && (gv->MPID==0)) {
-    log_error("You specified NPROCX*NPROCY=%d (in json file) but number of MPI processes set to NP=%d.\n",gv->NPROC,gv->NP);
-    log_fatal("Number of MPI processes (NP) and number of processing elements (NPROCX*NPROCY) differ!\n");
-  }
+    if ((gv->NPROC != gv->NP) && (gv->MPID == 0)) {
+        log_error("You specified NPROCX*NPROCY=%d (in json file) but number of MPI processes set to NP=%d.\n",
+                  gv->NPROC, gv->NP);
+        log_fatal("Number of MPI processes (NP) and number of processing elements (NPROCX*NPROCY) differ!\n");
+    }
 
-  /* determine the length of the subarray on this processor */
-  gv->IENDX = gv->NX/gv->NPROCX;
-  gv->IENDY = gv->NY/gv->NPROCY;
+    /* determine the length of the subarray on this processor */
+    gv->IENDX = gv->NX / gv->NPROCX;
+    gv->IENDY = gv->NY / gv->NPROCY;
 
-  /* POS(1) indicates x POSition of the processor in the logical 3D processor array */
-  if ((gv->NX%gv->NPROCX)>0) log_fatal("NX%NPROCX (modulus) must be zero!\n");
-  if ((gv->NY%gv->NPROCY)>0) log_fatal("NY%NPROCY (modulus) must be zero!\n");
+    /* POS(1) indicates x POSition of the processor in the logical 3D processor array */
+    if ((gv->NX % gv->NPROCX) > 0)
+        log_fatal("NX%NPROCX (modulus) must be zero!\n");
+    if ((gv->NY % gv->NPROCY) > 0)
+        log_fatal("NY%NPROCY (modulus) must be zero!\n");
 
-  log_debugc(0, "Size of subdomains (in grid points): %d (horz.) times %d (vert.)\n", gv->IENDX, gv->IENDY);
+    log_debugc(0, "Size of subdomains (in grid points): %d (horz.) times %d (vert.)\n", gv->IENDX, gv->IENDY);
 
-  /* index is indicating neighbouring processes */
-  gv->INDEX[1]=gv->MPID-1;           /* left	*/
-  gv->INDEX[2]=gv->MPID+1;           /* right	*/
-  gv->INDEX[3]=gv->MPID-gv->NPROCX;  /* upper	*/
-  gv->INDEX[4]=gv->MPID+gv->NPROCX;  /* lower	*/
-	
-  /* POS indicates the processor location in the 3D logical processor array */
-  gv->POS[1] = gv->MPID%gv->NPROCX;   /* x coordinate */
-  gv->POS[2] = (gv->MPID/gv->NPROCX); /* y coordinate */
+    /* index is indicating neighbouring processes */
+    gv->INDEX[1] = gv->MPID - 1;    /* left    */
+    gv->INDEX[2] = gv->MPID + 1;    /* right   */
+    gv->INDEX[3] = gv->MPID - gv->NPROCX;   /* upper   */
+    gv->INDEX[4] = gv->MPID + gv->NPROCX;   /* lower   */
 
-  if (gv->POS[1] == 0)            gv->INDEX[1] = gv->INDEX[1] + gv->NPROCX;        	  
-  if (gv->POS[1] == gv->NPROCX-1) gv->INDEX[2] = gv->INDEX[2] - gv->NPROCX;
-  if (gv->POS[2] == 0)            gv->INDEX[3] = (gv->NPROCX*gv->NPROCY)+gv->MPID-gv->NPROCX;
-  if (gv->POS[2] == gv->NPROCY-1) gv->INDEX[4] = gv->MPID+gv->NPROCX-(gv->NPROCX*gv->NPROCY);
-  
-  log_debug("PE %d; col %d; row %d; left-right neighbor %d,%d; upper-lower neighbor %d,%d\n",
-	    gv->MPID,gv->POS[1],gv->POS[2],gv->INDEX[1],gv->INDEX[2],gv->INDEX[3],gv->INDEX[4]);
+    /* POS indicates the processor location in the 3D logical processor array */
+    gv->POS[1] = gv->MPID % gv->NPROCX; /* x coordinate */
+    gv->POS[2] = (gv->MPID / gv->NPROCX);   /* y coordinate */
 
-  return;
+    if (gv->POS[1] == 0)
+        gv->INDEX[1] = gv->INDEX[1] + gv->NPROCX;
+    if (gv->POS[1] == gv->NPROCX - 1)
+        gv->INDEX[2] = gv->INDEX[2] - gv->NPROCX;
+    if (gv->POS[2] == 0)
+        gv->INDEX[3] = (gv->NPROCX * gv->NPROCY) + gv->MPID - gv->NPROCX;
+    if (gv->POS[2] == gv->NPROCY - 1)
+        gv->INDEX[4] = gv->MPID + gv->NPROCX - (gv->NPROCX * gv->NPROCY);
+
+    log_debug("PE %d; col %d; row %d; left-right neighbor %d,%d; upper-lower neighbor %d,%d\n",
+              gv->MPID, gv->POS[1], gv->POS[2], gv->INDEX[1], gv->INDEX[2], gv->INDEX[3], gv->INDEX[4]);
+
+    return;
 }
-
 
 /* Example: NPROX=5, NPROCY=4 => NPROC=20           */
 /*                                                  */

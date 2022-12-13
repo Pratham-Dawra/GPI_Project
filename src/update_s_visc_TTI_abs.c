@@ -1,3 +1,4 @@
+
 /*-----------------------------------------------------------------------------------------
  * Copyright (C) 2015  For the list of authors, see file AUTHORS.
  *
@@ -17,6 +18,7 @@
 -----------------------------------------------------------------------------------------*/
 
 /* $Id: update_s_elastic_abs.c 819 2015-04-17 11:07:06Z tmetz $*/
+
 /*------------------------------------------------------------------------
  *   updating stress components at gridpoints of the absorbing frame (ABS=2 in the json file)
  *   by a staggered grid finite difference scheme of arbitrary (FDORDER) order accuracy in space
@@ -28,116 +30,104 @@
  *  ----------------------------------------------------------------------*/
 #include "fd.h"
 
-void update_s_visc_tti_abs (int *gx, int *gy,
-                            float **  pvxx, float **   pvyy, float **  pvyx, float **   pvxy,
-                            float **sxx, float **syy, float **sxy,
-                              float ***pr, float ***pp, float ***pq,
-                            float ** pc11u, float **pc33u, float **pc13u, float ** pc15u, float ** pc35u,
-                           float ** pc55ipjpu, float ** pc15ipjpu,float ** pc35ipjpu,
-                           float *** pc11d, float ***pc33d, float ***pc13d,
-                           float *** pc15d, float *** pc35d,
-                           float *** pc55ipjpd, float *** pc15ipjpd,float *** pc35ipjpd,
-                             float *bip, float *cip, float ** absorb_coeff, GlobVar *gv ) {
+void update_s_visc_tti_abs(int *gx, int *gy,
+                           float **pvxx, float **pvyy, float **pvyx, float **pvxy,
+                           float **sxx, float **syy, float **sxy,
+                           float ***pr, float ***pp, float ***pq,
+                           float **pc11u, float **pc33u, float **pc13u, float **pc15u, float **pc35u,
+                           float **pc55ipjpu, float **pc15ipjpu, float **pc35ipjpu,
+                           float ***pc11d, float ***pc33d, float ***pc13d,
+                           float ***pc15d, float ***pc35d,
+                           float ***pc55ipjpd, float ***pc15ipjpd, float ***pc35ipjpd,
+                           float *bip, float *cip, float **absorb_coeff, GlobVar *gv)
+{
+    /* left boundary */
+    for (int j = gy[2] + 1; j <= gy[3]; j++) {
+        for (int i = gx[1]; i <= gx[2]; i++) {
+            wavefield_update_s_visc_TTI(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy, pr, pp, pq,
+                                        pc11u, pc33u, pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                        pc11d, pc33d, pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                        bip, cip, gv);
+            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+        }
+    }
 
-	int i,j;
+    /* right boundary */
+    for (int j = gy[2] + 1; j <= gy[3]; j++) {
+        for (int i = gx[3] + 1; i <= gx[4]; i++) {
+            wavefield_update_s_visc_TTI(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy, pr, pp, pq,
+                                        pc11u, pc33u, pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                        pc11d, pc33d, pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                        bip, cip, gv);
+            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+        }
+    }
 
+    /* top boundary */
+    for (int j = gy[1]; j <= gy[2]; j++) {
+        for (int i = gx[2] + 1; i <= gx[3]; i++) {
+            wavefield_update_s_visc_TTI(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy, pr, pp, pq,
+                                        pc11u, pc33u, pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                        pc11d, pc33d, pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                        bip, cip, gv);
+            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+        }
+    }
 
-	/* left boundary */
-	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
+    /* bottom boundary */
+    for (int j = gy[3] + 1; j <= gy[4]; j++) {
+        for (int i = gx[2] + 1; i <= gx[3]; i++) {
+            wavefield_update_s_visc_TTI(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy, pr, pp, pq,
+                                        pc11u, pc33u, pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                        pc11d, pc33d, pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                        bip, cip, gv);
+            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+        }
+    }
 
-            wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
-                                         bip,  cip, gv);
-            
-            abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
+    /* corners */
 
-	/* right boundary */
-	for ( j=gy[2]+1; j<=gy[3]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
+    /*left-top */
+    for (int j = gy[1]; j <= gy[2]; j++) {
+        for (int i = gx[1]; i <= gx[2]; i++) {
+            wavefield_update_s_visc_TTI(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy, pr, pp, pq,
+                                        pc11u, pc33u, pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                        pc11d, pc33d, pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                        bip, cip, gv);
+            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+        }
+    }
 
-            wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
-                                         bip,  cip, gv);
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
+    /*left-bottom */
+    for (int j = gy[3] + 1; j <= gy[4]; j++) {
+        for (int i = gx[1]; i <= gx[2]; i++) {
+            wavefield_update_s_visc_TTI(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy, pr, pp, pq,
+                                        pc11u, pc33u, pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                        pc11d, pc33d, pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                        bip, cip, gv);
+            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+        }
+    }
 
-	/* top boundary */
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
+    /* right-top */
+    for (int j = gy[1]; j <= gy[2]; j++) {
+        for (int i = gx[3] + 1; i <= gx[4]; i++) {
+            wavefield_update_s_visc_TTI(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy, pr, pp, pq,
+                                        pc11u, pc33u, pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                        pc11d, pc33d, pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                        bip, cip, gv);
+            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+        }
+    }
 
-            wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
-                                         bip,  cip, gv);
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
-
-	/* bottom boundary */
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[2]+1; i<=gx[3]; i++ ) {
-
-            wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
-                                         bip,  cip, gv);
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
-
-	/* corners */
-
-	/*left-top*/
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-
-            wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
-                                         bip,  cip, gv);
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
-
-	/*left-bottom*/
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[1]; i<=gx[2]; i++ ) {
-
-            wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
-                                         bip,  cip, gv);
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
-
-	/* right-top */
-	for ( j=gy[1]; j<=gy[2]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-
-            wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
-                                         bip,  cip, gv);
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
-
-	/* right-bottom */
-	for ( j=gy[3]+1; j<=gy[4]; j++ ) {
-		for ( i=gx[3]+1; i<=gx[4]; i++ ) {
-
-            wavefield_update_s_visc_TTI ( i,j,pvxx,pvyx,pvxy,pvyy,sxy,sxx,syy,pr, pp, pq,
-                                         pc11u, pc33u,  pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
-                                         pc11d, pc33d,  pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
-                                         bip,  cip, gv);
-			abs_update_s ( i,j,sxx,sxy,syy,absorb_coeff );
-		}
-	}
+    /* right-bottom */
+    for (int j = gy[3] + 1; j <= gy[4]; j++) {
+        for (int i = gx[3] + 1; i <= gx[4]; i++) {
+            wavefield_update_s_visc_TTI(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy, pr, pp, pq,
+                                        pc11u, pc33u, pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
+                                        pc11d, pc33d, pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
+                                        bip, cip, gv);
+            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+        }
+    }
 }

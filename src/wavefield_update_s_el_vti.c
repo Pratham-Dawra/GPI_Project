@@ -1,3 +1,4 @@
+
 /*---------------------------------------------------------------------------------
  * Copyright (C) 2015 For the list of authors, see file AUTHORS.
  *
@@ -17,29 +18,17 @@
   * <http://www.gnu.org/licenses/gpl-2.0.html>.
 ---------------------------------------------------------------------------------*/
 
-/* $Id: wavefield_update_s_el.c 819 2015-04-17 11:07:06Z tmetz $ */
-
-/*Update Function of the stress-Wavefields in the elastic case*/
+/*
+ * Update Function of the stress-Wavefields in the elastic case
+ */
 
 #include "fd.h"
 
-void wavefield_update_s_el_vti ( int i, int j,float   vxx, float  vyx,float vxy,float  vyy, float **sxy, float **sxx, float ** syy, float ** pc11, float ** pc55ipjp,
-                            float ** pc13, float ** pc33)
+void wavefield_update_s_el_vti(int i, int j, float vxx, float vyx, float vxy, float vyy, float **sxy, float **sxx,
+                               float **syy, float **pc11, float **pc55ipjp, float **pc13, float **pc33)
 {
-
-    float c55ipjp, c33, c11, c13;
-
-
-    c55ipjp=pc55ipjp[j][i];
-    c11=pc11[j][i];
-    c33=pc33[j][i];
-    c13=pc13[j][i];
-
-
-	/*Update  */
-    sxy[j][i]+= ( c55ipjp* ( vxy+vyx ) );
-    sxx[j][i]+= ( (c11* vxx)+ (c13*vyy) );
-    syy[j][i]+= ( (c13* vxx)+ (c33*vyy) );
-    
-
+    /* Update */
+    sxy[j][i] += (pc55ipjp[j][i] * (vxy + vyx));
+    sxx[j][i] += ((pc11[j][i] * vxx) + (pc13[j][i] * vyy));
+    syy[j][i] += ((pc13[j][i] * vxx) + (pc33[j][i] * vyy));
 }

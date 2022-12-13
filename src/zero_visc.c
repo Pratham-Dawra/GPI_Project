@@ -1,3 +1,4 @@
+
 /*------------------------------------------------------------------------
  * Copyright (C) 2011 For the list of authors, see file AUTHORS.
  *
@@ -16,34 +17,33 @@
  * along with SOFI2D. See file COPYING and/or 
   * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
+
 /*------------------------------------------------------------------------
  * Initialization of the wave field with zero values (zero wavefield)
- *
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
 
-void zero_visc(int nx1, int nx2, int ny1, int ny2, float ** vx, float ** vy, float ** sxx, float ** syy, float ** sxy, float *** pr, float *** pp, float *** pq, GlobVar *gv){
+void zero_visc(int nx1, int nx2, int ny1, int ny2, float **vx, float **vy, float **sxx, float **syy, float **sxy,
+               float ***pr, float ***pp, float ***pq, GlobVar *gv)
+{
+    for (int j = ny1; j <= ny2; j++) {
+        for (int i = nx1; i <= nx2; i++) {
+            vx[j][i] = 0.0f;
+            vy[j][i] = 0.0f;
+            sxx[j][i] = 0.0f;
+            syy[j][i] = 0.0f;
+            sxy[j][i] = 0.0f;
+        }
+    }
 
-	register int i, j, l;
-
-		for (j=ny1;j<=ny2;j++){
-			for (i=nx1;i<=nx2;i++){
-				vx[j][i]=0.0;
-				vy[j][i]=0.0;
-				sxx[j][i]=0.0;
-				syy[j][i]=0.0;
-                sxy[j][i]=0.0;
-			}
-		}
-
-		for (j=ny1;j<=ny2;j++){
-			for (i=nx1;i<=nx2;i++){
-				for (l=1;l<=gv->L;l++){
-					pr[j][i][l] = 0.0;
-					pp[j][i][l] = 0.0;
-					pq[j][i][l] = 0.0;
-				}
-			}
-		}
+    for (int j = ny1; j <= ny2; j++) {
+        for (int i = nx1; i <= nx2; i++) {
+            for (int l = 1; l <= gv->L; l++) {
+                pr[j][i][l] = 0.0f;
+                pp[j][i][l] = 0.0f;
+                pq[j][i][l] = 0.0f;
+            }
+        }
+    }
 }

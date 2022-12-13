@@ -1,5 +1,6 @@
+
 /*------------------------------------------------------------------------
- * Copyright (C) 2011 For the list of authors, see file AUTHORS.
+ * Copyright (C) 2022 For the list of authors, see file AUTHORS.
  *
  * This file is part of SOFI2D.
  * 
@@ -26,6 +27,6 @@
 
 void init_SUhead(SUhead *header)
 {
-  bzero((void*)header, sizeof(SUhead));
-  return;
+    bzero((void *)header, sizeof(SUhead));
+    return;
 }

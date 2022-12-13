@@ -1,3 +1,4 @@
+
 /*------------------------------------------------------------------------
  * Copyright (C) 2011 For the list of authors, see file AUTHORS.
  *
@@ -16,6 +17,7 @@
  * along with SOFI2D. See file COPYING and/or 
   * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
+
 /* ------------------------------------------------------------------------
  * prepare of update of the stress tensor
  * ------------------------------------------------------------------------*/
@@ -23,30 +25,28 @@
 #include "fd.h"
 
 void prepare_update_s(float *etajm, float *etaip, float *peta, float **fipjp, float **pu,
-		float **puipjp, float **ppi, float **ptaus, float **ptaup,
-		float **ptausipjp, float **f, float **g, float *bip, float *bjm,
-		float *cip, float *cjm, float ***dip, float ***d, float ***e, GlobVar *gv) {
-
-	int i, j, l;
-
-	for (l=1;l<=gv->L;l++){
-		etajm[l] = peta[l];
-		etaip[l] = peta[l];
-	}
-	for (j=1;j<=gv->NY;j++){
-		for (i=1;i<=gv->NX;i++){
-			fipjp[j][i] = puipjp[j][i]*gv->DT*(1.0+gv->L*ptausipjp[j][i]);
-			f[j][i] = pu[j][i]*gv->DT*(1.0+gv->L*ptaus[j][i]);
-			g[j][i] = ppi[j][i]*gv->DT*(1.0+gv->L*ptaup[j][i]);
-			for (l=1;l<=gv->L;l++){
-				bip[l] = 1.0/(1.0+(etaip[l]*0.5));
-				bjm[l] = 1.0/(1.0+(etajm[l]*0.5));
-				cip[l] = 1.0-(etaip[l]*0.5);
-				cjm[l] = 1.0-(etajm[l]*0.5);
-				dip[j][i][l] = puipjp[j][i]*etaip[l]*ptausipjp[j][i];
-				d[j][i][l] = pu[j][i]*etajm[l]*ptaus[j][i];
-				e[j][i][l] = ppi[j][i]*etajm[l]*ptaup[j][i];
-			}
-		}
-	}
+                      float **puipjp, float **ppi, float **ptaus, float **ptaup,
+                      float **ptausipjp, float **f, float **g, float *bip, float *bjm,
+                      float *cip, float *cjm, float ***dip, float ***d, float ***e, GlobVar *gv)
+{
+    for (int l = 1; l <= gv->L; l++) {
+        etajm[l] = peta[l];
+        etaip[l] = peta[l];
+    }
+    for (int j = 1; j <= gv->NY; j++) {
+        for (int i = 1; i <= gv->NX; i++) {
+            fipjp[j][i] = puipjp[j][i] * gv->DT * (1.0 + gv->L * ptausipjp[j][i]);
+            f[j][i] = pu[j][i] * gv->DT * (1.0 + gv->L * ptaus[j][i]);
+            g[j][i] = ppi[j][i] * gv->DT * (1.0 + gv->L * ptaup[j][i]);
+            for (int l = 1; l <= gv->L; l++) {
+                bip[l] = 1.0 / (1.0 + (etaip[l] * 0.5));
+                bjm[l] = 1.0 / (1.0 + (etajm[l] * 0.5));
+                cip[l] = 1.0 - (etaip[l] * 0.5);
+                cjm[l] = 1.0 - (etajm[l] * 0.5);
+                dip[j][i][l] = puipjp[j][i] * etaip[l] * ptausipjp[j][i];
+                d[j][i][l] = pu[j][i] * etajm[l] * ptaus[j][i];
+                e[j][i][l] = ppi[j][i] * etajm[l] * ptaup[j][i];
+            }
+        }
+    }
 }
