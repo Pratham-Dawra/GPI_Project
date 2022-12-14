@@ -20,8 +20,7 @@
 
 /*  ----------------------------------------------------------------------
  *  This is program SOFI2D.
- *  Parallel 2-D Viscoelastic Finite Difference Seismic Modeling
- *  using the Standard Staggered Grid (SSG)
+ *  Parallel 2-D Viscoelastic Finite Difference Seismic Modeling *  using the Standard Staggered Grid (SSG)
  *
  *  PLEASE DO NOT DISTRIBUTE. PLEASE REFER OTHER PEOPLE TO :
  *
@@ -44,6 +43,7 @@
 #include "globvar_struct.h"
 #include "logging.h"
 #include "macros.h"
+#include "enums.h"
 #ifdef EBUG
 #include "debug_buffers.h"
 #endif
@@ -423,7 +423,7 @@ int main(int argc, char **argv)
     }
 
     /* static (model) arrays (isotropic elastic + viscoelastic) */
-    if (gv.WEQ > 2) {
+    if (gv.WEQ >= EL_ISO && gv.WEQ <= VEL_TTI ) {
         prho = matrix(-nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
         prip = matrix(-nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
         prjp = matrix(-nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
@@ -434,7 +434,7 @@ int main(int argc, char **argv)
     }
 
     /* static (model) arrays (viscoelastic) */
-    if (gv.WEQ == 4) {          /*viscoelastic  isotropic wave equation */
+    if (gv.WEQ == VEL_ISO) {          /*viscoelastic  isotropic wave equation */
         dip = f3tensor(-nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd, 1, gv.L);
         d = f3tensor(-nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd, 1, gv.L);
         e = f3tensor(-nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd, 1, gv.L);
@@ -453,7 +453,7 @@ int main(int argc, char **argv)
         cjm = vector(1, gv.L);
     }
 
-    if (gv.WEQ == 5) {          /*elastic VTI wave equation */
+    if (gv.WEQ == EL_VTI) {          /*elastic VTI wave equation */
         pc11 = ppi;
         pc33 = matrix(-nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
         pc13 = matrix(-nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
@@ -461,7 +461,7 @@ int main(int argc, char **argv)
         pc55ipjp = puipjp;
     }
 
-    if (gv.WEQ == 6) {          /*viscoelastic VTI wave equation */
+    if (gv.WEQ == VEL_VTI) {          /*viscoelastic VTI wave equation */
         pc11 = ppi;
         pc33 = matrix(-nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
         pc13 = matrix(-nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
@@ -491,7 +491,7 @@ int main(int argc, char **argv)
 
     }
 
-    if (gv.WEQ == 7) {          /*elastic TTI wave equation */
+    if (gv.WEQ == EL_TTI) {          /*elastic TTI wave equation */
         pc11 = ppi;
         pc33 = matrix(-nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
         pc13 = matrix(-nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
@@ -508,7 +508,7 @@ int main(int argc, char **argv)
         pvxy = matrix(-nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
     }
 
-    if (gv.WEQ == 8) {          /*viscoelastic TTI wave equation */
+    if (gv.WEQ == VEL_TTI) {          /*viscoelastic TTI wave equation */
         pc11 = ppi;
         pc33 = matrix(-nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
         pc13 = matrix(-nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
@@ -612,13 +612,22 @@ int main(int argc, char **argv)
     /* create model grids */
     if (gv.READMOD) {
         switch (gv.WEQ) {
-          case 3:              /* elastic */
+          case AC_ISO:               /* acoustic */
+	      log_fatal("not yet implemented\n");
+	      break;
+          case AC_VTI:               /* acoustic VTI*/
+	      log_fatal("not yet implemented\n");
+	      break;
+	  case AC_TTI:               /* acoustic TTI */
+	      log_fatal("not yet implemented\n");
+	      break;
+          case EL_ISO:               /* elastic */
               readmod_elastic(prho, ppi, pu, &gv);
               break;
-          case 4:              /* viscoelastic */
+          case VEL_ISO:              /* viscoelastic */
               readmod_visco(prho, ppi, pu, ptaus, ptaup, peta, &gv);
               break;
-          case 5:              /* elastic VTI */
+          case EL_VTI:               /* elastic VTI */
               readmod_elastic_vti(prho, pc11, pc33, pc13, pc55, &gv);
 #ifdef EBUG
               debug_check_matrix(prho, 0, gv.NX, gv.NY, 5, 0, "prho");
@@ -628,7 +637,7 @@ int main(int argc, char **argv)
               debug_check_matrix(pc55, 0, gv.NX, gv.NY, 5, 0, "pc55");
 #endif
               break;
-          case 6:              /* viscoelastic VTI */
+          case VEL_VTI:             /* viscoelastic VTI */
               readmod_visco_vti(prho, pc11, pc33, pc13, pc55, ptau11, ptau33, ptau13, ptau55, peta, &gv);
 #ifdef EBUG
               debug_check_matrix(prho, 0, gv.NX, gv.NY, 6, 0, "prho");
@@ -643,7 +652,7 @@ int main(int argc, char **argv)
               debug_check_vector(peta, 0, gv.L, 6, 0, "peta");
 #endif
               break;
-          case 7:              /* elastic TTI */
+          case EL_TTI:               /* elastic TTI */
               readmod_elastic_tti(prho, pc11, pc33, pc13, pc55, pc15, pc35, &gv);
 #ifdef EBUG
               debug_check_matrix(prho, 0, gv.NX, gv.NY, 7, 0, "prho");
@@ -655,7 +664,7 @@ int main(int argc, char **argv)
               debug_check_matrix(pc35, 0, gv.NX, gv.NY, 7, 0, "pc35");
 #endif
               break;
-          case 8:              /* viscoelastic TTI */
+          case VEL_TTI:              /* viscoelastic TTI */
               readmod_visco_tti(prho, pc11, pc33, pc13, pc55, pc15, pc35,
                                 ptau11, ptau33, ptau13, ptau55, ptau15, ptau35, peta, &gv);
 #ifdef EBUG
@@ -675,30 +684,41 @@ int main(int argc, char **argv)
               debug_check_vector(peta, 0, gv.L, 8, 0, "peta");
 #endif
               break;
+	  case VAC_ISO:              /* viscoacoustic */
+	      log_fatal("not yet implemented\n");
+	      break;
+          case VAC_VTI:              /* viscoacoustic VTI*/
+	      log_fatal("not yet implemented\n");
+	      break;
+	  case VAC_TTI:              /* viscoacoustic TTI */
+	      log_fatal("not yet implemented\n");
+	      break;
+	  default:
+	      log_fatal("Unknown WEQ.\n");
         }
     } else {
         switch (gv.WEQ) {
-          case 3:              /* elastic */
+          case EL_ISO:               /* elastic */
               model_elastic(prho, ppi, pu, &gv);
               break;
-          case 4:              /* viscoelastic */
+          case VEL_ISO:              /* viscoelastic */
               model_visco(prho, ppi, pu, ptaus, ptaup, peta, &gv);
               break;
-          case 5:              /* elastic VTI */
+          case EL_VTI:               /* elastic VTI */
               model_elastic_VTI(prho, pc11, pc33, pc13, pc55, &gv);
               break;
-
-          case 6:              /* viscoelastic VTI */
+          case VEL_VTI:              /* viscoelastic VTI */
               model_visco_vti(prho, pc11, pc33, pc13, pc55, ptau11, ptau33, ptau13, ptau55, peta, &gv);
               break;
-
-          case 7:              /* elastic TTI */
+          case EL_TTI:               /* elastic TTI */
               model_elastic_TTI(prho, pc11, pc33, pc13, pc55, pc15, pc35, &gv);
               break;
-
-          case 8:              /* viscoelastic TTI */
+          case VEL_TTI:              /* viscoelastic TTI */
               model_visco_tti(prho, pc11, pc33, pc13, pc55, pc15, pc35, ptau11,
                               ptau33, ptau13, ptau55, ptau15, ptau35, peta, &gv);
+              break;
+	  default:
+	      log_fatal("Internal model for your chosen WEQ not implemented.\n");
               break;
         }
     }
@@ -707,24 +727,44 @@ int main(int argc, char **argv)
 
     /* check if the FD run will be stable and free of numerical dispersion */
     switch (gv.WEQ) {
-      case 3:                  /* elastic */
+      case AC_ISO:                   /* acoustic */
+	  log_fatal("not yet implemented\n");
+	  break;
+      case AC_VTI:                   /* acoustic VTI */
+	  log_fatal("not yet implemented\n");
+	  break;
+      case AC_TTI:                   /* acoustic TTI */
+	  log_fatal("not yet implemented\n");
+	  break;
+      case EL_ISO:                   /* elastic */
           checkfd(prho, ppi, pu, ptaus, ptaup, peta, hc, srcpos, nsrc, recpos, ntr_glob, &gv);
           break;
-      case 4:                  /* viscoelastic */
+      case VEL_ISO:                  /* viscoelastic */
           checkfd(prho, ppi, pu, ptaus, ptaup, peta, hc, srcpos, nsrc, recpos, ntr_glob, &gv);
           break;
-      case 5:                  /* elastic VTI */
+      case EL_VTI:                   /* elastic VTI */
           checkfd(prho, pc11, pc55, ptaus, ptaup, peta, hc, srcpos, nsrc, recpos, ntr_glob, &gv);
           break;
-      case 6:                  /* viscoelastic VTI */
+      case VEL_VTI:                  /* viscoelastic VTI */
           checkfd(prho, pc11, pc55, ptau55, ptau11, peta, hc, srcpos, nsrc, recpos, ntr_glob, &gv);
           break;
-      case 7:                  /* elastic TTI */
+      case EL_TTI:                   /* elastic TTI */
           checkfd(prho, pc11, pc55, ptaus, ptaup, peta, hc, srcpos, nsrc, recpos, ntr_glob, &gv);
           break;
-      case 8:                  /* viscoelastic TTI */
+      case VEL_TTI:                  /* viscoelastic TTI */
           checkfd(prho, pc11, pc55, ptau55, ptau11, peta, hc, srcpos, nsrc, recpos, ntr_glob, &gv);
           break;
+      case VAC_ISO:                  /* viscoacoustic */
+	  log_fatal("not yet implemented\n");
+	  break;
+      case VAC_VTI:                  /* viscoacoustic VTI */
+	  log_fatal("not yet implemented\n");
+	  break;
+      case VAC_TTI:                  /* viscoacoustic TTI */
+	  log_fatal("not yet implemented\n");
+	  break;
+      default:
+	  log_fatal("Unknown WEQ.\n");
     }
 
     /* calculate damping coefficients for CPMLs */
@@ -746,18 +786,27 @@ int main(int argc, char **argv)
      * neighbouring grids */
 
     switch (gv.WEQ) {
-      case 3:                  /* elastic */
+      case AC_ISO:                    /* acoustic */
+	  log_fatal("not yet implemented\n");
+	  break;
+      case AC_VTI:                    /* acoustic VTI */
+	  log_fatal("not yet implemented\n");
+	  break;
+      case AC_TTI:                    /* acoustic TTI */
+	  log_fatal("not yet implemented\n");
+	  break;
+      case EL_ISO:                    /* elastic */
           matcopy_elastic(prho, ppi, pu, &gv);
           av_mue(pu, puipjp, &gv);
           av_rho(prho, prip, prjp, &gv);
           break;
-      case 4:                  /* viscoelastic */
+      case VEL_ISO:                   /* viscoelastic */
           matcopy(prho, ppi, pu, ptaus, ptaup, &gv);
           av_mue(pu, puipjp, &gv);
           av_rho(prho, prip, prjp, &gv);
           av_tau(ptaus, ptausipjp, &gv);
           break;
-      case 5:                  /* elastic VTI */
+      case EL_VTI:                    /* elastic VTI */
           matcopy_elastic(prho, pc11, pc55, &gv);
           av_mue(pc55, pc55ipjp, &gv);
           av_rho(prho, prip, prjp, &gv);
@@ -767,7 +816,7 @@ int main(int argc, char **argv)
           debug_check_matrix(prjp, 0, gv.NX, gv.NY, 55, 0, "prjp");
 #endif
           break;
-      case 6:                  /* viscoelastic VTI */
+      case VEL_VTI:                   /* viscoelastic VTI */
           matcopy_elastic(prho, ptau55, pc55, &gv);
           av_mue(pc55, pc55ipjp, &gv);
           av_rho(prho, prip, prjp, &gv);
@@ -779,7 +828,7 @@ int main(int argc, char **argv)
           debug_check_matrix(ptau55ipjp, 0, gv.NX, gv.NY, 66, 0, "ptau55ipjp");
 #endif
           break;
-      case 7:                  /* elastic TTI */
+      case EL_TTI:                    /* elastic TTI */
           matcopy_elastic(prho, pc11, pc55, &gv);
           matcopy_elastic(prho, pc15, pc35, &gv);
           av_mue(pc55, pc55ipjp, &gv);
@@ -794,7 +843,7 @@ int main(int argc, char **argv)
           debug_check_matrix(pc35ipjp, 0, gv.NX, gv.NY, 77, 0, "pc35ipjp");
 #endif
           break;
-      case 8:                  /* viscoelastic TTI */
+      case VEL_TTI:                   /* viscoelastic TTI */
           matcopy_elastic(prho, ptau55, pc55, &gv);
           matcopy_elastic(prho, ptau15, pc15, &gv);
           matcopy_elastic(prho, ptau35, pc35, &gv);
@@ -816,31 +865,48 @@ int main(int argc, char **argv)
           debug_check_matrix(ptau35ipjp, 0, gv.NX, gv.NY, 88, 0, "ptau35ipjp");
 #endif
           break;
+      case VAC_ISO:                   /* viscoacoustic */
+	  log_fatal("not yet implemented\n");
+	  break;
+      case VAC_VTI:                   /* viscoacoustic VTI */
+	  log_fatal("not yet implemented\n");
+	  break;
+      case VAC_TTI:                   /* viscoacoustic TTI */
+	  log_fatal("not yet implemented\n");
+	  break;
+      default:
+	  log_fatal("Unknown WEQ.\n");
     }
 
     /* Preparing memory variables for update_s (viscoelastic only) */
 
     if (gv.FDORDER_TIME == 2) {
         switch (gv.WEQ) {
-          case 4:              /* viscoelastic */
+	  case AC_ISO:                /* acoustic */
+	      break;
+          case AC_VTI:                /* acoustic VTI */
+	      break;
+          case AC_TTI:                /* acoustic TTI */
+	      break;
+	  case EL_ISO:                /* elastic */
+	      break;
+          case VEL_ISO:               /* viscoelastic */
               prepare_update_s(etajm, etaip, peta, fipjp, pu, puipjp, ppi, ptaus,
                                ptaup, ptausipjp, f, g, bip, bjm, cip, cjm, dip, d, e, &gv);
               break;
-          case 5:
+          case EL_VTI:            
               dt_mult(gv.NX, gv.NY, gv.DT, pc11);
               dt_mult(gv.NX, gv.NY, gv.DT, pc33);
               dt_mult(gv.NX, gv.NY, gv.DT, pc13);
               dt_mult(gv.NX, gv.NY, gv.DT, pc55ipjp);
               break;
-          case 6:              /* viscoelastic VTI */
-
+          case VEL_VTI:               /* viscoelastic VTI */
               prepare_update_s_vti(peta, pc11, pc13, pc33, pc55ipjp,
                                    ptau11, ptau13, ptau33, ptau55ipjp,
                                    pc55ipjpu, pc13u, pc11u, pc33u, pc55ipjpd, pc13d, pc11d, pc33d, bip, cip, &gv);
 
               break;
-
-          case 7:
+          case EL_TTI:
               dt_mult(gv.NX, gv.NY, gv.DT, pc11);
               dt_mult(gv.NX, gv.NY, gv.DT, pc33);
               dt_mult(gv.NX, gv.NY, gv.DT, pc13);
@@ -850,20 +916,28 @@ int main(int argc, char **argv)
               dt_mult(gv.NX, gv.NY, gv.DT, pc35ipjp);
               dt_mult(gv.NX, gv.NY, gv.DT, pc15ipjp);
               break;
-
-          case 8:              /* viscoelastic TTI */
-
+          case VEL_TTI:               /* viscoelastic TTI */
               prepare_update_s_tti(peta, pc11, pc33, pc13, pc55, pc15, pc35, pc55ipjp, pc15ipjp, pc35ipjp,
                                    ptau11, ptau33, ptau13, ptau55, ptau15, ptau35, ptau55ipjp, ptau15ipjp, ptau35ipjp,
                                    pc11u, pc33u, pc13u, pc55u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
                                    pc11d, pc33d, pc13d, pc55d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
                                    bip, cip, &gv);
-
               break;
+	  case VAC_ISO:               /* viscoacoustic */
+	      log_fatal("not yet implemented\n");
+	      break;
+	  case VAC_VTI:               /* viscoacoustic VTI */
+	      log_fatal("not yet implemented\n");
+	      break;
+          case VAC_TTI:               /* viscoacoustic TTI */
+	      log_fatal("not yet implemented\n");
+	      break;
+          default:
+	      log_fatal("Unknown WEQ.\n");
         }
     }
 
-    if ((gv.WEQ == 4) && gv.FDORDER_TIME == 4) {
+    if ((gv.WEQ == VEL_ISO) && gv.FDORDER_TIME == 4) {
         prepare_update_s_4(etajm, etaip, peta, fipjp, pu, puipjp, ppi, ptaus,
                            ptaup, ptausipjp, f, g, bip, bjm, cip, cjm, dip, d, e, &gv);
     }
@@ -1059,7 +1133,7 @@ int main(int argc, char **argv)
 
             exchange_v(nd, pvx, pvy, bufferlef_to_rig, bufferrig_to_lef, buffertop_to_bot, bufferbot_to_top, &gv);
 
-            if ((gv.WEQ == 7) || (gv.WEQ == 8)) {   /* TTI */
+            if ((gv.WEQ == EL_TTI) || (gv.WEQ == VEL_TTI)) {   /* TTI */
                 v_derivatives(pvx, pvy, pvxx, pvyy, pvyx, pvxy, &gv);
                 exchange_v(nd, pvxx, pvyy, bufferlef_to_rig, bufferrig_to_lef, buffertop_to_bot, bufferbot_to_top, &gv);
                 exchange_v(nd, pvyx, pvxy, bufferlef_to_rig, bufferrig_to_lef, buffertop_to_bot, bufferbot_to_top, &gv);
@@ -1078,7 +1152,16 @@ int main(int argc, char **argv)
             if (gv.FDORDER_TIME == 2) {
 
                 switch (gv.WEQ) {
-                  case 3:      /* elastic */
+	          case AC_ISO:        /* acoustic */
+		      log_fatal("not yet implemented\n");
+		      break;
+                  case AC_VTI:        /* acoustic VTI */
+		      log_fatal("not yet implemented\n");
+		      break;
+                  case AC_TTI:        /* acoustic TTI */
+		      log_fatal("not yet implemented\n");
+		      break;
+                  case EL_ISO:        /* elastic */
                       update_s_elastic_interior(gx, gy, nt, pvx, pvy, psxx, psyy, psxy, ppi, pu, puipjp, hc, &gv);
 
                       if (gv.FW) {
@@ -1092,8 +1175,7 @@ int main(int argc, char **argv)
                                                    ppi, pu, puipjp, absorb_coeff, &gv);
                       }
                       break;
-
-                  case 4:      /* viscoelastic */
+                  case VEL_ISO:       /* viscoelastic */
                       update_s_visc_interior(gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq, fipjp,
                                              f, g, bip, bjm, cip, cjm, d, e, dip, &gv);
                       if (gv.FW) {
@@ -1107,10 +1189,9 @@ int main(int argc, char **argv)
                                                 pp, pq, fipjp, f, g, bip, bjm, cip, cjm, d, e, dip, absorb_coeff, &gv);
                       }
                       break;
-                  case 5:      /* elastic VTI */
+                  case EL_VTI:        /* elastic VTI */
                       update_s_elastic_VTI_interior(gx, gy, nt, pvx, pvy, psxx, psyy, psxy,
                                                     pc11, pc55ipjp, pc13, pc33, &gv);
-
                       if (gv.FW) {
                           if (gv.ABS_TYPE == 1)
                               update_s_elastic_VTI_PML(gv.NX, gv.NY, gx, gy, pvx, pvy, psxx, psyy, psxy, pc11, pc13,
@@ -1127,8 +1208,7 @@ int main(int argc, char **argv)
                       debug_check_matrix(psxy, nt, gv.NX, gv.NY, 555, 0, "psxy");
 #endif
                       break;
-
-                  case 6:      /* viscoelastic VTI */
+                  case VEL_VTI:          /* viscoelastic VTI */
                       update_s_visc_VTI_interior(gx, gy, nt, pvx, pvy, psxx, psyy, psxy, pr, pp, pq,
                                                  pc55ipjpu, pc13u, pc11u, pc33u, pc55ipjpd, pc13d, pc11d, pc33d,
                                                  bip, cip, &gv);
@@ -1151,8 +1231,7 @@ int main(int argc, char **argv)
                       debug_check_matrix(psxy, nt, gv.NX, gv.NY, 666, 0, "psxy");
 #endif
                       break;
-
-                  case 7:      /* elastic TTI */
+                  case EL_TTI:        /* elastic TTI */
                       update_s_elastic_TTI_interior(gx, gy, nt, pvxx, pvyy,
                                                     pvyx, pvxy, psxx, psyy, psxy,
                                                     pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp, &gv);
@@ -1165,7 +1244,6 @@ int main(int argc, char **argv)
                                                        K_x, a_x, b_x, K_x_half, a_x_half, b_x_half, K_y, a_y, b_y,
                                                        K_y_half, a_y_half, b_y_half, psi_vxx, psi_vyy, psi_vxy, psi_vyx,
                                                        &gv);
-
                           if (gv.ABS_TYPE == 2)
                               update_s_elastic_tti_abs(gx, gy, pvxx, pvyy, pvyx, pvxy, psxx, psyy, psxy,
                                                        pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp,
@@ -1177,9 +1255,7 @@ int main(int argc, char **argv)
                       debug_check_matrix(psxy, nt, gv.NX, gv.NY, 777, 0, "psxy");
 #endif
                       break;
-
-                  case 8:      /* viscoelastic TTI */
-
+                  case VEL_TTI:       /* viscoelastic TTI */
                       update_s_visc_TTI_interior(gx, gy, nt, pvxx, pvyy, pvyx, pvxy, psxx, psyy, psxy, pr, pp, pq,
                                                  pc11u, pc33u, pc13u, pc15u, pc35u, pc55ipjpu, pc15ipjpu, pc35ipjpu,
                                                  pc11d, pc33d, pc13d, pc15d, pc35d, pc55ipjpd, pc15ipjpd, pc35ipjpd,
@@ -1204,6 +1280,17 @@ int main(int argc, char **argv)
                       debug_check_matrix(psxy, nt, gv.NX, gv.NY, 888, 0, "psxy");
 #endif
                       break;
+	           case VAC_ISO:      /* viscoacoustic */
+		       log_fatal("not yet implemented\n");
+		       break;
+	           case VAC_VTI:      /* viscoacoustic VTI */
+		       log_fatal("not yet implemented\n");
+		       break;
+                   case VAC_TTI:      /* viscoacoustic TTI */
+		       log_fatal("not yet implemented\n");
+		       break;
+		   default:
+		       log_fatal("Unknown WEQ.\n");
                 }
             }
 
@@ -1453,7 +1540,7 @@ int main(int argc, char **argv)
         free_matrix(svy_4, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
     }
 
-    if (gv.WEQ > 2) {
+    if (gv.WEQ >= EL_ISO && gv.WEQ <= VEL_TTI) {
         free_matrix(prho, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
         free_matrix(prip, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
         free_matrix(prjp, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
@@ -1472,7 +1559,7 @@ int main(int argc, char **argv)
         free_f3tensor(pq, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd, 1, gv.L);
     }
 
-    if (gv.WEQ == 4) {          /*viscoelastic wave equation */
+    if (gv.WEQ == VEL_ISO) {          /*viscoelastic wave equation */
         free_matrix(ptaus, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
         free_matrix(ptausipjp, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
         free_matrix(ptaup, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
@@ -1491,8 +1578,7 @@ int main(int argc, char **argv)
         free_f3tensor(e, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd, 1, gv.L);
     }
 
-    if (gv.WEQ == 6) {          /*viscoelastic VTI wave equation */
-
+    if (gv.WEQ == VEL_VTI) {      /*viscoelastic VTI wave equation */
         free_matrix(pc33, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
         free_matrix(pc13, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
         free_matrix(ptau11, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
@@ -1500,40 +1586,33 @@ int main(int argc, char **argv)
         free_matrix(ptau13, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
         free_matrix(ptau55, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
         free_matrix(ptau55ipjp, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
-
         free_f3tensor(pc55ipjpd, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd, 1, gv.L);
         free_f3tensor(pc13d, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd, 1, gv.L);
         free_f3tensor(pc33d, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd, 1, gv.L);
         free_f3tensor(pc11d, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd, 1, gv.L);
-
         free_matrix(pc55ipjpu, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
         free_matrix(pc13u, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
         free_matrix(pc11u, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
         free_matrix(pc33u, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd);
-
         free_vector(peta, 1, gv.L);
         free_vector(bip, 1, gv.L);
         free_vector(cip, 1, gv.L);
     }
     /*elastic TTI wave equation */
-
-/*    if ( WEQ==7 ) {
-        free_matrix ( pvxx, -nd + 1, NY + nd, -nd + 1, NX + nd );
-        free_matrix ( pvyy, -nd + 1, NY + nd, -nd + 1, NX + nd );
-        free_matrix ( pvxy, -nd + 1, NY + nd, -nd + 1, NX + nd );
-        free_matrix ( pvyx, -nd + 1, NY + nd, -nd + 1, NX + nd );
-
-    }*/
+//    if ( WEQ == EL_TTI ) {        /*elastic TTI wave equation */
+//        free_matrix ( pvxx, -nd + 1, NY + nd, -nd + 1, NX + nd );
+//        free_matrix ( pvyy, -nd + 1, NY + nd, -nd + 1, NX + nd );
+//        free_matrix ( pvxy, -nd + 1, NY + nd, -nd + 1, NX + nd );
+//        free_matrix ( pvyx, -nd + 1, NY + nd, -nd + 1, NX + nd );
+//    }
 
     if (gv.L > 0 && gv.FDORDER_TIME == 4) {
         free_f3tensor(pr_2, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd, 1, gv.L);
         free_f3tensor(pr_3, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd, 1, gv.L);
         free_f3tensor(pr_4, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd, 1, gv.L);
-
         free_f3tensor(pp_2, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd, 1, gv.L);
         free_f3tensor(pp_3, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd, 1, gv.L);
         free_f3tensor(pp_4, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd, 1, gv.L);
-
         free_f3tensor(pq_2, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd, 1, gv.L);
         free_f3tensor(pq_3, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd, 1, gv.L);
         free_f3tensor(pq_4, -nd + 1, gv.NY + nd, -nd + 1, gv.NX + nd, 1, gv.L);

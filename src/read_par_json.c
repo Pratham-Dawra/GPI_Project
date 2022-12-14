@@ -25,8 +25,50 @@
 
 #include <unistd.h>
 #include <stdbool.h>
+#include <string.h>
 #include "fd.h"
 #include "logging.h"
+#include "enums.h"
+
+static const char* weq_descr[NWEQ] = { "AC_ISO", "AC_VTI", "AC_TTI", 
+				       "EL_ISO", "VEL_ISO", "EL_VTI",
+				       "VEL_VTI", "EL_TTI", "VEL_TTI", 
+				       "VAC_ISO", "VAC_VTI", "VAC_TTI" };
+
+static const char* weq_verbose[NWEQ] = { "acoustic wave equation",
+					 "acoustic VTI wave equation",
+					 "acoustic TTI wave equation",
+					 "elastic wave equation",
+					 "viscoelastic wave equation",
+					 "elastic VTI wave equation",
+					 "viscoelastic VTI wave equation",
+					 "elastic TTI wave equation",
+					 "viscoelastic TTI wave equation",
+					 "viscoacoustic wave equation",
+					 "viscoacoustic VTI wave equation",
+					 "viscoacoustic TTI wave equation" };
+
+const char *get_weq_verbose(WEQTYPE wt) {
+    return weq_verbose[wt];
+}
+
+static void parse_weqtype(const char *weqt, GlobVar*gv)
+{
+    bool b_found = false;
+
+    for (int i=0; i<NWEQ; ++i) {
+	if  (!strncasecmp(weqt, weq_descr[i], STRING_SIZE-1)) {
+	    gv->WEQ = (WEQTYPE)i;
+	    b_found = true;
+	    break;
+	}
+    }
+
+    if (!b_found) {
+	log_error("Unknown value '%s' for parameter WEQ.\n", weqt);
+	log_fatal("Unknown wave equation (WEQ) specified in parameter file.\n");
+    }
+}
 
 void read_par_json(const char *fileinp, GlobVar *gv)
 {
@@ -93,21 +135,18 @@ void read_par_json(const char *fileinp, GlobVar *gv)
     if (get_float_from_objectlist("DT", number_readobjects, &(gv->DT), varname_list, value_list, used_list))
         log_fatal("Variable DT could not be retrieved from the json input file!");
 
-    if (get_int_from_objectlist("WEQ", number_readobjects, &(gv->WEQ), varname_list, value_list, used_list)) {
-        (gv->WEQ) = 3;
-    } else {
-        if ((gv->WEQ) != 3 && (gv->WEQ) != 4 && (gv->WEQ) != 5 && (gv->WEQ) != 6 && (gv->WEQ) != 7 && (gv->WEQ) != 8) {
-            log_error("Only the following wave equations are supported: \n");
-            log_error("  WEQ=3 (isotropic elastic) \n");
-            log_error("  WEQ=4 (isotropic viscoelastic) \n");
-            log_error("  WEQ=5 (elastic VTI) \n");
-            log_error("  WEQ=6 (viscoelastic VTI) \n");
-            log_error("  WEQ=7 (elastic TTI) \n");
-            log_error("  WEQ=8 (viscoelastic TTI) \n");
-            log_fatal("Unsupported WEQ parameter encountered.\n");
-        }
-    }
+  /* =================================
+   * wave equation
+   * ================================= */
 
+    char weqtype[STRING_SIZE];
+
+    if (get_string_from_objectlist("WEQ", number_readobjects, weqtype, varname_list, value_list, used_list)) {
+	gv->WEQ = EL_ISO;
+    } else {
+	parse_weqtype(weqtype, gv);
+    }
+    
   /* =================================
    * section source parameters
    * ================================= */
@@ -332,11 +371,13 @@ void read_par_json(const char *fileinp, GlobVar *gv)
     if (get_int_from_objectlist("L", number_readobjects, &(gv->L), varname_list, value_list, used_list))
         log_fatal("Variable L could not be retrieved from the json input file!");
 
-    if (((gv->L) == 0) && (((gv->WEQ) == 4) || ((gv->WEQ) == 6) || ((gv->WEQ) == 8)))
-        log_fatal("L>0 for viscoelastic simulations (WEQ=4 or WEQ=6 or WEQ=8)!");
+    if (((gv->L) == 0) && (((gv->WEQ) == VEL_ISO) || ((gv->WEQ) == VEL_VTI) || ((gv->WEQ) == VEL_TTI) ||
+			   ((gv->WEQ) == VAC_ISO) || ((gv->WEQ) == VAC_VTI) || ((gv->WEQ) == VAC_TTI)))
+        log_fatal("L>0 required for viscoacoustic/elastic simulation!");
 
-    if (((gv->L) > 0) && (((gv->WEQ) == 3) || ((gv->WEQ) == 5) || ((gv->WEQ) == 7))) {
-        log_warn("L reset to zero for elastic simulation (WEQ=3 or WEQ=5 or WEQ=7).\n");
+    if (((gv->L) > 0) && (((gv->WEQ) == AC_ISO) || ((gv->WEQ) == AC_VTI) || ((gv->WEQ) == AC_TTI) ||
+			  ((gv->WEQ) == EL_ISO) || ((gv->WEQ) == EL_VTI) || ((gv->WEQ) == EL_TTI))) {
+        log_warn("L reset to zero for elastic/acoustic simulation.\n");
         (gv->L) = 0;
     }
 

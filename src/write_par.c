@@ -40,35 +40,7 @@ void write_par(GlobVar *gv)
     log_info("Order of temporal FD operator (FDORDER_TIME): %d\n", gv->FDORDER_TIME);
 
     log_info("------------------------- Wave Equation ---------------------\n");
-    switch (gv->WEQ) {
-      case 1:
-          log_info("Type (WEQ): acoustic wave equation\n");
-          break;
-      case 2:
-          log_info("Type (WEQ): viscoacoustic wave equation\n");
-          break;
-      case 3:
-          log_info("Type (WEQ): elastic wave equation\n");
-          break;
-      case 4:
-          log_info("Type (WEQ): viscoelastic wave equation\n");
-          break;
-      case 5:
-          log_info("Type (WEQ): elastic VTI wave equation\n");
-          break;
-      case 6:
-          log_info("Type (WEQ): viscoelastic VTI wave equation\n");
-          break;
-      case 7:
-          log_info("Type (WEQ): elastic TTI wave equation\n");
-          break;
-      case 8:
-          log_info("Type (WEQ): viscoelastic TTI wave equation\n");
-          break;
-      default:
-          log_fatal("Sorry, incorrect specification of parameter WEQ (type of wave equation)!\n");
-          break;
-    }
+    log_info("Type (WEQ): %s\n", get_weq_verbose(gv->WEQ));
 
     log_info("------------------------- Discretization --------------------\n");
     log_info("Model size (grid points) in x-direction (NX): %d\n", gv->NX);

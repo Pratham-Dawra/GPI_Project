@@ -83,6 +83,8 @@ void exchange_s(int nd, float **sxx, float **syy,
 
 void exchange_par(GlobVar *gv);
 
+const char *get_weq_verbose(WEQTYPE wt);
+
 float *holbergcoeff(GlobVar *gv);
 
 void initfd(GlobVar *gv);

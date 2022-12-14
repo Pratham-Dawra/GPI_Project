@@ -17,12 +17,12 @@
 			"TIME" : "0.2",
 			"DT" : "1.0e-4",
 
-            
 "Wave Equation" : "comment",
-			"WEQ" : "5",
-			"WEQ values : 1:acoustic, 2:viscoacoustic, 3:elastic, " : "comment",
-			"WEQ values : 4:viscoelastic, 5:elastic VTI, 6:viscoelastic VTI, " : "comment",
-			"WEQ values : 7:elastic TTI, 8:viscoelastic TTI, " : "comment",
+			"WEQ" : "EL_VTI",
+                        "WEQ values : AC_ISO:acoustic isotropic, AC_VTI:acoustic VTI, AC_TTI:acoustic TTI" : "comment",
+                        "WEQ values : VAC_ISO:viscoacoustic isotropic, VAC_VTI:viscoacoustic VTI, VAC_TTI:viscoacoustic TTI" : "comment",
+                        "WEQ values : EL_ISO:elastic isotropic, EL_VTI:elastic VTI, EL_TTI:elastic TTI" : "comment",
+                        "WEQ values : VEL_ISO:viscoelastic isotropic, VEL_VTI:viscoelastic VTI, VEL_TTI:viscoelastic TTI" : "comment",
 
 "Source" : "comment",
 
