@@ -20,7 +20,7 @@
 
 /*------------------------------------------------------------------------
  *  fd.h - include file for viscoelastic FD program sofi2D
- *  ---------------------------------------------------------------------*/
+ * ---------------------------------------------------------------------*/
 
 #ifndef FD_H_INCLUDED
 #define FD_H_INCLUDED
@@ -35,16 +35,7 @@
 #include <mpi.h>
 #include "globvar_struct.h"
 #include "util.h"
-
-#define iround(x) ((int)(floor)((x)+0.5))
-#define min(x,y) (((x)<(y))?(x):(y))
-#define max(x,y) (((x)<(y))?(y):(x))
-#define fsign(x) (((x)<0.0)?(-1):1)
-
-#define PI (3.141592653589793238462643383279502884197169)
-#define NPAR 41
-#define NSPAR 12                // number of source parameters (matrix size)
-#define REQUEST_COUNT 4
+#include "macros.h"
 
 /* declaration of functions */
 void abs_update_s(int i, int j, float **sxx, float **sxy, float **syy, float **absorb_coeff);

@@ -27,7 +27,7 @@
 #ifndef GLOBVAR_STRUCT_H_INCLUDED
 #define GLOBVAR_STRUCT_H_INCLUDED
 
-#define STRING_SIZE 256
+#include "macros.h"
 
 typedef void (*FDop_s_fct)(int i, int j, float *vxx, float *vyx, float *vxy, float *vyy, float **vx, float **vy);
 typedef void (*FDop_v_fct)(int i, int j, float *sxx_x, float *sxy_x, float *sxy_y, float *syy_y, float **sxx, float **syy, float **sxy);
