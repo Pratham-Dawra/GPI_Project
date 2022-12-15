@@ -15,6 +15,7 @@
 \usepackage{textcomp}
 \usepackage[width=150mm,top=25mm,bottom=25mm]{geometry}
 \usepackage{isodate}
+\usepackage{keystroke}
 \usepackage{babel}
 \usepackage{xcolor}
 \usepackage{afterpage}
@@ -76,8 +77,9 @@
 
 \graphicspath{Figures}
 \captionsetup{labelfont=bf}
-
 \hyphenation{me-ta-mo-del}
+
+\newcommand{\RET}{\raisebox{2pt}{\scalebox{0.8}{\Return}}}
 
 \usepackage[toc]{appendix}
 
@@ -86,18 +88,18 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-\pagecolor{lightgray}\afterpage{\nopagecolor}
+%\pagecolor{lightgray}\afterpage{\nopagecolor}
 \begin{titlepage}
        	\centering
         {\includegraphics[height=2.8cm]{figures/kitlogo_en_cmyk}}
     
 	\vspace{2cm}
 	
-	\textsc{\Huge - \textbf{SOFI2D} -\\ Seismic mOdeling with FInite differences\\}
+	\textsc{\Huge - \textbf{SOFI} -\\ Seismic mOdeling with FInite differences\\}
 	
 	\vspace{1cm}
 	
-	\textsc{\huge 2D - (visco-)elastic and anisotropic version}
+	\textsc{\huge 2D (visco-)elastic anisotropic version}
 	
 	\vspace{1cm}
 	
@@ -115,7 +117,7 @@
     Lars Houpt \par 
     Sonia \textcommabelow{S}ortan\par
     \vspace{1cm}
-    {\large Karlsruhe, 2022\par}
+    {\large Karlsruhe, Jan.\ 2023\par}
 	%\vfill
 \end{titlepage}
 
@@ -128,87 +130,120 @@
 \section{Getting started}
 \subsection{Requirements}
 \label{requirements}
-\texttt{sofi2D} can be generally run under Windows and Linux. You just have to make sure that an MPI implementation (one of the three listed below) is running and a C-Compiler is available. However, the preferred platform is Linux, since most of the large scale cluster computer run under Linux. As we use Suse Linux and OpenMPI on our local workstation cluster, most of the tests are performed under this system. The following programs should be installed on you machine for a proper run and processing of modeling data.\par
-\begin{center}
-\small
-\begin{tabular}{lll}
-\textbf{Program} & \textbf{Description} & \textbf{Weblink} \\ 
-OpenMPI & MPI Implementation & \url{http://www.open-mpi.org} \\
-& (for parallelization) & \\
-C-Compiler & Code written in C; any C-Compiler & \\
-& should be able to compile it & \\
-Seismic Un*x & Seismic processing package; & \url{https://wiki.seismic-unix.org/doku.php} \\
-(SU)  & SOFI2D outputs seismic data in SU & \\
-& format & \\
-Matlab & Preferred program package for & \url{http://www.mathworks.de} \\
-(commercial)& snapshot visualization and  & \\
-& seismogram processing and display & \\
-xmovie & Console based movie program used & usually included in Linux distribution;\\
-& for quick display of snapshot data & otherwise install from repository\\
-\end{tabular}
-\end{center}
+SOFI is written in the C programming language using the C99 standard. The software should therefore compile and work on many systems currently in use around the world. As the software is parallelised using the Message Passing Interface (MPI), you obviously need an MPI environment available at compile time and runtime. As only basic MPI functions are used, most MPI implementations should work out of the box; you may have to adapt the start procedure, though, in case your environment requires special settings. Our preferred platform is Linux, as most of the large-scale compute clusters around the world are based on this operating system, including our clusters at the KIT. Furthermore, Linux is our main development platform for the software. As we use openSUSE ourselves, this Linux distribution is perhaps the most widely tested platform for SOFI. However, we have also successfully tested and used SOFI on RedHat Enterprise Linux, SUSE Linux Enterprise Server, CentOS, Ubuntu and others. The following programs or libraries and environments should ideally be installed for running SOFI and working with its input and output data:
+\begin{itemize}
+\item \textbf{Make}, preferably GNU Make. We provide a \texttt{Makefile} for compilation of the software and documentation. However, you could in principle also compile the software yourself (see instructions in section~\ref{insta}), or set up your own build system using, for instance, CMake. The same holds for the documentation.\\
+$\Rightarrow$ \url{https://www.gnu.org/software/make/}
+\item \textbf{C compiler} supporting the C99 standard. We tend to use the standard GNU Compiler Collection (GCC) for development, but the software has also been successfully compiled using the Intel C/C++ compiler or Clang, the C-frontend for LLVM.\\
+$\Rightarrow$ \url{https://www.gnu.org/software/gcc/}
+\item \textbf{MPI environment}. We typically use OpenMPI (version 3) for our development, but the software has also been successfully compiled using the Intel MPI library. Other MPI libraries like MPICH should also work.\\
+$\Rightarrow$ \url{https://www.open-mpi.org/}
+\item \textbf{Seismic Unix} (SU). While not strictly required to compile or run SOFI, SU is used as preferred output format for seismograms. SU's \texttt{xmovie} program is also used, for instance, to display wavefield snapshot movies.\\
+$\Rightarrow$ \url{https://wiki.seismic-unix.org/}
+\item \textbf{Matlab}, or its free alternative \textbf{GNU Octave}, and/or \textbf{Python}. We provide some scripts that help in setting up models or determine optimized visco-elastic parameters. Apart from that, none of these tools is strictly required to compile or run SOFI.\\
+$\Rightarrow$ \url{https://octave.org/} or \url{https://www.python.org/}
+\item \textbf{\LaTeX{} environment}. The SOFI documentation contains not only basic instructions on how to run the software but also a lot of information on the scientific background. It is therefore written using \LaTeX\@. In order to compile the documentation, you need a \LaTeX{} environment and several macro packages. Recent \LaTeX{} distributions like TeX Live or MikTeX should work just fine, provided you have all the required macro packages available. If you run into problems, check first that all required packages are installed.\\
+$\Rightarrow$ \url{https://www.tug.org/texlive/} or \url{https://miktex.org/}
+\end{itemize}
+
+\subsection{Directory structure}
+\label{dirstruct}
+We assume that you have successfully checked out the git-repository containing the software. Your local SOFI directory will contain the following subdirectories:
+\begin{itemize}
+\item \textbf{bin}: An empty directory in which executables will be installed by the build process, unless the default values are changed.
+\item \textbf{build}: A directory including a \texttt{Makefile} that can be used to build the software and documentation. We compile the software outside the source tree so you can have as many different build directories and therefore software builds as you like, for instance using different compilers or compiler settings.
+\item \textbf{doc}: A directory containing the source for the documentation.
+\item \textbf{examples}: A directory containing small examples so you can test the software after compilation. We also provide reference results so you can check your build against ours.
+\item \textbf{mfiles}: A directory containing Matlab/Octave support scripts.
+\item \textbf{pyfiles}: A directory containing Python support scripts.
+\item \textbf{src}: A directory containing the actual source code written in C and corresponding header files.
+\item \textbf{util}: A directory containing utility programs or scripts, primarily of interest for developers.
+\end{itemize}
+
+% \textbf{genmod}\\
+% Model and benchmark files for \texttt{sofi2D}.
+
+% \textbf{mfiles}\\
+% Matlab routines (\texttt{m}-files) are stored. They can be used to find optimal relaxation frequencies to approximate a constant $Q$ (\texttt{qapprox.m}) or to plot $Q$ as a function of frequency for
+% certain relaxation frequencies and value of tau (\texttt{qplot.m}). For further details on the theory behind these algorithms, see \citet{bohlen:98} and \citet{blanch:95}. 
 
 \subsection{Installation}
 \label{insta}
-The package contains the following sub-directories:
+As mentioned above, we build the software outside the source tree. This has several reasons: Firstly, we keep the source tree clean without object or dependency files. Secondly and probably more importantly, this approach allows us to have several builds in parallel using different compilers and/or compiler settings, which is particularly useful during development.
 
-\textbf{bin}\\
-All executable programs (generally \texttt{sofi2D} and \texttt{snapmerge}); these executables are generated using the command \texttt{make $<$program$>$} (see below).
+If you would like to build the software and documentation in our standard \texttt{build} directory within the downloaded SOFI repository, just enter this directory. Otherwise, copy the \texttt{Makefile} you find in our \texttt{build} directory to any place where you would actually like to build the software on your system. If you use this approach, the entire downloaded git repository will be kept 'as is', i.e., in a clean state.
 
-\textbf{doc}\\
-Documentation on the software.
+Once you are in the build directory (either the default one or your own one), you can type\\
+\verb+$> make+\RET{}\\
+to get some help about the \texttt{Makefile} targets and the current setup, including the installation directory and compiler settings. If you copied the Makefile to a different place and you are working in a build directory outside the downloaded git repository, you need to adjust the \texttt{Makefile} and its \texttt{BASEDIR} variable which specifies where the SOFI base directory is located. In this case, you might also check on the installation directory (variable \texttt{INSTDIR}) and adjust it according to your needs.
 
-\textbf{genmod}\\
-Model and benchmark files for \texttt{sofi2D}.
+By default, the Makefile is set up such that it uses the standard \texttt{mpicc} command and standard MPI library found on your system. You may want to check the compiler and linker settings in the \texttt{Makefile} -- the corresponding sections are documented in the \texttt{Makefile} and there are also exemplary alternative compiler/linker settings provided. Dependent on your computer platform and architecture, you may want to enable or disable certain features during compilation. By default, we create executables with optimization turned on.
 
-\textbf{mfiles}\\
-Matlab routines (\texttt{m}-files) are stored. They can be used to find optimal relaxation frequencies to approximate a constant $Q$ (\texttt{qapprox.m}) or to plot $Q$ as a function of frequency for
-certain relaxation frequencies and value of tau (\texttt{qplot.m}). For further details on the theory behind these algorithms, see \citet{bohlen:98} and \citet{blanch:95}. 
+Once you have checked that all settings are fine, simply run\\
+\verb+$> make install+\RET{}\\
+to compile the software and install it in the chosen installation directory. The installation process will automatically back up already existing programs with the same name, i.e., you always have a chance to go back to your previous executables if necessary (backup files have a suffix \texttt{.bck} in the installation directory).
 
-\textbf{overnightbuilt} (only in the overnight-built version of \texttt{sofi2D})\\
-Complete benchmarking suite designed to test whether your installed release of \texttt{sofi2D} works as intended. During the test run, several model scenarios will be simulated and, afterwards, the created seismogram and snapshot files will be compared with reference values created by the \texttt{sofi2D} developer team. This benchmarking test can be used as an overnight built check while developing the code, i.e., after modifications to the code, the test evaluates if standard modeling scenarios still result in the same simulation output. For further information, see the separate documentation \texttt{sofi2D\_overnight\_documentation} in the folder \textbf{doc}.
+If you would like to compile the software only locally in the build directory but not install it in the installation directory, you can simply run\\
+\verb+$> make all+\RET{}
 
-\textbf{par}\\
-Parameter files for \texttt{sofi2D} modeling.
+As can be seen, by default the full compilation commands etc.\ are not shown, only a summary of what \texttt{make} is currently doing. If you would like to see the full commands as they are executed by \texttt{make}, simply run\\
+\verb+$> make V=1 install+\RET{}\\
+or\\
+\verb+$> make V=1 all+\RET{}\\
+and the whole compilation command etc.\ is visible. This is particularly useful if the build process fails with an error.
 
-\textbf{src}\\
-Complete source codes. The following programs are available and can be compiled using \texttt{make $<$program$>$}:
+Upon first compilation, hidden dependency files are generated which allow \texttt{make} to figure out the programs and object files that need to be regenerated in case certain source code files change.
 
-\begin{table}[hbt]
-\caption{Names of executables located in the folder \textbf{bin} and their purpose.}
-\begin{tabular}{ll}
-\textbf{Program} & \textbf{Purpose} \\ 
-\texttt{snapmerge} & merge snapshot files \\
-\texttt{sofi2D} & (visco-)elastic code, 2nd-12th order spatial FD operators, SSG \\
-\texttt{sofi2D\_bench} & (visco-)elastic code, 2nd-12th order spatial FD operators, SSG, only used \\
-& for overnight built testing suite \\
-\end{tabular}
-\label{tab_programs}
-\end{table}
+Our \texttt{Makefile} supports parallel build processes. That means, on systems with more than one CPU core you can use, for instance,\\
+\verb+$> make -j6 install+\RET{}\\
+to compile the software in parallel using six processes which will significantly speed up the whole compilation process.
 
-\subsection{Compilation and running}
+The documentation, provided \LaTeX{} and the required macro packages are available, can be built by\\
+\verb+$> make doc+\RET{}\\
+After a successful \LaTeX{} run, you will find a PDF file called \texttt{sofi2D\_manual.pdf} in your build directory. Given that you are currently reading this text, you have either already successfully compiled the manual, or downloaded a pre-compiled PDF, or looked at the documentation source code.
+
+You can force a recompilation and installation of all programs using\\
+\verb+$> make force install+\RET{}\\
+and the build directory can be cleaned up using either\\
+\verb+$> make clean+\RET{}\\
+or\\
+\verb+$> make distclean+\RET{}\\
+dependent on whether you would like to remove the object files and (local) executables only, or whether you would like to restore the original state of the build directory (i.e., dependency files and the local documentation are also removed).
+
+At the time of writing, the source code should compile without any warnings with \texttt{-Wall} and \texttt{-Wextra} flags being set. Once you have successfully installed the software in your chosen installation directory, you should be good to give it a first go.
+
+The \texttt{Makefile} is documented. In other words, in case there is a need to modify it, you should be able to understand the setup, variables and different parts of the \texttt{Makefile} reasonably well. On most systems there should be no need to make any significant modifications.
+
+\subsection{First tests}
 \label{qguide}
-To compile the program do
+At this point, we assume you have successfully compiled and installed the software. You can now enter SOFI's \texttt{examples} directory where you will find scripts to run basic tests and compare your results to our reference results. All tests should run within a few seconds -- they are not meant to stress-test the software or your system, they main purpose is to check that you have successfully compiled and installed the software, and that you can successfully launch MPI jobs. Each test will use four CPU cores, which should work fine on any reasonably modern system. The following scripts are provided:
+\begin{itemize}
+\item \textbf{run\_single\_test.sh}: A shell script to run a single test.
+\item \textbf{run\_all\_tests.sh}: A shell script to loop through all available individual short tests.
+\item \textbf{compare\_single\_test.sh}: A shell script to compare your results, once successfully created by one of the test runs, with our reference results available in the subdirectories ending in \texttt{\_ref}. For this comparison to work, you must have a working Seismic Unix installation and the SU executables must be in your PATH.
+\item \textbf{clean.sh}: A simple shell script to remove all locally generated test files in the subdirectories. The reference files which are part of the git repository will not be touched.
+\end{itemize}
+Each script (apart from \texttt{clean.sh}), when called without any options or parameters, outputs some help about its use. By default, the \texttt{run\_single\_test.sh} scripts assume that the software was built using the standard \texttt{Makefile} in our build directory, and exectuables are in the relative path \texttt{../bin} as seen from the \texttt{examples} directory. If this is not the case (for instance, because you built the software completely outside the downloaded git repository), you may have to adapt the \texttt{run\_single\_test.sh} script.
 
-\texttt{cd sofi2D/src}
+Attention: It is mandatory that you use the same MPI environment at runtime that you used to build the software. MPI is quite sensitive in terms of version numbers, i.e., you cannot mix and match different MPI environments or versions.
 
-then
+In principle, each SOFI run looks as follows (the example here assumes you would like to run SOFI directly from the commandline):\\
+\verb+$> mpirun -np N /path/to/sofi2D /path/to/sofi2D.json+\RET{}\\
+In principle you, are instructing MPI to run N processes of \texttt{sofi2D} and use the file \texttt{sofi2D.json} as the only argument for the program. The json file contains all the parameters that SOFI requires. They are listed in detail in subsequent chapters of this manual.
 
-\texttt{make sofi2D}
+In practice, you will most likely run SOFI on a compute cluster using a queuing system like, for instance, Slurm (\url{https://slurm.schedmd.com/}). In this case, you need to set up a shell script with instructions for Slurm and the mpirun-command for SOFI, and finally submit the shell script to the queuing manager using a command like \texttt{sbatch}. An exemplary, basic script to run SOFI via Slurm is shown below:
+\begin{verbatim}
+#!/bin/bash
+#SBATCH --ntasks=96
+#SBATCH --job-name="SOFI:MPI"
+#SBATCH --partition=horeka
+mpirun /path/to/sofi2D /path/to/sofi2D.json
+\end{verbatim}
+Please check your local queuing manager documentation for details. Note: You need to make sure that the total number of FD modelling partitions (domain decomposition) matches the number of total MPI processes.
 
-to compile the standard staggered grid version (SSG). You may also use the shell script \texttt{compileSOFI2D.sh} located in \texttt{sofi2D/par}. For a successful compiler run you probably need to change the compiler options in \texttt{sofi2D/src/Makefile}. 
-
-To run the program on 4 CPUs do
-
-\texttt{cd sofi2D/par}
-
-\texttt{mpirun -np 4 ../bin/sofi2D ./in\_and\_out/sofi2D.json > ./in\_and\_out/sofi2D.jout}
-
-The file \texttt{sofi2D/par/in\_and\_out/sofi2D.jout} shows the obtained screen output. You may also use the shell script \texttt{startSOFI2D.sh} located in \texttt{sofi2D/par} that also writes the screen output to the file \texttt{sofi2D/par/in\_and\_out/sofi2D.jout}.
-
-The modeling parameters are specified in the \texttt{sofi2D} input file \texttt{sofi2D.json}. The parameters should be more or less self-explanatory (for a detailed list of all parameters see Appendix~\ref{parameters}). The synthetic seismograms and snapshots are written to the files specified in the \texttt{sofi2D} input file.
-
-In the current distribution, the model is generated on the fly by the function \texttt{sofi2D/src/hh.c}. \textcolor{red}{This function generates a homogeneous medium with $v_P=\SI{3500}{m/s}$, $v_S=\SI{2000}{m/s}$, and $\rho=\SI{2000}{kg/m\cubed}$}. Instead, the function \texttt{readmod.c} can be used to read model info from external grid files. See \texttt{readmod.c} for the format of the external files. You can change the function which generates the model grid at the beginning of \texttt{sofi2D/src/Makefile}.
+If wavefield snapshots are output, each MPI process will write to a shared directory but the files are not merged during execution (neither by broadcasting individual results so the main MPI process could combine them nor by MPI I/O), as this could significantly slow down the program. Individual wavefield snapshots are simply merged after a successful SOFI run using a program called \texttt{snapmerge}. In principle, you simply run\\
+\verb+$> /path/to/snapmerge /path/to/sofi2D.json+\RET{}\\
+in order to merge the files. Obviously, you need to pass the same json file to \texttt{snapmerge} that you used for \texttt{sofi2D} to create the wavefield snapshots in the first place, otherwise the process of merging will fail.
 
 \subsection{License}
 \label{license}
@@ -216,7 +251,7 @@ In the current distribution, the model is generated on the fly by the function \
  
 \texttt{sofi2D} is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with \texttt{sofi2D}. See file COPYING and/or \url{http://www.gnu.org/licenses/gpl-2.0.html}.
 
-The Authors of \texttt{sofi2D} are listed in file \texttt{AUTHORS}.
+The authors of \texttt{sofi2D} are listed in file \texttt{AUTHORS}.
 
 \input{introduction.tex}
 \input{theory.tex}

@@ -1,10 +1,10 @@
 README - Documentation
 
-To create the manual pdf please use the script:
+To create the SOFI manual as PDF, please go to the build directory and 
+type "make doc". This will compile the LaTeX sources into a local PDF 
+file in the build directory.
 
-compile_LaTeX_manual.sh
+Obviously, LaTeX needs to be installed on your system. Any recent LaTeX
+distribution like TeX Live or MiKTeX should work.
 
-If problems with the compilation occur or Latex isn't installed on your PC,
-please visit https://git.scc.kit.edu/GPIAG-Software/SOFI2D/wikis/home.
-The manual of the latest Release is placed on this page.
 
