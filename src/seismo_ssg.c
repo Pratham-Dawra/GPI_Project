@@ -32,7 +32,7 @@ void seismo_ssg(int lsamp, int ntr, int **recpos, float **sectionvx,
     int i, j, ins, nxrec, nyrec, m;
     float vxx, vyy, vxy, vyx;
 
-    float dhi = 1.0f / gv->DH;
+    float dhi = 1.0 / gv->DH;
     int fdoh = gv->FDORDER / 2;
 
     ins = lsamp / gv->NDT;

@@ -37,7 +37,7 @@ void wavefield_update_s_el_4(int i, int j, float vxx, float vyx, float vxy, floa
     float c4 = -1.0 / 24.0;
     float sumxx = 0.0f, sumyy = 0.0f, sumxy = 0.0f, sumyx = 0.0f;
 
-    float dhi = 1.0f / gv->DH;
+    float dhi = 1.0 / gv->DH;
     float fipjp = uipjp[j][i] * gv->DT;
     float f = u[j][i] * gv->DT;
     float g = pi[j][i] * gv->DT;
@@ -56,6 +56,6 @@ void wavefield_update_s_el_4(int i, int j, float vxx, float vyx, float vxy, floa
 
     // Update stress
     sxy[j][i] += ((fipjp * (sumxy + sumyx))) * dhi;
-    sxx[j][i] += ((g * (sumxx + sumyy)) - (2.0f * f * sumyy)) * dhi;
-    syy[j][i] += ((g * (sumxx + sumyy)) - (2.0f * f * sumxx)) * dhi;
+    sxx[j][i] += ((g * (sumxx + sumyy)) - (2.0 * f * sumyy)) * dhi;
+    syy[j][i] += ((g * (sumxx + sumyy)) - (2.0 * f * sumxx)) * dhi;
 }

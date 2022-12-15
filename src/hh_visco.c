@@ -57,7 +57,7 @@ void model_visco(float **rho, float **pi, float **u, float **taus, float **taup,
         eta[l] = gv->DT / pts[l];
     }
 
-    float fc = 1.0f / gv->TS;
+    float fc = 1.0 / gv->TS;
     log_infoc(0, "Center source frequency of %5.2fHz applied for calculation of relaxed moduli.\n", fc);
 
     float ws = 2.0 * PI * fc;

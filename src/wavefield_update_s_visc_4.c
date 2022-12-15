@@ -32,17 +32,17 @@ void wavefield_update_s_visc_4(int i, int j, float vxx, float vyx, float vxy, fl
                                float **vyy_4, float **vxy_1, float **vxy_2, float **vxy_3, float **vxy_4, float **vyx_1,
                                float **vyx_2, float **vyx_3, float **vyx_4, float ***r_2, float ***r_3, float ***r_4,
                                float ***p_2, float ***p_3, float ***p_4, float ***q_2, float ***q_3, float ***q_4,
-                               GlobVar * gv)
+                               GlobVar *gv)
 {
-    float c1, c2, c3, c4;       /* Coefficients for Adam Bashforth */
-    c1 = 13.0 / 12.0;
-    c2 = -5.0 / 24.0;
-    c3 = 1.0 / 6.0;
-    c4 = -1.0 / 24.0;
+    /* Coefficients for Adam Bashforth */
+    float c1 = 13.0 / 12.0;
+    float c2 = -5.0 / 24.0;
+    float c3 = 1.0 / 6.0;
+    float c4 = -1.0 / 24.0;
     float sumxx = 0.0, sumyy = 0.0, sumxy = 0.0, sumyx = 0.0;
     float ctemp;
 
-    float dhi = 1.0f / gv->DH;
+    float dhi = 1.0 / gv->DH;
     float dthalbe = gv->DT / 2.0;
 
     // Save derviations

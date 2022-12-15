@@ -48,7 +48,7 @@ void snap(int nt, int nsnap, float **vx, float **vy, float **sxx,
     char snapfile_rot[STRING_SIZE * 2], snapfile_p[STRING_SIZE * 2], ext[8];
     FILE *fpx1, *fpy1, *fpx2, *fpy2, *fpp;
 
-    float dhi = 1.0f / gv->DH;
+    float dhi = 1.0 / gv->DH;
     int fdoh = gv->FDORDER / 2;
 
     switch (gv->SNAP_FORMAT) {

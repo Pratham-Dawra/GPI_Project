@@ -36,8 +36,8 @@ void surface(int ndepth, float **vx, float **vy, float **sxx, float **syy,
     float vxx, vyy, sump = 0.0f;
 
     int fdoh = gv->FDORDER / 2;
-    float dhi = 1.0f / gv->DH;
-    float dthalbe = gv->DT / 2.0f;
+    float dhi = 1.0 / gv->DH;
+    float dthalbe = gv->DT / 2.0;
 
     int j = ndepth;                 /* The free surface is located exactly in y=dh !! */
     for (int i = 1; i <= gv->NX; i++) {

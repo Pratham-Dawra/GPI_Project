@@ -60,7 +60,7 @@ void update_s_visc_interior_4(int *gx, int *gy, int nt,
 
     float sumxx = 0.0f, sumyy = 0.0f, sumxy = 0.0f, sumyx = 0.0f;
 
-    float dthalbe = gv->DT / 2.0f;
+    float dthalbe = gv->DT / 2.0;
     float dhi = 1.0 / gv->DH;
 
     if ((gv->MPID == 0) && ((nt + (gv->OUTNTIMESTEPINFO - 1)) % gv->OUTNTIMESTEPINFO) == 0) {

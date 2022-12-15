@@ -51,7 +51,7 @@ void model_visco_vti(float **rho, float **pc11, float **pc33, float **pc13, floa
         eta[l] = gv->DT / pts[l];
     }
 
-    float fc = 1.0f / gv->TS;
+    float fc = 1.0 / gv->TS;
     log_infoc(0, "VTI: center source frequency of %5.2fHz applied for calculation of relaxed moduli.\n", fc);
 
     ws = 2.0 * PI * fc;

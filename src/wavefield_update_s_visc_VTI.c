@@ -31,7 +31,7 @@ void wavefield_update_s_visc_VTI(int i, int j, float vxx, float vyx, float vxy, 
                                  float *bip, float *cip, GlobVar *gv)
 { 
     /* computing sums of the old memory variables */
-    float dthalbe = gv->DT / 2.0f;
+    float dthalbe = gv->DT / 2.0;
     float sumr = 0.0f, sump = 0.0f, sumq = 0.0f;
 
     for (int l = 1; l <= gv->L; l++) {

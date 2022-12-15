@@ -53,7 +53,7 @@ void update_s_elastic_interior_4(int *gx, int *gy, int nt,
 
     float sumxx = 0.0, sumyy = 0.0, sumxy = 0.0, sumyx = 0.0;
 
-    float dhi = 1.0f / gv->DH;
+    float dhi = 1.0 / gv->DH;
 
     if ((gv->MPID == 0) && ((nt + (gv->OUTNTIMESTEPINFO - 1)) % gv->OUTNTIMESTEPINFO) == 0) {
         time1 = MPI_Wtime();

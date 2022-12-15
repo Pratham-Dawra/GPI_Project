@@ -28,10 +28,10 @@ void wavefield_update_s_el_tti(int i, int j, float **vxx, float **vyx, float **v
                                float **sxx, float **syy, float **pc11, float **pc55ipjp, float **pc13, float **pc33,
                                float **pc15, float **pc35, float **pc15ipjp, float **pc35ipjp)
 {
-    float vxxipjp = 0.25f * (vxx[j][i] + vxx[j + 1][i] + vxx[j][i + 1] + vxx[j + 1][i + 1]);
-    float vyyipjp = 0.25f * (vyy[j][i] + vyy[j + 1][i] + vyy[j][i + 1] + vyy[j + 1][i + 1]);   
-    float vij = (0.25f * (vyx[j][i] + vyx[j - 1][i] + vyx[j][i - 1] + vyx[j - 1][i - 1])) + 
-                (0.25f * (vxy[j][i] + vxy[j - 1][i] + vxy[j][i - 1] + vxy[j - 1][i - 1]));
+    float vxxipjp = 0.25 * (vxx[j][i] + vxx[j + 1][i] + vxx[j][i + 1] + vxx[j + 1][i + 1]);
+    float vyyipjp = 0.25 * (vyy[j][i] + vyy[j + 1][i] + vyy[j][i + 1] + vyy[j + 1][i + 1]);   
+    float vij = (0.25 * (vyx[j][i] + vyx[j - 1][i] + vyx[j][i - 1] + vyx[j - 1][i - 1])) + 
+                (0.25 * (vxy[j][i] + vxy[j - 1][i] + vxy[j][i - 1] + vxy[j - 1][i - 1]));
     float v = vxy[j][i] + vyx[j][i];
 
     /* Update  */

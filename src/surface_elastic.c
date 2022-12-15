@@ -34,7 +34,7 @@ void surface_elastic(int ndepth, float **vx, float **vy, float **sxx, float **sy
     float vxx, vyy;
 
     int fdoh = gv->FDORDER / 2;
-    float dhi = 1.0f / gv->DH;
+    float dhi = 1.0 / gv->DH;
 
     int j = ndepth;                 /* The free surface is located exactly in y=dh !! */
     for (int i = 1; i <= gv->NX; i++) {

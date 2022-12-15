@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SOFI2D. See file COPYING and/or
-  * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
 ---------------------------------------------------------------------------------*/
 
 /*
@@ -33,6 +33,6 @@ void wavefield_update_s_el(int i, int j, float vxx, float vyx, float vxy, float 
 
     /* Update  */
     sxy[j][i] += fipjp * (vyx + vxy);
-    sxx[j][i] += (g * (vxx + vyy)) - (2.0f * f * vyy);
-    syy[j][i] += (g * (vxx + vyy)) - (2.0f * f * vxx);
+    sxx[j][i] += (g * (vxx + vyy)) - (2.0 * f * vyy);
+    syy[j][i] += (g * (vxx + vyy)) - (2.0 * f * vxx);
 }
