@@ -200,13 +200,9 @@ void op_v_fd12(int i, int j, float *sxx_x, float *sxy_x, float *sxy_y, float *sy
                                                                                                      syy[j - 5][i]);
 }
 
-void initfd(GlobVar *gv)
+static void update_fd_fct_ptr(int order, GlobVar *gv)
 {
-    hc = holbergcoeff(gv);
-
-    dhi = 1.f / gv->DH;
-
-    switch (gv->FDORDER) {
+    switch (order) {
       case 2:
           gv->FDOP_S = &op_s_fd2;
           gv->FDOP_V = &op_v_fd2;
@@ -235,6 +231,29 @@ void initfd(GlobVar *gv)
           log_fatal("Unsupported FDORDER encountered.\n");
           break;
     }
+    return;
+}
+
+void initfd(GlobVar *gv)
+{
+    hc = holbergcoeff(gv);
+    dhi = 1.f / gv->DH;
+
+    update_fd_fct_ptr(gv->FDORDER, gv);
 
     return;
+}
+
+void set_fd_order(int new_order, GlobVar *gv)
+{
+    gv->FDORDER = new_order;
+
+    update_fd_fct_ptr(new_order, gv);
+
+    return;
+}
+
+int get_fd_order(GlobVar *gv)
+{
+    return gv->FDORDER;
 }

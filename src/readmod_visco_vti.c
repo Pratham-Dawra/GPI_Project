@@ -18,9 +18,9 @@
  * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
-/*--------------------------------------------------------------------------------
- *   Read viscoelastic VTI model properties (vp,vs,rho,eps,delta,qp,qs) from files
- *  ------------------------------------------------------------------------------*/
+/* --------------------------------------------------------------------------------
+ * Read viscoelastic VTI model properties (vp,vs,rho,eps,delta,qp,qs) from files
+ * ------------------------------------------------------------------------------*/
 
 #include "fd.h"
 #include "logging.h"
@@ -135,8 +135,8 @@ void readmod_visco_vti(float **rho, float **pc11, float **pc33, float **pc13, fl
             fread(&(para[P_QS][0]), sizeof(float), ny, fp[P_QS]);
         }
         for (int j = 1; j <= gv->NYG; j++) {
-            c33 = para[P_VP][j - 1] * para[P_VP][j - 1] * para[P_RHO][j - 1];
-            c55 = para[P_VS][j - 1] * para[P_VS][j - 1] * para[P_RHO][j - 1];
+            c33 = para[P_RHO][j - 1] * para[P_VP][j - 1] * para[P_VP][j - 1];
+            c55 = para[P_RHO][j - 1] * para[P_VS][j - 1] * para[P_VS][j - 1];
             c11 = c33 * (2.0 * para[P_EPS][j - 1] + 1.0);
             c13 = sqrt((2.0 * para[P_DEL][j - 1] * c33 * (c33 - c55)) + ((c33 - c55) * (c33 - c55))) - c55;
             tau11 = tau33 = 2.0 / (para[P_QP][j - 1] * gv->L);

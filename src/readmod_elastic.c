@@ -15,12 +15,12 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with SOFI2D. See file COPYING and/or 
-  * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
-/*------------------------------------------------------------------------
- *   Read elastic model properties (vp,vs,rho) from files
- *  ----------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------
+ * Read elastic model properties (vp,vs,rho) from files
+ * ----------------------------------------------------------------------*/
 
 #include "fd.h"
 #include "logging.h"

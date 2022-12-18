@@ -83,6 +83,8 @@ void exchange_s(int nd, float **sxx, float **syy,
 
 void exchange_par(GlobVar *gv);
 
+int get_fd_order(GlobVar *gv);
+
 const char *get_weq_verbose(WEQTYPE wt);
 
 float *holbergcoeff(GlobVar *gv);
@@ -233,6 +235,8 @@ void save_checkpoint(int nx1, int nx2, int ny1, int ny2,
 
 void saveseis_glob(float **sectiondata, int **recpos,
                    int ntr, float **srcpos, int ishot, int ns, int sectiondatatype, GlobVar *gv);
+
+void set_fd_order(int new_order, GlobVar *gv);
 
 void snap(int nt, int nsnap, float **vx, float **vy, float **sxx,
           float **syy, float **u, float **pi, float *hc, GlobVar *gv);

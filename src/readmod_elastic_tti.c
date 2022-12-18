@@ -18,9 +18,9 @@
  * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
-/*---------------------------------------------------------------------------
- *   Read elastic TTI model properties (vp,vs,rho,eps,delta,theta) from files
- *  -------------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------------
+ * Read elastic TTI model properties (vp,vs,rho,eps,delta,theta) from files
+ * -------------------------------------------------------------------------*/
 
 #include "fd.h"
 #include "logging.h"
@@ -121,15 +121,15 @@ void readmod_elastic_tti(float **rho, float **pc11, float **pc33, float **pc13, 
             fread(&(para[P_TET][0]), sizeof(float), ny, fp[P_TET]);
         }
         for (int j = 1; j <= gv->NYG; j++) {
-            c33 = para[P_VP][j - 1] * para[P_VP][j - 1] * para[P_RHO][j - 1];
-            c55 = para[P_VS][j - 1] * para[P_VS][j - 1] * para[P_RHO][j - 1];
+            c33 = para[P_RHO][j - 1] * para[P_VP][j - 1] * para[P_VP][j - 1];
+            c55 = para[P_RHO][j - 1] * para[P_VS][j - 1] * para[P_VS][j - 1];
             c11 = c33 * (2.0 * para[P_EPS][j - 1] + 1.0);
             c13 = sqrt((2.0 * para[P_DEL][j - 1] * c33 * (c33 - c55)) + ((c33 - c55) * (c33 - c55))) - c55;
 
             /* Bond transformation (Oh et al, 2020, GJI, doi: 10.1093/gji/ggaa295 */
             t = para[P_TET][j - 1] * PI / 180.0;
-            l1 = cosf(t);
-            l2 = sinf(t);
+            l1 = cos(t);
+            l2 = sin(t);
             l12 = l1 * l1;
             l22 = l2 * l2;
             l14 = l12 * l12;
