@@ -104,17 +104,28 @@ with
 
 The time stepping interval $DT$ has to fulfill the stability criterion in Eq.~\ref{courant_crit}, which is checked for the entire model. If the criterion is violated, the FD program will terminate with a corresponding error message. The maximum value for $DT$ at the stability limit is output, so you may simply try a large number, start the program, and then see what the program suggests for the time step interval.
 
-\subsubsection{\textcolor{red}{Wave equations}}
+\subsubsection{Wave equations}
+The parameter \texttt{WEQ} specifies the type of wave equation to use for modelling. Example:
 \begin{verbatim}
 "Wave Equation" : "comment",
-            "WEQ" : "8",
+            "WEQ" : "VEL_TTI",
 \end{verbatim}
-
-with
-
-\texttt{WEQ} : Wave equation type (acoustic=1; viscoacoustic=2; elastic=3; viscoelastic=4; elastic VTI=5; viscoelastic VTI=6; elastic TTI=7; viscoelastic TTI=8)
-
-\textcolor{red}{\textbf{\dots}}
+This parameter is given as string as can have the following values:
+\begin{itemize}
+\item \textbf{AC\_ISO}: acoustic isotropic wave equation
+\item \textbf{AC\_VTI}: acoustic VTI wave equation
+\item \textbf{AC\_TTI}: acoustic TTI wave equation
+\item \textbf{VAC\_ISO}: viscoacoustic isotropic wave equation
+\item \textbf{VAC\_VTI}: viscoacoustic VTI wave equation
+\item \textbf{VAC\_TTI}: viscoacoustic TTI wave equation
+\item \textbf{EL\_ISO}: elastic isotropic wave equation
+\item \textbf{EL\_VTI}: elastic VTI wave equation
+\item \textbf{EL\_TTI}: elastic TTI wave equation
+\item \textbf{VEL\_ISO}: viscoelastic isotropic wave equation
+\item \textbf{VEL\_VTI}: viscoelastic VTI wave equation
+\item \textbf{VEL\_TTI}: viscoelastic TTI ave equation
+\end{itemize}
+The type of wave equation specified for \texttt{WEQ} determines which model files are read from disk and wether Q-related parameters are required.
 
 \subsubsection{Sources}
 \label{sources}
