@@ -246,11 +246,10 @@ void write_par(GlobVar *gv)
                      file_ext);
         }
         if ((gv->SEISMO == 2) || (gv->SEISMO == 4)) {
-            log_info("Seismograms of p: s_p.%s\n", gv->SEIS_FILE, file_ext);
+            log_info("Seismograms of p: %s_p.%s\n", gv->SEIS_FILE, file_ext);
         }
         if ((gv->SEISMO == 3) || (gv->SEISMO == 4)) {
-            log_info("Seismograms of curl and div: t%s_rot.%s, %s_div.%s\n", gv->SEIS_FILE, file_ext, gv->SEIS_FILE,
-                     file_ext);
+            log_info("Seismograms of curl and div: %s_curl.%s, %s_div.%s\n", gv->SEIS_FILE, file_ext, gv->SEIS_FILE, file_ext);
         }
         switch (gv->SEIS_FORMAT) {
           case 1:
