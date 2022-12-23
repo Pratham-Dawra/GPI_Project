@@ -14,7 +14,7 @@
  *  @return 0 on success, otherwise a value >0
  *  @note The function logs errors but does not abort. ns must be set correctly in header.
  */
-int su_write_trace(FILE * filep, const SUhead * header, const float *data);
+int su_write_trace(FILE *filep, const SUhead *header, const float *data);
 
 /*! Write entire SUgather to disk.
  *  @param[in] filep File pointer to SU file (previously opened).
@@ -22,6 +22,6 @@ int su_write_trace(FILE * filep, const SUhead * header, const float *data);
  *  @return 0 on success, otherwise a value >0
  *  @note The function logs errors but does not abort.
  */
-int su_write_gather(FILE * filep, const SUgather * gather);
+int su_write_gather(FILE *filep, const SUgather *gather);
 
 #endif

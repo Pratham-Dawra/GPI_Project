@@ -28,6 +28,12 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+#ifdef EBUG
+#include "su_struct.h"
+#include "write_su.h"
+#define NOUT 13
+#endif
+
 void readmod_visco_tti(float **rho, float **pc11, float **pc33, float **pc13, float **pc55, float **pc15, float **pc35,
                        float **ptau11, float **ptau33, float **ptau13, float **ptau55, float **ptau15, float **ptau35,
                        float *eta, GlobVar *gv)
@@ -121,6 +127,26 @@ void readmod_visco_tti(float **rho, float **pc11, float **pc33, float **pc13, fl
 
     float ws = 2.0 * PI * fc;
 
+#ifdef EBUG
+    // set up output of all initial matrices for debug purpose
+    float **debug_buffer = NULL;
+    FILE *fp_debug[NOUT];
+    char modfile[STRING_SIZE + 16];
+    const char *debug_name[] = { "pc11", "rho", "pc33", "pc13", "pc55", "pc15", "pc35", 
+				 "ptau11", "ptau33", "ptau13", "ptau55", "ptau15", "ptau35" };
+
+    if (0 == gv->MPID) {
+	debug_buffer = (float **)malloc2d(NOUT, ny, sizeof(float));
+	for (int i = 0; i < NOUT; ++i) {
+	    sprintf(modfile, "%s.debug.%s.su", gv->MFILE, debug_name[i]);
+	    log_debug("Opening debug file %s.\n", modfile);
+	    fp_debug[i] = fopen(modfile, "wb");
+	    if (!fp_debug[i])
+		log_fatal("Could not open debug file %s for writing.\n", modfile);
+	}
+    }
+#endif
+
     /* loop over global grid */
     for (int i = 1; i <= gv->NXG; i++) {
         if (b_issu) {
@@ -195,6 +221,25 @@ void readmod_visco_tti(float **rho, float **pc11, float **pc33, float **pc13, fl
             c55t = a4 * l12 * l22 + c55 * (l12 - l22) * (l12 - l22);
             c15t = a5 * l13 * l2 - a6 * l1 * l23;
             c35t = a5 * l23 * l1 - a6 * l2 * l13;
+
+#ifdef EBUG
+	    if (0 == gv->MPID) {
+		debug_buffer[0][j-1] = c11t;
+		debug_buffer[1][j-1] = para[P_RHO][j - 1];
+		debug_buffer[2][j-1] = c33t;
+		debug_buffer[3][j-1] = c13t;
+		debug_buffer[4][j-1] = c55t;
+		debug_buffer[5][j-1] = c15t;
+		debug_buffer[6][j-1] = c35t;
+		debug_buffer[7][j-1] = tau11;
+		debug_buffer[8][j-1] = tau33;
+		debug_buffer[9][j-1] = tau13;
+		debug_buffer[10][j-1] = tau55;
+		debug_buffer[11][j-1] = tau15;
+		debug_buffer[12][j-1] = tau35;
+	    }
+#endif
+
             /* only the PE which belongs to the current global gridpoint 
              * is saving model parameters in his local arrays */
             if ((gv->POS[1] == ((i - 1) / gv->NX)) && (gv->POS[2] == ((j - 1) / gv->NY))) {
@@ -215,11 +260,43 @@ void readmod_visco_tti(float **rho, float **pc11, float **pc33, float **pc13, fl
                 ptau35[jj][ii] = tau35;
             }
         }
+
+#ifdef EBUG
+	// output matrix column (=trace)
+	if (0 == gv->MPID) {
+	    int ierr = 0;
+	    SUhead head;
+	    init_SUhead(&head);
+	    head.ns =  (unsigned short)gv->NYG;
+	    head.dt =  (int)gv->DH;
+	    head.tracl = head.tracr = i;
+	    head.ntr = gv->NXG;
+	    head.d1 = head.d2 = gv->DH;	    
+	    for (int k = 0; k < NOUT; ++k) {
+		ierr = su_write_trace(fp_debug[k], &head, &(debug_buffer[k][0]));
+		if (0 != ierr) {
+		    sprintf(modfile, "%s.debug.%s.su", gv->MFILE, debug_name[k]);   
+		    log_warn("Error while writing SU debug file %s.\n", modfile);
+		}
+	    }
+	}
+#endif
+
     }
 
     free_vector(pts, 1, gv->L);
     if (para)
         free(para);
+
+#ifdef EBUG
+    if (0 == gv->MPID) {
+	if (debug_buffer)
+	    free(debug_buffer);
+	for (int i = 0; i < NOUT; ++i) {
+	    fclose(fp_debug[i]);
+	}
+    }
+#endif
 
     for (int i = 0; i < NPARA; ++i) {
         fclose(fp[i]);
