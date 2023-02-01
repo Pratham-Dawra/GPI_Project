@@ -24,7 +24,7 @@
 
 #include "fd.h"
 
-void av_mue(float **u, float **uipjp, GlobVar *gv)
+void av_mue(float **u, float **uipjp, GlobVar * gv)
 {
     for (int j = 1; j <= gv->NY; j++) {
         for (int i = 1; i <= gv->NX; i++) {

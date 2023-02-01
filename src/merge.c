@@ -28,7 +28,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void merge(int nsnap, int type, GlobVar *gv)
+void merge(int nsnap, int type, GlobVar * gv)
 {
     char file[STRING_SIZE], mfile[STRING_SIZE], outfile[STRING_SIZE], ext[10];
     FILE *fp[gv->NPROCY][gv->NPROCX], *fpout = NULL;

@@ -27,21 +27,21 @@
 #include "util.h"
 #include <stdlib.h>
 
-void malloc_SUgather(SUgather *gather, size_t nt, unsigned short ns)
+void malloc_SUgather(SUgather * gather, size_t nt, unsigned short ns)
 {
     // allocate header[nt]
     gather->header = (SUhead *) calloc(nt, sizeof(SUhead));
     if (!gather->header)
         log_fatal("Could not allocate trace header memory buffer for SUgather.\n");
 
-    gather->data = (float **)malloc2d(nt, (size_t)ns, sizeof(float));
+    gather->data = (float **)malloc2d(nt, (size_t) ns, sizeof(float));
     gather->nt = nt;
     gather->ns = ns;
 
     return;
 }
 
-void free_SUgather(SUgather *gather)
+void free_SUgather(SUgather * gather)
 {
     if ((0 == gather->nt) || (0 == gather->ns) || (!gather->header) || (!gather->data)) {
         log_warn("Attempt to free SUgather not previously allocated. Request ignored.\n");

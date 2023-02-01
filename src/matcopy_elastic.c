@@ -27,7 +27,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void matcopy_elastic(float **rho, float **pi, float **u, GlobVar *gv)
+void matcopy_elastic(float **rho, float **pi, float **u, GlobVar * gv)
 {
     MPI_Status status;
     double time1, time2;

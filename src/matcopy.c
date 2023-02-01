@@ -27,7 +27,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void matcopy(float **rho, float **pi, float **u, float **taus, float **taup, GlobVar *gv)
+void matcopy(float **rho, float **pi, float **u, float **taus, float **taup, GlobVar * gv)
 {
     MPI_Status status;
     double time1, time2;

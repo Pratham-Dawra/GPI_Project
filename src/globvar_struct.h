@@ -29,9 +29,10 @@
 
 #include "macros.h"
 #include "enums.h"
+#include "memw_struct.h"
 
-typedef void (*FDop_s_fct)(int i, int j, float *vxx, float *vyx, float *vxy, float *vyy, float **vx, float **vy);
-typedef void (*FDop_v_fct)(int i, int j, float *sxx_x, float *sxy_x, float *sxy_y, float *syy_y, float **sxx, float **syy, float **sxy);
+typedef void (*FDop_s_fct) (int i, int j, float *vxx, float *vyx, float *vxy, float *vyy, MemWavefield * mpw);
+typedef void (*FDop_v_fct) (int i, int j, float *sxx_x, float *sxy_x, float *sxy_y, float *syy_y, MemWavefield * mpw);
 
 typedef struct {
 //struct ModelVar {
@@ -66,6 +67,8 @@ typedef struct {
     float YREC2;                // y-position of last receiver [m]
     float NGEOPH;               // distance between two adjacent receivers [gridpoints]; in auto mode NGEOPH will be 
     // calculated from model dimensions, type integer is incorrect
+    int NTRG;                   // global number of receiver
+    int NTR;                    // number of receivers per PE
     int REC_ARRAY;              // number of receivers in 1D receiver array
     float REC_ARRAY_DEPTH;      // depth of first plane [m] 
     float REC_ARRAY_DIST;       // increment between receiver planes [m]
@@ -77,8 +80,15 @@ typedef struct {
     /*Seismograms */
     int SEISMO;                 // switch to output components of seismograms
     int NDT;                    // sampling rate of seismograms [timesteps DT]
+    int NS;                     // number of samples of seismogram
     int SEIS_FORMAT;            // data output format for seismograms
     char SEIS_FILE[STRING_SIZE];    // name of output file of seismograms
+    float **SECTIONVX;          // buffer for seismogram output (vx-component)
+    float **SECTIONVY;          // buffer for seismogram output (vy-component)
+    float **SECTIONP;           // buffer for seismogram output (p-component)
+    float **SECTIONCURL;        // buffer for seismogram output (curl-component)
+    float **SECTIONDIV;         // buffer for seismogram output (div-component)
+    float **SEISMO_FULLDATA;    // buffer for merge of seismograms
     /*Snapshots */
     int SNAP;                   // switch to output of snapshots
     int SNAP_FORMAT;            // data output format for snapshots
@@ -107,6 +117,8 @@ typedef struct {
     WEQTYPE WEQ;                // wave equation
     float DH;                   // spacial increment [m]
     int FDORDER;                // spatial FD order
+    int ND;                     //// gv->FDORDER / 2
+    int FDO3;                   //// gv->ND * 2 ???
     float TIME;                 // time (of modelling) [s]
     float DT;                   // time increment (of modelling) [s]
     int FDORDER_TIME;           // temporal FD order
@@ -117,6 +129,10 @@ typedef struct {
     int MAXRELERROR;            // switch of maximum relative group velocity error
     int NPROCX;                 // number of processors in x-direction
     int NPROCY;                 // number of processors in y-direction
+    int *GX;                    //// subgrid array in x-direction
+    int *GY;                    //// subgrid array in y-diection
+    char *BUFF_ADDR;            //// buffer for buffering messages
+    int BUFFSIZE;               //// size of buffer for buffering messages
     int NPROC;                  //// number of processors (=NPROCX*NPROCY)
     int NP;                     //// number of processors from mpirun command
     int MPID;                   //// ID of processor

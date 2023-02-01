@@ -24,14 +24,14 @@
 
 #include "fd.h"
 
-int **splitrec(int **recpos, int *ntr_loc, int ntr, int *recswitch, GlobVar *gv)
+int **splitrec(int **recpos, int *recswitch, GlobVar * gv)
 {
     int a, b, i = 0;
     int **recpos_local = NULL;
 
-    int **recpos_dummy = imatrix(1, 3, 1, ntr);
+    int **recpos_dummy = imatrix(1, 3, 1, gv->NTRG);
 
-    for (int j = 1; j <= ntr; j++) {
+    for (int j = 1; j <= gv->NTRG; j++) {
         recswitch[j] = 0;
         a = (recpos[1][j] - 1) / gv->IENDX;
         b = (recpos[2][j] - 1) / gv->IENDY;
@@ -53,9 +53,9 @@ int **splitrec(int **recpos, int *ntr_loc, int ntr, int *recswitch, GlobVar *gv)
         recpos_local[3][k] = recpos_dummy[3][k];
     }
 
-    free_imatrix(recpos_dummy, 1, 3, 1, ntr);
+    free_imatrix(recpos_dummy, 1, 3, 1, gv->NTRG);
 
-    *ntr_loc = i;
+    gv->NTR = i;
 
     return recpos_local;
 }

@@ -18,21 +18,19 @@
 -----------------------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------
- *   updating stress components at interior gridpoints (excluding boundarys) [gx2+1...gx3][gy2+1...gy3]
+ *   updating stress components at interior gridpoints (excluding boundarys) [gv->GX2+1...gv->GX3][gv->GY2+1...gv->GY3]
  *   by a staggered grid finite difference scheme of arbitrary (FDORDER) order accuracy in space
  *   and second order accuracy in time
  *   T. Bohlen
  *
- *   gx and gy are arrays with the locations of the boundary specified in subgrid_bounds.c
+ *   GX and GY are arrays with the locations of the boundary specified in subgrid_bounds.c
  *   for each subgrid
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
 #include "logging.h"
 
-void update_s_elastic_interior(int *gx, int *gy, int nt,
-                               float **vx, float **vy, float **sxx, float **syy,
-                               float **sxy, float **pi, float **u, float **uipjp, float *hc, GlobVar *gv)
+void update_s_elastic_interior(int nt, float *hc, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
 {
     float fipjp, f, g;
     float vxx, vyy, vxy, vyx;
@@ -47,186 +45,186 @@ void update_s_elastic_interior(int *gx, int *gy, int nt,
 
     switch (gv->FDORDER) {
       case 2:
-          for (int j = gy[2] + 1; j <= gy[3]; j++) {
-              for (int i = gx[2] + 1; i <= gx[3]; i++) {
+          for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
+              for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
                   /* spatial derivatives of the components of the velocities */
                   /* using Holberg coefficients */
-                  vxx = hc[1] * (vx[j][i] - vx[j][i - 1]) * dhi;
-                  vyy = hc[1] * (vy[j][i] - vy[j - 1][i]) * dhi;
-                  vyx = hc[1] * (vy[j][i + 1] - vy[j][i]) * dhi;
-                  vxy = hc[1] * (vx[j + 1][i] - vx[j][i]) * dhi;
+                  vxx = hc[1] * (mpw->pvx[j][i] - mpw->pvx[j][i - 1]) * dhi;
+                  vyy = hc[1] * (mpw->pvy[j][i] - mpw->pvy[j - 1][i]) * dhi;
+                  vyx = hc[1] * (mpw->pvy[j][i + 1] - mpw->pvy[j][i]) * dhi;
+                  vxy = hc[1] * (mpw->pvx[j + 1][i] - mpw->pvx[j][i]) * dhi;
 
                   /* updating components of the stress tensor, partially */
-                  fipjp = uipjp[j][i] * gv->DT;
-                  f = u[j][i] * gv->DT;
-                  g = pi[j][i] * gv->DT;
+                  fipjp = mpm->puipjp[j][i] * gv->DT;
+                  f = mpm->pu[j][i] * gv->DT;
+                  g = mpm->ppi[j][i] * gv->DT;
 
-                  sxy[j][i] += (fipjp * (vxy + vyx));
-                  sxx[j][i] += (g * (vxx + vyy)) - (2.0 * f * vyy);
-                  syy[j][i] += (g * (vxx + vyy)) - (2.0 * f * vxx);
+                  mpw->psxy[j][i] += (fipjp * (vxy + vyx));
+                  mpw->psxx[j][i] += (g * (vxx + vyy)) - (2.0 * f * vyy);
+                  mpw->psyy[j][i] += (g * (vxx + vyy)) - (2.0 * f * vxx);
               }
           }
           break;
       case 4:
-          for (int j = gy[2] + 1; j <= gy[3]; j++) {
-              for (int i = gx[2] + 1; i <= gx[3]; i++) {
-                  vxx = (hc[1] * (vx[j][i] - vx[j][i - 1])
-                         + hc[2] * (vx[j][i + 1] - vx[j][i - 2])) * dhi;
-                  vyy = (hc[1] * (vy[j][i] - vy[j - 1][i])
-                         + hc[2] * (vy[j + 1][i] - vy[j - 2][i])) * dhi;
-                  vyx = (hc[1] * (vy[j][i + 1] - vy[j][i])
-                         + hc[2] * (vy[j][i + 2] - vy[j][i - 1])) * dhi;
-                  vxy = (hc[1] * (vx[j + 1][i] - vx[j][i])
-                         + hc[2] * (vx[j + 2][i] - vx[j - 1][i])) * dhi;
-                  fipjp = uipjp[j][i] * gv->DT;
-                  f = u[j][i] * gv->DT;
-                  g = pi[j][i] * gv->DT;
-                  sxy[j][i] += (fipjp * (vxy + vyx));
-                  sxx[j][i] += (g * (vxx + vyy)) - (2.0 * f * vyy);
-                  syy[j][i] += (g * (vxx + vyy)) - (2.0 * f * vxx);
+          for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
+              for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
+                  vxx = (hc[1] * (mpw->pvx[j][i] - mpw->pvx[j][i - 1])
+                         + hc[2] * (mpw->pvx[j][i + 1] - mpw->pvx[j][i - 2])) * dhi;
+                  vyy = (hc[1] * (mpw->pvy[j][i] - mpw->pvy[j - 1][i])
+                         + hc[2] * (mpw->pvy[j + 1][i] - mpw->pvy[j - 2][i])) * dhi;
+                  vyx = (hc[1] * (mpw->pvy[j][i + 1] - mpw->pvy[j][i])
+                         + hc[2] * (mpw->pvy[j][i + 2] - mpw->pvy[j][i - 1])) * dhi;
+                  vxy = (hc[1] * (mpw->pvx[j + 1][i] - mpw->pvx[j][i])
+                         + hc[2] * (mpw->pvx[j + 2][i] - mpw->pvx[j - 1][i])) * dhi;
+                  fipjp = mpm->puipjp[j][i] * gv->DT;
+                  f = mpm->pu[j][i] * gv->DT;
+                  g = mpm->ppi[j][i] * gv->DT;
+                  mpw->psxy[j][i] += (fipjp * (vxy + vyx));
+                  mpw->psxx[j][i] += (g * (vxx + vyy)) - (2.0 * f * vyy);
+                  mpw->psyy[j][i] += (g * (vxx + vyy)) - (2.0 * f * vxx);
               }
           }
           break;
       case 6:
-          for (int j = gy[2] + 1; j <= gy[3]; j++) {
-              for (int i = gx[2] + 1; i <= gx[3]; i++) {
-                  vxx = (hc[1] * (vx[j][i] - vx[j][i - 1])
-                         + hc[2] * (vx[j][i + 1] - vx[j][i - 2])
-                         + hc[3] * (vx[j][i + 2] - vx[j][i - 3])) * dhi;
-                  vyy = (hc[1] * (vy[j][i] - vy[j - 1][i])
-                         + hc[2] * (vy[j + 1][i] - vy[j - 2][i])
-                         + hc[3] * (vy[j + 2][i] - vy[j - 3][i])) * dhi;
-                  vyx = (hc[1] * (vy[j][i + 1] - vy[j][i])
-                         + hc[2] * (vy[j][i + 2] - vy[j][i - 1])
-                         + hc[3] * (vy[j][i + 3] - vy[j][i - 2])) * dhi;
-                  vxy = (hc[1] * (vx[j + 1][i] - vx[j][i])
-                         + hc[2] * (vx[j + 2][i] - vx[j - 1][i])
-                         + hc[3] * (vx[j + 3][i] - vx[j - 2][i])) * dhi;
-                  fipjp = uipjp[j][i] * gv->DT;
-                  f = u[j][i] * gv->DT;
-                  g = pi[j][i] * gv->DT;
-                  sxy[j][i] += (fipjp * (vxy + vyx));
-                  sxx[j][i] += (g * (vxx + vyy)) - (2.0 * f * vyy);
-                  syy[j][i] += (g * (vxx + vyy)) - (2.0 * f * vxx);
+          for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
+              for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
+                  vxx = (hc[1] * (mpw->pvx[j][i] - mpw->pvx[j][i - 1])
+                         + hc[2] * (mpw->pvx[j][i + 1] - mpw->pvx[j][i - 2])
+                         + hc[3] * (mpw->pvx[j][i + 2] - mpw->pvx[j][i - 3])) * dhi;
+                  vyy = (hc[1] * (mpw->pvy[j][i] - mpw->pvy[j - 1][i])
+                         + hc[2] * (mpw->pvy[j + 1][i] - mpw->pvy[j - 2][i])
+                         + hc[3] * (mpw->pvy[j + 2][i] - mpw->pvy[j - 3][i])) * dhi;
+                  vyx = (hc[1] * (mpw->pvy[j][i + 1] - mpw->pvy[j][i])
+                         + hc[2] * (mpw->pvy[j][i + 2] - mpw->pvy[j][i - 1])
+                         + hc[3] * (mpw->pvy[j][i + 3] - mpw->pvy[j][i - 2])) * dhi;
+                  vxy = (hc[1] * (mpw->pvx[j + 1][i] - mpw->pvx[j][i])
+                         + hc[2] * (mpw->pvx[j + 2][i] - mpw->pvx[j - 1][i])
+                         + hc[3] * (mpw->pvx[j + 3][i] - mpw->pvx[j - 2][i])) * dhi;
+                  fipjp = mpm->puipjp[j][i] * gv->DT;
+                  f = mpm->pu[j][i] * gv->DT;
+                  g = mpm->ppi[j][i] * gv->DT;
+                  mpw->psxy[j][i] += (fipjp * (vxy + vyx));
+                  mpw->psxx[j][i] += (g * (vxx + vyy)) - (2.0 * f * vyy);
+                  mpw->psyy[j][i] += (g * (vxx + vyy)) - (2.0 * f * vxx);
               }
           }
           break;
       case 8:
-          for (int j = gy[2] + 1; j <= gy[3]; j++) {
-              for (int i = gx[2] + 1; i <= gx[3]; i++) {
-                  vxx = (hc[1] * (vx[j][i] - vx[j][i - 1])
-                         + hc[2] * (vx[j][i + 1] - vx[j][i - 2])
-                         + hc[3] * (vx[j][i + 2] - vx[j][i - 3])
-                         + hc[4] * (vx[j][i + 3] - vx[j][i - 4])) * dhi;
-                  vyy = (hc[1] * (vy[j][i] - vy[j - 1][i])
-                         + hc[2] * (vy[j + 1][i] - vy[j - 2][i])
-                         + hc[3] * (vy[j + 2][i] - vy[j - 3][i])
-                         + hc[4] * (vy[j + 3][i] - vy[j - 4][i])) * dhi;
-                  vyx = (hc[1] * (vy[j][i + 1] - vy[j][i])
-                         + hc[2] * (vy[j][i + 2] - vy[j][i - 1])
-                         + hc[3] * (vy[j][i + 3] - vy[j][i - 2])
-                         + hc[4] * (vy[j][i + 4] - vy[j][i - 3])) * dhi;
-                  vxy = (hc[1] * (vx[j + 1][i] - vx[j][i])
-                         + hc[2] * (vx[j + 2][i] - vx[j - 1][i])
-                         + hc[3] * (vx[j + 3][i] - vx[j - 2][i])
-                         + hc[4] * (vx[j + 4][i] - vx[j - 3][i])) * dhi;
-                  fipjp = uipjp[j][i] * gv->DT;
-                  f = u[j][i] * gv->DT;
-                  g = pi[j][i] * gv->DT;
-                  sxy[j][i] += (fipjp * (vxy + vyx));
-                  sxx[j][i] += (g * (vxx + vyy)) - (2.0 * f * vyy);
-                  syy[j][i] += (g * (vxx + vyy)) - (2.0 * f * vxx);
+          for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
+              for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
+                  vxx = (hc[1] * (mpw->pvx[j][i] - mpw->pvx[j][i - 1])
+                         + hc[2] * (mpw->pvx[j][i + 1] - mpw->pvx[j][i - 2])
+                         + hc[3] * (mpw->pvx[j][i + 2] - mpw->pvx[j][i - 3])
+                         + hc[4] * (mpw->pvx[j][i + 3] - mpw->pvx[j][i - 4])) * dhi;
+                  vyy = (hc[1] * (mpw->pvy[j][i] - mpw->pvy[j - 1][i])
+                         + hc[2] * (mpw->pvy[j + 1][i] - mpw->pvy[j - 2][i])
+                         + hc[3] * (mpw->pvy[j + 2][i] - mpw->pvy[j - 3][i])
+                         + hc[4] * (mpw->pvy[j + 3][i] - mpw->pvy[j - 4][i])) * dhi;
+                  vyx = (hc[1] * (mpw->pvy[j][i + 1] - mpw->pvy[j][i])
+                         + hc[2] * (mpw->pvy[j][i + 2] - mpw->pvy[j][i - 1])
+                         + hc[3] * (mpw->pvy[j][i + 3] - mpw->pvy[j][i - 2])
+                         + hc[4] * (mpw->pvy[j][i + 4] - mpw->pvy[j][i - 3])) * dhi;
+                  vxy = (hc[1] * (mpw->pvx[j + 1][i] - mpw->pvx[j][i])
+                         + hc[2] * (mpw->pvx[j + 2][i] - mpw->pvx[j - 1][i])
+                         + hc[3] * (mpw->pvx[j + 3][i] - mpw->pvx[j - 2][i])
+                         + hc[4] * (mpw->pvx[j + 4][i] - mpw->pvx[j - 3][i])) * dhi;
+                  fipjp = mpm->puipjp[j][i] * gv->DT;
+                  f = mpm->pu[j][i] * gv->DT;
+                  g = mpm->ppi[j][i] * gv->DT;
+                  mpw->psxy[j][i] += (fipjp * (vxy + vyx));
+                  mpw->psxx[j][i] += (g * (vxx + vyy)) - (2.0 * f * vyy);
+                  mpw->psyy[j][i] += (g * (vxx + vyy)) - (2.0 * f * vxx);
               }
           }
           break;
       case 10:
-          for (int j = gy[2] + 1; j <= gy[3]; j++) {
-              for (int i = gx[2] + 1; i <= gx[3]; i++) {
-                  vxx = (hc[1] * (vx[j][i] - vx[j][i - 1])
-                         + hc[2] * (vx[j][i + 1] - vx[j][i - 2])
-                         + hc[3] * (vx[j][i + 2] - vx[j][i - 3])
-                         + hc[4] * (vx[j][i + 3] - vx[j][i - 4])
-                         + hc[5] * (vx[j][i + 4] - vx[j][i - 5])) * dhi;
-                  vyy = (hc[1] * (vy[j][i] - vy[j - 1][i])
-                         + hc[2] * (vy[j + 1][i] - vy[j - 2][i])
-                         + hc[3] * (vy[j + 2][i] - vy[j - 3][i])
-                         + hc[4] * (vy[j + 3][i] - vy[j - 4][i])
-                         + hc[5] * (vy[j + 4][i] - vy[j - 5][i])) * dhi;
-                  vyx = (hc[1] * (vy[j][i + 1] - vy[j][i])
-                         + hc[2] * (vy[j][i + 2] - vy[j][i - 1])
-                         + hc[3] * (vy[j][i + 3] - vy[j][i - 2])
-                         + hc[4] * (vy[j][i + 4] - vy[j][i - 3])
-                         + hc[5] * (vy[j][i + 5] - vy[j][i - 4])) * dhi;
-                  vxy = (hc[1] * (vx[j + 1][i] - vx[j][i])
-                         + hc[2] * (vx[j + 2][i] - vx[j - 1][i])
-                         + hc[3] * (vx[j + 3][i] - vx[j - 2][i])
-                         + hc[4] * (vx[j + 4][i] - vx[j - 3][i])
-                         + hc[5] * (vx[j + 5][i] - vx[j - 4][i])) * dhi;
-                  fipjp = uipjp[j][i] * gv->DT;
-                  f = u[j][i] * gv->DT;
-                  g = pi[j][i] * gv->DT;
-                  sxy[j][i] += (fipjp * (vxy + vyx));
-                  sxx[j][i] += (g * (vxx + vyy)) - (2.0 * f * vyy);
-                  syy[j][i] += (g * (vxx + vyy)) - (2.0 * f * vxx);
+          for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
+              for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
+                  vxx = (hc[1] * (mpw->pvx[j][i] - mpw->pvx[j][i - 1])
+                         + hc[2] * (mpw->pvx[j][i + 1] - mpw->pvx[j][i - 2])
+                         + hc[3] * (mpw->pvx[j][i + 2] - mpw->pvx[j][i - 3])
+                         + hc[4] * (mpw->pvx[j][i + 3] - mpw->pvx[j][i - 4])
+                         + hc[5] * (mpw->pvx[j][i + 4] - mpw->pvx[j][i - 5])) * dhi;
+                  vyy = (hc[1] * (mpw->pvy[j][i] - mpw->pvy[j - 1][i])
+                         + hc[2] * (mpw->pvy[j + 1][i] - mpw->pvy[j - 2][i])
+                         + hc[3] * (mpw->pvy[j + 2][i] - mpw->pvy[j - 3][i])
+                         + hc[4] * (mpw->pvy[j + 3][i] - mpw->pvy[j - 4][i])
+                         + hc[5] * (mpw->pvy[j + 4][i] - mpw->pvy[j - 5][i])) * dhi;
+                  vyx = (hc[1] * (mpw->pvy[j][i + 1] - mpw->pvy[j][i])
+                         + hc[2] * (mpw->pvy[j][i + 2] - mpw->pvy[j][i - 1])
+                         + hc[3] * (mpw->pvy[j][i + 3] - mpw->pvy[j][i - 2])
+                         + hc[4] * (mpw->pvy[j][i + 4] - mpw->pvy[j][i - 3])
+                         + hc[5] * (mpw->pvy[j][i + 5] - mpw->pvy[j][i - 4])) * dhi;
+                  vxy = (hc[1] * (mpw->pvx[j + 1][i] - mpw->pvx[j][i])
+                         + hc[2] * (mpw->pvx[j + 2][i] - mpw->pvx[j - 1][i])
+                         + hc[3] * (mpw->pvx[j + 3][i] - mpw->pvx[j - 2][i])
+                         + hc[4] * (mpw->pvx[j + 4][i] - mpw->pvx[j - 3][i])
+                         + hc[5] * (mpw->pvx[j + 5][i] - mpw->pvx[j - 4][i])) * dhi;
+                  fipjp = mpm->puipjp[j][i] * gv->DT;
+                  f = mpm->pu[j][i] * gv->DT;
+                  g = mpm->ppi[j][i] * gv->DT;
+                  mpw->psxy[j][i] += (fipjp * (vxy + vyx));
+                  mpw->psxx[j][i] += (g * (vxx + vyy)) - (2.0 * f * vyy);
+                  mpw->psyy[j][i] += (g * (vxx + vyy)) - (2.0 * f * vxx);
               }
           }
           break;
       case 12:
-          for (int j = gy[2] + 1; j <= gy[3]; j++) {
-              for (int i = gx[2] + 1; i <= gx[3]; i++) {
-                  vxx = (hc[1] * (vx[j][i] - vx[j][i - 1])
-                         + hc[2] * (vx[j][i + 1] - vx[j][i - 2])
-                         + hc[3] * (vx[j][i + 2] - vx[j][i - 3])
-                         + hc[4] * (vx[j][i + 3] - vx[j][i - 4])
-                         + hc[5] * (vx[j][i + 4] - vx[j][i - 5])
-                         + hc[6] * (vx[j][i + 5] - vx[j][i - 6])) * dhi;
-                  vyy = (hc[1] * (vy[j][i] - vy[j - 1][i])
-                         + hc[2] * (vy[j + 1][i] - vy[j - 2][i])
-                         + hc[3] * (vy[j + 2][i] - vy[j - 3][i])
-                         + hc[4] * (vy[j + 3][i] - vy[j - 4][i])
-                         + hc[5] * (vy[j + 4][i] - vy[j - 5][i])
-                         + hc[6] * (vy[j + 5][i] - vy[j - 6][i])) * dhi;
-                  vyx = (hc[1] * (vy[j][i + 1] - vy[j][i])
-                         + hc[2] * (vy[j][i + 2] - vy[j][i - 1])
-                         + hc[3] * (vy[j][i + 3] - vy[j][i - 2])
-                         + hc[4] * (vy[j][i + 4] - vy[j][i - 3])
-                         + hc[5] * (vy[j][i + 5] - vy[j][i - 4])
-                         + hc[6] * (vy[j][i + 6] - vy[j][i - 5])) * dhi;
-                  vxy = (hc[1] * (vx[j + 1][i] - vx[j][i])
-                         + hc[2] * (vx[j + 2][i] - vx[j - 1][i])
-                         + hc[3] * (vx[j + 3][i] - vx[j - 2][i])
-                         + hc[4] * (vx[j + 4][i] - vx[j - 3][i])
-                         + hc[5] * (vx[j + 5][i] - vx[j - 4][i])
-                         + hc[6] * (vx[j + 6][i] - vx[j - 5][i])) * dhi;
+          for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
+              for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
+                  vxx = (hc[1] * (mpw->pvx[j][i] - mpw->pvx[j][i - 1])
+                         + hc[2] * (mpw->pvx[j][i + 1] - mpw->pvx[j][i - 2])
+                         + hc[3] * (mpw->pvx[j][i + 2] - mpw->pvx[j][i - 3])
+                         + hc[4] * (mpw->pvx[j][i + 3] - mpw->pvx[j][i - 4])
+                         + hc[5] * (mpw->pvx[j][i + 4] - mpw->pvx[j][i - 5])
+                         + hc[6] * (mpw->pvx[j][i + 5] - mpw->pvx[j][i - 6])) * dhi;
+                  vyy = (hc[1] * (mpw->pvy[j][i] - mpw->pvy[j - 1][i])
+                         + hc[2] * (mpw->pvy[j + 1][i] - mpw->pvy[j - 2][i])
+                         + hc[3] * (mpw->pvy[j + 2][i] - mpw->pvy[j - 3][i])
+                         + hc[4] * (mpw->pvy[j + 3][i] - mpw->pvy[j - 4][i])
+                         + hc[5] * (mpw->pvy[j + 4][i] - mpw->pvy[j - 5][i])
+                         + hc[6] * (mpw->pvy[j + 5][i] - mpw->pvy[j - 6][i])) * dhi;
+                  vyx = (hc[1] * (mpw->pvy[j][i + 1] - mpw->pvy[j][i])
+                         + hc[2] * (mpw->pvy[j][i + 2] - mpw->pvy[j][i - 1])
+                         + hc[3] * (mpw->pvy[j][i + 3] - mpw->pvy[j][i - 2])
+                         + hc[4] * (mpw->pvy[j][i + 4] - mpw->pvy[j][i - 3])
+                         + hc[5] * (mpw->pvy[j][i + 5] - mpw->pvy[j][i - 4])
+                         + hc[6] * (mpw->pvy[j][i + 6] - mpw->pvy[j][i - 5])) * dhi;
+                  vxy = (hc[1] * (mpw->pvx[j + 1][i] - mpw->pvx[j][i])
+                         + hc[2] * (mpw->pvx[j + 2][i] - mpw->pvx[j - 1][i])
+                         + hc[3] * (mpw->pvx[j + 3][i] - mpw->pvx[j - 2][i])
+                         + hc[4] * (mpw->pvx[j + 4][i] - mpw->pvx[j - 3][i])
+                         + hc[5] * (mpw->pvx[j + 5][i] - mpw->pvx[j - 4][i])
+                         + hc[6] * (mpw->pvx[j + 6][i] - mpw->pvx[j - 5][i])) * dhi;
 
-                  fipjp = uipjp[j][i] * gv->DT;
-                  f = u[j][i] * gv->DT;
-                  g = pi[j][i] * gv->DT;
-                  sxy[j][i] += (fipjp * (vxy + vyx));
-                  sxx[j][i] += (g * (vxx + vyy)) - (2.0 * f * vyy);
-                  syy[j][i] += (g * (vxx + vyy)) - (2.0 * f * vxx);
+                  fipjp = mpm->puipjp[j][i] * gv->DT;
+                  f = mpm->pu[j][i] * gv->DT;
+                  g = mpm->ppi[j][i] * gv->DT;
+                  mpw->psxy[j][i] += (fipjp * (vxy + vyx));
+                  mpw->psxx[j][i] += (g * (vxx + vyy)) - (2.0 * f * vyy);
+                  mpw->psyy[j][i] += (g * (vxx + vyy)) - (2.0 * f * vxx);
               }
           }
           break;
       default:                 /* CASE 2 */
-          for (int j = gy[2] + 1; j <= gy[3]; j++) {
-              for (int i = gx[2] + 1; i <= gx[3]; i++) {
+          for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
+              for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
 
                   /* spatial derivatives of the components of the velocities */
                   /* using Holberg coefficients */
-                  vxx = hc[1] * (vx[j][i] - vx[j][i - 1]) * dhi;
-                  vyy = hc[1] * (vy[j][i] - vy[j - 1][i]) * dhi;
-                  vyx = hc[1] * (vy[j][i + 1] - vy[j][i]) * dhi;
-                  vxy = hc[1] * (vx[j + 1][i] - vx[j][i]) * dhi;
+                  vxx = hc[1] * (mpw->pvx[j][i] - mpw->pvx[j][i - 1]) * dhi;
+                  vyy = hc[1] * (mpw->pvy[j][i] - mpw->pvy[j - 1][i]) * dhi;
+                  vyx = hc[1] * (mpw->pvy[j][i + 1] - mpw->pvy[j][i]) * dhi;
+                  vxy = hc[1] * (mpw->pvx[j + 1][i] - mpw->pvx[j][i]) * dhi;
 
                   /* updating components of the stress tensor, partially */
-                  fipjp = uipjp[j][i] * gv->DT;
-                  f = u[j][i] * gv->DT;
-                  g = pi[j][i] * gv->DT;
+                  fipjp = mpm->puipjp[j][i] * gv->DT;
+                  f = mpm->pu[j][i] * gv->DT;
+                  g = mpm->ppi[j][i] * gv->DT;
 
-                  sxy[j][i] += (fipjp * (vxy + vyx));
-                  sxx[j][i] += (g * (vxx + vyy)) - (2.0 * f * vyy);
-                  syy[j][i] += (g * (vxx + vyy)) - (2.0 * f * vxx);
+                  mpw->psxy[j][i] += (fipjp * (vxy + vyx));
+                  mpw->psxx[j][i] += (g * (vxx + vyy)) - (2.0 * f * vyy);
+                  mpw->psyy[j][i] += (g * (vxx + vyy)) - (2.0 * f * vxx);
               }
           }
           break;

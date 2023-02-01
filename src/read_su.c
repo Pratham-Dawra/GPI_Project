@@ -31,7 +31,7 @@
 #include <math.h>
 
 /* determine SU file size */
-off_t su_filesize(FILE *filep)
+off_t su_filesize(FILE * filep)
 {
     int ierr = fseek(filep, 0, SEEK_END);
     if (ierr != 0)
@@ -39,7 +39,7 @@ off_t su_filesize(FILE *filep)
     return ftell(filep);
 }
 
-size_t su_get_nt(FILE *filep, unsigned short *ns, unsigned short *dt, short *delrt)
+size_t su_get_nt(FILE * filep, unsigned short *ns, unsigned short *dt, short *delrt)
 {
     int ierr = 0;
     SUhead header;
@@ -83,7 +83,7 @@ size_t su_get_nt(FILE *filep, unsigned short *ns, unsigned short *dt, short *del
     return nt;
 }
 
-int su_read_trace(FILE *filep, size_t n, unsigned short ns, bool b_seek, SUhead *header, float *data)
+int su_read_trace(FILE * filep, size_t n, unsigned short ns, bool b_seek, SUhead * header, float *data)
 {
     int ierr = 0;
     size_t tracelen = 0;
@@ -119,7 +119,7 @@ int su_read_trace(FILE *filep, size_t n, unsigned short ns, bool b_seek, SUhead 
     return 1;
 }
 
-size_t su_read_file(FILE *filep, SUgather *gather)
+size_t su_read_file(FILE * filep, SUgather * gather)
 {
     size_t i, total = 0;
     unsigned short ns, dt;

@@ -24,15 +24,18 @@
 
 #include "fd.h"
 
-void wavefield_update_s_el(int i, int j, float vxx, float vyx, float vxy, float vyy, float **sxy,
-                           float **sxx, float **syy, float **pi, float **u, float **uipjp, GlobVar *gv)
+/* void wavefield_update_s_el(int i, int j, float vxx, float vyx, float vxy, float vyy, float **sxy,
+                           float **sxx, float **syy, float **pi, float **u, float **uipjp, GlobVar *gv) */
+
+void wavefield_update_s_el(int i, int j, float vxx, float vyx, float vxy, float vyy, MemModel * mpm, MemWavefield * mpw,
+                           GlobVar * gv)
 {
-    float fipjp = uipjp[j][i] * gv->DT;
-    float f = u[j][i] * gv->DT;
-    float g = pi[j][i] * gv->DT;
+    float fipjp = mpm->puipjp[j][i] * gv->DT;
+    float f = mpm->pu[j][i] * gv->DT;
+    float g = mpm->ppi[j][i] * gv->DT;
 
     /* Update  */
-    sxy[j][i] += fipjp * (vyx + vxy);
-    sxx[j][i] += (g * (vxx + vyy)) - (2.0 * f * vyy);
-    syy[j][i] += (g * (vxx + vyy)) - (2.0 * f * vxx);
+    mpw->psxy[j][i] += fipjp * (vyx + vxy);
+    mpw->psxx[j][i] += (g * (vxx + vyy)) - (2.0 * f * vyy);
+    mpw->psyy[j][i] += (g * (vxx + vyy)) - (2.0 * f * vxx);
 }

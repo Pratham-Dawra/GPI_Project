@@ -26,8 +26,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void model_visco_vti(float **rho, float **pc11, float **pc33, float **pc13, float **pc55,
-                     float **ptau11, float **ptau33, float **ptau13, float **ptau55, float *eta, GlobVar *gv)
+void model_visco_vti(MemModel * mpm, GlobVar * gv)
 {
     float c11, c33, c55, c13, Rho, tau11, tau33, tau55, tau13;
     float sumc11, sumc13, sumc33, sumc55, ws, y;
@@ -48,7 +47,7 @@ void model_visco_vti(float **rho, float **pc11, float **pc33, float **pc13, floa
     float *pts = vector(1, gv->L);
     for (int l = 1; l <= gv->L; l++) {
         pts[l] = 1.0 / (2.0 * PI * gv->FL[l]);
-        eta[l] = gv->DT / pts[l];
+        mpm->peta[l] = gv->DT / pts[l];
     }
 
     float fc = 1.0 / gv->TS;
@@ -111,16 +110,16 @@ void model_visco_vti(float **rho, float **pc11, float **pc33, float **pc13, floa
                 ii = i - gv->POS[1] * gv->NX;
                 jj = j - gv->POS[2] * gv->NY;
 
-                pc11[jj][ii] = c11;
-                rho[jj][ii] = Rho;
-                pc33[jj][ii] = c33;
-                pc13[jj][ii] = c13;
-                pc55[jj][ii] = c55;
+                mpm->pc11[jj][ii] = c11;
+                mpm->prho[jj][ii] = Rho;
+                mpm->pc33[jj][ii] = c33;
+                mpm->pc13[jj][ii] = c13;
+                mpm->pc55[jj][ii] = c55;
 
-                ptau11[jj][ii] = tau11;
-                ptau33[jj][ii] = tau33;
-                ptau13[jj][ii] = tau13;
-                ptau55[jj][ii] = tau55;
+                mpm->ptau11[jj][ii] = tau11;
+                mpm->ptau33[jj][ii] = tau33;
+                mpm->ptau13[jj][ii] = tau13;
+                mpm->ptau55[jj][ii] = tau55;
             }
         }
     }
@@ -130,55 +129,55 @@ void model_visco_vti(float **rho, float **pc11, float **pc33, float **pc13, floa
     /* all models are written to file */
     if (gv->WRITE_MODELFILES == 1) {
         sprintf(modfile, "%s.SOFI2D.c11", gv->MFILE);
-        writemod(modfile, pc11, 3, gv);
+        writemod(modfile, mpm->pc11, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
 
         sprintf(modfile, "%s.SOFI2D.c33", gv->MFILE);
-        writemod(modfile, pc33, 3, gv);
+        writemod(modfile, mpm->pc33, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
 
         sprintf(modfile, "%s.SOFI2D.c13", gv->MFILE);
-        writemod(modfile, pc13, 3, gv);
+        writemod(modfile, mpm->pc13, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
 
         sprintf(modfile, "%s.SOFI2D.c55", gv->MFILE);
-        writemod(modfile, pc55, 3, gv);
+        writemod(modfile, mpm->pc55, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
 
         sprintf(modfile, "%s.SOFI2D.tau11", gv->MFILE);
-        writemod(modfile, ptau11, 3, gv);
+        writemod(modfile, mpm->ptau11, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
 
         sprintf(modfile, "%s.SOFI2D.tau33", gv->MFILE);
-        writemod(modfile, ptau33, 3, gv);
+        writemod(modfile, mpm->ptau33, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
 
         sprintf(modfile, "%s.SOFI2D.tau13", gv->MFILE);
-        writemod(modfile, ptau13, 3, gv);
+        writemod(modfile, mpm->ptau13, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
 
         sprintf(modfile, "%s.SOFI2D.tau55", gv->MFILE);
-        writemod(modfile, ptau55, 3, gv);
+        writemod(modfile, mpm->ptau55, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
 
         sprintf(modfile, "%s.SOFI2D.rho", gv->MFILE);
-        writemod(modfile, rho, 3, gv);
+        writemod(modfile, mpm->prho, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
@@ -187,7 +186,7 @@ void model_visco_vti(float **rho, float **pc11, float **pc33, float **pc13, floa
     /* only density is written to file */
     if (gv->WRITE_MODELFILES == 2) {
         sprintf(modfile, "%s.SOFI2D.rho", gv->MFILE);
-        writemod(modfile, rho, 3, gv);
+        writemod(modfile, mpm->prho, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);

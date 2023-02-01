@@ -25,7 +25,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void writemod(const char *modfile, float **array, int format, const GlobVar *gv)
+void writemod(const char *modfile, float **array, int format, const GlobVar * gv)
 {
     char file[STRING_SIZE];
 

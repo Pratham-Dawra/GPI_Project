@@ -25,7 +25,7 @@
 
 #include "fd.h"
 
-void model_elastic(float **rho, float **pi, float **u, GlobVar *gv)
+void model_elastic(MemModel * mpm, GlobVar * gv)
 {
     float muv, piv, Vp, Vs, Rhov;
     float y;
@@ -80,9 +80,9 @@ void model_elastic(float **rho, float **pi, float **u, GlobVar *gv)
                 ii = i - gv->POS[1] * gv->NX;
                 jj = j - gv->POS[2] * gv->NY;
 
-                u[jj][ii] = muv;
-                rho[jj][ii] = Rhov;
-                pi[jj][ii] = piv;
+                mpm->pu[jj][ii] = muv;
+                mpm->prho[jj][ii] = Rhov;
+                mpm->ppi[jj][ii] = piv;
                 if (gv->WRITE_MODELFILES == 1) {
                     pwavemod[jj][ii] = Vp;
                     swavemod[jj][ii] = Vs;
@@ -96,7 +96,7 @@ void model_elastic(float **rho, float **pi, float **u, GlobVar *gv)
     /* only the density model is written to file */
     if (gv->WRITE_MODELFILES == 2) {
         sprintf(modfile, "%s.SOFI2D.rho", gv->MFILE);
-        writemod(modfile, rho, 3, gv);
+        writemod(modfile, mpm->prho, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
@@ -105,13 +105,13 @@ void model_elastic(float **rho, float **pi, float **u, GlobVar *gv)
     /* all models are written to file */
     if (gv->WRITE_MODELFILES == 1) {
         sprintf(modfile, "%s.SOFI2D.u", gv->MFILE);
-        writemod(modfile, u, 3, gv);
+        writemod(modfile, mpm->pu, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
 
         sprintf(modfile, "%s.SOFI2D.pi", gv->MFILE);
-        writemod(modfile, pi, 3, gv);
+        writemod(modfile, mpm->ppi, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
@@ -129,7 +129,7 @@ void model_elastic(float **rho, float **pi, float **u, GlobVar *gv)
             mergemod(modfile, 3, gv);
 
         sprintf(modfile, "%s.SOFI2D.rho", gv->MFILE);
-        writemod(modfile, rho, 3, gv);
+        writemod(modfile, mpm->prho, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);

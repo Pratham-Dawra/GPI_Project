@@ -24,25 +24,24 @@
 
 #include "fd.h"
 
-void zero_visc(int nx1, int nx2, int ny1, int ny2, float **vx, float **vy, float **sxx, float **syy, float **sxy,
-               float ***pr, float ***pp, float ***pq, GlobVar *gv)
+void zero_visc(int nx1, int nx2, int ny1, int ny2, MemWavefield * mpw, GlobVar * gv)
 {
     for (int j = ny1; j <= ny2; j++) {
         for (int i = nx1; i <= nx2; i++) {
-            vx[j][i] = 0.0f;
-            vy[j][i] = 0.0f;
-            sxx[j][i] = 0.0f;
-            syy[j][i] = 0.0f;
-            sxy[j][i] = 0.0f;
+            mpw->pvx[j][i] = 0.0f;
+            mpw->pvy[j][i] = 0.0f;
+            mpw->psxx[j][i] = 0.0f;
+            mpw->psyy[j][i] = 0.0f;
+            mpw->psxy[j][i] = 0.0f;
         }
     }
 
     for (int j = ny1; j <= ny2; j++) {
         for (int i = nx1; i <= nx2; i++) {
             for (int l = 1; l <= gv->L; l++) {
-                pr[j][i][l] = 0.0f;
-                pp[j][i][l] = 0.0f;
-                pq[j][i][l] = 0.0f;
+                mpw->pr[j][i][l] = 0.0f;
+                mpw->pp[j][i][l] = 0.0f;
+                mpw->pq[j][i][l] = 0.0f;
             }
         }
     }

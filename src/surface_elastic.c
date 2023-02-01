@@ -24,9 +24,7 @@
 
 #include "fd.h"
 
-void surface_elastic(int ndepth, float **vx, float **vy, float **sxx, float **syy,
-                     float **sxy, float **pi, float **u, float *hc, float *K_x, float *a_x, float *b_x, float **psi_vxx,
-                     GlobVar *gv)
+void surface_elastic(int ndepth, float *hc, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
 {
 
     int h1;
@@ -36,12 +34,12 @@ void surface_elastic(int ndepth, float **vx, float **vy, float **sxx, float **sy
     int fdoh = gv->FDORDER / 2;
     float dhi = 1.0 / gv->DH;
 
-    int j = ndepth;                 /* The free surface is located exactly in y=dh !! */
+    int j = ndepth;             /* The free surface is located exactly in y=dh !! */
     for (int i = 1; i <= gv->NX; i++) {
 
         /*Mirroring the components of the stress tensor to make
          * a stress free surface (method of imaging) */
-        syy[j][i] = 0.0;
+        mpw->psyy[j][i] = 0.0;
 
         vxx = 0.0;
         vyy = 0.0;
@@ -50,11 +48,11 @@ void surface_elastic(int ndepth, float **vx, float **vy, float **sxx, float **sy
 
             /*Mirroring the components of the stress tensor to make
              * a stress free surface (method of imaging) */
-            syy[j - m][i] = -syy[j + m][i];
-            sxy[j - m][i] = -sxy[j + m - 1][i];
+            mpw->psyy[j - m][i] = -mpw->psyy[j + m][i];
+            mpw->psxy[j - m][i] = -mpw->psxy[j + m - 1][i];
 
-            vxx += hc[m] * (vx[j][i + m - 1] - vx[j][i - m]);
-            vyy += hc[m] * (vy[j + m - 1][i] - vy[j - m][i]);
+            vxx += hc[m] * (mpw->pvx[j][i + m - 1] - mpw->pvx[j][i - m]);
+            vyy += hc[m] * (mpw->pvy[j + m - 1][i] - mpw->pvy[j - m][i]);
         }
 
         vxx *= dhi;
@@ -65,8 +63,8 @@ void surface_elastic(int ndepth, float **vx, float **vy, float **sxx, float **sy
             /* left boundary */
             if ((!gv->BOUNDARY) && (gv->POS[1] == 0) && (i <= gv->FW)) {
 
-                psi_vxx[j][i] = b_x[i] * psi_vxx[j][i] + a_x[i] * vxx;
-                vxx = vxx / K_x[i] + psi_vxx[j][i];
+                mpw->psi_vxx[j][i] = mpm->b_x[i] * mpw->psi_vxx[j][i] + mpm->a_x[i] * vxx;
+                vxx = vxx / mpm->K_x[i] + mpw->psi_vxx[j][i];
             }
 
             /* right boundary */
@@ -74,19 +72,19 @@ void surface_elastic(int ndepth, float **vx, float **vy, float **sxx, float **sy
 
                 h1 = (i - gv->NX + 2 * gv->FW);
 
-                psi_vxx[j][h1] = b_x[h1] * psi_vxx[j][h1] + a_x[h1] * vxx;
-                vxx = vxx / K_x[h1] + psi_vxx[j][h1];
+                mpw->psi_vxx[j][h1] = mpm->b_x[h1] * mpw->psi_vxx[j][h1] + mpm->a_x[h1] * vxx;
+                vxx = vxx / mpm->K_x[h1] + mpw->psi_vxx[j][h1];
             }
         }
 
-        fjm = u[j][i] * 2.0;
-        g = pi[j][i];
+        fjm = mpm->pu[j][i] * 2.0;
+        g = mpm->ppi[j][i];
 
         /*Update sxx without vertical derivates (last update will be canceld)
          *sxx=sxx_new - sxx =  gv->DT*fjm*(2-fjm/g)vxx   -  ( g* ( vxx+vyy ) - fjm *vyy)
          *                  = -(gv->DT*(g-fmj)*(g-fmj)*vxx/g)-(gv->DT*(g-fjm)*vyy) */
 
-        sxx[j][i] += -(gv->DT * (g - fjm) * (g - fjm) * vxx / g) - (gv->DT * (g - fjm) * vyy);
+        mpw->psxx[j][i] += -(gv->DT * (g - fjm) * (g - fjm) * vxx / g) - (gv->DT * (g - fjm) * vyy);
 
     }
 }

@@ -28,7 +28,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-void readmod_elastic_vti(float **rho, float **pc11, float **pc33, float **pc13, float **pc55, GlobVar *gv)
+void readmod_elastic_vti(MemModel * mpm, GlobVar * gv)
 {
     float c11, c33, c13, c55;
     int ii, jj;
@@ -37,7 +37,8 @@ void readmod_elastic_vti(float **rho, float **pc11, float **pc33, float **pc13, 
     bool b_issu = false;
 
     const char *model[] = { "P-wave velocity model", "S-wave velocity model", "density model",
-        "Epsilon model", "Delta model" };
+        "Epsilon model", "Delta model"
+    };
     const char *suffix[] = { "vp", "vs", "rho", "epsilon", "delta" };
     const char *suffix_su[] = { "vp.su", "vs.su", "rho.su", "epsilon.su", "delta.su" };
 
@@ -93,7 +94,7 @@ void readmod_elastic_vti(float **rho, float **pc11, float **pc33, float **pc13, 
         }
         ny = ns;
     } else {
-        ny = (size_t)(gv->NYG);
+        ny = (size_t) (gv->NYG);
     }
 
     float **para = (float **)malloc2d(NPARA, ny, sizeof(float));
@@ -123,11 +124,11 @@ void readmod_elastic_vti(float **rho, float **pc11, float **pc33, float **pc13, 
             if ((gv->POS[1] == ((i - 1) / gv->NX)) && (gv->POS[2] == ((j - 1) / gv->NY))) {
                 ii = i - gv->POS[1] * gv->NX;
                 jj = j - gv->POS[2] * gv->NY;
-                pc11[jj][ii] = c11;
-                pc13[jj][ii] = c13;
-                pc33[jj][ii] = c33;
-                pc55[jj][ii] = c55;
-                rho[jj][ii] = para[P_RHO][j - 1];
+                mpm->pc11[jj][ii] = c11;
+                mpm->pc13[jj][ii] = c13;
+                mpm->pc33[jj][ii] = c33;
+                mpm->pc55[jj][ii] = c55;
+                mpm->prho[jj][ii] = para[P_RHO][j - 1];
             }
         }
     }

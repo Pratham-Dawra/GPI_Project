@@ -24,7 +24,7 @@
 
 #include "fd.h"
 
-void wavefield_update_s_visc_4(int i, int j, float vxx, float vyx, float vxy, float vyy, float **sxy,
+/* void wavefield_update_s_visc_4(int i, int j, float vxx, float vyx, float vxy, float vyy, float **sxy,
                                float **sxx, float **syy, float ***r, float ***p,
                                float ***q, float **fipjp, float **f, float **g, float *bip,
                                float *bjm, float *cip, float *cjm, float ***d, float ***e, float ***dip, float **vxx_1,
@@ -32,7 +32,10 @@ void wavefield_update_s_visc_4(int i, int j, float vxx, float vyx, float vxy, fl
                                float **vyy_4, float **vxy_1, float **vxy_2, float **vxy_3, float **vxy_4, float **vyx_1,
                                float **vyx_2, float **vyx_3, float **vyx_4, float ***r_2, float ***r_3, float ***r_4,
                                float ***p_2, float ***p_3, float ***p_4, float ***q_2, float ***q_3, float ***q_4,
-                               GlobVar *gv)
+                               GlobVar *gv) */
+
+void wavefield_update_s_visc_4(int i, int j, float vxx, float vyx, float vxy, float vyy,
+                               MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
 {
     /* Coefficients for Adam Bashforth */
     float c1 = 13.0 / 12.0;
@@ -46,50 +49,53 @@ void wavefield_update_s_visc_4(int i, int j, float vxx, float vyx, float vxy, fl
     float dthalbe = gv->DT / 2.0;
 
     // Save derviations
-    vxx_1[j][i] = vxx * gv->DH;
-    vyy_1[j][i] = vyy * gv->DH;
-    vxy_1[j][i] = vxy * gv->DH;
-    vyx_1[j][i] = vyx * gv->DH;
+    mpw->vxx_1[j][i] = vxx * gv->DH;
+    mpw->vyy_1[j][i] = vyy * gv->DH;
+    mpw->vxy_1[j][i] = vxy * gv->DH;
+    mpw->vyx_1[j][i] = vyx * gv->DH;
 
     float sumr = 0.0f, sump = 0.0f, sumq = 0.0f;
     for (int l = 1; l <= gv->L; l++) {
-        sumr += c1 * r[j][i][l] + c2 * r_2[j][i][l] + c3 * r_3[j][i][l] + c4 * r_4[j][i][l];
-        sump += c1 * p[j][i][l] + c2 * p_2[j][i][l] + c3 * p_3[j][i][l] + c4 * p_4[j][i][l];
-        sumq += c1 * q[j][i][l] + c2 * q_2[j][i][l] + c3 * q_3[j][i][l] + c4 * q_4[j][i][l];
+        sumr += c1 * mpw->pr[j][i][l] + c2 * mpw->pr_2[j][i][l] + c3 * mpw->pr_3[j][i][l] + c4 * mpw->pr_4[j][i][l];
+        sump += c1 * mpw->pp[j][i][l] + c2 * mpw->pp_2[j][i][l] + c3 * mpw->pp_3[j][i][l] + c4 * mpw->pp_4[j][i][l];
+        sumq += c1 * mpw->pq[j][i][l] + c2 * mpw->pq_2[j][i][l] + c3 * mpw->pq_3[j][i][l] + c4 * mpw->pq_4[j][i][l];
     }
 
     // Calculate Adams-Bashforth stuff
-    sumxx = c1 * vxx_1[j][i] + c2 * vxx_2[j][i] + c3 * vxx_3[j][i] + c4 * vxx_4[j][i];
-    sumyy = c1 * vyy_1[j][i] + c2 * vyy_2[j][i] + c3 * vyy_3[j][i] + c4 * vyy_4[j][i];
-    sumxy = c1 * vxy_1[j][i] + c2 * vxy_2[j][i] + c3 * vxy_3[j][i] + c4 * vxy_4[j][i];
-    sumyx = c1 * vyx_1[j][i] + c2 * vyx_2[j][i] + c3 * vyx_3[j][i] + c4 * vyx_4[j][i];
+    sumxx = c1 * mpw->vxx_1[j][i] + c2 * mpw->vxx_2[j][i] + c3 * mpw->vxx_3[j][i] + c4 * mpw->vxx_4[j][i];
+    sumyy = c1 * mpw->vyy_1[j][i] + c2 * mpw->vyy_2[j][i] + c3 * mpw->vyy_3[j][i] + c4 * mpw->vyy_4[j][i];
+    sumxy = c1 * mpw->vxy_1[j][i] + c2 * mpw->vxy_2[j][i] + c3 * mpw->vxy_3[j][i] + c4 * mpw->vxy_4[j][i];
+    sumyx = c1 * mpw->vyx_1[j][i] + c2 * mpw->vyx_2[j][i] + c3 * mpw->vyx_3[j][i] + c4 * mpw->vyx_4[j][i];
 
     /* updating components of the stress tensor, partially */
-    sxy[j][i] += (fipjp[j][i] * (sumxy + sumyx)) * dhi + (dthalbe * sumr);
-    sxx[j][i] += (g[j][i] * (sumxx + sumyy) * dhi) - (2.0 * f[j][i] * sumyy * dhi) + (dthalbe * sump);
-    syy[j][i] += (g[j][i] * (sumxx + sumyy) * dhi) - (2.0 * f[j][i] * sumxx * dhi) + (dthalbe * sumq);
+    mpw->psxy[j][i] += (mpm->fipjp[j][i] * (sumxy + sumyx)) * dhi + (dthalbe * sumr);
+    mpw->psxx[j][i] += (mpm->g[j][i] * (sumxx + sumyy) * dhi) - (2.0 * mpm->f[j][i] * sumyy * dhi) + (dthalbe * sump);
+    mpw->psyy[j][i] += (mpm->g[j][i] * (sumxx + sumyy) * dhi) - (2.0 * mpm->f[j][i] * sumxx * dhi) + (dthalbe * sumq);
 
     sumr = sump = sumq = 0.0f;
     for (int l = 1; l <= gv->L; l++) {
-        ctemp = 2 * (1 - cip[l]) / c1;
-        r_4[j][i][l] =
-            bip[l] * (r[j][i][l] * cip[l] - ctemp * c2 * (r[j][i][l] + r_2[j][i][l]) -
-                      ctemp * c3 * (r_2[j][i][l] + r_3[j][i][l]) - ctemp * c4 * (r_3[j][i][l] + r_4[j][i][l]) -
-                      (dip[j][i][l] * (sumxy + sumyx) * dhi));
-        p_4[j][i][l] =
-            bjm[l] * (p[j][i][l] * cjm[l] - ctemp * c2 * (p[j][i][l] + p_2[j][i][l]) -
-                      ctemp * c3 * (p_2[j][i][l] + p_3[j][i][l]) - ctemp * c4 * (p_3[j][i][l] + p_4[j][i][l]) -
-                      (e[j][i][l] * (sumxx + sumyy) * dhi) + (2.0 * d[j][i][l] * sumyy * dhi));
-        q_4[j][i][l] =
-            bjm[l] * (q[j][i][l] * cjm[l] - ctemp * c2 * (q[j][i][l] + q_2[j][i][l]) -
-                      ctemp * c3 * (q_2[j][i][l] + q_3[j][i][l]) - ctemp * c4 * (q_3[j][i][l] + q_4[j][i][l]) -
-                      (e[j][i][l] * (sumxx + sumyy) * dhi) + (2.0 * d[j][i][l] * sumxx * dhi));
-        sumr += c1 * r_4[j][i][l] + c2 * r[j][i][l] + c3 * r_2[j][i][l] + c4 * r_3[j][i][l];
-        sump += c1 * p_4[j][i][l] + c2 * p[j][i][l] + c3 * p_2[j][i][l] + c4 * p_3[j][i][l];
-        sumq += c1 * q_4[j][i][l] + c2 * q[j][i][l] + c3 * q_2[j][i][l] + c4 * q_3[j][i][l];
+        ctemp = 2 * (1 - mpm->cip[l]) / c1;
+        mpw->pr_4[j][i][l] =
+            mpm->bip[l] * (mpw->pr[j][i][l] * mpm->cip[l] - ctemp * c2 * (mpw->pr[j][i][l] + mpw->pr_2[j][i][l]) -
+                           ctemp * c3 * (mpw->pr_2[j][i][l] + mpw->pr_3[j][i][l]) - ctemp * c4 * (mpw->pr_3[j][i][l] +
+                                                                                                  mpw->pr_4[j][i][l]) -
+                           (mpm->dip[j][i][l] * (sumxy + sumyx) * dhi));
+        mpw->pp_4[j][i][l] =
+            mpm->bjm[l] * (mpw->pp[j][i][l] * mpm->cjm[l] - ctemp * c2 * (mpw->pp[j][i][l] + mpw->pp_2[j][i][l]) -
+                           ctemp * c3 * (mpw->pp_2[j][i][l] + mpw->pp_3[j][i][l]) - ctemp * c4 * (mpw->pp_3[j][i][l] +
+                                                                                                  mpw->pp_4[j][i][l]) -
+                           (mpm->e[j][i][l] * (sumxx + sumyy) * dhi) + (2.0 * mpm->d[j][i][l] * sumyy * dhi));
+        mpw->pq_4[j][i][l] =
+            mpm->bjm[l] * (mpw->pq[j][i][l] * mpm->cjm[l] - ctemp * c2 * (mpw->pq[j][i][l] + mpw->pq_2[j][i][l]) -
+                           ctemp * c3 * (mpw->pq_2[j][i][l] + mpw->pq_3[j][i][l]) - ctemp * c4 * (mpw->pq_3[j][i][l] +
+                                                                                                  mpw->pq_4[j][i][l]) -
+                           (mpm->e[j][i][l] * (sumxx + sumyy) * dhi) + (2.0 * mpm->d[j][i][l] * sumxx * dhi));
+        sumr += c1 * mpw->pr_4[j][i][l] + c2 * mpw->pr[j][i][l] + c3 * mpw->pr_2[j][i][l] + c4 * mpw->pr_3[j][i][l];
+        sump += c1 * mpw->pp_4[j][i][l] + c2 * mpw->pp[j][i][l] + c3 * mpw->pp_2[j][i][l] + c4 * mpw->pp_3[j][i][l];
+        sumq += c1 * mpw->pq_4[j][i][l] + c2 * mpw->pq[j][i][l] + c3 * mpw->pq_2[j][i][l] + c4 * mpw->pq_3[j][i][l];
     }
 
-    sxy[j][i] += (dthalbe * sumr);
-    sxx[j][i] += (dthalbe * sump);
-    syy[j][i] += (dthalbe * sumq);
+    mpw->psxy[j][i] += (dthalbe * sumr);
+    mpw->psxx[j][i] += (dthalbe * sump);
+    mpw->psyy[j][i] += (dthalbe * sumq);
 }

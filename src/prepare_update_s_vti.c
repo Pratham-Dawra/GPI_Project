@@ -24,27 +24,23 @@
 
 #include "fd.h"
 
-void prepare_update_s_vti(float *peta, float **pc11, float **pc13, float **pc33, float **pc55ipjp,
-                          float **ptau11, float **ptau13, float **ptau33, float **ptau55ipjp,
-                          float **pc55ipjpu, float **pc13u, float **pc11u, float **pc33u,
-                          float ***pc55ipjpd, float ***pc13d, float ***pc11d, float ***pc33d,
-                          float *bip, float *cip, GlobVar *gv)
+void prepare_update_s_vti(MemModel * mpm, GlobVar * gv)
 {
     for (int j = 1; j <= gv->NY; j++) {
         for (int i = 1; i <= gv->NX; i++) {
             /* unrelaxed moduli */
-            pc55ipjpu[j][i] = pc55ipjp[j][i] * gv->DT * (1.0 + gv->L * ptau55ipjp[j][i]);
-            pc13u[j][i] = pc13[j][i] * gv->DT * (1.0 + gv->L * ptau13[j][i]);
-            pc11u[j][i] = pc11[j][i] * gv->DT * (1.0 + gv->L * ptau11[j][i]);
-            pc33u[j][i] = pc33[j][i] * gv->DT * (1.0 + gv->L * ptau33[j][i]);
+            mpm->pc55ipjpu[j][i] = mpm->pc55ipjp[j][i] * gv->DT * (1.0 + gv->L * mpm->ptau55ipjp[j][i]);
+            mpm->pc13u[j][i] = mpm->pc13[j][i] * gv->DT * (1.0 + gv->L * mpm->ptau13[j][i]);
+            mpm->pc11u[j][i] = mpm->pc11[j][i] * gv->DT * (1.0 + gv->L * mpm->ptau11[j][i]);
+            mpm->pc33u[j][i] = mpm->pc33[j][i] * gv->DT * (1.0 + gv->L * mpm->ptau33[j][i]);
             for (int l = 1; l <= gv->L; l++) {
-                bip[l] = 1.0 / (1.0 + (peta[l] * 0.5));
-                cip[l] = 1.0 - (peta[l] * 0.5);
+                mpm->bip[l] = 1.0 / (1.0 + (mpm->peta[l] * 0.5));
+                mpm->cip[l] = 1.0 - (mpm->peta[l] * 0.5);
                 /* module defects for each relaxation mechanism */
-                pc55ipjpd[j][i][l] = pc55ipjp[j][i] * peta[l] * ptau55ipjp[j][i];
-                pc13d[j][i][l] = pc13[j][i] * peta[l] * ptau13[j][i];
-                pc33d[j][i][l] = pc33[j][i] * peta[l] * ptau33[j][i];
-                pc11d[j][i][l] = pc11[j][i] * peta[l] * ptau11[j][i];
+                mpm->pc55ipjpd[j][i][l] = mpm->pc55ipjp[j][i] * mpm->peta[l] * mpm->ptau55ipjp[j][i];
+                mpm->pc13d[j][i][l] = mpm->pc13[j][i] * mpm->peta[l] * mpm->ptau13[j][i];
+                mpm->pc33d[j][i][l] = mpm->pc33[j][i] * mpm->peta[l] * mpm->ptau33[j][i];
+                mpm->pc11d[j][i][l] = mpm->pc11[j][i] * mpm->peta[l] * mpm->ptau11[j][i];
             }
         }
     }

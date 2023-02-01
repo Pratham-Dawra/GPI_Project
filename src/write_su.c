@@ -28,7 +28,7 @@
 #include "logging.h"
 #include <stdlib.h>
 
-int su_write_trace(FILE *filep, const SUhead *header, const float *data)
+int su_write_trace(FILE * filep, const SUhead * header, const float *data)
 {
     int ierr = 0;
     size_t iwritten = 0;

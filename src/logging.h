@@ -1,3 +1,4 @@
+
 /** \file
  *  Functions to provide formatted logging to stdout/stderr or files.
  */

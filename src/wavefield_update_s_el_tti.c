@@ -24,19 +24,19 @@
 
 #include "fd.h"
 
-void wavefield_update_s_el_tti(int i, int j, float **vxx, float **vyx, float **vxy, float **vyy, float **sxy,
-                               float **sxx, float **syy, float **pc11, float **pc55ipjp, float **pc13, float **pc33,
-                               float **pc15, float **pc35, float **pc15ipjp, float **pc35ipjp)
+void wavefield_update_s_el_tti(int i, int j, MemModel * mpm, MemWavefield * mpw)
 {
-    float vxxipjp = 0.25 * (vxx[j][i] + vxx[j + 1][i] + vxx[j][i + 1] + vxx[j + 1][i + 1]);
-    float vyyipjp = 0.25 * (vyy[j][i] + vyy[j + 1][i] + vyy[j][i + 1] + vyy[j + 1][i + 1]);   
-    float vij = (0.25 * (vyx[j][i] + vyx[j - 1][i] + vyx[j][i - 1] + vyx[j - 1][i - 1])) + 
-                (0.25 * (vxy[j][i] + vxy[j - 1][i] + vxy[j][i - 1] + vxy[j - 1][i - 1]));
-    float v = vxy[j][i] + vyx[j][i];
+    float vxxipjp = 0.25 * (mpw->pvxx[j][i] + mpw->pvxx[j + 1][i] + mpw->pvxx[j][i + 1] + mpw->pvxx[j + 1][i + 1]);
+    float vyyipjp = 0.25 * (mpw->pvyy[j][i] + mpw->pvyy[j + 1][i] + mpw->pvyy[j][i + 1] + mpw->pvyy[j + 1][i + 1]);
+    float vij = (0.25 * (mpw->pvyx[j][i] + mpw->pvyx[j - 1][i] + mpw->pvyx[j][i - 1] + mpw->pvyx[j - 1][i - 1])) +
+        (0.25 * (mpw->pvxy[j][i] + mpw->pvxy[j - 1][i] + mpw->pvxy[j][i - 1] + mpw->pvxy[j - 1][i - 1]));
+    float v = mpw->pvxy[j][i] + mpw->pvyx[j][i];
 
     /* Update  */
-    sxx[j][i] += ((pc11[j][i] * vxx[j][i]) + (pc13[j][i] * vyy[j][i]) + (pc15[j][i] * vij));
-    syy[j][i] += ((pc13[j][i] * vxx[j][i]) + (pc33[j][i] * vyy[j][i]) + (pc35[j][i] * vij));
+    mpw->psxx[j][i] +=
+        ((mpm->pc11[j][i] * mpw->pvxx[j][i]) + (mpm->pc13[j][i] * mpw->pvyy[j][i]) + (mpm->pc15[j][i] * vij));
+    mpw->psyy[j][i] +=
+        ((mpm->pc13[j][i] * mpw->pvxx[j][i]) + (mpm->pc33[j][i] * mpw->pvyy[j][i]) + (mpm->pc35[j][i] * vij));
 
-    sxy[j][i] += ((pc55ipjp[j][i] * v) + (pc15ipjp[j][i] * vxxipjp) + (pc35ipjp[j][i] * vyyipjp));
+    mpw->psxy[j][i] += ((mpm->pc55ipjp[j][i] * v) + (mpm->pc15ipjp[j][i] * vxxipjp) + (mpm->pc35ipjp[j][i] * vyyipjp));
 }

@@ -23,99 +23,86 @@
  *   and second order accuracy in time
  *   T. Bohlen
  *
- *   gx and gy are arrays with the locations of the boundary specified in subgrid_bounds.c
+ *   GX and GY are arrays with the locations of the boundary specified in subgrid_bounds.c
  *   for each subgrid
  *  ----------------------------------------------------------------------*/
 #include "fd.h"
 
-void update_s_visc_vti_abs(int *gx, int *gy,
-                           float **vx, float **vy, float **sxx, float **syy, float **sxy,
-                           float ***pr, float ***pp, float ***pq,
-                           float **pc55ipjpu, float **pc13u, float **pc11u, float **pc33u,
-                           float ***pc55ipjpd, float ***pc13d, float ***pc11d, float ***pc33d,
-                           float *bip, float *cip, float **absorb_coeff, GlobVar *gv)
+void update_s_visc_vti_abs(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
 {
     float vxx, vyy, vxy, vyx;
 
     /* left boundary */
-    for (int j = gy[2] + 1; j <= gy[3]; j++) {
-        for (int i = gx[1]; i <= gx[2]; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, vx, vy);
-            wavefield_update_s_visc_VTI(i, j, vxx, vyx, vxy, vyy, sxy, sxx, syy, pr, pp, pq,
-                                        pc55ipjpu, pc13u, pc11u, pc33u, pc55ipjpd, pc13d, pc11d, pc33d, bip, cip, gv);
-            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+    for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
+        for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
+            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
+            wavefield_update_s_visc_VTI(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            abs_update_s(i, j, mpm, mpw);
         }
     }
 
     /* right boundary */
-    for (int j = gy[2] + 1; j <= gy[3]; j++) {
-        for (int i = gx[3] + 1; i <= gx[4]; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, vx, vy);
-            wavefield_update_s_visc_VTI(i, j, vxx, vyx, vxy, vyy, sxy, sxx, syy, pr, pp, pq,
-                                        pc55ipjpu, pc13u, pc11u, pc33u, pc55ipjpd, pc13d, pc11d, pc33d, bip, cip, gv);
-            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+    for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
+        for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
+            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
+            wavefield_update_s_visc_VTI(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            abs_update_s(i, j, mpm, mpw);
         }
     }
 
     /* top boundary */
-    for (int j = gy[1]; j <= gy[2]; j++) {
-        for (int i = gx[2] + 1; i <= gx[3]; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, vx, vy);
-            wavefield_update_s_visc_VTI(i, j, vxx, vyx, vxy, vyy, sxy, sxx, syy, pr, pp, pq,
-                                        pc55ipjpu, pc13u, pc11u, pc33u, pc55ipjpd, pc13d, pc11d, pc33d, bip, cip, gv);
-            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+    for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
+        for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
+            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
+            wavefield_update_s_visc_VTI(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            abs_update_s(i, j, mpm, mpw);
         }
     }
 
     /* bottom boundary */
-    for (int j = gy[3] + 1; j <= gy[4]; j++) {
-        for (int i = gx[2] + 1; i <= gx[3]; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, vx, vy);
-            wavefield_update_s_visc_VTI(i, j, vxx, vyx, vxy, vyy, sxy, sxx, syy, pr, pp, pq,
-                                        pc55ipjpu, pc13u, pc11u, pc33u, pc55ipjpd, pc13d, pc11d, pc33d, bip, cip, gv);
-            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+    for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
+        for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
+            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
+            wavefield_update_s_visc_VTI(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            abs_update_s(i, j, mpm, mpw);
         }
     }
 
     /* corners */
 
     /*left-top */
-    for (int j = gy[1]; j <= gy[2]; j++) {
-        for (int i = gx[1]; i <= gx[2]; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, vx, vy);
-            wavefield_update_s_visc_VTI(i, j, vxx, vyx, vxy, vyy, sxy, sxx, syy, pr, pp, pq,
-                                        pc55ipjpu, pc13u, pc11u, pc33u, pc55ipjpd, pc13d, pc11d, pc33d, bip, cip, gv);
-            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+    for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
+        for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
+            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
+            wavefield_update_s_visc_VTI(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            abs_update_s(i, j, mpm, mpw);
         }
     }
 
     /*left-bottom */
-    for (int j = gy[3] + 1; j <= gy[4]; j++) {
-        for (int i = gx[1]; i <= gx[2]; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, vx, vy);
-            wavefield_update_s_visc_VTI(i, j, vxx, vyx, vxy, vyy, sxy, sxx, syy, pr, pp, pq,
-                                        pc55ipjpu, pc13u, pc11u, pc33u, pc55ipjpd, pc13d, pc11d, pc33d, bip, cip, gv);
-            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+    for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
+        for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
+            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
+            wavefield_update_s_visc_VTI(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            abs_update_s(i, j, mpm, mpw);
         }
     }
 
     /* right-top */
-    for (int j = gy[1]; j <= gy[2]; j++) {
-        for (int i = gx[3] + 1; i <= gx[4]; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, vx, vy);
-            wavefield_update_s_visc_VTI(i, j, vxx, vyx, vxy, vyy, sxy, sxx, syy, pr, pp, pq,
-                                        pc55ipjpu, pc13u, pc11u, pc33u, pc55ipjpd, pc13d, pc11d, pc33d, bip, cip, gv);
-            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+    for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
+        for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
+            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
+            wavefield_update_s_visc_VTI(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            abs_update_s(i, j, mpm, mpw);
         }
     }
 
     /* right-bottom */
-    for (int j = gy[3] + 1; j <= gy[4]; j++) {
-        for (int i = gx[3] + 1; i <= gx[4]; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, vx, vy);
-            wavefield_update_s_visc_VTI(i, j, vxx, vyx, vxy, vyy, sxy, sxx, syy, pr, pp, pq,
-                                        pc55ipjpu, pc13u, pc11u, pc33u, pc55ipjpd, pc13d, pc11d, pc33d, bip, cip, gv);
-            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+    for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
+        for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
+            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
+            wavefield_update_s_visc_VTI(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            abs_update_s(i, j, mpm, mpw);
         }
     }
 }

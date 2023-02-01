@@ -21,7 +21,7 @@
 /*---------------------------------------------------------------
 calculate for-loop bounds for each process/subgrid
 
-   [1] [2]                 [3] [4] gx
+   [1] [2]                 [3] [4] GX
  [1]|---|-------------------|---|
     |   |                   |   |
  [2]|---|-------------------|---|
@@ -37,7 +37,7 @@ calculate for-loop bounds for each process/subgrid
     |   |                   |   |
  [4]|---|-------------------|---|
 
- gy
+ GY
 
 Width of Absorbing Boundary is gv->FW Gridpoints.
 nx1,nx2,ny1,ny2 are first are the bounds for each subgrid without
@@ -45,15 +45,15 @@ absorbing boundaries.
 In case of number of processes NPROCX=1 and NPROCY=1 all boundaries are in one
 grid.
 For NPROCX>2 and NPROCY>2 there are 9 different subgrids.
-gx[2],gy[2] is the last gridpoint (FW) of the left boundary 
-gx[3],gy[3] is the last gridpoint of the midpart  gx[3]=(nx2-FW),gy[3]=(ny2-FW)
+GX[2],GY[2] is the last gridpoint (FW) of the left boundary 
+GX[3],GY[3] is the last gridpoint of the midpart  GX[3]=(nx2-FW),GY[3]=(ny2-FW)
 
 Free Surface and Periodic Boundary conditions alter the bounds (see end of this file)
 *--------------------------------------------------------------*/
 
 #include "fd.h"
 
-void subgrid_bounds(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, GlobVar *gv)
+void subgrid_bounds(int nx1, int nx2, int ny1, int ny2, GlobVar * gv)
 {
     /* GRID */
     switch (gv->NPROCY) {
@@ -62,37 +62,37 @@ void subgrid_bounds(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, GlobVa
 
           switch (gv->NPROCX) {
             case 1:            /* Case gv->NPROCX=1 */
-                gy[1] = ny1, gy[2] = gv->FW, gy[3] = ny2 - gv->FW, gy[4] = ny2;
-                gx[1] = nx1, gx[2] = gv->FW, gx[3] = nx2 - gv->FW, gx[4] = nx2;
+                gv->GY[1] = ny1, gv->GY[2] = gv->FW, gv->GY[3] = ny2 - gv->FW, gv->GY[4] = ny2;
+                gv->GX[1] = nx1, gv->GX[2] = gv->FW, gv->GX[3] = nx2 - gv->FW, gv->GX[4] = nx2;
 
                 break;
 
             case 2:            /* Case gv->NPROCX=2 */
                 if (gv->POS[1] == 0) {  /* left */
-                    gy[1] = ny1, gy[2] = gv->FW, gy[3] = ny2 - gv->FW, gy[4] = ny2;
-                    gx[1] = nx1, gx[2] = gv->FW, gx[3] = nx2, gx[4] = nx2 - 1;
+                    gv->GY[1] = ny1, gv->GY[2] = gv->FW, gv->GY[3] = ny2 - gv->FW, gv->GY[4] = ny2;
+                    gv->GX[1] = nx1, gv->GX[2] = gv->FW, gv->GX[3] = nx2, gv->GX[4] = nx2 - 1;
                 }
                 if (gv->POS[1] == gv->NPROCX - 1) { /* right */
-                    gy[1] = ny1, gy[2] = gv->FW, gy[3] = ny2 - gv->FW, gy[4] = ny2;
-                    gx[1] = nx1, gx[2] = nx1 - 1, gx[3] = nx2 - gv->FW, gx[4] = nx2;
+                    gv->GY[1] = ny1, gv->GY[2] = gv->FW, gv->GY[3] = ny2 - gv->FW, gv->GY[4] = ny2;
+                    gv->GX[1] = nx1, gv->GX[2] = nx1 - 1, gv->GX[3] = nx2 - gv->FW, gv->GX[4] = nx2;
                 }
                 break;
 
             default:           /* Case gv->NPROCX>2 */
 
                 if (gv->POS[1] == 0) {  /* left */
-                    gy[1] = ny1, gy[2] = gv->FW, gy[3] = ny2 - gv->FW, gy[4] = ny2;
-                    gx[1] = nx1, gx[2] = gv->FW, gx[3] = nx2, gx[4] = nx2 - 1;
+                    gv->GY[1] = ny1, gv->GY[2] = gv->FW, gv->GY[3] = ny2 - gv->FW, gv->GY[4] = ny2;
+                    gv->GX[1] = nx1, gv->GX[2] = gv->FW, gv->GX[3] = nx2, gv->GX[4] = nx2 - 1;
                 }
 
                 if ((gv->POS[1] != 0) && (gv->POS[1] != gv->NPROCX - 1)) {  /* mid */
 
-                    gy[1] = ny1, gy[2] = gv->FW, gy[3] = ny2 - gv->FW, gy[4] = ny2;
-                    gx[1] = nx1, gx[2] = nx1 - 1, gx[3] = nx2, gx[4] = nx2 - 1;
+                    gv->GY[1] = ny1, gv->GY[2] = gv->FW, gv->GY[3] = ny2 - gv->FW, gv->GY[4] = ny2;
+                    gv->GX[1] = nx1, gv->GX[2] = nx1 - 1, gv->GX[3] = nx2, gv->GX[4] = nx2 - 1;
                 }
                 if (gv->POS[1] == gv->NPROCX - 1) { /* right */
-                    gy[1] = ny1, gy[2] = gv->FW, gy[3] = ny2 - gv->FW, gy[4] = ny2;
-                    gx[1] = nx1, gx[2] = nx1 - 1, gx[3] = nx2 - gv->FW, gx[4] = nx2;
+                    gv->GY[1] = ny1, gv->GY[2] = gv->FW, gv->GY[3] = ny2 - gv->FW, gv->GY[4] = ny2;
+                    gv->GX[1] = nx1, gv->GX[2] = nx1 - 1, gv->GX[3] = nx2 - gv->FW, gv->GX[4] = nx2;
                 }
                 break;
           }
@@ -102,61 +102,61 @@ void subgrid_bounds(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, GlobVa
           switch (gv->NPROCX) {
             case 1:            /* Case gv->NPROCX=1 */
                 if (gv->POS[2] == 0) {  /* top */
-                    gy[1] = ny1, gy[2] = gv->FW, gy[3] = ny2, gy[4] = ny2 - 1;
-                    gx[1] = nx1, gx[2] = gv->FW, gx[3] = nx2 - gv->FW, gx[4] = nx2;
+                    gv->GY[1] = ny1, gv->GY[2] = gv->FW, gv->GY[3] = ny2, gv->GY[4] = ny2 - 1;
+                    gv->GX[1] = nx1, gv->GX[2] = gv->FW, gv->GX[3] = nx2 - gv->FW, gv->GX[4] = nx2;
                 }
                 if (gv->POS[2] == gv->NPROCY - 1) { /* bottom */
-                    gy[1] = ny1, gy[2] = ny1 - 1, gy[3] = ny2 - gv->FW, gy[4] = ny2;
-                    gx[1] = nx1, gx[2] = gv->FW, gx[3] = nx2 - gv->FW, gx[4] = nx2;
+                    gv->GY[1] = ny1, gv->GY[2] = ny1 - 1, gv->GY[3] = ny2 - gv->FW, gv->GY[4] = ny2;
+                    gv->GX[1] = nx1, gv->GX[2] = gv->FW, gv->GX[3] = nx2 - gv->FW, gv->GX[4] = nx2;
                 }
 
                 break;
 
             case 2:            /* Case gv->NPROCX=2 */
                 if ((gv->POS[1] == 0) && (gv->POS[2] == 0)) {   /* corner left-top */
-                    gy[1] = ny1, gy[2] = gv->FW, gy[3] = ny2, gy[4] = ny2 - 1;
-                    gx[1] = nx1, gx[2] = gv->FW, gx[3] = nx2, gx[4] = nx2 - 1;
+                    gv->GY[1] = ny1, gv->GY[2] = gv->FW, gv->GY[3] = ny2, gv->GY[4] = ny2 - 1;
+                    gv->GX[1] = nx1, gv->GX[2] = gv->FW, gv->GX[3] = nx2, gv->GX[4] = nx2 - 1;
                 }
                 if ((gv->POS[1] == 0) && (gv->POS[2] == gv->NPROCY - 1)) {  /* corner left-bottom */
-                    gy[1] = ny1, gy[2] = ny1 - 1, gy[3] = ny2 - gv->FW, gy[4] = ny2;
-                    gx[1] = nx1, gx[2] = gv->FW, gx[3] = nx2, gx[4] = nx2 - 1;
+                    gv->GY[1] = ny1, gv->GY[2] = ny1 - 1, gv->GY[3] = ny2 - gv->FW, gv->GY[4] = ny2;
+                    gv->GX[1] = nx1, gv->GX[2] = gv->FW, gv->GX[3] = nx2, gv->GX[4] = nx2 - 1;
                 }
                 if ((gv->POS[1] == gv->NPROCX - 1) && (gv->POS[2] == 0)) {  /* corner right-top */
-                    gy[1] = ny1, gy[2] = gv->FW, gy[3] = ny2, gy[4] = ny2 - 1;
-                    gx[1] = nx1, gx[2] = nx1 - 1, gx[3] = nx2 - gv->FW, gx[4] = nx2;
+                    gv->GY[1] = ny1, gv->GY[2] = gv->FW, gv->GY[3] = ny2, gv->GY[4] = ny2 - 1;
+                    gv->GX[1] = nx1, gv->GX[2] = nx1 - 1, gv->GX[3] = nx2 - gv->FW, gv->GX[4] = nx2;
                 }
                 if ((gv->POS[1] == gv->NPROCX - 1) && (gv->POS[2] == gv->NPROCY - 1)) { /* corner right-bottom */
-                    gy[1] = ny1, gy[2] = ny1 - 1, gy[3] = ny2 - gv->FW, gy[4] = ny2;
-                    gx[1] = nx1, gx[2] = nx1 - 1, gx[3] = nx2 - gv->FW, gx[4] = nx2;
+                    gv->GY[1] = ny1, gv->GY[2] = ny1 - 1, gv->GY[3] = ny2 - gv->FW, gv->GY[4] = ny2;
+                    gv->GX[1] = nx1, gv->GX[2] = nx1 - 1, gv->GX[3] = nx2 - gv->FW, gv->GX[4] = nx2;
                 }
                 break;
 
             default:           /* Case gv->NPROCX>2 */
 
                 if ((gv->POS[1] == 0) && (gv->POS[2] == 0)) {   /* corner left-top */
-                    gy[1] = ny1, gy[2] = gv->FW, gy[3] = ny2, gy[4] = ny2 - 1;
-                    gx[1] = nx1, gx[2] = gv->FW, gx[3] = nx2, gx[4] = nx2 - 1;
+                    gv->GY[1] = ny1, gv->GY[2] = gv->FW, gv->GY[3] = ny2, gv->GY[4] = ny2 - 1;
+                    gv->GX[1] = nx1, gv->GX[2] = gv->FW, gv->GX[3] = nx2, gv->GX[4] = nx2 - 1;
                 }
                 if ((gv->POS[1] == 0) && (gv->POS[2] == gv->NPROCY - 1)) {  /* corner left-bottom */
-                    gy[1] = ny1, gy[2] = ny1 - 1, gy[3] = ny2 - gv->FW, gy[4] = ny2;
-                    gx[1] = nx1, gx[2] = gv->FW, gx[3] = nx2, gx[4] = nx2 - 1;
+                    gv->GY[1] = ny1, gv->GY[2] = ny1 - 1, gv->GY[3] = ny2 - gv->FW, gv->GY[4] = ny2;
+                    gv->GX[1] = nx1, gv->GX[2] = gv->FW, gv->GX[3] = nx2, gv->GX[4] = nx2 - 1;
                 }
                 if ((gv->POS[1] == gv->NPROCX - 1) && (gv->POS[2] == 0)) {  /* corner right-top */
-                    gy[1] = ny1, gy[2] = gv->FW, gy[3] = ny2, gy[4] = ny2 - 1;
-                    gx[1] = nx1, gx[2] = nx1 - 1, gx[3] = nx2 - gv->FW, gx[4] = nx2;
+                    gv->GY[1] = ny1, gv->GY[2] = gv->FW, gv->GY[3] = ny2, gv->GY[4] = ny2 - 1;
+                    gv->GX[1] = nx1, gv->GX[2] = nx1 - 1, gv->GX[3] = nx2 - gv->FW, gv->GX[4] = nx2;
                 }
                 if ((gv->POS[1] == gv->NPROCX - 1) && (gv->POS[2] == gv->NPROCY - 1)) { /* corner right-bottom */
-                    gy[1] = ny1, gy[2] = ny1 - 1, gy[3] = ny2 - gv->FW, gy[4] = ny2;
-                    gx[1] = nx1, gx[2] = nx1 - 1, gx[3] = nx2 - gv->FW, gx[4] = nx2;
+                    gv->GY[1] = ny1, gv->GY[2] = ny1 - 1, gv->GY[3] = ny2 - gv->FW, gv->GY[4] = ny2;
+                    gv->GX[1] = nx1, gv->GX[2] = nx1 - 1, gv->GX[3] = nx2 - gv->FW, gv->GX[4] = nx2;
                 }
 
                 if ((gv->POS[1] != 0) && (gv->POS[1] != gv->NPROCX - 1) && (gv->POS[2] == 0)) { /*top */
-                    gy[1] = ny1, gy[2] = gv->FW, gy[3] = ny2, gy[4] = ny2 - 1;
-                    gx[1] = nx1, gx[2] = nx1 - 1, gx[3] = nx2, gx[4] = nx2 - 1;
+                    gv->GY[1] = ny1, gv->GY[2] = gv->FW, gv->GY[3] = ny2, gv->GY[4] = ny2 - 1;
+                    gv->GX[1] = nx1, gv->GX[2] = nx1 - 1, gv->GX[3] = nx2, gv->GX[4] = nx2 - 1;
                 }
                 if ((gv->POS[1] != 0) && (gv->POS[1] != gv->NPROCX - 1) && (gv->POS[2] == gv->NPROCY - 1)) {    /* bottom */
-                    gy[1] = ny1, gy[2] = ny1 - 1, gy[3] = ny2 - gv->FW, gy[4] = ny2;
-                    gx[1] = nx1, gx[2] = nx1 - 1, gx[3] = nx2, gx[4] = nx2 - 1;
+                    gv->GY[1] = ny1, gv->GY[2] = ny1 - 1, gv->GY[3] = ny2 - gv->FW, gv->GY[4] = ny2;
+                    gv->GX[1] = nx1, gv->GX[2] = nx1 - 1, gv->GX[3] = nx2, gv->GX[4] = nx2 - 1;
                 }
 
                 break;
@@ -167,46 +167,46 @@ void subgrid_bounds(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, GlobVa
           switch (gv->NPROCX) {
             case 1:            /* Case gv->NPROCX=1 */
                 if (gv->POS[2] == 0) {  /* top */
-                    gy[1] = ny1, gy[2] = gv->FW, gy[3] = ny2, gy[4] = ny2 - 1;
-                    gx[1] = nx1, gx[2] = gv->FW, gx[3] = nx2 - gv->FW, gx[4] = nx2;
+                    gv->GY[1] = ny1, gv->GY[2] = gv->FW, gv->GY[3] = ny2, gv->GY[4] = ny2 - 1;
+                    gv->GX[1] = nx1, gv->GX[2] = gv->FW, gv->GX[3] = nx2 - gv->FW, gv->GX[4] = nx2;
                 }
 
                 if ((gv->POS[2] != 0) && (gv->POS[2] != gv->NPROCY - 1)) {  /* mid */
-                    gy[1] = ny1, gy[2] = ny1 - 1, gy[3] = ny2, gy[4] = ny2 - 1;
-                    gx[1] = nx1, gx[2] = gv->FW, gx[3] = nx2 - gv->FW, gx[4] = nx2;
+                    gv->GY[1] = ny1, gv->GY[2] = ny1 - 1, gv->GY[3] = ny2, gv->GY[4] = ny2 - 1;
+                    gv->GX[1] = nx1, gv->GX[2] = gv->FW, gv->GX[3] = nx2 - gv->FW, gv->GX[4] = nx2;
                 }
 
                 if (gv->POS[2] == gv->NPROCY - 1) { /* bottom */
-                    gy[1] = ny1, gy[2] = ny1 - 1, gy[3] = ny2 - gv->FW, gy[4] = ny2;
-                    gx[1] = nx1, gx[2] = gv->FW, gx[3] = nx2 - gv->FW, gx[4] = nx2;
+                    gv->GY[1] = ny1, gv->GY[2] = ny1 - 1, gv->GY[3] = ny2 - gv->FW, gv->GY[4] = ny2;
+                    gv->GX[1] = nx1, gv->GX[2] = gv->FW, gv->GX[3] = nx2 - gv->FW, gv->GX[4] = nx2;
                 }
 
                 break;
 
             case 2:            /* Case gv->NPROCX=2 */
                 if ((gv->POS[1] == 0) && (gv->POS[2] == 0)) {   /* corner left-top */
-                    gy[1] = ny1, gy[2] = gv->FW, gy[3] = ny2, gy[4] = ny2 - 1;
-                    gx[1] = nx1, gx[2] = gv->FW, gx[3] = nx2, gx[4] = nx2 - 1;
+                    gv->GY[1] = ny1, gv->GY[2] = gv->FW, gv->GY[3] = ny2, gv->GY[4] = ny2 - 1;
+                    gv->GX[1] = nx1, gv->GX[2] = gv->FW, gv->GX[3] = nx2, gv->GX[4] = nx2 - 1;
                 }
                 if ((gv->POS[1] == 0) && (gv->POS[2] == gv->NPROCY - 1)) {  /* corner left-bottom */
-                    gy[1] = ny1, gy[2] = ny1 - 1, gy[3] = ny2 - gv->FW, gy[4] = ny2;
-                    gx[1] = nx1, gx[2] = gv->FW, gx[3] = nx2, gx[4] = nx2 - 1;
+                    gv->GY[1] = ny1, gv->GY[2] = ny1 - 1, gv->GY[3] = ny2 - gv->FW, gv->GY[4] = ny2;
+                    gv->GX[1] = nx1, gv->GX[2] = gv->FW, gv->GX[3] = nx2, gv->GX[4] = nx2 - 1;
                 }
                 if ((gv->POS[1] == gv->NPROCX - 1) && (gv->POS[2] == 0)) {  /* corner right-top */
-                    gy[1] = ny1, gy[2] = gv->FW, gy[3] = ny2, gy[4] = ny2 - 1;
-                    gx[1] = nx1, gx[2] = nx1 - 1, gx[3] = nx2 - gv->FW, gx[4] = nx2;
+                    gv->GY[1] = ny1, gv->GY[2] = gv->FW, gv->GY[3] = ny2, gv->GY[4] = ny2 - 1;
+                    gv->GX[1] = nx1, gv->GX[2] = nx1 - 1, gv->GX[3] = nx2 - gv->FW, gv->GX[4] = nx2;
                 }
                 if ((gv->POS[1] == gv->NPROCX - 1) && (gv->POS[2] == gv->NPROCY - 1)) { /* corner right-bottom */
-                    gy[1] = ny1, gy[2] = ny1 - 1, gy[3] = ny2 - gv->FW, gy[4] = ny2;
-                    gx[1] = nx1, gx[2] = nx1 - 1, gx[3] = nx2 - gv->FW, gx[4] = nx2;
+                    gv->GY[1] = ny1, gv->GY[2] = ny1 - 1, gv->GY[3] = ny2 - gv->FW, gv->GY[4] = ny2;
+                    gv->GX[1] = nx1, gv->GX[2] = nx1 - 1, gv->GX[3] = nx2 - gv->FW, gv->GX[4] = nx2;
                 }
                 if ((gv->POS[1] == 0) && (gv->POS[2] != 0) && (gv->POS[2] != gv->NPROCY - 1)) { /* left */
-                    gy[1] = ny1, gy[2] = ny1 - 1, gy[3] = ny2, gy[4] = ny2 - 1;
-                    gx[1] = nx1, gx[2] = gv->FW, gx[3] = nx2, gx[4] = nx2 - 1;
+                    gv->GY[1] = ny1, gv->GY[2] = ny1 - 1, gv->GY[3] = ny2, gv->GY[4] = ny2 - 1;
+                    gv->GX[1] = nx1, gv->GX[2] = gv->FW, gv->GX[3] = nx2, gv->GX[4] = nx2 - 1;
                 }
                 if ((gv->POS[1] == gv->NPROCX - 1) && (gv->POS[2] != 0) && (gv->POS[2] != gv->NPROCY - 1)) {    /* right */
-                    gy[1] = ny1, gy[2] = ny1 - 1, gy[3] = ny2, gy[4] = ny2 - 1;
-                    gx[1] = nx1, gx[2] = nx1 - 1, gx[3] = nx2 - gv->FW, gx[4] = nx2;
+                    gv->GY[1] = ny1, gv->GY[2] = ny1 - 1, gv->GY[3] = ny2, gv->GY[4] = ny2 - 1;
+                    gv->GX[1] = nx1, gv->GX[2] = nx1 - 1, gv->GX[3] = nx2 - gv->FW, gv->GX[4] = nx2;
                 }
 
                 break;
@@ -214,43 +214,43 @@ void subgrid_bounds(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, GlobVa
             default:           /* Case gv->NPROCX>2 */
 
                 if ((gv->POS[1] == 0) && (gv->POS[2] == 0)) {   /* corner left-top */
-                    gy[1] = ny1, gy[2] = gv->FW, gy[3] = ny2, gy[4] = ny2 - 1;
-                    gx[1] = nx1, gx[2] = gv->FW, gx[3] = nx2, gx[4] = nx2 - 1;
+                    gv->GY[1] = ny1, gv->GY[2] = gv->FW, gv->GY[3] = ny2, gv->GY[4] = ny2 - 1;
+                    gv->GX[1] = nx1, gv->GX[2] = gv->FW, gv->GX[3] = nx2, gv->GX[4] = nx2 - 1;
                 }
                 if ((gv->POS[1] == 0) && (gv->POS[2] == gv->NPROCY - 1)) {  /* corner left-bottom */
-                    gy[1] = ny1, gy[2] = ny1 - 1, gy[3] = ny2 - gv->FW, gy[4] = ny2;
-                    gx[1] = nx1, gx[2] = gv->FW, gx[3] = nx2, gx[4] = nx2 - 1;
+                    gv->GY[1] = ny1, gv->GY[2] = ny1 - 1, gv->GY[3] = ny2 - gv->FW, gv->GY[4] = ny2;
+                    gv->GX[1] = nx1, gv->GX[2] = gv->FW, gv->GX[3] = nx2, gv->GX[4] = nx2 - 1;
                 }
                 if ((gv->POS[1] == gv->NPROCX - 1) && (gv->POS[2] == 0)) {  /* corner right-top */
-                    gy[1] = ny1, gy[2] = gv->FW, gy[3] = ny2, gy[4] = ny2 - 1;
-                    gx[1] = nx1, gx[2] = nx1 - 1, gx[3] = nx2 - gv->FW, gx[4] = nx2;
+                    gv->GY[1] = ny1, gv->GY[2] = gv->FW, gv->GY[3] = ny2, gv->GY[4] = ny2 - 1;
+                    gv->GX[1] = nx1, gv->GX[2] = nx1 - 1, gv->GX[3] = nx2 - gv->FW, gv->GX[4] = nx2;
                 }
                 if ((gv->POS[1] == gv->NPROCX - 1) && (gv->POS[2] == gv->NPROCY - 1)) { /* corner right-bottom */
-                    gy[1] = ny1, gy[2] = ny1 - 1, gy[3] = ny2 - gv->FW, gy[4] = ny2;
-                    gx[1] = nx1, gx[2] = nx1 - 1, gx[3] = nx2 - gv->FW, gx[4] = nx2;
+                    gv->GY[1] = ny1, gv->GY[2] = ny1 - 1, gv->GY[3] = ny2 - gv->FW, gv->GY[4] = ny2;
+                    gv->GX[1] = nx1, gv->GX[2] = nx1 - 1, gv->GX[3] = nx2 - gv->FW, gv->GX[4] = nx2;
                 }
 
                 if ((gv->POS[1] == 0) && (gv->POS[2] != 0) && (gv->POS[2] != gv->NPROCY - 1)) { /* left */
-                    gy[1] = ny1, gy[2] = ny1 - 1, gy[3] = ny2, gy[4] = ny2 - 1;
-                    gx[1] = nx1, gx[2] = gv->FW, gx[3] = nx2, gx[4] = nx2 - 1;
+                    gv->GY[1] = ny1, gv->GY[2] = ny1 - 1, gv->GY[3] = ny2, gv->GY[4] = ny2 - 1;
+                    gv->GX[1] = nx1, gv->GX[2] = gv->FW, gv->GX[3] = nx2, gv->GX[4] = nx2 - 1;
                 }
                 if ((gv->POS[1] == gv->NPROCX - 1) && (gv->POS[2] != 0) && (gv->POS[2] != gv->NPROCY - 1)) {    /* right */
-                    gy[1] = ny1, gy[2] = ny1 - 1, gy[3] = ny2, gy[4] = ny2 - 1;
-                    gx[1] = nx1, gx[2] = nx1 - 1, gx[3] = nx2 - gv->FW, gx[4] = nx2;
+                    gv->GY[1] = ny1, gv->GY[2] = ny1 - 1, gv->GY[3] = ny2, gv->GY[4] = ny2 - 1;
+                    gv->GX[1] = nx1, gv->GX[2] = nx1 - 1, gv->GX[3] = nx2 - gv->FW, gv->GX[4] = nx2;
                 }
 
                 if ((gv->POS[1] != 0) && (gv->POS[1] != gv->NPROCX - 1) && (gv->POS[2] == 0)) { /*top */
-                    gy[1] = ny1, gy[2] = gv->FW, gy[3] = ny2, gy[4] = ny2 - 1;
-                    gx[1] = nx1, gx[2] = nx1 - 1, gx[3] = nx2, gx[4] = nx2 - 1;
+                    gv->GY[1] = ny1, gv->GY[2] = gv->FW, gv->GY[3] = ny2, gv->GY[4] = ny2 - 1;
+                    gv->GX[1] = nx1, gv->GX[2] = nx1 - 1, gv->GX[3] = nx2, gv->GX[4] = nx2 - 1;
                 }
                 if ((gv->POS[1] != 0) && (gv->POS[1] != gv->NPROCX - 1) && (gv->POS[2] == gv->NPROCY - 1)) {    /* bottom */
-                    gy[1] = ny1, gy[2] = ny1 - 1, gy[3] = ny2 - gv->FW, gy[4] = ny2;
-                    gx[1] = nx1, gx[2] = nx1 - 1, gx[3] = nx2, gx[4] = nx2 - 1;
+                    gv->GY[1] = ny1, gv->GY[2] = ny1 - 1, gv->GY[3] = ny2 - gv->FW, gv->GY[4] = ny2;
+                    gv->GX[1] = nx1, gv->GX[2] = nx1 - 1, gv->GX[3] = nx2, gv->GX[4] = nx2 - 1;
                 }
 
                 if ((gv->POS[1] != 0) && (gv->POS[1] != gv->NPROCX - 1) && (gv->POS[2] != 0) && (gv->POS[2] != gv->NPROCY - 1)) {   /* center */
-                    gy[1] = ny1, gy[2] = ny1 - 1, gy[3] = ny2, gy[4] = ny2 - 1;
-                    gx[1] = nx1, gx[2] = nx1 - 1, gx[3] = nx2, gx[4] = nx2 - 1;
+                    gv->GY[1] = ny1, gv->GY[2] = ny1 - 1, gv->GY[3] = ny2, gv->GY[4] = ny2 - 1;
+                    gv->GX[1] = nx1, gv->GX[2] = nx1 - 1, gv->GX[3] = nx2, gv->GX[4] = nx2 - 1;
                 }
                 break;
           }                     /*end of switch (gv->NPROCX) */
@@ -259,13 +259,13 @@ void subgrid_bounds(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, GlobVa
 
     if (gv->FREE_SURF == 1)
         if (gv->POS[2] == 0)
-            gy[2] = ny1 - 1;
+            gv->GY[2] = ny1 - 1;
 
     /* Periodic Boundary condition */
     if (gv->BOUNDARY == 1) {
         if (gv->POS[1] == 0)
-            gx[2] = nx1 - 1;
+            gv->GX[2] = nx1 - 1;
         if (gv->POS[1] == gv->NPROCX - 1)
-            gx[3] = nx2, gx[4] = nx2 - 1;
+            gv->GX[3] = nx2, gv->GX[4] = nx2 - 1;
     }
 }

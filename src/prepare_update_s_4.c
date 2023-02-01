@@ -30,32 +30,29 @@
 
 #include "fd.h"
 
-void prepare_update_s_4(float *etajm, float *etaip, float *peta, float **fipjp, float **pu,
-                        float **puipjp, float **ppi, float **ptaus, float **ptaup,
-                        float **ptausipjp, float **f, float **g, float *bip, float *bjm,
-                        float *cip, float *cjm, float ***dip, float ***d, float ***e, GlobVar *gv)
+void prepare_update_s_4(MemModel * mpm, GlobVar * gv)
 {
 
     /* Coefficients for Adam Bashforth */
     float c1 = 13.0 / 12.0;
 
     for (int l = 1; l <= gv->L; l++) {
-        etajm[l] = peta[l];
-        etaip[l] = peta[l];
+        mpm->etajm[l] = mpm->peta[l];
+        mpm->etaip[l] = mpm->peta[l];
     }
     for (int j = 1; j <= gv->NY; j++) {
         for (int i = 1; i <= gv->NX; i++) {
-            fipjp[j][i] = puipjp[j][i] * gv->DT * (1.0 + gv->L * ptausipjp[j][i]);
-            f[j][i] = pu[j][i] * gv->DT * (1.0 + gv->L * ptaus[j][i]);
-            g[j][i] = ppi[j][i] * gv->DT * (1.0 + gv->L * ptaup[j][i]);
+            mpm->fipjp[j][i] = mpm->puipjp[j][i] * gv->DT * (1.0 + gv->L * mpm->ptausipjp[j][i]);
+            mpm->f[j][i] = mpm->pu[j][i] * gv->DT * (1.0 + gv->L * mpm->ptaus[j][i]);
+            mpm->g[j][i] = mpm->ppi[j][i] * gv->DT * (1.0 + gv->L * mpm->ptaup[j][i]);
             for (int l = 1; l <= gv->L; l++) {
-                bip[l] = 1.0 / (1.0 + (c1 * etaip[l] * 0.5));
-                bjm[l] = 1.0 / (1.0 + (c1 * etajm[l] * 0.5));
-                cip[l] = 1.0 - (c1 * etaip[l] * 0.5);
-                cjm[l] = 1.0 - (c1 * etajm[l] * 0.5);
-                dip[j][i][l] = puipjp[j][i] * etaip[l] * ptausipjp[j][i];
-                d[j][i][l] = pu[j][i] * etajm[l] * ptaus[j][i];
-                e[j][i][l] = ppi[j][i] * etajm[l] * ptaup[j][i];
+                mpm->bip[l] = 1.0 / (1.0 + (c1 * mpm->etaip[l] * 0.5));
+                mpm->bjm[l] = 1.0 / (1.0 + (c1 * mpm->etajm[l] * 0.5));
+                mpm->cip[l] = 1.0 - (c1 * mpm->etaip[l] * 0.5);
+                mpm->cjm[l] = 1.0 - (c1 * mpm->etajm[l] * 0.5);
+                mpm->dip[j][i][l] = mpm->puipjp[j][i] * mpm->etaip[l] * mpm->ptausipjp[j][i];
+                mpm->d[j][i][l] = mpm->pu[j][i] * mpm->etajm[l] * mpm->ptaus[j][i];
+                mpm->e[j][i][l] = mpm->ppi[j][i] * mpm->etajm[l] * mpm->ptaup[j][i];
             }
         }
     }

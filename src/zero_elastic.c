@@ -24,15 +24,15 @@
 
 #include "fd.h"
 
-void zero_elastic(int nx1, int nx2, int ny1, int ny2, float **vx, float **vy, float **sxx, float **syy, float **sxy)
+void zero_elastic(int nx1, int nx2, int ny1, int ny2, MemWavefield * mpw)
 {
     for (int j = ny1; j <= ny2; j++) {
         for (int i = nx1; i <= nx2; i++) {
-            vx[j][i] = 0.0f;
-            vy[j][i] = 0.0f;
-            sxx[j][i] = 0.0f;
-            syy[j][i] = 0.0f;
-            sxy[j][i] = 0.0f;
+            mpw->pvx[j][i] = 0.0f;
+            mpw->pvy[j][i] = 0.0f;
+            mpw->psxx[j][i] = 0.0f;
+            mpw->psyy[j][i] = 0.0f;
+            mpw->psxy[j][i] = 0.0f;
         }
     }
 }

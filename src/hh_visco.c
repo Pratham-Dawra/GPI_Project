@@ -25,7 +25,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void model_visco(float **rho, float **pi, float **u, float **taus, float **taup, float *eta, GlobVar *gv)
+void model_visco(MemModel * mpm, GlobVar * gv)
 {
     float Rhov, muv, piv, Vp, Vs, y;
     float ts, tp, sumu, sumpi;
@@ -54,7 +54,7 @@ void model_visco(float **rho, float **pi, float **u, float **taus, float **taup,
     float *pts = vector(1, gv->L);
     for (int l = 1; l <= gv->L; l++) {
         pts[l] = 1.0 / (2.0 * PI * gv->FL[l]);
-        eta[l] = gv->DT / pts[l];
+        mpm->peta[l] = gv->DT / pts[l];
     }
 
     float fc = 1.0 / gv->TS;
@@ -107,11 +107,11 @@ void model_visco(float **rho, float **pi, float **u, float **taus, float **taup,
                 ii = i - gv->POS[1] * gv->NX;
                 jj = j - gv->POS[2] * gv->NY;
 
-                taus[jj][ii] = ts;
-                taup[jj][ii] = tp;
-                u[jj][ii] = muv;
-                rho[jj][ii] = Rhov;
-                pi[jj][ii] = piv;
+                mpm->ptaus[jj][ii] = ts;
+                mpm->ptaup[jj][ii] = tp;
+                mpm->pu[jj][ii] = muv;
+                mpm->prho[jj][ii] = Rhov;
+                mpm->ppi[jj][ii] = piv;
                 if (gv->WRITE_MODELFILES == 1) {
                     pwavemod[jj][ii] = Vp;
                     swavemod[jj][ii] = Vs;
@@ -125,25 +125,25 @@ void model_visco(float **rho, float **pi, float **u, float **taus, float **taup,
     /* all models are written to file */
     if (gv->WRITE_MODELFILES == 1) {
         sprintf(modfile, "%s.SOFI2D.u", gv->MFILE);
-        writemod(modfile, u, 3, gv);
+        writemod(modfile, mpm->pu, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
 
         sprintf(modfile, "%s.SOFI2D.pi", gv->MFILE);
-        writemod(modfile, pi, 3, gv);
+        writemod(modfile, mpm->ppi, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
 
         sprintf(modfile, "%s.SOFI2D.ts", gv->MFILE);
-        writemod(modfile, taus, 3, gv);
+        writemod(modfile, mpm->ptaus, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
 
         sprintf(modfile, "%s.SOFI2D.tp", gv->MFILE);
-        writemod(modfile, taup, 3, gv);
+        writemod(modfile, mpm->ptaup, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
@@ -161,7 +161,7 @@ void model_visco(float **rho, float **pi, float **u, float **taus, float **taup,
             mergemod(modfile, 3, gv);
 
         sprintf(modfile, "%s.SOFI2D.rho", gv->MFILE);
-        writemod(modfile, rho, 3, gv);
+        writemod(modfile, mpm->prho, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
@@ -170,7 +170,7 @@ void model_visco(float **rho, float **pi, float **u, float **taus, float **taup,
     /* only density is written to file */
     if (gv->WRITE_MODELFILES == 2) {
         sprintf(modfile, "%s.SOFI2D.rho", gv->MFILE);
-        writemod(modfile, rho, 3, gv);
+        writemod(modfile, mpm->prho, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);

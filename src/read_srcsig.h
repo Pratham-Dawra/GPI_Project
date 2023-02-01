@@ -9,6 +9,6 @@
  *  @param[in] gv global variable structure
  *  @return float buffer with source signature values
  */
-float *read_srcsig(int *ns, const GlobVar *gv);
+float *read_srcsig(int *ns, const GlobVar * gv);
 
 #endif

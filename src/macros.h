@@ -13,8 +13,8 @@
 
 #define STRING_SIZE 256
 
-#define NPAR 41       // total max. number of json parameters
-#define NSPAR 12      // number of source parameters (matrix size)
+#define NPAR 41                 // total max. number of json parameters
+#define NSPAR 12                // number of source parameters (matrix size)
 
 #define PI M_PI
 

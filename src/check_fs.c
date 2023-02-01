@@ -28,12 +28,13 @@
 #include "globvar_struct.h"
 #include "logging.h"
 
-void check_fs(GlobVar *gv)
+void check_fs(GlobVar * gv)
 {
     int fserr = 0;
 
   /********************************************/
-  /* Check output directories as required     */
+    /* Check output directories as required     */
+
   /********************************************/
 
     if (gv->LOG > 0) {
@@ -112,7 +113,8 @@ void check_fs(GlobVar *gv)
     }
 
   /********************************************/
-  /* ERROR                                    */
+    /* ERROR                                    */
+
   /********************************************/
     if (fserr) {
         log_fatal("Error(s) encountered while checking filesystem for correct permissions.\n");

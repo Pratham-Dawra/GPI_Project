@@ -26,7 +26,7 @@
 #include "logging.h"
 #include <stdbool.h>
 
-int **receiver(int *ntr, GlobVar *gv)
+int **receiver(GlobVar * gv)
 {
     int **recpos1 = NULL, **recpos = NULL;
     int itr = 1, itr1 = 0, itr2 = 0, recflag = 0, n, i, j;
@@ -44,7 +44,7 @@ int **receiver(int *ntr, GlobVar *gv)
             fpr = fopen(gv->REC_FILE, "r");
             if (fpr == NULL)
                 log_fatal("Receiver file %s could not be opened.\n", gv->REC_FILE);
-            *ntr = 0;
+            gv->NTRG = 0;
 
             /* counts the number of receivers in the receiver file */
             while (fgets(buffer, STRING_SIZE, fpr)) {
@@ -60,13 +60,13 @@ int **receiver(int *ntr, GlobVar *gv)
                  * comment line, and if the reading of a string was successful, 
                  * which is not the case for an empty line */
                 if (((testbuff1 == 1 || testbuff2 == 1) == 0) && testbuff3 == 1)
-                    ++(*ntr);
+                    ++(gv->NTRG);
             }
 
             rewind(fpr);
 
-            recpos1 = imatrix(1, 3, 1, *ntr);
-            for (itr = 1; itr <= *ntr; itr++) {
+            recpos1 = imatrix(1, 3, 1, gv->NTRG);
+            for (itr = 1; itr <= gv->NTRG; itr++) {
                 fscanf(fpr, "%f%f\n", &xrec, &yrec);
                 recpos1[1][itr] = iround((xrec + gv->REFREC[1]) / gv->DH);
                 recpos1[2][itr] = iround((yrec + gv->REFREC[2]) / gv->DH);
@@ -75,32 +75,33 @@ int **receiver(int *ntr, GlobVar *gv)
             fclose(fpr);
 
             /* check if more than one receiver is located at the same gridpoint */
-            for (itr = 1; itr <= (*ntr - 1); itr++)
-                for (itr1 = itr + 1; itr1 <= *ntr; itr1++)
+            for (itr = 1; itr <= (gv->NTRG - 1); itr++)
+                for (itr1 = itr + 1; itr1 <= gv->NTRG; itr1++)
                     if ((recpos1[1][itr] == recpos1[1][itr1])
                         && (recpos1[2][itr] == recpos1[2][itr1]))
                         recpos1[1][itr1] = -(++recflag);
 
-            recpos = imatrix(1, 3, 1, *ntr - recflag);
-            for (itr = 1; itr <= *ntr; itr++)
+            recpos = imatrix(1, 3, 1, gv->NTRG - recflag);
+            for (itr = 1; itr <= gv->NTRG; itr++)
                 if (recpos1[1][itr] > 0) {
                     recpos[1][++itr2] = recpos1[1][itr];
                     recpos[2][itr2] = recpos1[2][itr];
                     recpos[3][itr2] = recpos1[3][itr];
                 }
 
-            int ntr_orig = *ntr;
-            *ntr = itr2;
+            int ntr_orig = gv->NTRG;
+            gv->NTRG = itr2;
             if (recflag > 0) {
-                log_warn("Co-located receivers positions; reduced no. of receivers from %d to %d.\n", ntr_orig, *ntr);
+                log_warn("Co-located receivers positions; reduced no. of receivers from %d to %d.\n", ntr_orig,
+                         gv->NTRG);
             }
 
-            free_imatrix(recpos1, 1, 3, 1, *ntr);
+            free_imatrix(recpos1, 1, 3, 1, gv->NTRG);
         } else if (gv->REC_ARRAY > 0) {
             log_info("Generating receiver planes as specified in input file.\n");
 
-            *ntr = (1 + (gv->NXG - 2 * gv->FW) / gv->DRX) * gv->REC_ARRAY;
-            recpos = imatrix(1, 3, 1, *ntr);
+            gv->NTRG = (1 + (gv->NXG - 2 * gv->FW) / gv->DRX) * gv->REC_ARRAY;
+            recpos = imatrix(1, 3, 1, gv->NTRG);
             itr = 0;
             for (n = 0; n <= gv->REC_ARRAY - 1; n++) {
                 j = iround((gv->REC_ARRAY_DEPTH + gv->REC_ARRAY_DIST * (float)n) / gv->DH);
@@ -121,17 +122,17 @@ int **receiver(int *ntr, GlobVar *gv)
             /* only 1 receiver */
             if (((iround(nxrec2) - iround(nxrec1)) == 0) && ((iround(nyrec2) - iround(nyrec1)) == 0)) {
                 log_info("A single receiver position determined from json file.\n");
-                *ntr = 1;
-                recpos = imatrix(1, 3, 1, *ntr);
+                gv->NTRG = 1;
+                recpos = imatrix(1, 3, 1, gv->NTRG);
                 recpos[1][1] = iround(nxrec1);
                 recpos[2][1] = iround(nyrec1);
                 recpos[3][1] = 1;
             } else if (((iround(nyrec2) - iround(nyrec1)) == 0)) {
                 log_info("A horizontal receiver line (in x-direction) determined from json file.\n");
-                *ntr = iround((nxrec2 - nxrec1) / gv->NGEOPH) + 1;
-                recpos = imatrix(1, 3, 1, *ntr);
+                gv->NTRG = iround((nxrec2 - nxrec1) / gv->NGEOPH) + 1;
+                recpos = imatrix(1, 3, 1, gv->NTRG);
                 nxrec = nxrec1;
-                for (n = 1; n <= *ntr; n++) {
+                for (n = 1; n <= gv->NTRG; n++) {
                     nyrec = nyrec1 + ((nyrec2 - nyrec1) / (nxrec2 - nxrec1) * (nxrec - nxrec1));
                     itr = iround((nxrec - nxrec1) / gv->NGEOPH) + 1;
                     recpos[1][itr] = iround(nxrec);
@@ -141,10 +142,10 @@ int **receiver(int *ntr, GlobVar *gv)
                 }
             } else if (((iround(nxrec2) - iround(nxrec1)) == 0)) {
                 log_info("A vertical receiver line (in y-direction) determined from json file.\n");
-                *ntr = iround((nyrec2 - nyrec1) / gv->NGEOPH) + 1;
-                recpos = imatrix(1, 3, 1, *ntr);
+                gv->NTRG = iround((nyrec2 - nyrec1) / gv->NGEOPH) + 1;
+                recpos = imatrix(1, 3, 1, gv->NTRG);
                 nyrec = nyrec1;
-                for (n = 1; n <= *ntr; n++) {
+                for (n = 1; n <= gv->NTRG; n++) {
                     nxrec = nxrec1 + ((nxrec2 - nxrec1) / (nyrec2 - nyrec1) * (nyrec - nyrec1));
                     itr = iround((nyrec - nyrec1) / gv->NGEOPH) + 1;
                     recpos[1][itr] = iround(nxrec);
@@ -160,31 +161,31 @@ int **receiver(int *ntr, GlobVar *gv)
                 log_fatal("Error in specifying receiver coordinates in the json file!\n");
             }
         }                       /* end of if receivers specified in input file */
-        log_info("Number of receiver positions: %d\n", *ntr);
+        log_info("Number of receiver positions: %d\n", gv->NTRG);
 
-        for (itr = 1; itr <= *ntr; itr++) {
+        for (itr = 1; itr <= gv->NTRG; itr++) {
             /* check for 0's */
             for (n = 1; n <= 2; n++) {
                 if (recpos[n][itr] == 0)
                     recpos[n][itr] = 1;
             }
         }
-    }                           /* End of if(gv->MPID==0) */
-
+    }
+    /* End of if(gv->MPID==0) */
     MPI_Barrier(MPI_COMM_WORLD);
-    MPI_Bcast(ntr, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&(gv->NTRG), 1, MPI_INT, 0, MPI_COMM_WORLD);
     if (gv->MPID != 0)
-        recpos = imatrix(1, 3, 1, *ntr);
-    MPI_Bcast(&recpos[1][1], (*ntr) * 3, MPI_INT, 0, MPI_COMM_WORLD);
+        recpos = imatrix(1, 3, 1, gv->NTRG);
+    MPI_Bcast(&recpos[1][1], (gv->NTRG) * 3, MPI_INT, 0, MPI_COMM_WORLD);
 
     if (gv->MPID == 0) {
-        if (*ntr > 50)
-            log_warn("The following table is quite large (%d lines); only printing the first 50 entries!\n", *ntr);
+        if (gv->NTRG > 50)
+            log_warn("The following table is quite large (%d lines); only printing the first 50 entries!\n", gv->NTRG);
         log_info("Receiver positions in the global model-system:\n");
         log_info(" x (gridpoints) y (gridpoints) \t x (in m) \t y (in m)\n");
         log_info(" -------------  -------------- \t ---------\t --------\n");
 
-        int maxprint = *ntr;
+        int maxprint = gv->NTRG;
         if (maxprint > 50)
             maxprint = 50;
 

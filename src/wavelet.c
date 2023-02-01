@@ -30,7 +30,7 @@
 #include "read_srcsig.h"
 #include <complex.h>
 
-float **wavelet(float **srcpos_loc, int nsrc, GlobVar *gv)
+float **wavelet(float **srcpos_loc, int nsrc, GlobVar * gv)
 {
     int nts = 0;
     float *psource = NULL, tshift, amp = 0.0, a, fc, tau, t, ts, f2;
@@ -85,7 +85,7 @@ float **wavelet(float **srcpos_loc, int nsrc, GlobVar *gv)
                   break;        /* sinus raised to the power of three */
               case 5:
                   /* Berlage wavelet (minimum-phase) (Aldridge, 1990) */
-                  n = srcpos_loc[9][k];         // time exponent; >0 (Berlage only)
+                  n = srcpos_loc[9][k]; // time exponent; >0 (Berlage only)
                   alpha = srcpos_loc[10][k];    // exponential decay factor (Berlage only)
                   phi0deg = srcpos_loc[11][k];  // initial phase angle [°] (Berlage only)
                   phi0 = phi0deg * PI / 180;
@@ -100,10 +100,10 @@ float **wavelet(float **srcpos_loc, int nsrc, GlobVar *gv)
                   break;
               case 6:
                   /* Klauder wavelet */
-                  fmin = srcpos_loc[9][k];   // lowest frequency in sweep [Hz] (Klauder only)
-                  fmax = srcpos_loc[10][k];  // highest frequency in sweep [Hz] (Klauder only)
-                  T = srcpos_loc[11][k];     // sweep duration [s] (Klauder only)
-                  width = srcpos_loc[12][k]; // width of the Klauder wavelet in number of centre periods
+                  fmin = srcpos_loc[9][k];  // lowest frequency in sweep [Hz] (Klauder only)
+                  fmax = srcpos_loc[10][k]; // highest frequency in sweep [Hz] (Klauder only)
+                  T = srcpos_loc[11][k];    // sweep duration [s] (Klauder only)
+                  width = srcpos_loc[12][k];    // width of the Klauder wavelet in number of centre periods
 
                   f2 = (fmax - fmin) / T;
                   tau = (width / fc);   // Klauder wavelet is shifted by "width" centre periods

@@ -25,7 +25,7 @@
 #include "fd.h"
 #include "enums.h"
 
-void exchange_par(GlobVar *gv)
+void exchange_par(GlobVar * gv)
 {
     int idum[NPAR];
     float fdum[NPAR];
@@ -113,8 +113,9 @@ void exchange_par(GlobVar *gv)
         idum[37] = gv->SIGOUT;
         idum[38] = gv->SIGOUT_FORMAT;
 
-    } /** if (gv->MPID == 0) **/
+    }
 
+          /** if (gv->MPID == 0) **/
     MPI_Barrier(MPI_COMM_WORLD);
 
     MPI_Bcast(&idum, NPAR, MPI_INT, 0, MPI_COMM_WORLD);
@@ -191,7 +192,7 @@ void exchange_par(GlobVar *gv)
     gv->SRCREC = idum[18];
     gv->IDX = idum[19];
     gv->IDY = idum[20];
-    gv->WEQ = (WEQTYPE)idum[22];
+    gv->WEQ = (WEQTYPE) idum[22];
 
     gv->SNAP_FORMAT = idum[23];
     gv->SEISMO = idum[24];

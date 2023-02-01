@@ -19,38 +19,34 @@
  --------------------------------------------------------------------------*/
 #include "fd.h"
 
-void zero_elastic_4(int nx1, int nx2, int ny1, int ny2, float **vxx_1, float **vxx_2, float **vxx_3, float **vxx_4,
-                    float **vyy_1, float **vyy_2, float **vyy_3, float **vyy_4, float **vxy_1, float **vxy_2,
-                    float **vxy_3, float **vxy_4, float **vyx_1, float **vyx_2, float **vyx_3, float **vyx_4,
-                    float **svx_1, float **svx_2, float **svx_3, float **svx_4, float **svy_1, float **svy_2,
-                    float **svy_3, float **svy_4)
+void zero_elastic_4(int nx1, int nx2, int ny1, int ny2, MemWavefield * mpw)
 {
     for (int j = ny1; j <= ny2; j++) {
         for (int i = nx1; i <= nx2; i++) {
-            vxx_1[j][i] = 0.0f;
-            vxx_2[j][i] = 0.0f;
-            vxx_3[j][i] = 0.0f;
-            vxx_4[j][i] = 0.0f;
-            vyy_1[j][i] = 0.0f;
-            vyy_2[j][i] = 0.0f;
-            vyy_3[j][i] = 0.0f;
-            vyy_4[j][i] = 0.0f;
-            vxy_1[j][i] = 0.0f;
-            vxy_2[j][i] = 0.0f;
-            vxy_3[j][i] = 0.0f;
-            vxy_4[j][i] = 0.0f;
-            vyx_1[j][i] = 0.0f;
-            vyx_2[j][i] = 0.0f;
-            vyx_3[j][i] = 0.0f;
-            vyx_4[j][i] = 0.0f;
-            svx_1[j][i] = 0.0f;
-            svx_2[j][i] = 0.0f;
-            svx_3[j][i] = 0.0f;
-            svx_4[j][i] = 0.0f;
-            svy_1[j][i] = 0.0f;
-            svy_2[j][i] = 0.0f;
-            svy_3[j][i] = 0.0f;
-            svy_4[j][i] = 0.0f;
+            mpw->vxx_1[j][i] = 0.0f;
+            mpw->vxx_2[j][i] = 0.0f;
+            mpw->vxx_3[j][i] = 0.0f;
+            mpw->vxx_4[j][i] = 0.0f;
+            mpw->vyy_1[j][i] = 0.0f;
+            mpw->vyy_2[j][i] = 0.0f;
+            mpw->vyy_3[j][i] = 0.0f;
+            mpw->vyy_4[j][i] = 0.0f;
+            mpw->vxy_1[j][i] = 0.0f;
+            mpw->vxy_2[j][i] = 0.0f;
+            mpw->vxy_3[j][i] = 0.0f;
+            mpw->vxy_4[j][i] = 0.0f;
+            mpw->vyx_1[j][i] = 0.0f;
+            mpw->vyx_2[j][i] = 0.0f;
+            mpw->vyx_3[j][i] = 0.0f;
+            mpw->vyx_4[j][i] = 0.0f;
+            mpw->svx_1[j][i] = 0.0f;
+            mpw->svx_2[j][i] = 0.0f;
+            mpw->svx_3[j][i] = 0.0f;
+            mpw->svx_4[j][i] = 0.0f;
+            mpw->svy_1[j][i] = 0.0f;
+            mpw->svy_2[j][i] = 0.0f;
+            mpw->svy_3[j][i] = 0.0f;
+            mpw->svy_4[j][i] = 0.0f;
         }
     }
 }

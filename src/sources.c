@@ -26,7 +26,7 @@
 #include "fd.h"
 #include "logging.h"
 
-float **sources(int *nsrc, GlobVar *gv)
+float **sources(int *nsrc, GlobVar * gv)
 {
     float **srcpos = NULL;
     int i, l, isrc = 0, current_source = 0, nvarin = 0;

@@ -17,11 +17,11 @@ typedef struct {
  *  @param[in] nt Number of traces
  *  @param[in] ns Number of samples per trace
  */
-void malloc_SUgather(SUgather *gather, size_t nt, unsigned short ns);
+void malloc_SUgather(SUgather * gather, size_t nt, unsigned short ns);
 
 /*! Free memory previously allocated for a seismic gather.
  *  @param[in,out] gather struct of type SUgather
  */
-void free_SUgather(SUgather *gather);
+void free_SUgather(SUgather * gather);
 
 #endif

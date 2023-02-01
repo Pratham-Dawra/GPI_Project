@@ -28,7 +28,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-void readmod_elastic(float **rho, float **pi, float **u, GlobVar *gv)
+void readmod_elastic(MemModel * mpm, GlobVar * gv)
 {
     float muv, piv;
     int ii, jj;
@@ -90,7 +90,7 @@ void readmod_elastic(float **rho, float **pi, float **u, GlobVar *gv)
         }
         ny = ns;
     } else {
-        ny = (size_t)(gv->NYG);
+        ny = (size_t) (gv->NYG);
     }
 
     float **para = (float **)malloc2d(NPARA, ny, sizeof(float));
@@ -114,9 +114,9 @@ void readmod_elastic(float **rho, float **pi, float **u, GlobVar *gv)
             if ((gv->POS[1] == ((i - 1) / gv->NX)) && (gv->POS[2] == ((j - 1) / gv->NY))) {
                 ii = i - gv->POS[1] * gv->NX;
                 jj = j - gv->POS[2] * gv->NY;
-                u[jj][ii] = muv;
-                rho[jj][ii] = para[P_RHO][j - 1];
-                pi[jj][ii] = piv;
+                mpm->pu[jj][ii] = muv;
+                mpm->prho[jj][ii] = para[P_RHO][j - 1];
+                mpm->ppi[jj][ii] = piv;
             }
         }
     }

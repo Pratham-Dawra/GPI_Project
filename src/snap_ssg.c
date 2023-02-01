@@ -25,8 +25,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void snap(int nt, int nsnap, float **vx, float **vy, float **sxx,
-          float **syy, float **u, float **pi, float *hc, GlobVar *gv)
+void snap(int nt, int nsnap, float *hc, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
 {
     /* 
      * different data formats of output:
@@ -85,10 +84,10 @@ void snap(int nt, int nsnap, float **vx, float **vy, float **sxx,
           }
           for (int i = 1; i <= gv->NX; i += gv->IDX) {
               for (int j = 1; j <= gv->NY; j += gv->IDY) {
-                  writedsk(fpx1, vx[j][i], gv->SNAP_FORMAT);
-                  writedsk(fpy1, vy[j][i], gv->SNAP_FORMAT);
+                  writedsk(fpx1, mpw->pvx[j][i], gv->SNAP_FORMAT);
+                  writedsk(fpy1, mpw->pvy[j][i], gv->SNAP_FORMAT);
               }
-	  }
+          }
           fclose(fpx1);
           fclose(fpy1);
           break;
@@ -102,10 +101,10 @@ void snap(int nt, int nsnap, float **vx, float **vy, float **sxx,
 
           for (int i = 1; i <= gv->NX; i += gv->IDX) {
               for (int j = 1; j <= gv->NY; j += gv->IDY) {
-                  amp = -sxx[j][i] - syy[j][i];
+                  amp = -mpw->psxx[j][i] - mpw->psyy[j][i];
                   writedsk(fpx1, amp, gv->SNAP_FORMAT);
               }
-	  }
+          }
           fclose(fpx1);
           break;
       case 4:
@@ -124,12 +123,12 @@ void snap(int nt, int nsnap, float **vx, float **vy, float **sxx,
 
           for (int i = 1; i <= gv->NX; i += gv->IDX) {
               for (int j = 1; j <= gv->NY; j += gv->IDY) {
-                  writedsk(fpx1, vx[j][i], gv->SNAP_FORMAT);
-                  writedsk(fpy1, vy[j][i], gv->SNAP_FORMAT);
-                  amp = -sxx[j][i] - syy[j][i];
+                  writedsk(fpx1, mpw->pvx[j][i], gv->SNAP_FORMAT);
+                  writedsk(fpy1, mpw->pvy[j][i], gv->SNAP_FORMAT);
+                  amp = -mpw->psxx[j][i] - mpw->psyy[j][i];
                   writedsk(fpp, amp, gv->SNAP_FORMAT);
               }
-	  }
+          }
           fclose(fpx1);
           fclose(fpy1);
           fclose(fpp);
@@ -158,21 +157,21 @@ void snap(int nt, int nsnap, float **vx, float **vy, float **sxx,
                   vyx = 0;
                   vxy = 0;
                   for (int m = 1; m <= fdoh; m++) {
-                      vyx += hc[m] * (vy[j][i + m] - vy[j][i - m + 1]);
-                      vxy += hc[m] * (vx[j + m][i] - vx[j - m + 1][i]);
+                      vyx += hc[m] * (mpw->pvy[j][i + m] - mpw->pvy[j][i - m + 1]);
+                      vxy += hc[m] * (mpw->pvx[j + m][i] - mpw->pvx[j - m + 1][i]);
                   }
                   vyx *= dhi;
                   vxy *= dhi;
 
-                  curlfield[j][i] = (vxy - vyx) * sqrt(u[j][i]);
+                  curlfield[j][i] = (vxy - vyx) * sqrt(mpm->pu[j][i]);
               }
-	  }
+          }
 
           for (int i = 1; i <= gv->NX; i += gv->IDX) {
               for (int j = 1; j <= gv->NY; j += gv->IDY) {
                   writedsk(fpy2, curlfield[j][i], gv->SNAP_FORMAT);
               }
-	  }
+          }
           free_matrix(curlfield, -nd + 1, gv->NY + nd, -nd + 1, gv->NX + nd);
 
           /* output of the divergence of the velocity field according to Dougherty and
@@ -185,21 +184,21 @@ void snap(int nt, int nsnap, float **vx, float **vy, float **sxx,
                   vxx = 0;
                   vyy = 0;
                   for (int m = 1; m <= fdoh; m++) {
-                      vxx += hc[m] * (vx[j][i + m - 1] - vx[j][i - m]);
-                      vyy += hc[m] * (vy[j + m - 1][i] - vy[j - m][i]);
+                      vxx += hc[m] * (mpw->pvx[j][i + m - 1] - mpw->pvx[j][i - m]);
+                      vyy += hc[m] * (mpw->pvy[j + m - 1][i] - mpw->pvy[j - m][i]);
                   }
                   vxx *= dhi;
                   vyy *= dhi;
 
-                  divfield[j][i] = (vxx + vyy) * sqrt(pi[j][i]);
+                  divfield[j][i] = (vxx + vyy) * sqrt(mpm->ppi[j][i]);
               }
-	  }
+          }
 
           for (int i = 1; i <= gv->NX; i += gv->IDX) {
               for (int j = 1; j <= gv->NY; j += gv->IDY) {
                   writedsk(fpx2, divfield[j][i], gv->SNAP_FORMAT);
               }
-	  }
+          }
 
           free_matrix(divfield, -nd + 1, gv->NY + nd, -nd + 1, gv->NX + nd);
           fclose(fpx2);

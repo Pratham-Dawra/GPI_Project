@@ -28,7 +28,7 @@
 #include "logging.h"
 
 void outseis_glob(FILE * fpdata, float **section,
-                  int **recpos, int ntr, float **srcpos, int ns, int seis_form, int ishot, int comp, GlobVar *gv)
+                  int **recpos, int ntr, float **srcpos, int ns, int seis_form, int ishot, int comp, GlobVar * gv)
 {
     const float xshift = 800.0, yshift = 800.0;
 
@@ -90,7 +90,7 @@ void outseis_glob(FILE * fpdata, float **section,
           }
           break;
 
-      case 3:                               /* BINARY */
+      case 3:                  /* BINARY */
           for (int i = 1; i <= ntr; i++)
               for (int j = 1; j <= ns; j++) {
                   fwrite(&section[i][j], sizeof(float), 1, fpdata);

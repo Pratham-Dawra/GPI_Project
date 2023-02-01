@@ -25,7 +25,7 @@
 
 #include "fd.h"
 
-void model_elastic_VTI(float **rho, float **pc11, float **pc33, float **pc13, float **pc55, GlobVar *gv)
+void model_elastic_VTI(MemModel * mpm, GlobVar * gv)
 {
     float c11, c33, c55, c13, Rho;
     int ii, jj;
@@ -65,11 +65,11 @@ void model_elastic_VTI(float **rho, float **pc11, float **pc33, float **pc13, fl
                 ii = i - gv->POS[1] * gv->NX;
                 jj = j - gv->POS[2] * gv->NY;
 
-                pc11[jj][ii] = c11;
-                rho[jj][ii] = Rho;
-                pc33[jj][ii] = c33;
-                pc13[jj][ii] = c13;
-                pc55[jj][ii] = c55;
+                mpm->pc11[jj][ii] = c11;
+                mpm->prho[jj][ii] = Rho;
+                mpm->pc33[jj][ii] = c33;
+                mpm->pc13[jj][ii] = c13;
+                mpm->pc55[jj][ii] = c55;
 
             }
         }
@@ -80,7 +80,7 @@ void model_elastic_VTI(float **rho, float **pc11, float **pc33, float **pc13, fl
     /* only the density model is written to file */
     if (gv->WRITE_MODELFILES == 2) {
         sprintf(modfile, "%s.SOFI2D.rho", gv->MFILE);
-        writemod(modfile, rho, 3, gv);
+        writemod(modfile, mpm->prho, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
@@ -89,31 +89,31 @@ void model_elastic_VTI(float **rho, float **pc11, float **pc33, float **pc13, fl
     /* all models are written to file */
     if (gv->WRITE_MODELFILES == 1) {
         sprintf(modfile, "%s.SOFI2D.c11", gv->MFILE);
-        writemod(modfile, pc11, 3, gv);
+        writemod(modfile, mpm->pc11, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
 
         sprintf(modfile, "%s.SOFI2D.c33", gv->MFILE);
-        writemod(modfile, pc33, 3, gv);
+        writemod(modfile, mpm->pc33, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
 
         sprintf(modfile, "%s.SOFI2D.c13", gv->MFILE);
-        writemod(modfile, pc13, 3, gv);
+        writemod(modfile, mpm->pc13, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
 
         sprintf(modfile, "%s.SOFI2D.c55", gv->MFILE);
-        writemod(modfile, pc55, 3, gv);
+        writemod(modfile, mpm->pc55, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);
 
         sprintf(modfile, "%s.SOFI2D.rho", gv->MFILE);
-        writemod(modfile, rho, 3, gv);
+        writemod(modfile, mpm->prho, 3, gv);
         MPI_Barrier(MPI_COMM_WORLD);
         if (gv->MPID == 0)
             mergemod(modfile, 3, gv);

@@ -19,22 +19,18 @@
 --------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------
- *   updating stress components at interior gridpoints (excluding boundarys) [gx2+1...gx3][gy2+1...gy3]
+ *   updating stress components at interior gridpoints (excluding boundarys) [GX2+1...GX3][GY2+1...GY3]
  *   by a staggered grid finite difference scheme of FDORDER accuracy in space
  *   and second order accuracy in time
  *
- *   gx and gy are arrays with the locations of the boundary specified in subgrid_bounds.c
+ *   GX and GY are arrays with the locations of the boundary specified in subgrid_bounds.c
  *   for each subgrid
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
 #include "logging.h"
 
-void update_s_visc_interior(int *gx, int *gy, int nt,
-                            float **vx, float **vy, float **sxx, float **syy,
-                            float **sxy, float ***r, float ***p, float ***q,
-                            float **fipjp, float **f, float **g, float *bip, float *bjm, float *cip,
-                            float *cjm, float ***d, float ***e, float ***dip, GlobVar *gv)
+void update_s_visc_interior(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
 {
     float vxx, vyy, vxy, vyx;
     double time1 = 0.0, time2 = 0.0;
@@ -44,11 +40,10 @@ void update_s_visc_interior(int *gx, int *gy, int nt,
         log_debug("Updating stress components...\n");
     }
 
-    for (int j = gy[2] + 1; j <= gy[3]; j++) {
-        for (int i = gx[2] + 1; i <= gx[3]; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, vx, vy);
-            wavefield_update_s_visc(i, j, vxx, vyx, vxy, vyy, sxy, sxx, syy, r, p, q,
-                                    fipjp, f, g, bip, bjm, cip, cjm, d, e, dip, gv);
+    for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
+        for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
+            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
+            wavefield_update_s_visc(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
         }
     }
 

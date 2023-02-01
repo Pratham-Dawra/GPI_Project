@@ -24,11 +24,11 @@
 
 #include "fd.h"
 
-void wavefield_update_s_el_vti(int i, int j, float vxx, float vyx, float vxy, float vyy, float **sxy, float **sxx,
-                               float **syy, float **pc11, float **pc55ipjp, float **pc13, float **pc33)
+void wavefield_update_s_el_vti(int i, int j, float vxx, float vyx, float vxy, float vyy, MemModel * mpm,
+                               MemWavefield * mpw)
 {
     /* Update */
-    sxy[j][i] += (pc55ipjp[j][i] * (vxy + vyx));
-    sxx[j][i] += ((pc11[j][i] * vxx) + (pc13[j][i] * vyy));
-    syy[j][i] += ((pc13[j][i] * vxx) + (pc33[j][i] * vyy));
+    mpw->psxy[j][i] += (mpm->pc55ipjp[j][i] * (vxy + vyx));
+    mpw->psxx[j][i] += ((mpm->pc11[j][i] * vxx) + (mpm->pc13[j][i] * vyy));
+    mpw->psyy[j][i] += ((mpm->pc13[j][i] * vxx) + (mpm->pc33[j][i] * vyy));
 }

@@ -28,7 +28,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void mergemod(const char *modfile, int format, GlobVar *gv)
+void mergemod(const char *modfile, int format, GlobVar * gv)
 {
     char file[STRING_SIZE];
     FILE *fp[gv->NPROCY][gv->NPROCX], *fpout = NULL;

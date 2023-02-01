@@ -15,7 +15,7 @@
  *  @return number of traces in file
  *  @note File pointer is at beginning of file after calling this function.
  */
-size_t su_get_nt(FILE *filep, unsigned short *ns, unsigned short *dt, short *delrt);
+size_t su_get_nt(FILE * filep, unsigned short *ns, unsigned short *dt, short *delrt);
 
 /*! Read a single seismic trace from disk.
  *  @param[in] filep File pointer to SU file (previously opened)
@@ -26,7 +26,7 @@ size_t su_get_nt(FILE *filep, unsigned short *ns, unsigned short *dt, short *del
  *  @param[out] data trace data
  *  @return Number of traces read (1)
  */
-int su_read_trace(FILE *filep, size_t n, unsigned short ns, bool b_seek, SUhead *header, float *data);
+int su_read_trace(FILE * filep, size_t n, unsigned short ns, bool b_seek, SUhead * header, float *data);
 
 /*! Read entire SU file from disk; memory for gather is allocated internally.
  *  @param[in] filep File pointer to SU file (previously opened)
@@ -34,6 +34,6 @@ int su_read_trace(FILE *filep, size_t n, unsigned short ns, bool b_seek, SUhead 
  *  @return Number of traces read
  *  @note The client is responsible to deallocate memory; call free_SUgather(&gather);
  */
-size_t su_read_file(FILE *filep, SUgather *gather);
+size_t su_read_file(FILE * filep, SUgather * gather);
 
 #endif

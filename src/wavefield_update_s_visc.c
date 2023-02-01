@@ -24,38 +24,45 @@
 
 #include "fd.h"
 
-void wavefield_update_s_visc(int i, int j, float vxx, float vyx, float vxy, float vyy, float **sxy,
+/* (int i, int j, float vxx, float vyx, float vxy, float vyy, float **sxy,
                              float **sxx, float **syy, float ***r, float ***p,
                              float ***q, float **fipjp, float **f, float **g, float *bip,
-                             float *bjm, float *cip, float *cjm, float ***d, float ***e, float ***dip, GlobVar * gv)
+                             float *bjm, float *cip, float *cjm, float ***d, float ***e, float ***dip, GlobVar * gv) */
+
+void wavefield_update_s_visc(int i, int j, float vxx, float vyx, float vxy, float vyy, MemModel * mpm,
+                             MemWavefield * mpw, GlobVar * gv)
 {
     /* computing sums of the old memory variables */
     float dthalbe = gv->DT / 2.0;
     float sumr = 0.0f, sump = 0.0f, sumq = 0.0f;
     for (int l = 1; l <= gv->L; l++) {
-        sumr += r[j][i][l];
-        sump += p[j][i][l];
-        sumq += q[j][i][l];
+        sumr += mpw->pr[j][i][l];
+        sump += mpw->pp[j][i][l];
+        sumq += mpw->pq[j][i][l];
     }
 
     /* updating components of the stress tensor, partially */
-    sxy[j][i] += (fipjp[j][i] * (vxy + vyx)) + (dthalbe * sumr);
-    sxx[j][i] += (g[j][i] * (vxx + vyy)) - (2.0 * f[j][i] * vyy) + (dthalbe * sump);
-    syy[j][i] += (g[j][i] * (vxx + vyy)) - (2.0 * f[j][i] * vxx) + (dthalbe * sumq);
+    mpw->psxy[j][i] += (mpm->fipjp[j][i] * (vxy + vyx)) + (dthalbe * sumr);
+    mpw->psxx[j][i] += (mpm->g[j][i] * (vxx + vyy)) - (2.0 * mpm->f[j][i] * vyy) + (dthalbe * sump);
+    mpw->psyy[j][i] += (mpm->g[j][i] * (vxx + vyy)) - (2.0 * mpm->f[j][i] * vxx) + (dthalbe * sumq);
 
     /* now updating the memory-variables and sum them up */
     sumr = sump = sumq = 0.0f;
     for (int l = 1; l <= gv->L; l++) {
-        r[j][i][l] = bip[l] * (r[j][i][l] * cip[l] - (dip[j][i][l] * (vxy + vyx)));
-        p[j][i][l] = bjm[l] * (p[j][i][l] * cjm[l] - (e[j][i][l] * (vxx + vyy)) + (2.0 * d[j][i][l] * vyy));
-        q[j][i][l] = bjm[l] * (q[j][i][l] * cjm[l] - (e[j][i][l] * (vxx + vyy)) + (2.0 * d[j][i][l] * vxx));
-        sumr += r[j][i][l];
-        sump += p[j][i][l];
-        sumq += q[j][i][l];
+        mpw->pr[j][i][l] = mpm->bip[l] * (mpw->pr[j][i][l] * mpm->cip[l] - (mpm->dip[j][i][l] * (vxy + vyx)));
+        mpw->pp[j][i][l] =
+            mpm->bjm[l] * (mpw->pp[j][i][l] * mpm->cjm[l] - (mpm->e[j][i][l] * (vxx + vyy)) +
+                           (2.0 * mpm->d[j][i][l] * vyy));
+        mpw->pq[j][i][l] =
+            mpm->bjm[l] * (mpw->pq[j][i][l] * mpm->cjm[l] - (mpm->e[j][i][l] * (vxx + vyy)) +
+                           (2.0 * mpm->d[j][i][l] * vxx));
+        sumr += mpw->pr[j][i][l];
+        sump += mpw->pp[j][i][l];
+        sumq += mpw->pq[j][i][l];
     }
 
     /* and now the components of the stress tensor are completely updated */
-    sxy[j][i] += (dthalbe * sumr);
-    sxx[j][i] += (dthalbe * sump);
-    syy[j][i] += (dthalbe * sumq);
+    mpw->psxy[j][i] += (dthalbe * sumr);
+    mpw->psxx[j][i] += (dthalbe * sump);
+    mpw->psyy[j][i] += (dthalbe * sumq);
 }

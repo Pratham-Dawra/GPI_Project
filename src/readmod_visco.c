@@ -28,7 +28,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-void readmod_visco(float **rho, float **pi, float **u, float **taus, float **taup, float *eta, GlobVar *gv)
+void readmod_visco(MemModel * mpm, GlobVar * gv)
 {
     float muv, piv, *pts, ts, tp, sumu, sumpi;
     int ii, jj;
@@ -37,7 +37,8 @@ void readmod_visco(float **rho, float **pi, float **u, float **taus, float **tau
     bool b_issu = false;
 
     const char *model[] = { "P-wave velocity model", "S-wave velocity model", "density model",
-        "Quality factor Qp model", "Quality factor Qs model" };
+        "Quality factor Qp model", "Quality factor Qs model"
+    };
     const char *suffix[] = { "vp", "vs", "rho", "qp", "qs" };
     const char *suffix_su[] = { "vp.su", "vs.su", "rho.su", "qp.su", "qs.su" };
 
@@ -56,7 +57,7 @@ void readmod_visco(float **rho, float **pi, float **u, float **taus, float **tau
     pts = vector(1, gv->L);
     for (int l = 1; l <= gv->L; l++) {
         pts[l] = 1.0 / (2.0 * PI * gv->FL[l]);
-        eta[l] = gv->DT / pts[l];
+        mpm->peta[l] = gv->DT / pts[l];
     }
 
     float ws = 2.0 * PI / gv->TS;
@@ -102,7 +103,7 @@ void readmod_visco(float **rho, float **pi, float **u, float **taus, float **tau
         }
         ny = ns;
     } else {
-        ny = (size_t)(gv->NYG);
+        ny = (size_t) (gv->NYG);
     }
 
     float **para = (float **)malloc2d(NPARA, ny, sizeof(float));
@@ -140,11 +141,11 @@ void readmod_visco(float **rho, float **pi, float **u, float **taus, float **tau
             if ((gv->POS[1] == ((i - 1) / gv->NX)) && (gv->POS[2] == ((j - 1) / gv->NY))) {
                 ii = i - gv->POS[1] * gv->NX;
                 jj = j - gv->POS[2] * gv->NY;
-                taus[jj][ii] = ts;
-                taup[jj][ii] = tp;
-                u[jj][ii] = muv;
-                rho[jj][ii] = para[P_RHO][j - 1];
-                pi[jj][ii] = piv;
+                mpm->ptaus[jj][ii] = ts;
+                mpm->ptaup[jj][ii] = tp;
+                mpm->pu[jj][ii] = muv;
+                mpm->prho[jj][ii] = para[P_RHO][j - 1];
+                mpm->ppi[jj][ii] = piv;
             }
         }
     }

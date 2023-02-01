@@ -83,11 +83,7 @@
 
 #include "fd.h"
 
-void PML_pro(float *d_x, float *K_x, float *alpha_prime_x, float *a_x, float *b_x,
-             float *d_x_half, float *K_x_half, float *alpha_prime_x_half, float *a_x_half, float *b_x_half,
-             float *d_y, float *K_y, float *alpha_prime_y, float *a_y, float *b_y,
-             float *d_y_half, float *K_y_half, float *alpha_prime_y_half, float *a_y_half, float *b_y_half,
-             GlobVar *gv)
+void PML_pro(MemModel * mpm, GlobVar * gv)
 {
     int h;
 
@@ -120,8 +116,8 @@ void PML_pro(float *d_x, float *K_x, float *alpha_prime_x, float *a_x, float *b_
 
     for (int i = 1; i <= gv->FW; i++) {
 
-        K_x[i] = 1.0;
-        K_x_half[i] = 1.0;
+        mpm->K_x[i] = 1.0;
+        mpm->K_x_half[i] = 1.0;
         xval = gv->DH * (i - 1);
 
         /* define damping profile at the grid points */
@@ -129,11 +125,11 @@ void PML_pro(float *d_x, float *K_x, float *alpha_prime_x, float *a_x, float *b_
 
         if (abscissa_in_PML >= 0.0) {
             abscissa_normalized = abscissa_in_PML / thickness_PML_x;
-            d_x[i] = d0_x * pow(abscissa_normalized, gv->NPOWER);
+            mpm->d_x[i] = d0_x * pow(abscissa_normalized, gv->NPOWER);
 
             /* this taken from Gedney page 8.2 */
-            K_x[i] = 1.0 + (gv->K_MAX_CPML - 1.0) * pow(abscissa_normalized, gv->NPOWER);
-            alpha_prime_x[i] = alpha_max_PML * (1.0 - abscissa_normalized);
+            mpm->K_x[i] = 1.0 + (gv->K_MAX_CPML - 1.0) * pow(abscissa_normalized, gv->NPOWER);
+            mpm->alpha_prime_x[i] = alpha_max_PML * (1.0 - abscissa_normalized);
         }
 
         /* define damping profile at half the grid points */
@@ -141,31 +137,34 @@ void PML_pro(float *d_x, float *K_x, float *alpha_prime_x, float *a_x, float *b_
 
         if (abscissa_in_PML >= 0.0) {
             abscissa_normalized = abscissa_in_PML / thickness_PML_x;
-            d_x_half[i] = d0_x * pow(abscissa_normalized, gv->NPOWER);
+            mpm->d_x_half[i] = d0_x * pow(abscissa_normalized, gv->NPOWER);
 
             /* this taken from Gedney page 8.2 */
-            K_x_half[i] = 1.0 + (gv->K_MAX_CPML - 1.0) * pow(abscissa_normalized, gv->NPOWER);
-            alpha_prime_x_half[i] = alpha_max_PML * (1.0 - abscissa_normalized);
+            mpm->K_x_half[i] = 1.0 + (gv->K_MAX_CPML - 1.0) * pow(abscissa_normalized, gv->NPOWER);
+            mpm->alpha_prime_x_half[i] = alpha_max_PML * (1.0 - abscissa_normalized);
         }
 
         /* just in case, for -5 at the end */
-        if (alpha_prime_x[i] < 0.0) {
-            alpha_prime_x[i] = 0.0;
+        if (mpm->alpha_prime_x[i] < 0.0) {
+            mpm->alpha_prime_x[i] = 0.0;
         }
-        if (alpha_prime_x_half[i] < 0.0) {
-            alpha_prime_x_half[i] = 0.0;
+        if (mpm->alpha_prime_x_half[i] < 0.0) {
+            mpm->alpha_prime_x_half[i] = 0.0;
         }
 
-        b_x[i] = exp(-(d_x[i] / K_x[i] + alpha_prime_x[i]) * gv->DT);
-        b_x_half[i] = exp(-(d_x_half[i] / K_x_half[i] + alpha_prime_x_half[i]) * gv->DT);
+        mpm->b_x[i] = exp(-(mpm->d_x[i] / mpm->K_x[i] + mpm->alpha_prime_x[i]) * gv->DT);
+        mpm->b_x_half[i] = exp(-(mpm->d_x_half[i] / mpm->K_x_half[i] + mpm->alpha_prime_x_half[i]) * gv->DT);
 
         /* avoid division by zero outside the PML */
-        if (fabsf(d_x[i]) > 1.0e-6) {
-            a_x[i] = d_x[i] * (b_x[i] - 1.0) / (K_x[i] * (d_x[i] + K_x[i] * alpha_prime_x[i]));
+        if (fabsf(mpm->d_x[i]) > 1.0e-6) {
+            mpm->a_x[i] =
+                mpm->d_x[i] * (mpm->b_x[i] - 1.0) / (mpm->K_x[i] * (mpm->d_x[i] + mpm->K_x[i] * mpm->alpha_prime_x[i]));
         }
-        if (fabsf(d_x_half[i]) > 1.0e-6) {
-            a_x_half[i] =
-                d_x_half[i] * (b_x_half[i] - 1.0) / (K_x_half[i] * (d_x_half[i] + K_x_half[i] * alpha_prime_x_half[i]));
+        if (fabsf(mpm->d_x_half[i]) > 1.0e-6) {
+            mpm->a_x_half[i] =
+                mpm->d_x_half[i] * (mpm->b_x_half[i] -
+                                    1.0) / (mpm->K_x_half[i] * (mpm->d_x_half[i] +
+                                                                mpm->K_x_half[i] * mpm->alpha_prime_x_half[i]));
         }
 
     }                           /* end of left boundary */
@@ -176,8 +175,8 @@ void PML_pro(float *d_x, float *K_x, float *alpha_prime_x, float *a_x, float *b_
 
         h = i - gv->NXG + 2 * gv->FW;
 
-        K_x[h] = 1.0;
-        K_x_half[h] = 1.0;
+        mpm->K_x[h] = 1.0;
+        mpm->K_x_half[h] = 1.0;
         xval = gv->DH * (i - 1);
 
         /* define damping profile at the grid points */
@@ -185,11 +184,11 @@ void PML_pro(float *d_x, float *K_x, float *alpha_prime_x, float *a_x, float *b_
 
         if (abscissa_in_PML >= 0.0) {
             abscissa_normalized = abscissa_in_PML / thickness_PML_x;
-            d_x[h] = d0_x * pow(abscissa_normalized, gv->NPOWER);
+            mpm->d_x[h] = d0_x * pow(abscissa_normalized, gv->NPOWER);
 
             /* this taken from Gedney page 8.2 */
-            K_x[h] = 1.0 + (gv->K_MAX_CPML - 1.0) * pow(abscissa_normalized, gv->NPOWER);
-            alpha_prime_x[h] = alpha_max_PML * (1.0 - abscissa_normalized);
+            mpm->K_x[h] = 1.0 + (gv->K_MAX_CPML - 1.0) * pow(abscissa_normalized, gv->NPOWER);
+            mpm->alpha_prime_x[h] = alpha_max_PML * (1.0 - abscissa_normalized);
         }
 
         /* define damping profile at half the grid points */
@@ -197,31 +196,34 @@ void PML_pro(float *d_x, float *K_x, float *alpha_prime_x, float *a_x, float *b_
 
         if (abscissa_in_PML >= 0.0) {
             abscissa_normalized = abscissa_in_PML / thickness_PML_x;
-            d_x_half[h] = d0_x * pow(abscissa_normalized, gv->NPOWER);
+            mpm->d_x_half[h] = d0_x * pow(abscissa_normalized, gv->NPOWER);
 
             /* this taken from Gedney page 8.2 */
-            K_x_half[h] = 1.0 + (gv->K_MAX_CPML - 1.0) * pow(abscissa_normalized, gv->NPOWER);
-            alpha_prime_x_half[h] = alpha_max_PML * (1.0 - abscissa_normalized);
+            mpm->K_x_half[h] = 1.0 + (gv->K_MAX_CPML - 1.0) * pow(abscissa_normalized, gv->NPOWER);
+            mpm->alpha_prime_x_half[h] = alpha_max_PML * (1.0 - abscissa_normalized);
         }
 
         /* just in case, for -5 at the end */
-        if (alpha_prime_x[h] < 0.0) {
-            alpha_prime_x[h] = 0.0;
+        if (mpm->alpha_prime_x[h] < 0.0) {
+            mpm->alpha_prime_x[h] = 0.0;
         }
-        if (alpha_prime_x_half[h] < 0.0) {
-            alpha_prime_x_half[h] = 0.0;
+        if (mpm->alpha_prime_x_half[h] < 0.0) {
+            mpm->alpha_prime_x_half[h] = 0.0;
         }
 
-        b_x[h] = exp(-(d_x[h] / K_x[h] + alpha_prime_x[h]) * gv->DT);
-        b_x_half[h] = exp(-(d_x_half[h] / K_x_half[h] + alpha_prime_x_half[h]) * gv->DT);
+        mpm->b_x[h] = exp(-(mpm->d_x[h] / mpm->K_x[h] + mpm->alpha_prime_x[h]) * gv->DT);
+        mpm->b_x_half[h] = exp(-(mpm->d_x_half[h] / mpm->K_x_half[h] + mpm->alpha_prime_x_half[h]) * gv->DT);
 
         /* avoid division by zero outside the PML */
-        if (fabsf(d_x[h]) > 1.0e-6) {
-            a_x[h] = d_x[h] * (b_x[h] - 1.0) / (K_x[h] * (d_x[h] + K_x[h] * alpha_prime_x[h]));
+        if (fabsf(mpm->d_x[h]) > 1.0e-6) {
+            mpm->a_x[h] =
+                mpm->d_x[h] * (mpm->b_x[h] - 1.0) / (mpm->K_x[h] * (mpm->d_x[h] + mpm->K_x[h] * mpm->alpha_prime_x[h]));
         }
-        if (fabsf(d_x_half[h]) > 1.0e-6) {
-            a_x_half[h] =
-                d_x_half[h] * (b_x_half[h] - 1.0) / (K_x_half[h] * (d_x_half[h] + K_x_half[h] * alpha_prime_x_half[h]));
+        if (fabsf(mpm->d_x_half[h]) > 1.0e-6) {
+            mpm->a_x_half[h] =
+                mpm->d_x_half[h] * (mpm->b_x_half[h] -
+                                    1.0) / (mpm->K_x_half[h] * (mpm->d_x_half[h] +
+                                                                mpm->K_x_half[h] * mpm->alpha_prime_x_half[h]));
         }
 
     }                           /* end of right boundary */
@@ -235,8 +237,8 @@ void PML_pro(float *d_x, float *K_x, float *alpha_prime_x, float *a_x, float *b_
 
     for (int i = 1; i <= gv->FW; i++) {
 
-        K_y[i] = 1.0;
-        K_y_half[i] = 1.0;
+        mpm->K_y[i] = 1.0;
+        mpm->K_y_half[i] = 1.0;
         yval = gv->DH * (i - 1);
 
         /* left boundary */
@@ -246,11 +248,11 @@ void PML_pro(float *d_x, float *K_x, float *alpha_prime_x, float *a_x, float *b_
 
         if (abscissa_in_PML >= 0.0) {
             abscissa_normalized = abscissa_in_PML / thickness_PML_y;
-            d_y[i] = d0_y * pow(abscissa_normalized, gv->NPOWER);
+            mpm->d_y[i] = d0_y * pow(abscissa_normalized, gv->NPOWER);
 
             /* this taken from Gedney page 8.2 */
-            K_y[i] = 1.0 + (gv->K_MAX_CPML - 1.0) * pow(abscissa_normalized, gv->NPOWER);
-            alpha_prime_y[i] = alpha_max_PML * (1.0 - abscissa_normalized);
+            mpm->K_y[i] = 1.0 + (gv->K_MAX_CPML - 1.0) * pow(abscissa_normalized, gv->NPOWER);
+            mpm->alpha_prime_y[i] = alpha_max_PML * (1.0 - abscissa_normalized);
         }
 
         /* define damping profile at half the grid points */
@@ -258,22 +260,25 @@ void PML_pro(float *d_x, float *K_x, float *alpha_prime_x, float *a_x, float *b_
 
         if (abscissa_in_PML >= 0.0) {
             abscissa_normalized = abscissa_in_PML / thickness_PML_y;
-            d_y_half[i] = d0_y * pow(abscissa_normalized, gv->NPOWER);
+            mpm->d_y_half[i] = d0_y * pow(abscissa_normalized, gv->NPOWER);
 
             /* this taken from Gedney page 8.2 */
-            K_y_half[i] = 1.0 + (gv->K_MAX_CPML - 1.0) * pow(abscissa_normalized, gv->NPOWER);
-            alpha_prime_y_half[i] = alpha_max_PML * (1.0 - abscissa_normalized);
+            mpm->K_y_half[i] = 1.0 + (gv->K_MAX_CPML - 1.0) * pow(abscissa_normalized, gv->NPOWER);
+            mpm->alpha_prime_y_half[i] = alpha_max_PML * (1.0 - abscissa_normalized);
         }
-        b_y[i] = exp(-(d_y[i] / K_y[i] + alpha_prime_y[i]) * gv->DT);
-        b_y_half[i] = exp(-(d_y_half[i] / K_y_half[i] + alpha_prime_y_half[i]) * gv->DT);
+        mpm->b_y[i] = exp(-(mpm->d_y[i] / mpm->K_y[i] + mpm->alpha_prime_y[i]) * gv->DT);
+        mpm->b_y_half[i] = exp(-(mpm->d_y_half[i] / mpm->K_y_half[i] + mpm->alpha_prime_y_half[i]) * gv->DT);
 
         /* avoid division by zero outside the PML */
-        if (fabsf(d_y[i]) > 1.0e-6) {
-            a_y[i] = d_y[i] * (b_y[i] - 1.0) / (K_y[i] * (d_y[i] + K_y[i] * alpha_prime_y[i]));
+        if (fabsf(mpm->d_y[i]) > 1.0e-6) {
+            mpm->a_y[i] =
+                mpm->d_y[i] * (mpm->b_y[i] - 1.0) / (mpm->K_y[i] * (mpm->d_y[i] + mpm->K_y[i] * mpm->alpha_prime_y[i]));
         }
-        if (fabsf(d_y_half[i]) > 1.0e-6) {
-            a_y_half[i] =
-                d_y_half[i] * (b_y_half[i] - 1.0) / (K_y_half[i] * (d_y_half[i] + K_y_half[i] * alpha_prime_y_half[i]));
+        if (fabsf(mpm->d_y_half[i]) > 1.0e-6) {
+            mpm->a_y_half[i] =
+                mpm->d_y_half[i] * (mpm->b_y_half[i] -
+                                    1.0) / (mpm->K_y_half[i] * (mpm->d_y_half[i] +
+                                                                mpm->K_y_half[i] * mpm->alpha_prime_y_half[i]));
         }
 
     }                           /* end of left boundary */
@@ -283,8 +288,8 @@ void PML_pro(float *d_x, float *K_x, float *alpha_prime_x, float *a_x, float *b_
 
         h = i - gv->NYG + 2 * gv->FW;
 
-        K_y[h] = 1.0;
-        K_y_half[h] = 1.0;
+        mpm->K_y[h] = 1.0;
+        mpm->K_y_half[h] = 1.0;
         yval = gv->DH * (i - 1);
 
         /* define damping profile at the grid points */
@@ -292,11 +297,11 @@ void PML_pro(float *d_x, float *K_x, float *alpha_prime_x, float *a_x, float *b_
 
         if (abscissa_in_PML >= 0.0) {
             abscissa_normalized = abscissa_in_PML / thickness_PML_y;
-            d_y[h] = d0_y * pow(abscissa_normalized, gv->NPOWER);
+            mpm->d_y[h] = d0_y * pow(abscissa_normalized, gv->NPOWER);
 
             /* this taken from Gedney page 8.2 */
-            K_y[h] = 1.0 + (gv->K_MAX_CPML - 1.0) * pow(abscissa_normalized, gv->NPOWER);
-            alpha_prime_y[h] = alpha_max_PML * (1.0 - abscissa_normalized);
+            mpm->K_y[h] = 1.0 + (gv->K_MAX_CPML - 1.0) * pow(abscissa_normalized, gv->NPOWER);
+            mpm->alpha_prime_y[h] = alpha_max_PML * (1.0 - abscissa_normalized);
         }
 
         /* define damping profile at half the grid points */
@@ -304,23 +309,26 @@ void PML_pro(float *d_x, float *K_x, float *alpha_prime_x, float *a_x, float *b_
 
         if (abscissa_in_PML >= 0.0) {
             abscissa_normalized = abscissa_in_PML / thickness_PML_y;
-            d_y_half[h] = d0_y * pow(abscissa_normalized, gv->NPOWER);
+            mpm->d_y_half[h] = d0_y * pow(abscissa_normalized, gv->NPOWER);
 
             /* this taken from Gedney page 8.2 */
-            K_y_half[h] = 1.0 + (gv->K_MAX_CPML - 1.0) * pow(abscissa_normalized, gv->NPOWER);
-            alpha_prime_y_half[h] = alpha_max_PML * (1.0 - abscissa_normalized);
+            mpm->K_y_half[h] = 1.0 + (gv->K_MAX_CPML - 1.0) * pow(abscissa_normalized, gv->NPOWER);
+            mpm->alpha_prime_y_half[h] = alpha_max_PML * (1.0 - abscissa_normalized);
         }
 
-        b_y[h] = exp(-(d_y[h] / K_y[h] + alpha_prime_y[h]) * gv->DT);
-        b_y_half[h] = exp(-(d_y_half[h] / K_y_half[h] + alpha_prime_y_half[h]) * gv->DT);
+        mpm->b_y[h] = exp(-(mpm->d_y[h] / mpm->K_y[h] + mpm->alpha_prime_y[h]) * gv->DT);
+        mpm->b_y_half[h] = exp(-(mpm->d_y_half[h] / mpm->K_y_half[h] + mpm->alpha_prime_y_half[h]) * gv->DT);
 
         /* avoid division by zero outside the PML */
-        if (fabsf(d_y[h]) > 1.0e-6) {
-            a_y[h] = d_y[h] * (b_y[h] - 1.0) / (K_y[h] * (d_y[h] + K_y[h] * alpha_prime_y[h]));
+        if (fabsf(mpm->d_y[h]) > 1.0e-6) {
+            mpm->a_y[h] =
+                mpm->d_y[h] * (mpm->b_y[h] - 1.0) / (mpm->K_y[h] * (mpm->d_y[h] + mpm->K_y[h] * mpm->alpha_prime_y[h]));
         }
-        if (fabsf(d_y_half[h]) > 1.0e-6) {
-            a_y_half[h] =
-                d_y_half[h] * (b_y_half[h] - 1.0) / (K_y_half[h] * (d_y_half[h] + K_y_half[h] * alpha_prime_y_half[h]));
+        if (fabsf(mpm->d_y_half[h]) > 1.0e-6) {
+            mpm->a_y_half[h] =
+                mpm->d_y_half[h] * (mpm->b_y_half[h] -
+                                    1.0) / (mpm->K_y_half[h] * (mpm->d_y_half[h] +
+                                                                mpm->K_y_half[h] * mpm->alpha_prime_y_half[h]));
         }
     }                           /* end of top boundary */
 }

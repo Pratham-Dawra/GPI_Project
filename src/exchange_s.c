@@ -25,14 +25,12 @@
 
 #include "fd.h"
 
-void exchange_s(int nd, float **sxx, float **syy,
-                float **sxy, float **bufferlef_to_rig, float **bufferrig_to_lef,
-                float **buffertop_to_bot, float **bufferbot_to_top, GlobVar *gv)
+void exchange_s(MemWavefield * mpw, GlobVar * gv)
 {
     MPI_Status status;
     int n;
 
-    int fdo = nd;
+    int fdo = gv->ND;
     int fdo2 = 2 * fdo;
 
     /* top - bottom */
@@ -42,10 +40,10 @@ void exchange_s(int nd, float **sxx, float **syy,
             /* storage of top of local volume into buffer */
             n = 1;
             for (int l = 1; l <= fdo - 1; l++) {
-                buffertop_to_bot[i][n++] = sxy[l][i];
+                mpw->buffertop_to_bot[i][n++] = mpw->psxy[l][i];
             }
             for (int l = 1; l <= fdo; l++) {
-                buffertop_to_bot[i][n++] = syy[l][i];
+                mpw->buffertop_to_bot[i][n++] = mpw->psyy[l][i];
             }
         }
 
@@ -54,26 +52,26 @@ void exchange_s(int nd, float **sxx, float **syy,
             /* storage of bottom of local volume into buffer */
             n = 1;
             for (int l = 1; l <= fdo; l++) {
-                bufferbot_to_top[i][n++] = sxy[gv->NY - l + 1][i];
+                mpw->bufferbot_to_top[i][n++] = mpw->psxy[gv->NY - l + 1][i];
             }
             for (int l = 1; l <= fdo - 1; l++) {
-                bufferbot_to_top[i][n++] = syy[gv->NY - l + 1][i];
+                mpw->bufferbot_to_top[i][n++] = mpw->psyy[gv->NY - l + 1][i];
             }
         }
     /* send and receive values for points at inner boundaries */
-    MPI_Sendrecv_replace(&buffertop_to_bot[1][1], gv->NX * fdo2, MPI_FLOAT, gv->INDEX[3], gv->TAG5, gv->INDEX[4],
+    MPI_Sendrecv_replace(&mpw->buffertop_to_bot[1][1], gv->NX * fdo2, MPI_FLOAT, gv->INDEX[3], gv->TAG5, gv->INDEX[4],
                          gv->TAG5, MPI_COMM_WORLD, &status);
-    MPI_Sendrecv_replace(&bufferbot_to_top[1][1], gv->NX * fdo2, MPI_FLOAT, gv->INDEX[4], gv->TAG6, gv->INDEX[3],
+    MPI_Sendrecv_replace(&mpw->bufferbot_to_top[1][1], gv->NX * fdo2, MPI_FLOAT, gv->INDEX[4], gv->TAG6, gv->INDEX[3],
                          gv->TAG6, MPI_COMM_WORLD, &status);
 
     if (gv->POS[2] != gv->NPROCY - 1)   /* no boundary exchange at bottom of global grid */
         for (int i = 1; i <= gv->NX; i++) {
             n = 1;
             for (int l = 1; l <= fdo - 1; l++) {
-                sxy[gv->NY + l][i] = buffertop_to_bot[i][n++];
+                mpw->psxy[gv->NY + l][i] = mpw->buffertop_to_bot[i][n++];
             }
             for (int l = 1; l <= fdo; l++) {
-                syy[gv->NY + l][i] = buffertop_to_bot[i][n++];
+                mpw->psyy[gv->NY + l][i] = mpw->buffertop_to_bot[i][n++];
             }
         }
 
@@ -81,10 +79,10 @@ void exchange_s(int nd, float **sxx, float **syy,
         for (int i = 1; i <= gv->NX; i++) {
             n = 1;
             for (int l = 1; l <= fdo; l++) {
-                sxy[1 - l][i] = bufferbot_to_top[i][n++];
+                mpw->psxy[1 - l][i] = mpw->bufferbot_to_top[i][n++];
             }
             for (int l = 1; l <= fdo - 1; l++) {
-                syy[1 - l][i] = bufferbot_to_top[i][n++];
+                mpw->psyy[1 - l][i] = mpw->bufferbot_to_top[i][n++];
             }
         }
 
@@ -95,10 +93,10 @@ void exchange_s(int nd, float **sxx, float **syy,
             /* storage of left edge of local volume into buffer */
             n = 1;
             for (int l = 1; l <= fdo - 1; l++) {
-                bufferlef_to_rig[j][n++] = sxy[j][l];
+                mpw->bufferlef_to_rig[j][n++] = mpw->psxy[j][l];
             }
             for (int l = 1; l <= fdo; l++) {
-                bufferlef_to_rig[j][n++] = sxx[j][l];
+                mpw->bufferlef_to_rig[j][n++] = mpw->psxx[j][l];
             }
         }
 
@@ -107,17 +105,17 @@ void exchange_s(int nd, float **sxx, float **syy,
             /* storage of right edge of local volume into buffer */
             n = 1;
             for (int l = 1; l <= fdo; l++) {
-                bufferrig_to_lef[j][n++] = sxy[j][gv->NX - l + 1];
+                mpw->bufferrig_to_lef[j][n++] = mpw->psxy[j][gv->NX - l + 1];
             }
             for (int l = 1; l <= fdo - 1; l++) {
-                bufferrig_to_lef[j][n++] = sxx[j][gv->NX - l + 1];
+                mpw->bufferrig_to_lef[j][n++] = mpw->psxx[j][gv->NX - l + 1];
             }
         }
 
     /* send and receive values for points at inner boundaries */
-    MPI_Sendrecv_replace(&bufferlef_to_rig[1][1], gv->NY * fdo2, MPI_FLOAT, gv->INDEX[1], gv->TAG1, gv->INDEX[2],
+    MPI_Sendrecv_replace(&mpw->bufferlef_to_rig[1][1], gv->NY * fdo2, MPI_FLOAT, gv->INDEX[1], gv->TAG1, gv->INDEX[2],
                          gv->TAG1, MPI_COMM_WORLD, &status);
-    MPI_Sendrecv_replace(&bufferrig_to_lef[1][1], gv->NY * fdo2, MPI_FLOAT, gv->INDEX[2], gv->TAG2, gv->INDEX[1],
+    MPI_Sendrecv_replace(&mpw->bufferrig_to_lef[1][1], gv->NY * fdo2, MPI_FLOAT, gv->INDEX[2], gv->TAG2, gv->INDEX[1],
                          gv->TAG2, MPI_COMM_WORLD, &status);
     /* send and reveive values at edges of the local grid */
 
@@ -125,10 +123,10 @@ void exchange_s(int nd, float **sxx, float **syy,
         for (int j = 1; j <= gv->NY; j++) {
             n = 1;
             for (int l = 1; l <= fdo - 1; l++) {
-                sxy[j][gv->NX + l] = bufferlef_to_rig[j][n++];
+                mpw->psxy[j][gv->NX + l] = mpw->bufferlef_to_rig[j][n++];
             }
             for (int l = 1; l <= fdo; l++) {
-                sxx[j][gv->NX + l] = bufferlef_to_rig[j][n++];
+                mpw->psxx[j][gv->NX + l] = mpw->bufferlef_to_rig[j][n++];
             }
         }
 
@@ -136,10 +134,10 @@ void exchange_s(int nd, float **sxx, float **syy,
         for (int j = 1; j <= gv->NY; j++) {
             n = 1;
             for (int l = 1; l <= fdo; l++) {
-                sxy[j][1 - l] = bufferrig_to_lef[j][n++];
+                mpw->psxy[j][1 - l] = mpw->bufferrig_to_lef[j][n++];
             }
             for (int l = 1; l <= fdo - 1; l++) {
-                sxx[j][1 - l] = bufferrig_to_lef[j][n++];
+                mpw->psxx[j][1 - l] = mpw->bufferrig_to_lef[j][n++];
             }
         }
 }

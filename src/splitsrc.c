@@ -24,7 +24,7 @@
 
 #include "fd.h"
 
-float **splitsrc(float **srcpos, int *nsrc_loc, int nsrc, GlobVar *gv)
+float **splitsrc(float **srcpos, int *nsrc_loc, int nsrc, GlobVar * gv)
 {
     int a, b, i = 0;
     float **srcpos_local = NULL;

@@ -31,12 +31,13 @@
 #include "logging.h"
 
 /*************************************************************/
+
 /* TODO: Calculation of global grid size wrong! To be fixed. */
+
 /*************************************************************/
 
-void checkfd(float **prho, float **ppi, float **pu,
-             float **ptaus, float **ptaup, float *peta, float *hc, float **srcpos, int nsrc, int **recpos, int ntr,
-             GlobVar *gv)
+void checkfd(float **prho, float **ppi, float **pu, float **ptaus, float **ptaup, float *peta,
+             float *hc, float **srcpos, int nsrc, int **recpos, GlobVar * gv)
 {
     float c, cwater = 1.0, fmax, gamma;
     float cmax = 0.0, cmin = 1e9, sum, dtstab, dhstab, ts, cmax_r, cmin_r, temporal;
@@ -253,12 +254,12 @@ void checkfd(float **prho, float **ppi, float **pu,
                     srec_maxy = gv->YREC2;
                     srec_miny = gv->YREC1;
                 }
-                log_info("Number of receiver positions: %d\n", ntr);
+                log_info("Number of receiver positions: %d\n", gv->NTRG);
             }
 
             if (gv->READREC == 1) {
                 /* find maximum and minimum source positions coordinate ---- from receiver file */
-                for (int k = 1; k <= ntr; k++) {
+                for (int k = 1; k <= gv->NTRG; k++) {
                     /* find maximum source positions coordinate */
                     if ((recpos[1][k] * gv->DH) > srec_maxx)
                         srec_maxx = recpos[1][k] * gv->DH;
@@ -270,7 +271,7 @@ void checkfd(float **prho, float **ppi, float **pu,
                     if ((recpos[2][k] * gv->DH) < srec_miny)
                         srec_miny = recpos[2][k] * gv->DH;
                 }
-                log_info("Number of receiver positions: %d\n", ntr);
+                log_info("Number of receiver positions: %d\n", gv->NTRG);
             }
 
             log_info("Minimum receiver position coordinates: %5.2f (x) : %5.2f (y)\n", srec_minx, srec_miny);

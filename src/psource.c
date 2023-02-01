@@ -24,7 +24,7 @@
 
 #include "fd.h"
 
-void psource(int nt, float **sxx, float **syy, float **srcpos_loc, float **signals, int nsrc, GlobVar *gv)
+void psource(int nt, float **srcpos_loc, float **signals, int nsrc, MemWavefield * mpw, GlobVar * gv)
 {
     float amp = 0.0f;
     int i, j;
@@ -48,7 +48,7 @@ void psource(int nt, float **sxx, float **syy, float **srcpos_loc, float **signa
             amp = -signals[l][nt - 1] / (2.0 * gv->DH * gv->DH);
         }
 
-        sxx[j][i] += amp;
-        syy[j][i] += amp;
+        mpw->psxx[j][i] += amp;
+        mpw->psyy[j][i] += amp;
     }
 }

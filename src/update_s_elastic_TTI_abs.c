@@ -23,89 +23,77 @@
  *   and second order accuracy in time
  *   T. Bohlen
  *
- *   gx and gy are arrays with the locations of the boundary specified in subgrid_bounds.c
+ *   GX and GY are arrays with the locations of the boundary specified in subgrid_bounds.c
  *   for each subgrid
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
 
-void update_s_elastic_tti_abs(int *gx, int *gy,
-                              float **pvxx, float **pvyy, float **pvyx, float **pvxy,
-                              float **sxx, float **syy,
-                              float **sxy, float **pc11, float **pc55ipjp, float **pc13, float **pc33,
-                              float **pc15, float **pc35, float **pc15ipjp, float **pc35ipjp, float **absorb_coeff)
+void update_s_elastic_tti_abs(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
 {
     /* left boundary */
-    for (int j = gy[2] + 1; j <= gy[3]; j++) {
-        for (int i = gx[1]; i <= gx[2]; i++) {
-            wavefield_update_s_el_tti(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy,
-                                      pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
-            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+    for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
+        for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
+            wavefield_update_s_el_tti(i, j, mpm, mpw);
+            abs_update_s(i, j, mpm, mpw);
         }
     }
 
     /* right boundary */
-    for (int j = gy[2] + 1; j <= gy[3]; j++) {
-        for (int i = gx[3] + 1; i <= gx[4]; i++) {
-            wavefield_update_s_el_tti(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy,
-                                      pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
-            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+    for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
+        for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
+            wavefield_update_s_el_tti(i, j, mpm, mpw);
+            abs_update_s(i, j, mpm, mpw);
         }
     }
 
     /* top boundary */
-    for (int j = gy[1]; j <= gy[2]; j++) {
-        for (int i = gx[2] + 1; i <= gx[3]; i++) {
-            wavefield_update_s_el_tti(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy,
-                                      pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
-            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+    for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
+        for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
+            wavefield_update_s_el_tti(i, j, mpm, mpw);
+            abs_update_s(i, j, mpm, mpw);
         }
     }
 
     /* bottom boundary */
-    for (int j = gy[3] + 1; j <= gy[4]; j++) {
-        for (int i = gx[2] + 1; i <= gx[3]; i++) {
-            wavefield_update_s_el_tti(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy,
-                                      pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
-            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+    for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
+        for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
+            wavefield_update_s_el_tti(i, j, mpm, mpw);
+            abs_update_s(i, j, mpm, mpw);
         }
     }
 
     /* corners */
 
     /*left-top */
-    for (int j = gy[1]; j <= gy[2]; j++) {
-        for (int i = gx[1]; i <= gx[2]; i++) {
-            wavefield_update_s_el_tti(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy,
-                                      pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
-            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+    for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
+        for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
+            wavefield_update_s_el_tti(i, j, mpm, mpw);
+            abs_update_s(i, j, mpm, mpw);
         }
     }
 
     /*left-bottom */
-    for (int j = gy[3] + 1; j <= gy[4]; j++) {
-        for (int i = gx[1]; i <= gx[2]; i++) {
-            wavefield_update_s_el_tti(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy,
-                                      pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
-            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+    for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
+        for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
+            wavefield_update_s_el_tti(i, j, mpm, mpw);
+            abs_update_s(i, j, mpm, mpw);
         }
     }
 
     /* right-top */
-    for (int j = gy[1]; j <= gy[2]; j++) {
-        for (int i = gx[3] + 1; i <= gx[4]; i++) {
-            wavefield_update_s_el_tti(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy,
-                                      pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
-            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+    for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
+        for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
+            wavefield_update_s_el_tti(i, j, mpm, mpw);
+            abs_update_s(i, j, mpm, mpw);
         }
     }
 
     /* right-bottom */
-    for (int j = gy[3] + 1; j <= gy[4]; j++) {
-        for (int i = gx[3] + 1; i <= gx[4]; i++) {
-            wavefield_update_s_el_tti(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy,
-                                      pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
-            abs_update_s(i, j, sxx, sxy, syy, absorb_coeff);
+    for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
+        for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
+            wavefield_update_s_el_tti(i, j, mpm, mpw);
+            abs_update_s(i, j, mpm, mpw);
         }
     }
 }

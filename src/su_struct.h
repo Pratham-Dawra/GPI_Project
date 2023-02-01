@@ -88,6 +88,6 @@ typedef struct {
 /*! Initialize a SU header structure with zeros.
  *  @param[in] header SU trace header
  */
-void init_SUhead(SUhead *header);
+void init_SUhead(SUhead * header);
 
 #endif

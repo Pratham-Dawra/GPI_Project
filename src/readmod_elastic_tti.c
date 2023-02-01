@@ -28,8 +28,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-void readmod_elastic_tti(float **rho, float **pc11, float **pc33, float **pc13, float **pc55, float **pc15,
-                         float **pc35, GlobVar *gv)
+void readmod_elastic_tti(MemModel * mpm, GlobVar * gv)
 {
     float c11, c33, c13, c55, t;
     int ii, jj;
@@ -41,7 +40,8 @@ void readmod_elastic_tti(float **rho, float **pc11, float **pc33, float **pc13, 
     bool b_issu = false;
 
     const char *model[] = { "P-wave velocity model", "S-wave velocity model", "density model",
-        "Epsilon model", "Delta model", "Theta model" };
+        "Epsilon model", "Delta model", "Theta model"
+    };
     const char *suffix[] = { "vp", "vs", "rho", "epsilon", "delta", "theta" };
     const char *suffix_su[] = { "vp.su", "vs.su", "rho.su", "epsilon.su", "delta.su", "theta.su" };
 
@@ -98,7 +98,7 @@ void readmod_elastic_tti(float **rho, float **pc11, float **pc33, float **pc13, 
         }
         ny = ns;
     } else {
-        ny = (size_t)(gv->NYG);
+        ny = (size_t) (gv->NYG);
     }
 
     float **para = (float **)malloc2d(NPARA, ny, sizeof(float));
@@ -152,13 +152,13 @@ void readmod_elastic_tti(float **rho, float **pc11, float **pc33, float **pc13, 
             if ((gv->POS[1] == ((i - 1) / gv->NX)) && (gv->POS[2] == ((j - 1) / gv->NY))) {
                 ii = i - gv->POS[1] * gv->NX;
                 jj = j - gv->POS[2] * gv->NY;
-                pc11[jj][ii] = c11t;
-                rho[jj][ii] = para[P_RHO][j - 1];
-                pc33[jj][ii] = c33t;
-                pc13[jj][ii] = c13t;
-                pc55[jj][ii] = c55t;
-                pc15[jj][ii] = c15t;
-                pc35[jj][ii] = c35t;
+                mpm->pc11[jj][ii] = c11t;
+                mpm->prho[jj][ii] = para[P_RHO][j - 1];
+                mpm->pc33[jj][ii] = c33t;
+                mpm->pc13[jj][ii] = c13t;
+                mpm->pc55[jj][ii] = c55t;
+                mpm->pc15[jj][ii] = c15t;
+                mpm->pc35[jj][ii] = c35t;
             }
         }
     }

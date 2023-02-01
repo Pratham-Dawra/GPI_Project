@@ -33,7 +33,7 @@ format=2  :  ASCII
 format=3  :  BINARY (IEEE)
 */
 
-float readdsk(FILE *fp_in, int format)
+float readdsk(FILE * fp_in, int format)
 {
     float amp = 0.0f;
 
@@ -41,8 +41,8 @@ float readdsk(FILE *fp_in, int format)
       case 1:                  /* SU */
           log_fatal("Sorry, SU-format for snapshots not implemented yet.\n");
           break;
-      case 2:                  /*ASCII*/ 
-	  fscanf(fp_in, "%e\n", &amp);
+      case 2:
+          /*ASCII*/ fscanf(fp_in, "%e\n", &amp);
           break;
       case 3:                  /* BINARY */
           fread(&amp, sizeof(float), 1, fp_in);

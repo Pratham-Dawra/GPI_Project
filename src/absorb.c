@@ -31,13 +31,13 @@
 #include "fd.h"
 #include "logging.h"
 
-void absorb(float **absorb_coeff, GlobVar *gv)
+void absorb(float **absorb_coeff, GlobVar * gv)
 {
     int ii, jj, xb, yb, xe, ye;
 
     log_infoc(0, "Calculating coefficients for absorbing frame (FW=%d, DAMPING=%.2f).\n", gv->FW, gv->DAMPING);
 
-    float amp = 1.0 - gv->DAMPING / 100.0;    /* amplitude at the edge of the numerical grid */
+    float amp = 1.0 - gv->DAMPING / 100.0;  /* amplitude at the edge of the numerical grid */
     float *coeff = vector(1, gv->FW);
     float a = sqrt(-log(amp) / ((gv->FW - 1) * (gv->FW - 1)));
     for (int i = 1; i <= gv->FW; i++)

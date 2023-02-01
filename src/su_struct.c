@@ -25,7 +25,7 @@
 #include "su_struct.h"
 #include <strings.h>
 
-void init_SUhead(SUhead *header)
+void init_SUhead(SUhead * header)
 {
     bzero((void *)header, sizeof(SUhead));
     return;

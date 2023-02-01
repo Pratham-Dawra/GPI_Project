@@ -24,7 +24,7 @@
 
 #include "fd.h"
 
-void av_tau(float **taus, float **tausipjp, GlobVar *gv)
+void av_tau(float **taus, float **tausipjp, GlobVar * gv)
 {
     for (int j = 1; j <= gv->NY; j++) {
         for (int i = 1; i <= gv->NX; i++) {

@@ -28,9 +28,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-void readmod_visco_tti(float **rho, float **pc11, float **pc33, float **pc13, float **pc55, float **pc15, float **pc35,
-                       float **ptau11, float **ptau33, float **ptau13, float **ptau55, float **ptau15, float **ptau35,
-                       float *eta, GlobVar *gv)
+void readmod_visco_tti(MemModel * mpm, GlobVar * gv)
 {
     float c11, c33, c13, c55, tau11, tau33, tau13, tau55, tau15, tau35;
     float *pts, sumc11, sumc13, sumc33, sumc55;
@@ -104,7 +102,7 @@ void readmod_visco_tti(float **rho, float **pc11, float **pc33, float **pc13, fl
         }
         ny = ns;
     } else {
-        ny = (size_t)(gv->NYG);
+        ny = (size_t) (gv->NYG);
     }
 
     float **para = (float **)malloc2d(NPARA, ny, sizeof(float));
@@ -113,7 +111,7 @@ void readmod_visco_tti(float **rho, float **pc11, float **pc33, float **pc13, fl
     pts = vector(1, gv->L);
     for (int l = 1; l <= gv->L; l++) {
         pts[l] = 1.0 / (2.0 * PI * gv->FL[l]);
-        eta[l] = gv->DT / pts[l];
+        mpm->peta[l] = gv->DT / pts[l];
     }
 
     float fc = 1.0 / gv->TS;
@@ -200,19 +198,19 @@ void readmod_visco_tti(float **rho, float **pc11, float **pc33, float **pc13, fl
             if ((gv->POS[1] == ((i - 1) / gv->NX)) && (gv->POS[2] == ((j - 1) / gv->NY))) {
                 ii = i - gv->POS[1] * gv->NX;
                 jj = j - gv->POS[2] * gv->NY;
-                pc11[jj][ii] = c11t;
-                rho[jj][ii] = para[P_RHO][j - 1];
-                pc33[jj][ii] = c33t;
-                pc13[jj][ii] = c13t;
-                pc55[jj][ii] = c55t;
-                pc15[jj][ii] = c15t;
-                pc35[jj][ii] = c35t;
-                ptau11[jj][ii] = tau11;
-                ptau33[jj][ii] = tau33;
-                ptau13[jj][ii] = tau13;
-                ptau55[jj][ii] = tau55;
-                ptau15[jj][ii] = tau15;
-                ptau35[jj][ii] = tau35;
+                mpm->pc11[jj][ii] = c11t;
+                mpm->prho[jj][ii] = para[P_RHO][j - 1];
+                mpm->pc33[jj][ii] = c33t;
+                mpm->pc13[jj][ii] = c13t;
+                mpm->pc55[jj][ii] = c55t;
+                mpm->pc15[jj][ii] = c15t;
+                mpm->pc35[jj][ii] = c35t;
+                mpm->ptau11[jj][ii] = tau11;
+                mpm->ptau33[jj][ii] = tau33;
+                mpm->ptau13[jj][ii] = tau13;
+                mpm->ptau55[jj][ii] = tau55;
+                mpm->ptau15[jj][ii] = tau15;
+                mpm->ptau35[jj][ii] = tau35;
             }
         }
     }

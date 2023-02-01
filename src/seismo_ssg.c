@@ -25,9 +25,7 @@
 
 #include "fd.h"
 
-void seismo_ssg(int lsamp, int ntr, int **recpos, float **sectionvx,
-                float **sectionvy, float **sectionp, float **sectioncurl, float **sectiondiv,
-                float **vx, float **vy, float **sxx, float **syy, float **pi, float **u, float *hc, GlobVar *gv)
+void seismo_ssg(int lsamp, int **recpos, float *hc, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
 {
     int i, j, ins, nxrec, nyrec, m;
     float vxx, vyy, vxy, vyx;
@@ -36,20 +34,20 @@ void seismo_ssg(int lsamp, int ntr, int **recpos, float **sectionvx,
     int fdoh = gv->FDORDER / 2;
 
     ins = lsamp / gv->NDT;
-    for (int itr = 1; itr <= ntr; itr++) {
+    for (int itr = 1; itr <= gv->NTR; itr++) {
         nxrec = recpos[1][itr];
         nyrec = recpos[2][itr];
         switch (gv->SEISMO) {
           case 1:              /* particle velocities */
-              sectionvx[itr][ins] = vx[nyrec][nxrec];
-              sectionvy[itr][ins] = vy[nyrec][nxrec];
+              gv->SECTIONVX[itr][ins] = mpw->pvx[nyrec][nxrec];
+              gv->SECTIONVY[itr][ins] = mpw->pvy[nyrec][nxrec];
               break;
 
           case 2:              /* pressure */
               i = nxrec;
               j = nyrec;
-              //sectionp[itr][ins]=-sxx[nyrec][nxrec]-syy[nyrec][nxrec]; // unscaled amplitude
-              sectionp[itr][ins] = ((3.0 * pi[j][i] - 4.0 * u[j][i]) / (2.0 * pi[j][i] - 2.0 * u[j][i])) * (-sxx[nyrec][nxrec] - syy[nyrec][nxrec]) / 3;    // true amplitude
+              //gv->SECTIONP[itr][ins]=-sxx[nyrec][nxrec]-syy[nyrec][nxrec]; // unscaled amplitude
+              gv->SECTIONP[itr][ins] = ((3.0 * mpm->ppi[j][i] - 4.0 * mpm->pu[j][i]) / (2.0 * mpm->ppi[j][i] - 2.0 * mpm->pu[j][i])) * (-mpw->psxx[nyrec][nxrec] - mpw->psyy[nyrec][nxrec]) / 3;    // true amplitude
               break;
 
           case 3:              /* curl +div */
@@ -61,18 +59,18 @@ void seismo_ssg(int lsamp, int ntr, int **recpos, float **sectionvx,
               vyx = 0;
               vxy = 0;
               for (m = 1; m <= fdoh; m++) {
-                  vxx += hc[m] * (vx[j][i + m - 1] - vx[j][i - m]);
-                  vyy += hc[m] * (vy[j + m - 1][i] - vy[j - m][i]);
-                  vyx += hc[m] * (vy[j][i + m] - vy[j][i - m + 1]);
-                  vxy += hc[m] * (vx[j + m][i] - vx[j - m + 1][i]);
+                  vxx += hc[m] * (mpw->pvx[j][i + m - 1] - mpw->pvx[j][i - m]);
+                  vyy += hc[m] * (mpw->pvy[j + m - 1][i] - mpw->pvy[j - m][i]);
+                  vyx += hc[m] * (mpw->pvy[j][i + m] - mpw->pvy[j][i - m + 1]);
+                  vxy += hc[m] * (mpw->pvx[j + m][i] - mpw->pvx[j - m + 1][i]);
               }
               vxx *= dhi;
               vyy *= dhi;
               vyx *= dhi;
               vxy *= dhi;
 
-              sectiondiv[itr][ins] = (vxx + vyy) * sqrt(pi[j][i]);
-              sectioncurl[itr][ins] = (vxy - vyx) * sqrt(u[j][i]);
+              gv->SECTIONDIV[itr][ins] = (vxx + vyy) * sqrt(mpm->ppi[j][i]);
+              gv->SECTIONCURL[itr][ins] = (vxy - vyx) * sqrt(mpm->pu[j][i]);
               break;
 
           case 4:              /* all */
@@ -84,24 +82,24 @@ void seismo_ssg(int lsamp, int ntr, int **recpos, float **sectionvx,
               vyx = 0;
               vxy = 0;
               for (m = 1; m <= fdoh; m++) {
-                  vxx += hc[m] * (vx[j][i + m - 1] - vx[j][i - m]);
-                  vyy += hc[m] * (vy[j + m - 1][i] - vy[j - m][i]);
-                  vyx += hc[m] * (vy[j][i + m] - vy[j][i - m + 1]);
-                  vxy += hc[m] * (vx[j + m][i] - vx[j - m + 1][i]);
+                  vxx += hc[m] * (mpw->pvx[j][i + m - 1] - mpw->pvx[j][i - m]);
+                  vyy += hc[m] * (mpw->pvy[j + m - 1][i] - mpw->pvy[j - m][i]);
+                  vyx += hc[m] * (mpw->pvy[j][i + m] - mpw->pvy[j][i - m + 1]);
+                  vxy += hc[m] * (mpw->pvx[j + m][i] - mpw->pvx[j - m + 1][i]);
               }
               vxx *= dhi;
               vyy *= dhi;
               vyx *= dhi;
               vxy *= dhi;
 
-              sectiondiv[itr][ins] = (vxx + vyy) * sqrt(pi[j][i]);
-              sectioncurl[itr][ins] = (vxy - vyx) * sqrt(u[j][i]);
-              sectionvx[itr][ins] = vx[nyrec][nxrec];
-              sectionvy[itr][ins] = vy[nyrec][nxrec];
-              //sectionp[itr][ins]=-sxx[nyrec][nxrec]-syy[nyrec][nxrec]; //unscaled amplitude
-              sectionp[itr][ins] =
-                  ((3.0 * pi[j][i] - 4.0 * u[j][i]) / (2.0 * pi[j][i] - 2.0 * u[j][i])) * (-sxx[nyrec][nxrec] -
-                                                                                           syy[nyrec][nxrec]) / 3;
+              gv->SECTIONDIV[itr][ins] = (vxx + vyy) * sqrt(mpm->ppi[j][i]);
+              gv->SECTIONCURL[itr][ins] = (vxy - vyx) * sqrt(mpm->pu[j][i]);
+              gv->SECTIONVX[itr][ins] = mpw->pvx[nyrec][nxrec];
+              gv->SECTIONVY[itr][ins] = mpw->pvy[nyrec][nxrec];
+              //gv->SECTIONP[itr][ins]=-sxx[nyrec][nxrec]-syy[nyrec][nxrec]; //unscaled amplitude
+              gv->SECTIONP[itr][ins] = ((3.0 * mpm->ppi[j][i] - 4.0 * mpm->pu[j][i]) / (2.0 * mpm->ppi[j][i] -
+                                                                                        2.0 * mpm->pu[j][i])) *
+                  (-mpw->psxx[nyrec][nxrec] - mpw->psyy[nyrec][nxrec]) / 3;
               break;
         }
     }

@@ -24,17 +24,17 @@
 
 #include "fd.h"
 
-void v_derivatives(float **vx, float **vy, float **pvxx, float **pvyy, float **pvyx, float **pvxy, GlobVar *gv)
+void v_derivatives(MemWavefield * mpw, GlobVar * gv)
 {
     float vxx, vyy, vxy, vyx;
 
     for (int j = 1; j <= gv->NY; j++) {
         for (int i = 1; i <= gv->NX; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, vx, vy);
-            pvxx[j][i] = vxx;
-            pvyy[j][i] = vyy;
-            pvyx[j][i] = vyx;
-            pvxy[j][i] = vxy;
+            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
+            mpw->pvxx[j][i] = vxx;
+            mpw->pvyy[j][i] = vyy;
+            mpw->pvyx[j][i] = vyx;
+            mpw->pvxy[j][i] = vxy;
         }
     }
 }

@@ -141,6 +141,9 @@ FDMOD_FILES := sofi2D.c \
                exchange_par.c \
                exchange_s.c \
                exchange_v.c \
+               freemem.c \
+               freemem_model.c \
+               freemem_wavefield.c \
                hh_elastic.c \
                hh_elastic_TTI.c \
                hh_elastic_VTI.c \
@@ -149,6 +152,9 @@ FDMOD_FILES := sofi2D.c \
                hh_visco_VTI.c \
                holbergcoeff.c \
                initfd.c \
+               initmem.c \
+               initmem_model.c \
+               initmem_wavefield.c \
                initproc.c \
                json_parser.c \
                logging.c \

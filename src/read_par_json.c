@@ -30,47 +30,50 @@
 #include "logging.h"
 #include "enums.h"
 
-static const char* weq_descr[NWEQ] = { "AC_ISO", "AC_VTI", "AC_TTI", 
-				       "EL_ISO", "VEL_ISO", "EL_VTI",
-				       "VEL_VTI", "EL_TTI", "VEL_TTI", 
-				       "VAC_ISO", "VAC_VTI", "VAC_TTI" };
+static const char *weq_descr[NWEQ] = { "AC_ISO", "AC_VTI", "AC_TTI",
+    "EL_ISO", "VEL_ISO", "EL_VTI",
+    "VEL_VTI", "EL_TTI", "VEL_TTI",
+    "VAC_ISO", "VAC_VTI", "VAC_TTI"
+};
 
-static const char* weq_verbose[NWEQ] = { "acoustic wave equation",
-					 "acoustic VTI wave equation",
-					 "acoustic TTI wave equation",
-					 "elastic wave equation",
-					 "viscoelastic wave equation",
-					 "elastic VTI wave equation",
-					 "viscoelastic VTI wave equation",
-					 "elastic TTI wave equation",
-					 "viscoelastic TTI wave equation",
-					 "viscoacoustic wave equation",
-					 "viscoacoustic VTI wave equation",
-					 "viscoacoustic TTI wave equation" };
+static const char *weq_verbose[NWEQ] = { "acoustic wave equation",
+    "acoustic VTI wave equation",
+    "acoustic TTI wave equation",
+    "elastic wave equation",
+    "viscoelastic wave equation",
+    "elastic VTI wave equation",
+    "viscoelastic VTI wave equation",
+    "elastic TTI wave equation",
+    "viscoelastic TTI wave equation",
+    "viscoacoustic wave equation",
+    "viscoacoustic VTI wave equation",
+    "viscoacoustic TTI wave equation"
+};
 
-const char *get_weq_verbose(WEQTYPE wt) {
+const char *get_weq_verbose(WEQTYPE wt)
+{
     return weq_verbose[wt];
 }
 
-static void parse_weqtype(const char *weqt, GlobVar*gv)
+static void parse_weqtype(const char *weqt, GlobVar * gv)
 {
     bool b_found = false;
 
-    for (int i=0; i<NWEQ; ++i) {
-	if  (!strncasecmp(weqt, weq_descr[i], STRING_SIZE-1)) {
-	    gv->WEQ = (WEQTYPE)i;
-	    b_found = true;
-	    break;
-	}
+    for (int i = 0; i < NWEQ; ++i) {
+        if (!strncasecmp(weqt, weq_descr[i], STRING_SIZE - 1)) {
+            gv->WEQ = (WEQTYPE) i;
+            b_found = true;
+            break;
+        }
     }
 
     if (!b_found) {
-	log_error("Unknown value '%s' for parameter WEQ.\n", weqt);
-	log_fatal("Unknown wave equation (WEQ) specified in parameter file.\n");
+        log_error("Unknown value '%s' for parameter WEQ.\n", weqt);
+        log_fatal("Unknown wave equation (WEQ) specified in parameter file.\n");
     }
 }
 
-void read_par_json(const char *fileinp, GlobVar *gv)
+void read_par_json(const char *fileinp, GlobVar * gv)
 {
     /* definition of local variables */
     int number_readobjects = 0, fserr = 0, i;
@@ -100,9 +103,9 @@ void read_par_json(const char *fileinp, GlobVar *gv)
 
     // extract variables from object list
 
-  /* =================================
-   * section general grid and discretization parameters
-   * ================================= */
+    /* =================================
+     * section general grid and discretization parameters
+     * ================================= */
 
     if (get_int_from_objectlist("NPROCX", number_readobjects, &(gv->NPROCX), varname_list, value_list, used_list))
         log_fatal("Variable NPROCX could not be retrieved from the json input file!");
@@ -135,21 +138,21 @@ void read_par_json(const char *fileinp, GlobVar *gv)
     if (get_float_from_objectlist("DT", number_readobjects, &(gv->DT), varname_list, value_list, used_list))
         log_fatal("Variable DT could not be retrieved from the json input file!");
 
-  /* =================================
-   * wave equation
-   * ================================= */
+    /* =================================
+     * wave equation
+     * ================================= */
 
     char weqtype[STRING_SIZE];
 
     if (get_string_from_objectlist("WEQ", number_readobjects, weqtype, varname_list, value_list, used_list)) {
-	gv->WEQ = EL_ISO;
+        gv->WEQ = EL_ISO;
     } else {
-	parse_weqtype(weqtype, gv);
+        parse_weqtype(weqtype, gv);
     }
-    
-  /* =================================
-   * section source parameters
-   * ================================= */
+
+    /* =================================
+     * section source parameters
+     * ================================= */
 
     if (get_int_from_objectlist
         ("SOURCE_TYPE", number_readobjects, &(gv->SOURCE_TYPE), varname_list, value_list, used_list))
@@ -209,9 +212,9 @@ void read_par_json(const char *fileinp, GlobVar *gv)
         }
     }
 
-  /* =================================
-   * section boundary parameters
-   * ================================= */
+    /* =================================
+     * section boundary parameters
+     * ================================= */
 
     if (get_int_from_objectlist("FREE_SURF", number_readobjects, &(gv->FREE_SURF), varname_list, value_list, used_list))
         log_fatal("Variable FREE_SURF could not be retrieved from the json input file!");
@@ -239,9 +242,9 @@ void read_par_json(const char *fileinp, GlobVar *gv)
             log_fatal("Variable DAMPING could not be retrieved from the json input file!");
     }
 
-  /* =================================
-   * section snapshot parameters
-   * ================================= */
+    /* =================================
+     * section snapshot parameters
+     * ================================= */
 
     if (get_int_from_objectlist("SNAP", number_readobjects, &(gv->SNAP), varname_list, value_list, used_list))
         log_fatal("Variable SNAP could not be retrieved from the json input file!");
@@ -270,9 +273,9 @@ void read_par_json(const char *fileinp, GlobVar *gv)
     if (get_int_from_objectlist("IDY", number_readobjects, &(gv->IDY), varname_list, value_list, used_list))
         log_fatal("Variable IDY could not be retrieved from the json input file!");
 
-  /* =================================
-   * section seismogramm parameters
-   * ================================= */
+    /* =================================
+     * section seismogramm parameters
+     * ================================= */
 
     if (get_int_from_objectlist("SEISMO", number_readobjects, &(gv->SEISMO), varname_list, value_list, used_list))
         log_fatal("Variable SEISMO could not be retrieved from the json input file!");
@@ -339,9 +342,9 @@ void read_par_json(const char *fileinp, GlobVar *gv)
         }
     }
 
-  /* =================================
-   * section general model and log parameters
-   * ================================= */
+    /* =================================
+     * section general model and log parameters
+     * ================================= */
     if (get_string_from_objectlist("MFILE", number_readobjects, (gv->MFILE), varname_list, value_list, used_list))
         log_fatal("Variable MFILE could not be retrieved from the json input file!");
     if (get_int_from_objectlist
@@ -372,11 +375,11 @@ void read_par_json(const char *fileinp, GlobVar *gv)
         log_fatal("Variable L could not be retrieved from the json input file!");
 
     if (((gv->L) == 0) && (((gv->WEQ) == VEL_ISO) || ((gv->WEQ) == VEL_VTI) || ((gv->WEQ) == VEL_TTI) ||
-			   ((gv->WEQ) == VAC_ISO) || ((gv->WEQ) == VAC_VTI) || ((gv->WEQ) == VAC_TTI)))
+                           ((gv->WEQ) == VAC_ISO) || ((gv->WEQ) == VAC_VTI) || ((gv->WEQ) == VAC_TTI)))
         log_fatal("L>0 required for viscoacoustic/elastic simulation!");
 
     if (((gv->L) > 0) && (((gv->WEQ) == AC_ISO) || ((gv->WEQ) == AC_VTI) || ((gv->WEQ) == AC_TTI) ||
-			  ((gv->WEQ) == EL_ISO) || ((gv->WEQ) == EL_VTI) || ((gv->WEQ) == EL_TTI))) {
+                          ((gv->WEQ) == EL_ISO) || ((gv->WEQ) == EL_VTI) || ((gv->WEQ) == EL_TTI))) {
         log_warn("L reset to zero for elastic/acoustic simulation.\n");
         (gv->L) = 0;
     }
@@ -422,7 +425,8 @@ void read_par_json(const char *fileinp, GlobVar *gv)
     }
 
   /********************************************/
-  /* Check files and directories if necessary */
+    /* Check files and directories if necessary */
+
   /********************************************/
 
     /* signal file */
@@ -470,7 +474,8 @@ void read_par_json(const char *fileinp, GlobVar *gv)
     }
 
   /********************************************/
-  /* ERROR                                    */
+    /* ERROR                                    */
+
   /********************************************/
     if (fserr) {
         log_fatal("Error(s) encountered while processing json parameter file.\n");

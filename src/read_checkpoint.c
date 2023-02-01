@@ -27,7 +27,7 @@
 #include "logging.h"
 
 void read_checkpoint(int nx1, int nx2, int ny1, int ny2,
-                     float **vx, float **vy, float **sxx, float **syy, float **sxy, GlobVar *gv)
+                     float **vx, float **vy, float **sxx, float **syy, float **sxy, GlobVar * gv)
 {
     char myid[5];
     char checkptfile[STRING_SIZE];

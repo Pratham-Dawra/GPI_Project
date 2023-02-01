@@ -35,7 +35,7 @@
 #include "logging.h"
 #include "su_struct.h"
 
-float *read_srcsig(int *ns, const GlobVar *gv)
+float *read_srcsig(int *ns, const GlobVar * gv)
 {
     const char *sigfile = gv->SIGNAL_FILE;
     const char *sig_filetype[] = { "unknown", "ASCII", "SU" };
@@ -66,6 +66,7 @@ float *read_srcsig(int *ns, const GlobVar *gv)
     *ns = 0;
 
     if (filetype < 2) {
+
                     /***** try ASCII *****/
 
         filep = fopen(sigfile, "r");
@@ -130,6 +131,7 @@ float *read_srcsig(int *ns, const GlobVar *gv)
         }
 
     } else if (2 == filetype) {
+
                             /***** try SU *****/
 
         filep = fopen(sigfile, "rb");

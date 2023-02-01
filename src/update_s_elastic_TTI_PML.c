@@ -23,151 +23,123 @@
  *   and second order accuracy in time
  *   T. Bohlen
  *
- *   gx and gy are arrays with the locations of the boundary specified in subgrid_bounds.c
+ *   GX and GY are arrays with the locations of the boundary specified in subgrid_bounds.c
  *   for each subgrid
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
 
-void update_s_elastic_TTI_PML(int nx2, int ny2, int *gx, int *gy,
-                              float **pvxx, float **pvyy, float **pvyx, float **pvxy,
-                              float **sxx, float **syy,
-                              float **sxy,
-                              float **pc11, float **pc55ipjp, float **pc13, float **pc33,
-                              float **pc15, float **pc35, float **pc15ipjp, float **pc35ipjp,
-                              float *K_x, float *a_x, float *b_x, float *K_x_half, float *a_x_half, float *b_x_half,
-                              float *K_y, float *a_y, float *b_y, float *K_y_half, float *a_y_half, float *b_y_half,
-                              float **psi_vxx, float **psi_vyy, float **psi_vxy, float **psi_vyx, GlobVar *gv)
+void update_s_elastic_TTI_PML(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
 {
     int h1;
 
     /* left boundary */
-    for (int j = gy[2] + 1; j <= gy[3]; j++) {
-        for (int i = gx[1]; i <= gx[2]; i++) {
-            cpml_update_s_x(i, j, &pvxx[j][i], &pvyx[j][i], K_x, a_x,
-                            b_x, K_x_half, a_x_half, b_x_half, psi_vxx, psi_vyx);
+    for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
+        for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
+            cpml_update_s_x(i, j, &mpw->pvxx[j][i], &mpw->pvyx[j][i], mpm, mpw);
         }
     }
 
-    for (int j = gy[2] + 1; j <= gy[3]; j++) {
-        for (int i = gx[1] + 2; i <= gx[2]; i++) {
-            wavefield_update_s_el_tti(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy,
-                                      pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
+    for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
+        for (int i = gv->GX[1] + 2; i <= gv->GX[2]; i++) {
+            wavefield_update_s_el_tti(i, j, mpm, mpw);
         }
     }
 
     /* right boundary */
-    for (int j = gy[2] + 1; j <= gy[3]; j++) {
-        for (int i = gx[3] + 1; i <= gx[4]; i++) {
-            h1 = (i - nx2 + 2 * gv->FW);
-            cpml_update_s_x(h1, j, &pvxx[j][i], &pvyx[j][i], K_x, a_x,
-                            b_x, K_x_half, a_x_half, b_x_half, psi_vxx, psi_vyx);
+    for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
+        for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
+            h1 = (i - gv->NX + 2 * gv->FW);
+            cpml_update_s_x(h1, j, &mpw->pvxx[j][i], &mpw->pvyx[j][i], mpm, mpw);
         }
     }
 
-    for (int j = gy[2] + 1; j <= gy[3]; j++) {
-        for (int i = gx[3] + 1; i <= gx[4] - 2; i++) {
-            wavefield_update_s_el_tti(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy,
-                                      pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
+    for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
+        for (int i = gv->GX[3] + 1; i <= gv->GX[4] - 2; i++) {
+            wavefield_update_s_el_tti(i, j, mpm, mpw);
         }
     }
 
     /* top boundary */
-    for (int j = gy[1]; j <= gy[2]; j++) {
-        for (int i = gx[2] + 1; i <= gx[3]; i++) {
-            cpml_update_s_y(i, j, &pvxy[j][i], &pvyy[j][i], K_y, a_y,
-                            b_y, K_y_half, a_y_half, b_y_half, psi_vyy, psi_vxy);
+    for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
+        for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
+            cpml_update_s_y(i, j, &mpw->pvxy[j][i], &mpw->pvyy[j][i], mpm, mpw);
         }
     }
-    for (int j = gy[1] + 2; j <= gy[2]; j++) {
-        for (int i = gx[2] + 1; i <= gx[3]; i++) {
-            wavefield_update_s_el_tti(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy,
-                                      pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
+    for (int j = gv->GY[1] + 2; j <= gv->GY[2]; j++) {
+        for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
+            wavefield_update_s_el_tti(i, j, mpm, mpw);
         }
     }
 
     /* bottom boundary */
-    for (int j = gy[3] + 1; j <= gy[4]; j++) {
-        for (int i = gx[2] + 1; i <= gx[3]; i++) {
-            h1 = (j - ny2 + 2 * gv->FW);
-            cpml_update_s_y(i, h1, &pvxy[j][i], &pvyy[j][i], K_y, a_y,
-                            b_y, K_y_half, a_y_half, b_y_half, psi_vyy, psi_vxy);
+    for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
+        for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
+            h1 = (j - gv->NY + 2 * gv->FW);
+            cpml_update_s_y(i, h1, &mpw->pvxy[j][i], &mpw->pvyy[j][i], mpm, mpw);
         }
     }
-    for (int j = gy[3] + 1; j <= gy[4] - 2; j++) {
-        for (int i = gx[2] + 1; i <= gx[3]; i++) {
-            wavefield_update_s_el_tti(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy,
-                                      pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
+    for (int j = gv->GY[3] + 1; j <= gv->GY[4] - 2; j++) {
+        for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
+            wavefield_update_s_el_tti(i, j, mpm, mpw);
         }
     }
 
     /* corners */
 
     /*left-top */
-    for (int j = gy[1]; j <= gy[2]; j++) {
-        for (int i = gx[1]; i <= gx[2]; i++) {
-            cpml_update_s_x(i, j, &pvxx[j][i], &pvyx[j][i], K_x, a_x,
-                            b_x, K_x_half, a_x_half, b_x_half, psi_vxx, psi_vyx);
-            cpml_update_s_y(i, j, &pvxy[j][i], &pvyy[j][i], K_y, a_y,
-                            b_y, K_y_half, a_y_half, b_y_half, psi_vyy, psi_vxy);
+    for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
+        for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
+            cpml_update_s_x(i, j, &mpw->pvxx[j][i], &mpw->pvyx[j][i], mpm, mpw);
+            cpml_update_s_y(i, j, &mpw->pvxy[j][i], &mpw->pvyy[j][i], mpm, mpw);
         }
     }
-    for (int j = gy[1] + 2; j <= gy[2]; j++) {
-        for (int i = gx[1] + 2; i <= gx[2]; i++) {
-            wavefield_update_s_el_tti(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy,
-                                      pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
+    for (int j = gv->GY[1] + 2; j <= gv->GY[2]; j++) {
+        for (int i = gv->GX[1] + 2; i <= gv->GX[2]; i++) {
+            wavefield_update_s_el_tti(i, j, mpm, mpw);
         }
     }
 
     /*left-bottom */
-    for (int j = gy[3] + 1; j <= gy[4]; j++) {
-        for (int i = gx[1]; i <= gx[2]; i++) {
-            cpml_update_s_x(i, j, &pvxx[j][i], &pvyx[j][i], K_x, a_x,
-                            b_x, K_x_half, a_x_half, b_x_half, psi_vxx, psi_vyx);
-            h1 = (j - ny2 + 2 * gv->FW);
-            cpml_update_s_y(i, h1, &pvxy[j][i], &pvyy[j][i], K_y, a_y,
-                            b_y, K_y_half, a_y_half, b_y_half, psi_vyy, psi_vxy);
+    for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
+        for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
+            cpml_update_s_x(i, j, &mpw->pvxx[j][i], &mpw->pvyx[j][i], mpm, mpw);
+            h1 = (j - gv->NY + 2 * gv->FW);
+            cpml_update_s_y(i, h1, &mpw->pvxy[j][i], &mpw->pvyy[j][i], mpm, mpw);
         }
     }
-    for (int j = gy[3] + 1; j <= gy[4] - 2; j++) {
-        for (int i = gx[1] + 2; i <= gx[2]; i++) {
-            wavefield_update_s_el_tti(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy,
-                                      pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
+    for (int j = gv->GY[3] + 1; j <= gv->GY[4] - 2; j++) {
+        for (int i = gv->GX[1] + 2; i <= gv->GX[2]; i++) {
+            wavefield_update_s_el_tti(i, j, mpm, mpw);
         }
     }
 
     /* right-top */
-    for (int j = gy[1]; j <= gy[2]; j++) {
-        for (int i = gx[3] + 1; i <= gx[4]; i++) {
-            h1 = (i - nx2 + 2 * gv->FW);
-            cpml_update_s_x(h1, j, &pvxx[j][i], &pvyx[j][i], K_x, a_x,
-                            b_x, K_x_half, a_x_half, b_x_half, psi_vxx, psi_vyx);
-            cpml_update_s_y(i, j, &pvxy[j][i], &pvyy[j][i], K_y, a_y,
-                            b_y, K_y_half, a_y_half, b_y_half, psi_vyy, psi_vxy);
+    for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
+        for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
+            h1 = (i - gv->NX + 2 * gv->FW);
+            cpml_update_s_x(h1, j, &mpw->pvxx[j][i], &mpw->pvyx[j][i], mpm, mpw);
+            cpml_update_s_y(i, j, &mpw->pvxy[j][i], &mpw->pvyy[j][i], mpm, mpw);
         }
     }
-    for (int j = gy[1] + 2; j <= gy[2]; j++) {
-        for (int i = gx[3] + 1; i <= gx[4] - 2; i++) {
-            wavefield_update_s_el_tti(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy,
-                                      pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
+    for (int j = gv->GY[1] + 2; j <= gv->GY[2]; j++) {
+        for (int i = gv->GX[3] + 1; i <= gv->GX[4] - 2; i++) {
+            wavefield_update_s_el_tti(i, j, mpm, mpw);
         }
     }
 
     /* right-bottom */
-    for (int j = gy[3] + 1; j <= gy[4] - 1; j++) {
-        for (int i = gx[3] + 1; i <= gx[4]; i++) {
-            h1 = (i - nx2 + 2 * gv->FW);
-            cpml_update_s_x(h1, j, &pvxx[j][i], &pvyx[j][i], K_x, a_x,
-                            b_x, K_x_half, a_x_half, b_x_half, psi_vxx, psi_vyx);
-            h1 = (j - ny2 + 2 * gv->FW);
-            cpml_update_s_y(i, h1, &pvxy[j][i], &pvyy[j][i], K_y, a_y,
-                            b_y, K_y_half, a_y_half, b_y_half, psi_vyy, psi_vxy);
+    for (int j = gv->GY[3] + 1; j <= gv->GY[4] - 1; j++) {
+        for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
+            h1 = (i - gv->NX + 2 * gv->FW);
+            cpml_update_s_x(h1, j, &mpw->pvxx[j][i], &mpw->pvyx[j][i], mpm, mpw);
+            h1 = (j - gv->NY + 2 * gv->FW);
+            cpml_update_s_y(i, h1, &mpw->pvxy[j][i], &mpw->pvyy[j][i], mpm, mpw);
         }
     }
-    for (int j = gy[3] + 1; j <= gy[4] - 2; j++) {
-        for (int i = gx[3] + 1; i <= gx[4] - 2; i++) {
-            wavefield_update_s_el_tti(i, j, pvxx, pvyx, pvxy, pvyy, sxy, sxx, syy,
-                                      pc11, pc55ipjp, pc13, pc33, pc15, pc35, pc15ipjp, pc35ipjp);
+    for (int j = gv->GY[3] + 1; j <= gv->GY[4] - 2; j++) {
+        for (int i = gv->GX[3] + 1; i <= gv->GX[4] - 2; i++) {
+            wavefield_update_s_el_tti(i, j, mpm, mpw);
         }
     }
 }

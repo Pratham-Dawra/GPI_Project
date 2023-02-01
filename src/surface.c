@@ -24,11 +24,7 @@
 
 #include "fd.h"
 
-void surface(int ndepth, float **vx, float **vy, float **sxx, float **syy,
-             float **sxy, float ***p, float ***q,
-             float **pi, float **u, float **taup,
-             float **taus, float *etajm, float *peta, float *hc, float *K_x, float *a_x, float *b_x, float **psi_vxx,
-             GlobVar *gv)
+void surface(int ndepth, float *hc, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
 {
 
     int h1;
@@ -39,7 +35,7 @@ void surface(int ndepth, float **vx, float **vy, float **sxx, float **syy,
     float dhi = 1.0 / gv->DH;
     float dthalbe = gv->DT / 2.0;
 
-    int j = ndepth;                 /* The free surface is located exactly in y=dh !! */
+    int j = ndepth;             /* The free surface is located exactly in y=dh !! */
     for (int i = 1; i <= gv->NX; i++) {
 
         /* Compute values for shearmodulus u[j][i], P-wave modulus pi[j][i],
@@ -50,17 +46,17 @@ void surface(int ndepth, float **vx, float **vy, float **sxx, float **syy,
 		}
 */
         for (int l = 1; l <= gv->L; l++) {
-            etajm[l] = peta[l];
+            mpm->etajm[l] = mpm->peta[l];
         }
 
         /*Mirroring the components of the stress tensor to make
          * a stress free surface (method of imaging) */
-        syy[j][i] = 0.0;
+        mpw->psyy[j][i] = 0.0;
 
         /* since syy is zero on the free surface also the
          * corresponding memory-variables must set to zero */
         for (int l = 1; l <= gv->L; l++)
-            q[j][i][l] = 0.0;
+            mpw->pq[j][i][l] = 0.0;
 
         /* now updating the stress component sxx and the memory-
          * variables p[j][i][l] at the free surface */
@@ -72,11 +68,11 @@ void surface(int ndepth, float **vx, float **vy, float **sxx, float **syy,
         for (int m = 1; m <= fdoh; m++) {
             /*Mirroring the components of the stress tensor to make
              * a stress free surface (method of imaging) */
-            syy[j - m][i] = -syy[j + m][i];
-            sxy[j - m][i] = -sxy[j + m - 1][i];
+            mpw->psyy[j - m][i] = -mpw->psyy[j + m][i];
+            mpw->psxy[j - m][i] = -mpw->psxy[j + m - 1][i];
 
-            vxx += hc[m] * (vx[j][i + m - 1] - vx[j][i - m]);
-            vyy += hc[m] * (vy[j + m - 1][i] - vy[j - m][i]);
+            vxx += hc[m] * (mpw->pvx[j][i + m - 1] - mpw->pvx[j][i - m]);
+            vyy += hc[m] * (mpw->pvy[j + m - 1][i] - mpw->pvy[j - m][i]);
         }
         vxx *= dhi;
         vyy *= dhi;
@@ -86,8 +82,8 @@ void surface(int ndepth, float **vx, float **vy, float **sxx, float **syy,
             /* left boundary */
             if ((!gv->BOUNDARY) && (gv->POS[1] == 0) && (i <= gv->FW)) {
 
-                psi_vxx[j][i] = b_x[i] * psi_vxx[j][i] + a_x[i] * vxx;
-                vxx = vxx / K_x[i] + psi_vxx[j][i];
+                mpw->psi_vxx[j][i] = mpm->b_x[i] * mpw->psi_vxx[j][i] + mpm->a_x[i] * vxx;
+                vxx = vxx / mpm->K_x[i] + mpw->psi_vxx[j][i];
             }
 
             /* right boundary */
@@ -95,32 +91,32 @@ void surface(int ndepth, float **vx, float **vy, float **sxx, float **syy,
 
                 h1 = (i - gv->NX + 2 * gv->FW);
 
-                psi_vxx[j][h1] = b_x[h1] * psi_vxx[j][h1] + a_x[h1] * vxx;
-                vxx = vxx / K_x[h1] + psi_vxx[j][h1];
+                mpw->psi_vxx[j][h1] = mpm->b_x[h1] * mpw->psi_vxx[j][h1] + mpm->a_x[h1] * vxx;
+                vxx = vxx / mpm->K_x[h1] + mpw->psi_vxx[j][h1];
             }
         }
 
         /* sums used in updating sxx */
         sump = 0.0;
         for (int l = 1; l <= gv->L; l++)
-            sump += p[j][i][l];
+            sump += mpw->pp[j][i][l];
 
-        fjm = u[j][i] * 2.0 * (1.0 + gv->L * taus[j][i]);
-        g = pi[j][i] * (1.0 + gv->L * taup[j][i]);
+        fjm = mpm->pu[j][i] * 2.0 * (1.0 + gv->L * mpm->ptaus[j][i]);
+        g = mpm->ppi[j][i] * (1.0 + gv->L * mpm->ptaup[j][i]);
 
         /* partially updating sxx */
-        sxx[j][i] += -(gv->DT * (g - fjm) * (g - fjm) * vxx / g) - (gv->DT * (g - fjm) * vyy) - (dthalbe * sump);
+        mpw->psxx[j][i] += -(gv->DT * (g - fjm) * (g - fjm) * vxx / g) - (gv->DT * (g - fjm) * vyy) - (dthalbe * sump);
 
         /* updating the memory-variable p[j][i][l] at the free surface */
         sump = 0.0;
         for (int l = 1; l <= gv->L; l++) {
-            bjm = etajm[l] / (1.0 + (etajm[l] * 0.5));
-            djm = 2.0 * u[j][i] * taus[j][i];
-            e = pi[j][i] * taup[j][i];
-            p[j][i][l] += bjm * (((djm - e) * ((fjm / g) - 1.0) * vxx) - ((djm - e) * vyy));
-            sump += p[j][i][l];
+            bjm = mpm->etajm[l] / (1.0 + (mpm->etajm[l] * 0.5));
+            djm = 2.0 * mpm->pu[j][i] * mpm->ptaus[j][i];
+            e = mpm->ppi[j][i] * mpm->ptaup[j][i];
+            mpw->pp[j][i][l] += bjm * (((djm - e) * ((fjm / g) - 1.0) * vxx) - ((djm - e) * vyy));
+            sump += mpw->pp[j][i][l];
         }
         /*completely updating the stress sxx */
-        sxx[j][i] += (dthalbe * sump);
+        mpw->psxx[j][i] += (dthalbe * sump);
     }
 }
