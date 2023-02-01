@@ -1,5 +1,5 @@
 \documentclass[11pt,english,a4paper]{article}
-\usepackage{xifthen,iftex}
+\usepackage{xifthen,iftex,xparse}
 \ifluatex
 \else
     \usepackage[utf8]{inputenc}% force UTF8 file encoding if no UTF8 engine is used
@@ -10,7 +10,6 @@
 \usepackage{etoolbox}
 \usepackage{XCharter}% default font
 \usepackage[uprightscript,charter,vvarbb,scaled=1.05]{newtxmath}% preferred but requires relatively new nextxmath package
-
 % \usepackage[charter,vvarbb,scaled=1.05]{newtxmath}% use this if above leads to an error
 \usepackage{textcomp}
 \usepackage[width=150mm,top=25mm,bottom=25mm]{geometry}
@@ -34,11 +33,11 @@
 \usepackage{amsmath}
 \usepackage[b]{esvect}
 \usepackage[ISO]{diffcoeff}% preferred but requires relatively new diffcoeff package
-
 % \usepackage{diffcoeff}% use this if above leads to an error
 \usepackage{mathtools}
 \usepackage{siunitx}
 \usepackage{derivative}
+\usepackage[toc]{appendix}
 \usepackage[backend=biber,
             style=authoryear-comp,
             sorting=nyt,
@@ -80,8 +79,8 @@
 \hyphenation{me-ta-mo-del}
 
 \newcommand{\RET}{\raisebox{2pt}{\scalebox{0.8}{\Return}}}
-
-\usepackage[toc]{appendix}
+% provide \qty command if not already defined by siunitx
+\ProvideDocumentCommand \qty { m m } { \SI{#1}{#2} }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% BEGIN DOCUMENT%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
