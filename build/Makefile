@@ -54,7 +54,7 @@ DOC := sofi2D_manual.pdf
 CC             := mpicc
 CPPFLAGS        = -D_GNU_SOURCE -DLOG_COLOR
 EXTRA_CPPFLAGS := -DLOG_MPI
-CFLAGS          = -O3 -Wall -Wextra -g -fstack-protector -std=c99
+CFLAGS          = -O3 -Wall -Wextra -g -fstack-protector -std=c99 -ftree-vectorize
 CDEPEND         = -MMD -MP -MF .dep-$(subst /,-,$@)
 LD             := $(CC)
 LDFLAGS         = -lm
@@ -100,7 +100,7 @@ dummy     := $(shell mkdir -p $(LATEX_O))
 dummy     := $(shell mkdir -p $(strip $(INSTDIR)))
 FDMOD_EXE := $(strip $(FDMOD))
 MERGE_EXE := $(strip $(MERGE))
-INSTALL   := install -D -p
+INSTALL   := install -D -p --backup=simple --suffix=.bck
 RM        := rm -f --preserve-root
 LATEX     := pdflatex
 BIBER     := biber
