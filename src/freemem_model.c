@@ -59,19 +59,13 @@ void freemem_model(MemModel * mpm, GlobVar * gv)
     }
 
     if (gv->WEQ == EL_VTI) {    /*elastic VTI wave equation */
-        free_matrix(mpm->pc11, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         free_matrix(mpm->pc33, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         free_matrix(mpm->pc13, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
-        free_matrix(mpm->pc55, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
-        free_matrix(mpm->pc55ipjp, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
     }
 
     if (gv->WEQ == VEL_VTI) {   /*viscoelastic VTI wave equation */
-        free_matrix(mpm->pc11, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         free_matrix(mpm->pc33, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         free_matrix(mpm->pc13, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
-        free_matrix(mpm->pc55, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
-        free_matrix(mpm->pc55ipjp, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
 
         free_matrix(mpm->ptau11, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         free_matrix(mpm->ptau33, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
@@ -96,11 +90,8 @@ void freemem_model(MemModel * mpm, GlobVar * gv)
     }
 
     if (gv->WEQ == EL_TTI) {    /*elastic TTI wave equation */
-        free_matrix(mpm->pc11, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         free_matrix(mpm->pc33, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         free_matrix(mpm->pc13, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
-        free_matrix(mpm->pc55, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
-        free_matrix(mpm->pc55ipjp, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         free_matrix(mpm->pc15, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         free_matrix(mpm->pc15ipjp, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         free_matrix(mpm->pc35, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
@@ -108,14 +99,11 @@ void freemem_model(MemModel * mpm, GlobVar * gv)
     }
 
     if (gv->WEQ == VEL_TTI) {   /*viscoelastic TTI wave equation */
-        free_matrix(mpm->pc11, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         free_matrix(mpm->pc33, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         free_matrix(mpm->pc13, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
-        free_matrix(mpm->pc55, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         free_matrix(mpm->pc15, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         free_matrix(mpm->pc35, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
 
-        free_matrix(mpm->pc55ipjp, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         free_matrix(mpm->pc15ipjp, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         free_matrix(mpm->pc35ipjp, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
 
