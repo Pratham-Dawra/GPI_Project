@@ -1,15 +1,16 @@
-# What is SOFI2D?
+SOFI2D
 
-**SOFI2D** stands for Seismic mOdeling with FInite differences and denotes our
-2D viscoelastic time domain massive parallel modeling code for P- and SV-waves.   
+## Description
+Seismic Modeling with Finite Differences (SOFI) denotes our 2D viscoelastic anisotropic time-domain massively parallel modeling code for P- and SV-waves.
 
-SOFI2D is the forward solver for the full waveform inversion code [**IFOS2D**](https://git.scc.kit.edu/GPIAG-Software/IFOS2D).
+## Installation
+Please read GETTING_STARTED.txt for basic instructions, or compile the full manual for more detailed instructions.
 
-The [**manual**](https://git.scc.kit.edu/GPIAG-Software/SOFI2D/wikis/home) and a reference paper is included 
-in the download archive 
-or can be downloaded [here](https://git.scc.kit.edu/GPIAG-Software/SOFI2D/wikis/home).
+## Usage
+Basic instructions can be found in GETTING_STARTED.txt, more detailed explanations are available in the manual. We provide some simple examples including reference results so users can check their own installation.
 
-# Download and Newsletter
+## Support
+If technical issues are encountered, or if you would like to contribute features or bug fixes, please get in touch with the developers/maintainers.
 
-You can Download the [**latest stable Release**](https://git.scc.kit.edu/GPIAG-Software/SOFI2D/tree/master) or the current [**beta-version**](https://git.scc.kit.edu/GPIAG-Software/SOFI2D/tree/develop).
-Additional a SOFI2D branch with benchmarks is available: [**overnightbuilt**](https://git.scc.kit.edu/GPIAG-Software/SOFI2D/tree/overnightbuilt).
+## License
+This work is licensed under the GNU GENERAL PUBLIC LICENSE. Please check LICENSE.info for details.
