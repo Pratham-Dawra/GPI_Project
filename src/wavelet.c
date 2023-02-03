@@ -103,7 +103,7 @@ float **wavelet(float **srcpos_loc, int nsrc, GlobVar * gv)
                   fmin = srcpos_loc[9][k];  // lowest frequency in sweep [Hz] (Klauder only)
                   fmax = srcpos_loc[10][k]; // highest frequency in sweep [Hz] (Klauder only)
                   T = srcpos_loc[11][k];    // sweep duration [s] (Klauder only)
-                  width = srcpos_loc[12][k];    // width of the Klauder wavelet in number of centre periods
+                  width = srcpos_loc[12][k];    // half width of the Klauder wavelet in number of centre periods
 
                   f2 = (fmax - fmin) / T;
                   tau = (width / fc);   // Klauder wavelet is shifted by "width" centre periods
@@ -113,13 +113,13 @@ float **wavelet(float **srcpos_loc, int nsrc, GlobVar * gv)
                       amp =
                           creal(sin(PI * f2 * (t - tau - tshift) * (T - (t - tau - tshift))) /
                                 (PI * f2 * (t - tau - tshift)) * exp(2 * PI * I * fc * (t - tau - tshift)));
-                      taper = (1 - cos(((t - tshift) / tau / 0.2) * PI)) / 2;   /* linear taper */
+                      taper = (1 - cos(((t - tshift) / tau / 0.2) * PI)) / 2;   /* sinusoidal taper */
                       amp = amp * taper;
                   } else if (t > (tau * 1.8) + tshift) {
                       amp =
                           creal(sin(PI * f2 * (t - tau - tshift) * (T - (t - tau - tshift))) /
                                 (PI * f2 * (t - tau - tshift)) * exp(2 * PI * I * fc * (t - tau - tshift)));
-                      taper = (1 - cos(((2 * tau + tshift - t) / 0.2 / tau) * PI)) / 2; /* linear taper */
+                      taper = (1 - cos(((2 * tau + tshift - t) / 0.2 / tau) * PI)) / 2; /* sinusoidal taper */
                       amp = amp * taper;
                   } else {
                       amp =

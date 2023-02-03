@@ -89,7 +89,7 @@
 			"SNAP_FILE" : "./weq3/snap",
 
 "Receiver" : "comment",
-			"SEISMO" : "2",
+			"SEISMO" : "4",
 			"READREC" : "1",
 			"REC_FILE" : "./receiver/receiver.dat",
 			"REFRECX, REFRECY" : "0.0 , 0.0",
