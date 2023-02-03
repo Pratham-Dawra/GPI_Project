@@ -194,15 +194,6 @@ int main(int argc, char **argv)
     gv.NX = gv.IENDX;
     gv.NY = gv.IENDY;
 
-    /* memory allocation of buffers */
-    initmem(&mpm, &mpw, &gv);
-
-    /* initialize FD operators */
-    initfd(&gv);
-
-    /* Holberg coefficients for FD operators */
-    hc = holbergcoeff(&gv);
-
     if (gv.SEISMO) {
         recpos = receiver(&gv);
         recswitch = ivector(1, gv.NTRG);
@@ -211,6 +202,15 @@ int main(int argc, char **argv)
 
     /* memory for source position definition for saving the current positions */
     srcpos_current = matrix(1, NSPAR, 1, 1);
+
+    /* memory allocation of buffers */
+    initmem(&mpm, &mpw, &gv);
+
+    /* initialize FD operators */
+    initfd(&gv);
+
+    /* Holberg coefficients for FD operators */
+    hc = holbergcoeff(&gv);
 
     /* Reading source positions from SOURCE_FILE */
     srcpos = sources(&nsrc, &gv);
