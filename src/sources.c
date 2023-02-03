@@ -296,7 +296,7 @@ float **sources(int *nsrc, GlobVar * gv)
 
             fclose(fpsrc);
 
-            /* Compute maximum frequency */
+            /* Compute maximum centre frequency */
             for (l = 1; l <= *nsrc; l++)
                 if (srcpos[5][l] > fc)
                     fc = srcpos[5][l];

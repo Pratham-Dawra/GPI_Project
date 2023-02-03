@@ -60,7 +60,9 @@ void readmod_visco(MemModel * mpm, GlobVar * gv)
         mpm->peta[l] = gv->DT / pts[l];
     }
 
-    float ws = 2.0 * PI / gv->TS;
+    // float ws = 2.0 * PI / gv->TS;
+    float ws = 2.0 * PI * gv->F_REF;
+    log_infoc(0, "Visco: Center frequency of %5.2fHz applied for calculation of relaxed moduli.\n", gv->F_REF);
 
     /* test for SU model - otherwise we read standard binary */
     sprintf(filename, "%s.%s", gv->MFILE, suffix_su[0]);

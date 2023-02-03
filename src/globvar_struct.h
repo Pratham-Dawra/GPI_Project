@@ -43,6 +43,7 @@ typedef struct {
     int NY;                     // number of grid points in y-direction (depth)
     /*Attenuation */
     int L;                      // number of relaxation parameters
+    float F_REF;                 // reference frequency for dispersion [Hz]
     float *FL;                  // frequency of each relaxation parameters [Hz]
     float TAU;                  // ratio of retardation and relaxation time
     /*Source */

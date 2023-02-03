@@ -57,10 +57,9 @@ void model_visco(MemModel * mpm, GlobVar * gv)
         mpm->peta[l] = gv->DT / pts[l];
     }
 
-    float fc = 1.0 / gv->TS;
-    log_infoc(0, "Center source frequency of %5.2fHz applied for calculation of relaxed moduli.\n", fc);
-
-    float ws = 2.0 * PI * fc;
+    //float fc = 1.0 / gv->TS;
+    float ws = 2.0 * PI * gv->F_REF;
+    log_infoc(0, "Visco: Center frequency of %5.2fHz applied for calculation of relaxed moduli.\n", gv->F_REF);
 
     /* loop over global grid */
     for (int i = 1; i <= gv->NXG; i++) {

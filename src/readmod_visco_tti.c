@@ -120,10 +120,9 @@ void readmod_visco_tti(MemModel * mpm, GlobVar * gv)
         mpm->peta[l] = gv->DT / pts[l];
     }
 
-    float fc = 1.0 / gv->TS;
-    log_infoc(0, "TTI: center source frequency of %5.2fHz applied for calculation of relaxed moduli.\n", fc);
-
-    float ws = 2.0 * PI * fc;
+    //float fc = 1.0 / gv->TS;
+    float ws = 2.0 * PI * gv->F_REF;
+    log_infoc(0, "TTI: Center frequency of %5.2fHz applied for calculation of relaxed moduli.\n", gv->F_REF);
 
 #ifdef EBUG
     // set up output of all initial matrices for debug purpose

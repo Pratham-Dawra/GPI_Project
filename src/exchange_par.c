@@ -39,7 +39,7 @@ void exchange_par(GlobVar * gv)
         fdum[6] = 0.0;
 
         fdum[8] = gv->TAU;
-
+        fdum[9] = gv->F_REF;
         fdum[10] = gv->TSNAP1;
         fdum[11] = gv->TSNAP2;
         fdum[12] = gv->TSNAPINC;
@@ -141,7 +141,7 @@ void exchange_par(GlobVar * gv)
     gv->TS = fdum[4];
 
     gv->TAU = fdum[8];
-
+    gv->F_REF = fdum[9];
     gv->TSNAP1 = fdum[10];
     gv->TSNAP2 = fdum[11];
     gv->TSNAPINC = fdum[12];

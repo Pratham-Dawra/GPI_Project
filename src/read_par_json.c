@@ -387,6 +387,8 @@ void read_par_json(const char *fileinp, GlobVar * gv)
     /* do NOT remove the FALLTHRU comments below, they are used to tell the compiler
      * that this is an intentional fall through */
     if ((gv->L) > 0) {
+        if (get_float_from_objectlist("F_REF", number_readobjects, &(gv->F_REF), varname_list, value_list, used_list))
+            log_fatal("Variable F_REF could not be retrieved from the json input file!");
         (gv->FL) = vector(1, (gv->L));
         switch ((gv->L)) {
           case 0:

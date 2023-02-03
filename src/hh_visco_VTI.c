@@ -50,10 +50,10 @@ void model_visco_vti(MemModel * mpm, GlobVar * gv)
         mpm->peta[l] = gv->DT / pts[l];
     }
 
-    float fc = 1.0 / gv->TS;
-    log_infoc(0, "VTI: center source frequency of %5.2fHz applied for calculation of relaxed moduli.\n", fc);
+    //float fc = 1.0 / gv->TS;
+    ws = 2.0 * PI * gv->F_REF;
+    log_infoc(0, "VTI: Center frequency of %5.2fHz applied for calculation of relaxed moduli.\n", gv->F_REF);
 
-    ws = 2.0 * PI * fc;
 
     /* loop over global grid */
     for (int i = 1; i <= gv->NXG; i++) {

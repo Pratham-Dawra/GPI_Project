@@ -173,6 +173,7 @@ void write_par(GlobVar * gv)
     log_info("------------------------- Q approximation -------------------\n");
     log_info("Number of relaxation mechanisms (L): %d\n", gv->L);
     if (gv->L > 0) {
+        log_info("Reference frequency for dispersion (F_REF): %f\n", gv->F_REF);
         log_info("Value for tau (TAU): %f\n", gv->TAU);
         for (int l = 1; l <= gv->L; l++) {
             log_info("Relaxation frequency %d (FL%d): %fHz\n", l, l, gv->FL[l]);
