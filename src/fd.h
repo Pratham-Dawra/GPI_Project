@@ -385,17 +385,19 @@ void writedsk(FILE * fp_out, float amp, int format);
 
 void writemod(const char *modfile, float **array, int format, const GlobVar * gv);
 
-void zero_elastic(int nx1, int nx2, int ny1, int ny2, MemWavefield * mpw);
+void zero_elastic(int j, int i, MemWavefield * mpw);
 
-void zero_elastic_4(int nx1, int nx2, int ny1, int ny2, MemWavefield * mpw);
+void zero_elastic_4(int j, int i, MemWavefield * mpw);
 
-void zero_visco_4(int nx1, int nx2, int ny1, int ny2, MemWavefield * mpw, GlobVar * gv);
+void zero_visco_4(int j, int i, int l, MemWavefield * mpw);
 
-void zero_visc(int nx1, int nx2, int ny1, int ny2, MemWavefield * mpw, GlobVar * gv);
+void zero_visco(int j, int i, int l, MemWavefield * mpw);
 
-void zero_PML_elastic(int nx1, int nx2, int ny1, int ny2, MemWavefield * mpw, GlobVar * gv);
+void zero_PML_x(int j, int i, MemWavefield * mpw);
 
-void zero_PML_visc(int nx1, int nx2, int ny1, int ny2, MemWavefield * mpw, GlobVar * gv);
+void zero_PML_y(int j, int i, MemWavefield * mpw);
+
+void zero_wavefield(MemWavefield * mpw, GlobVar * gv);
 
 /* declaration of functions for parser*/
 

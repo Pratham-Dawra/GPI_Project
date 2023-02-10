@@ -552,28 +552,7 @@ int main(int argc, char **argv)
         }
 
         /* initialize wavefield with zero */
-
-        if (gv.ABS_TYPE == 1) {
-            if (gv.L)
-                zero_PML_visc(-gv.ND + 1, gv.NX + gv.ND, -gv.ND + 1, gv.NY + gv.ND, &mpw, &gv);
-            else
-                zero_PML_elastic(-gv.ND + 1, gv.NX + gv.ND, -gv.ND + 1, gv.NY + gv.ND, &mpw, &gv);
-        }
-
-        if (gv.FDORDER_TIME == 4) {
-            if (gv.L) {
-                zero_visco_4(-gv.ND + 1, gv.NX + gv.ND, -gv.ND + 1, gv.NY + gv.ND, &mpw, &gv);
-            } else {
-                zero_elastic_4(-gv.ND + 1, gv.NX + gv.ND, -gv.ND + 1, gv.NY + gv.ND, &mpw);
-            }
-        }
-
-        if (gv.ABS_TYPE != 1) {
-            if (gv.L)
-                zero_visc(-gv.ND + 1, gv.NX + gv.ND, -gv.ND + 1, gv.NY + gv.ND, &mpw, &gv);
-            else
-                zero_elastic(-gv.ND + 1, gv.NX + gv.ND, -gv.ND + 1, gv.NY + gv.ND, &mpw);
-        }
+        zero_wavefield(&mpw, &gv);
 
         /* Reseting lsmap to NDT for saving seismograms  */
         lsamp = gv.NDT;

@@ -23,34 +23,12 @@
 
 #include "fd.h"
 
-void zero_PML_elastic(int nx1, int nx2, int ny1, int ny2, MemWavefield * mpw, GlobVar * gv)
+void zero_PML_y(int j, int i, MemWavefield * mpw)
 {
-    for (int j = ny1; j <= ny2; j++) {
-        for (int i = nx1; i <= nx2; i++) {
-            mpw->pvx[j][i] = 0.0f;
-            mpw->pvy[j][i] = 0.0f;
-            mpw->psxx[j][i] = 0.0f;
-            mpw->psyy[j][i] = 0.0f;
-            mpw->psxy[j][i] = 0.0f;
-        }
-    }
-
-    for (int j = 1; j <= gv->NY; j++) {
-        for (int i = 1; i <= 2 * gv->FW; i++) {
-            mpw->psi_sxx_x[j][i] = 0.0f;
-            mpw->psi_sxy_x[j][i] = 0.0f;
-            mpw->psi_vxx[j][i] = 0.0f;
-            mpw->psi_vyx[j][i] = 0.0f;
-            mpw->psi_vxxs[j][i] = 0.0f;
-        }
-    }
-
-    for (int j = 1; j <= 2 * gv->FW; j++) {
-        for (int i = 1; i <= gv->NX; i++) {
-            mpw->psi_syy_y[j][i] = 0.0f;
-            mpw->psi_sxy_y[j][i] = 0.0f;
-            mpw->psi_vyy[j][i] = 0.0f;
-            mpw->psi_vxy[j][i] = 0.0f;
-        }
-    }
+//    for (int j = 1; j <= 2 * gv->FW; j++) {
+//        for (int i = 1; i <= gv->NX; i++) {
+    mpw->psi_syy_y[j][i] = 0.0;
+    mpw->psi_sxy_y[j][i] = 0.0;
+    mpw->psi_vyy[j][i] = 0.0;
+    mpw->psi_vxy[j][i] = 0.0;
 }

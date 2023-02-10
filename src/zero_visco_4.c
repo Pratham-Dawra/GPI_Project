@@ -20,52 +20,17 @@
 
 #include "fd.h"
 
-void zero_visco_4(int nx1, int nx2, int ny1, int ny2, MemWavefield * mpw, GlobVar * gv)
+void zero_visco_4(int j, int i, int l,MemWavefield * mpw)
 {
-    for (int j = ny1; j <= ny2; j++) {
-        for (int i = nx1; i <= nx2; i++) {
-            mpw->vxx_1[j][i] = 0.0f;
-            mpw->vxx_2[j][i] = 0.0f;
-            mpw->vxx_3[j][i] = 0.0f;
-            mpw->vxx_4[j][i] = 0.0f;
-            mpw->vyy_1[j][i] = 0.0f;
-            mpw->vyy_2[j][i] = 0.0f;
-            mpw->vyy_3[j][i] = 0.0f;
-            mpw->vyy_4[j][i] = 0.0f;
-            mpw->vxy_1[j][i] = 0.0f;
-            mpw->vxy_2[j][i] = 0.0f;
-            mpw->vxy_3[j][i] = 0.0f;
-            mpw->vxy_4[j][i] = 0.0f;
-            mpw->vyx_1[j][i] = 0.0f;
-            mpw->vyx_2[j][i] = 0.0f;
-            mpw->vyx_3[j][i] = 0.0f;
-            mpw->vyx_4[j][i] = 0.0f;
-            mpw->svx_1[j][i] = 0.0f;
-            mpw->svx_2[j][i] = 0.0f;
-            mpw->svx_3[j][i] = 0.0f;
-            mpw->svx_4[j][i] = 0.0f;
-            mpw->svy_1[j][i] = 0.0f;
-            mpw->svy_2[j][i] = 0.0f;
-            mpw->svy_3[j][i] = 0.0f;
-            mpw->svy_4[j][i] = 0.0f;
-        }
-    }
+    mpw->pr_2[j][i][l] = 0.0f;
+    mpw->pr_3[j][i][l] = 0.0f;
+    mpw->pr_4[j][i][l] = 0.0f;
 
-    for (int j = ny1; j <= ny2; j++) {
-        for (int i = nx1; i <= nx2; i++) {
-            for (int l = 1; l <= gv->L; l++) {
-                mpw->pr_2[j][i][l] = 0.0f;
-                mpw->pr_3[j][i][l] = 0.0f;
-                mpw->pr_4[j][i][l] = 0.0f;
+    mpw->pp_2[j][i][l] = 0.0f;
+    mpw->pp_3[j][i][l] = 0.0f;
+    mpw->pp_4[j][i][l] = 0.0f;
 
-                mpw->pp_2[j][i][l] = 0.0f;
-                mpw->pp_3[j][i][l] = 0.0f;
-                mpw->pp_4[j][i][l] = 0.0f;
-
-                mpw->pq_2[j][i][l] = 0.0f;
-                mpw->pq_3[j][i][l] = 0.0f;
-                mpw->pq_4[j][i][l] = 0.0f;
-            }
-        }
-    }
+    mpw->pq_2[j][i][l] = 0.0f;
+    mpw->pq_3[j][i][l] = 0.0f;
+    mpw->pq_4[j][i][l] = 0.0f;
 }
