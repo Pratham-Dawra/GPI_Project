@@ -299,5 +299,22 @@ void readmod_visco_tti(MemModel * mpm, GlobVar * gv)
         fclose(fp[i]);
     }
 
+#ifdef EBUG
+    debug_check_matrix(mpm->prho, 0, gv->NX, gv->NY, 8, 0, "prho");
+    debug_check_matrix(mpm->pc11, 0, gv->NX, gv->NY, 8, 0, "pc11");
+    debug_check_matrix(mpm->pc33, 0, gv->NX, gv->NY, 8, 0, "pc33");
+    debug_check_matrix(mpm->pc13, 0, gv->NX, gv->NY, 8, 0, "pc13");
+    debug_check_matrix(mpm->pc55, 0, gv->NX, gv->NY, 8, 0, "pc55");
+    debug_check_matrix(mpm->pc15, 0, gv->NX, gv->NY, 8, 0, "pc15");
+    debug_check_matrix(mpm->pc35, 0, gv->NX, gv->NY, 8, 0, "pc35");
+    debug_check_matrix(mpm->ptau11, 0, gv->NX, gv->NY, 8, 0, "ptau11");
+    debug_check_matrix(mpm->ptau33, 0, gv->NX, gv->NY, 8, 0, "ptau33");
+    debug_check_matrix(mpm->ptau13, 0, gv->NX, gv->NY, 8, 0, "ptau13");
+    debug_check_matrix(mpm->ptau55, 0, gv->NX, gv->NY, 8, 0, "ptau55");
+    debug_check_matrix(mpm->ptau15, 0, gv->NX, gv->NY, 8, 0, "ptau15");
+    debug_check_matrix(mpm->ptau35, 0, gv->NX, gv->NY, 8, 0, "ptau35");
+    debug_check_vector(mpm->peta, 0, gv->L, 8, 0, "peta");
+#endif
+
     return;
 }

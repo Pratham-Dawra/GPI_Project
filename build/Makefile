@@ -130,6 +130,7 @@ MERGE_FILES := snapmerge.c \
 FDMOD_FILES := sofi2D.c \
                abs_update.c \
                absorb.c \
+               acq_read.c \
                av_mue.c \
                av_rho.c \
                av_tau.c \

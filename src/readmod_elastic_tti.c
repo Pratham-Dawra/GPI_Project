@@ -170,5 +170,15 @@ void readmod_elastic_tti(MemModel * mpm, GlobVar * gv)
         fclose(fp[i]);
     }
 
+#ifdef EBUG
+    debug_check_matrix(mpm->prho, 0, gv->NX, gv->NY, 7, 0, "prho");
+    debug_check_matrix(mpm->pc11, 0, gv->NX, gv->NY, 7, 0, "pc11");
+    debug_check_matrix(mpm->pc33, 0, gv->NX, gv->NY, 7, 0, "pc33");
+    debug_check_matrix(mpm->pc13, 0, gv->NX, gv->NY, 7, 0, "pc13");
+    debug_check_matrix(mpm->pc55, 0, gv->NX, gv->NY, 7, 0, "pc55");
+    debug_check_matrix(mpm->pc15, 0, gv->NX, gv->NY, 7, 0, "pc15");
+    debug_check_matrix(mpm->pc35, 0, gv->NX, gv->NY, 7, 0, "pc35");
+#endif
+
     return;
 }

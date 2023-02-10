@@ -55,7 +55,7 @@ int main(int argc, char **argv)
     /* variables in main */
     int nt;
     int lsnap, nsnap = 0, lsamp = 0;
-    int nsrc = 0, nsrc_loc = 0, infocounter = 0;
+    int nsrc_loc = 0, infocounter = 0;
     int ishot, nshots;          /* Added ishot and nshots for multiple shots */
     int **dummy = NULL;
     /*Limits for local grids defined in subgrid_bounds.c */
@@ -74,13 +74,14 @@ int main(int argc, char **argv)
     float **shift_v1 = NULL, **shift_v2 = NULL, **shift_v3 = NULL, **shift_v4 = NULL;
     float ***shift_r1 = NULL, ***shift_r2 = NULL, ***shift_r3 = NULL;
 
-    float **srcpos = NULL, **srcpos_loc = NULL, **signals = NULL, *hc = NULL, **srcpos_current = NULL;
-    int **recpos = NULL, **recpos_loc = NULL;
-
-    int *recswitch = NULL;
+    float *hc = NULL;
+    float **signals = NULL;
 
     /* declare struct for global variables */
     GlobVar gv = {.MPID = -1,.OUTNTIMESTEPINFO = 100,.NDT = 1,.IDX = 1,.IDY = 1 };
+
+    /* declare struct for acquisition variables */
+    AcqVar acq = { };
 
     /* declare struct for wavefield variables */
     MemWavefield mpw = { };
@@ -193,15 +194,9 @@ int main(int argc, char **argv)
     /* In the following, NX and NY denote size of the local grid ! */
     gv.NX = gv.IENDX;
     gv.NY = gv.IENDY;
-
-    if (gv.SEISMO) {
-        recpos = receiver(&gv);
-        recswitch = ivector(1, gv.NTRG);
-        recpos_loc = splitrec(recpos, recswitch, &gv);
-    }
-
-    /* memory for source position definition for saving the current positions */
-    srcpos_current = matrix(1, NSPAR, 1, 1);
+    
+    /* Reading acquisition parameters */
+    acq_read(&acq, &gv);
 
     /* memory allocation of buffers */
     initmem(&mpm, &mpw, &gv);
@@ -211,9 +206,6 @@ int main(int argc, char **argv)
 
     /* Holberg coefficients for FD operators */
     hc = holbergcoeff(&gv);
-
-    /* Reading source positions from SOURCE_FILE */
-    srcpos = sources(&nsrc, &gv);
 
     MPI_Barrier(MPI_COMM_WORLD);
 
@@ -237,59 +229,15 @@ int main(int argc, char **argv)
               break;
           case EL_VTI:         /* elastic VTI */
               readmod_elastic_vti(&mpm, &gv);
-#ifdef EBUG
-              debug_check_matrix(mpm.prho, 0, gv.NX, gv.NY, 5, 0, "prho");
-              debug_check_matrix(mpm.pc11, 0, gv.NX, gv.NY, 5, 0, "pc11");
-              debug_check_matrix(mpm.pc33, 0, gv.NX, gv.NY, 5, 0, "pc33");
-              debug_check_matrix(mpm.pc13, 0, gv.NX, gv.NY, 5, 0, "pc13");
-              debug_check_matrix(mpm.pc55, 0, gv.NX, gv.NY, 5, 0, "pc55");
-#endif
               break;
           case VEL_VTI:        /* viscoelastic VTI */
               readmod_visco_vti(&mpm, &gv);
-#ifdef EBUG
-              debug_check_matrix(mpm.prho, 0, gv.NX, gv.NY, 6, 0, "prho");
-              debug_check_matrix(mpm.pc11, 0, gv.NX, gv.NY, 6, 0, "pc11");
-              debug_check_matrix(mpm.pc33, 0, gv.NX, gv.NY, 6, 0, "pc33");
-              debug_check_matrix(mpm.pc13, 0, gv.NX, gv.NY, 6, 0, "pc13");
-              debug_check_matrix(mpm.pc55, 0, gv.NX, gv.NY, 6, 0, "pc55");
-              debug_check_matrix(mpm.ptau11, 0, gv.NX, gv.NY, 6, 0, "ptau11");
-              debug_check_matrix(mpm.ptau33, 0, gv.NX, gv.NY, 6, 0, "ptau33");
-              debug_check_matrix(mpm.ptau13, 0, gv.NX, gv.NY, 6, 0, "ptau13");
-              debug_check_matrix(mpm.ptau55, 0, gv.NX, gv.NY, 6, 0, "ptau55");
-              debug_check_vector(mpm.peta, 0, gv.L, 6, 0, "peta");
-#endif
               break;
           case EL_TTI:         /* elastic TTI */
               readmod_elastic_tti(&mpm, &gv);
-#ifdef EBUG
-              debug_check_matrix(mpm.prho, 0, gv.NX, gv.NY, 7, 0, "prho");
-              debug_check_matrix(mpm.pc11, 0, gv.NX, gv.NY, 7, 0, "pc11");
-              debug_check_matrix(mpm.pc33, 0, gv.NX, gv.NY, 7, 0, "pc33");
-              debug_check_matrix(mpm.pc13, 0, gv.NX, gv.NY, 7, 0, "pc13");
-              debug_check_matrix(mpm.pc55, 0, gv.NX, gv.NY, 7, 0, "pc55");
-              debug_check_matrix(mpm.pc15, 0, gv.NX, gv.NY, 7, 0, "pc15");
-              debug_check_matrix(mpm.pc35, 0, gv.NX, gv.NY, 7, 0, "pc35");
-#endif
               break;
           case VEL_TTI:        /* viscoelastic TTI */
               readmod_visco_tti(&mpm, &gv);
-#ifdef EBUG
-              debug_check_matrix(mpm.prho, 0, gv.NX, gv.NY, 8, 0, "prho");
-              debug_check_matrix(mpm.pc11, 0, gv.NX, gv.NY, 8, 0, "pc11");
-              debug_check_matrix(mpm.pc33, 0, gv.NX, gv.NY, 8, 0, "pc33");
-              debug_check_matrix(mpm.pc13, 0, gv.NX, gv.NY, 8, 0, "pc13");
-              debug_check_matrix(mpm.pc55, 0, gv.NX, gv.NY, 8, 0, "pc55");
-              debug_check_matrix(mpm.pc15, 0, gv.NX, gv.NY, 8, 0, "pc15");
-              debug_check_matrix(mpm.pc35, 0, gv.NX, gv.NY, 8, 0, "pc35");
-              debug_check_matrix(mpm.ptau11, 0, gv.NX, gv.NY, 8, 0, "ptau11");
-              debug_check_matrix(mpm.ptau33, 0, gv.NX, gv.NY, 8, 0, "ptau33");
-              debug_check_matrix(mpm.ptau13, 0, gv.NX, gv.NY, 8, 0, "ptau13");
-              debug_check_matrix(mpm.ptau55, 0, gv.NX, gv.NY, 8, 0, "ptau55");
-              debug_check_matrix(mpm.ptau15, 0, gv.NX, gv.NY, 8, 0, "ptau15");
-              debug_check_matrix(mpm.ptau35, 0, gv.NX, gv.NY, 8, 0, "ptau35");
-              debug_check_vector(mpm.peta, 0, gv.L, 8, 0, "peta");
-#endif
               break;
           case VAC_ISO:        /* viscoacoustic */
               log_fatal("not yet implemented\n");
@@ -343,22 +291,22 @@ int main(int argc, char **argv)
           log_fatal("not yet implemented\n");
           break;
       case EL_ISO:             /* elastic */
-          checkfd(mpm.prho, mpm.ppi, mpm.pu, mpm.ptaus, mpm.ptaup, mpm.peta, hc, srcpos, nsrc, recpos, &gv);
+          checkfd(mpm.prho, mpm.ppi, mpm.pu, mpm.ptaus, mpm.ptaup, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
           break;
       case VEL_ISO:            /* viscoelastic */
-          checkfd(mpm.prho, mpm.ppi, mpm.pu, mpm.ptaus, mpm.ptaup, mpm.peta, hc, srcpos, nsrc, recpos, &gv);
+          checkfd(mpm.prho, mpm.ppi, mpm.pu, mpm.ptaus, mpm.ptaup, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
           break;
       case EL_VTI:             /* elastic VTI */
-          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptaus, mpm.ptaup, mpm.peta, hc, srcpos, nsrc, recpos, &gv);
+          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptaus, mpm.ptaup, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
           break;
       case VEL_VTI:            /* viscoelastic VTI */
-          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptau55, mpm.ptau11, mpm.peta, hc, srcpos, nsrc, recpos, &gv);
+          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptau55, mpm.ptau11, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
           break;
       case EL_TTI:             /* elastic TTI */
-          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptaus, mpm.ptaup, mpm.peta, hc, srcpos, nsrc, recpos, &gv);
+          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptaus, mpm.ptaup, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
           break;
       case VEL_TTI:            /* viscoelastic TTI */
-          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptau55, mpm.ptau11, mpm.peta, hc, srcpos, nsrc, recpos, &gv);
+          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptau55, mpm.ptau11, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
           break;
       case VAC_ISO:            /* viscoacoustic */
           log_fatal("not yet implemented\n");
@@ -547,7 +495,7 @@ int main(int argc, char **argv)
     /*----------------------  loop over multiple shots  ------------------*/
 
     if (gv.RUN_MULTIPLE_SHOTS) {
-        nshots = nsrc;
+        nshots = acq.nsrc;
     } else {
         nshots = 1;
     }
@@ -555,27 +503,27 @@ int main(int argc, char **argv)
     for (ishot = 1; ishot <= nshots; ishot++) {
 
         for (nt = 1; nt <= 12; nt++) {
-            srcpos_current[nt][1] = srcpos[nt][ishot];
+            acq.srcpos_current[nt][1] = acq.srcpos[nt][ishot];
         }
 
         if (gv.RUN_MULTIPLE_SHOTS) {
             log_info("Starting simulation for shot %d of %d.\n", ishot, nshots);
             //log_info("number\t    x\t\t    y\t\t  tshift\t    fc\t\t   amp\t    source_azimuth\n");
-            //log_info("   %i \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f  \t %6.2f\n", ishot, srcpos_current[1][1], srcpos_current[2][1],
-            //         srcpos_current[4][1], srcpos_current[5][1], srcpos_current[6][1], srcpos_current[7][1]);
+            //log_info("   %i \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f  \t %6.2f\n", ishot, acq.srcpos_current[1][1], acq.srcpos_current[2][1],
+            //         acq.srcpos_current[4][1], acq.srcpos_current[5][1], acq.srcpos_current[6][1], acq.srcpos_current[7][1]);
 
             /* find this single source positions on subdomains  */
             if (nsrc_loc > 0)
-                free_matrix(srcpos_loc, 1, NSPAR, 1, 1);
-            srcpos_loc = splitsrc(srcpos_current, &nsrc_loc, 1, &gv);
+                free_matrix(acq.srcpos_loc, 1, NSPAR, 1, 1);
+            acq.srcpos_loc = splitsrc(acq.srcpos_current, &nsrc_loc, 1, &gv);
         } else {
-            srcpos_loc = splitsrc(srcpos, &nsrc_loc, nsrc, &gv);    /* Distribute source positions on subdomains */
+            acq.srcpos_loc = splitsrc(acq.srcpos, &nsrc_loc, acq.nsrc, &gv);    /* Distribute source positions on subdomains */
         }
 
         MPI_Barrier(MPI_COMM_WORLD);
 
         /* calculate wavelet for each source point */
-        signals = wavelet(srcpos_loc, nsrc_loc, &gv);
+        signals = wavelet(acq.srcpos_loc, nsrc_loc, &gv);
 
         /* write source wavelet to file in subdomain that contains source */
         if (signals && 1 == gv.SIGOUT) {
@@ -594,12 +542,12 @@ int main(int argc, char **argv)
                   break;
             }
             dummy = imatrix(1, 3, 1, 1);
-            dummy[1][1] = iround(srcpos_loc[1][ishot] / gv.DH);
-            dummy[2][1] = iround(srcpos_loc[2][ishot] / gv.DH);
+            dummy[1][1] = iround(acq.srcpos_loc[1][ishot] / gv.DH);
+            dummy[2][1] = iround(acq.srcpos_loc[2][ishot] / gv.DH);
             dummy[3][1] = 0;
             sprintf(sigf, "%s.shot%d.%s", gv.SIGOUT_FILE, ishot, file_ext);
             log_info("Writing source wavelet to file %s.\n", sigf);
-            outseis_glob(fopen(sigf, "w"), signals, dummy, 1, srcpos_loc, gv.NT, gv.SIGOUT_FORMAT, ishot, 0, &gv);
+            outseis_glob(fopen(sigf, "w"), signals, dummy, 1, acq.srcpos_loc, gv.NT, gv.SIGOUT_FORMAT, ishot, 0, &gv);
             free_imatrix(dummy, 1, 3, 1, 1);
         }
 
@@ -655,7 +603,7 @@ int main(int argc, char **argv)
 
             /*---------------------------------------------------------------*/
             if (gv.FDORDER_TIME == 2) {
-                update_v_interior(nt, srcpos_loc, signals, nsrc_loc, hc, &mpm, &mpw, &gv);
+                update_v_interior(nt, acq.srcpos_loc, signals, nsrc_loc, hc, &mpm, &mpw, &gv);
 #ifdef EBUG
                 debug_check_matrix(mpw.pvx, nt, gv.NX, gv.NY, 121, 0, "pvx");
                 debug_check_matrix(mpw.pvy, nt, gv.NX, gv.NY, 121, 0, "pvy");
@@ -677,7 +625,7 @@ int main(int argc, char **argv)
             }
 
             if (gv.FDORDER_TIME == 4) {
-                update_v_interior_4(nt, srcpos_loc, signals, nsrc_loc, hc, &mpm, &mpw, &gv);
+                update_v_interior_4(nt, acq.srcpos_loc, signals, nsrc_loc, hc, &mpm, &mpw, &gv);
                 if (gv.FW) {
                     if (gv.ABS_TYPE == 1) {
                         update_v_PML_4(gv.NX, gv.NY, nt, &mpm, &mpw, &gv);
@@ -895,8 +843,9 @@ int main(int argc, char **argv)
 
             /* explosive source */
             if (gv.SOURCE_TYPE == 1)
-                psource(nt, srcpos_loc, signals, nsrc_loc, &mpw, &gv);
+                psource(nt, acq.srcpos_loc, signals, nsrc_loc, &mpw, &gv);
 
+            /* Applying free surface condition */
             if ((gv.FREE_SURF) && (gv.POS[2] == 0)) {
                 if (gv.L)       /* viscoelastic */
                     surface(1, hc, &mpm, &mpw, &gv);
@@ -926,7 +875,7 @@ int main(int argc, char **argv)
             /* store amplitudes at receivers in section-arrays */
             if ((gv.SEISMO) && (nt == lsamp) && (nt < gv.NT)) {
 
-                seismo_ssg(lsamp, recpos_loc, hc, &mpm, &mpw, &gv);
+                seismo_ssg(lsamp, acq.recpos_loc, hc, &mpm, &mpw, &gv);
                 lsamp += gv.NDT;
             }
 
@@ -962,50 +911,50 @@ int main(int argc, char **argv)
         if (gv.SEISMO) {
 
             /* saves seismograms portion of each PE individually to file */
-            //if (gv.NTR> 0) saveseis(SECTIONVX,SECTIONVY,SECTIONP,SECTIONCURL,SECTIONDIV,recpos,recpos_loc,gv.NTR,srcpos_current,ishot,gv.NS);
+            //if (gv.NTR> 0) saveseis(SECTIONVX,SECTIONVY,SECTIONP,SECTIONCURL,SECTIONDIV,acq.recpos,acq.recpos_loc,gv.NTR,acq.srcpos_current,ishot,gv.NS);
 
             /* merge of seismogram data from all PE and output data collectively */
             switch (gv.SEISMO) {
               case 1:          /* particle velocities only */
-                  catseis(gv.SECTIONVX, gv.SEISMO_FULLDATA, recswitch, gv.NTRG, gv.NS);
+                  catseis(gv.SECTIONVX, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
                   if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, recpos, srcpos, ishot, gv.NS, 1, &gv);
-                  catseis(gv.SECTIONVY, gv.SEISMO_FULLDATA, recswitch, gv.NTRG, gv.NS);
+                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 1, &gv);
+                  catseis(gv.SECTIONVY, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
                   if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, recpos, srcpos, ishot, gv.NS, 2, &gv);
+                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 2, &gv);
 
                   break;
               case 2:          /* pressure only */
-                  catseis(gv.SECTIONP, gv.SEISMO_FULLDATA, recswitch, gv.NTRG, gv.NS);
+                  catseis(gv.SECTIONP, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
                   if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, recpos, srcpos, ishot, gv.NS, 4, &gv);
+                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 4, &gv);
 
                   break;
               case 3:          /* curl and div only */
-                  catseis(gv.SECTIONDIV, gv.SEISMO_FULLDATA, recswitch, gv.NTRG, gv.NS);
+                  catseis(gv.SECTIONDIV, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
                   if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, recpos, srcpos, ishot, gv.NS, 5, &gv);
-                  catseis(gv.SECTIONCURL, gv.SEISMO_FULLDATA, recswitch, gv.NTRG, gv.NS);
+                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 5, &gv);
+                  catseis(gv.SECTIONCURL, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
                   if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, recpos, srcpos, ishot, gv.NS, 6, &gv);
+                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 6, &gv);
 
                   break;
               case 4:          /* everything */
-                  catseis(gv.SECTIONVX, gv.SEISMO_FULLDATA, recswitch, gv.NTRG, gv.NS);
+                  catseis(gv.SECTIONVX, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
                   if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, recpos, srcpos, ishot, gv.NS, 1, &gv);
-                  catseis(gv.SECTIONVY, gv.SEISMO_FULLDATA, recswitch, gv.NTRG, gv.NS);
+                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 1, &gv);
+                  catseis(gv.SECTIONVY, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
                   if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, recpos, srcpos, ishot, gv.NS, 2, &gv);
-                  catseis(gv.SECTIONP, gv.SEISMO_FULLDATA, recswitch, gv.NTRG, gv.NS);
+                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 2, &gv);
+                  catseis(gv.SECTIONP, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
                   if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, recpos, srcpos, ishot, gv.NS, 4, &gv);
-                  catseis(gv.SECTIONDIV, gv.SEISMO_FULLDATA, recswitch, gv.NTRG, gv.NS);
+                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 4, &gv);
+                  catseis(gv.SECTIONDIV, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
                   if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, recpos, srcpos, ishot, gv.NS, 5, &gv);
-                  catseis(gv.SECTIONCURL, gv.SEISMO_FULLDATA, recswitch, gv.NTRG, gv.NS);
+                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 5, &gv);
+                  catseis(gv.SECTIONCURL, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
                   if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, recpos, srcpos, ishot, gv.NS, 6, &gv);
+                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 6, &gv);
 
                   break;
               default:
@@ -1019,7 +968,7 @@ int main(int argc, char **argv)
     freemem(&mpm, &mpw, &gv);
 
     if (gv.SEISMO)
-        free_imatrix(recpos, 1, 3, 1, gv.NTRG);
+        free_imatrix(acq.recpos, 1, 3, 1, gv.NTRG);
 
     MPI_Barrier(MPI_COMM_WORLD);
 

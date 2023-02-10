@@ -34,6 +34,7 @@
 #include <time.h>
 #include <mpi.h>
 #include "globvar_struct.h"
+#include "acq_struct.h"
 #include "memm_struct.h"
 #include "memw_struct.h"
 #include "util.h"
@@ -45,6 +46,8 @@ void abs_update_s(int i, int j, MemModel * mpm, MemWavefield * mpw);
 void abs_update_v(int i, int j, MemModel * mpm, MemWavefield * mpw);
 
 void absorb(float **absorb_coeff, GlobVar * gv);
+
+void acq_read(AcqVar *acq, GlobVar *gv);
 
 void av_mat(float **pi, float **u, float **ppijm, float **puip, float **pujm);
 
@@ -231,7 +234,7 @@ void snap(int nt, int nsnap, float *hc, MemModel * mpm, MemWavefield * mpw, Glob
 
 void snapmerge(int nsnap);
 
-float **sources(int *nsrc, GlobVar * gv);
+void sources(AcqVar *acq, GlobVar * gv);
 
 int **splitrec(int **recpos, int *recswitch, GlobVar * gv);
 

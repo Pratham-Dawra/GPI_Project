@@ -188,5 +188,18 @@ void readmod_visco_vti(MemModel * mpm, GlobVar * gv)
         fclose(fp[i]);
     }
 
+#ifdef EBUG
+    debug_check_matrix(mpm->prho, 0, gv->NX, gv->NY, 6, 0, "prho");
+    debug_check_matrix(mpm->pc11, 0, gv->NX, gv->NY, 6, 0, "pc11");
+    debug_check_matrix(mpm->pc33, 0, gv->NX, gv->NY, 6, 0, "pc33");
+    debug_check_matrix(mpm->pc13, 0, gv->NX, gv->NY, 6, 0, "pc13");
+    debug_check_matrix(mpm->pc55, 0, gv->NX, gv->NY, 6, 0, "pc55");
+    debug_check_matrix(mpm->ptau11, 0, gv->NX, gv->NY, 6, 0, "ptau11");
+    debug_check_matrix(mpm->ptau33, 0, gv->NX, gv->NY, 6, 0, "ptau33");
+    debug_check_matrix(mpm->ptau13, 0, gv->NX, gv->NY, 6, 0, "ptau13");
+    debug_check_matrix(mpm->ptau55, 0, gv->NX, gv->NY, 6, 0, "ptau55");
+    debug_check_vector(mpm->peta, 0, gv->L, 6, 0, "peta");
+#endif
+
     return;
 }
