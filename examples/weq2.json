@@ -111,10 +111,5 @@
 "Monitoring the simulation" : "comment",
 			"LOG_FILE" : "./log/test.log",
 			"LOG" : "0",
-			"OUT_TIMESTEP_INFO" : "100",
-
-"Checkpoints" : "comment",
-			"CHECKPTREAD" : "0",
-			"CHECKPTWRITE" : "0",
-			"CHECKPT_FILE" : "./checkpoint_sofi2D"
+			"OUT_TIMESTEP_INFO" : "100"
 }

@@ -15,7 +15,7 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with SOFI2D. See file COPYING and/or 
-  * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------
@@ -352,17 +352,8 @@ void read_par_json(const char *fileinp, GlobVar * gv)
     }
     if (get_int_from_objectlist("LOG", number_readobjects, &(gv->LOG), varname_list, value_list, used_list))
         log_fatal("Variable LOG could not be retrieved from the json input file!");
-    if (get_int_from_objectlist
-        ("CHECKPTREAD", number_readobjects, &(gv->CHECKPTREAD), varname_list, value_list, used_list))
-        log_fatal("Variable CHECKPTREAD could not be retrieved from the json input file!");
-    if (get_int_from_objectlist
-        ("CHECKPTWRITE", number_readobjects, &(gv->CHECKPTWRITE), varname_list, value_list, used_list))
-        log_fatal("Variable CHECKPTWRITE could not be retrieved from the json input file!");
     if (get_string_from_objectlist("LOG_FILE", number_readobjects, (gv->LOG_FILE), varname_list, value_list, used_list))
         log_fatal("Variable LOG_FILE could not be retrieved from the json input file!");
-    if (get_string_from_objectlist
-        ("CHECKPT_FILE", number_readobjects, (gv->CHECKPTFILE), varname_list, value_list, used_list))
-        log_fatal("Variable CHECKPT_FILE could not be retrieved from the json input file!");
     if (get_int_from_objectlist("READMOD", number_readobjects, &(gv->READMOD), varname_list, value_list, used_list))
         log_fatal("Variable READMOD could not be retrieved from the json input file!");
     if (get_int_from_objectlist
@@ -460,17 +451,6 @@ void read_par_json(const char *fileinp, GlobVar * gv)
             fserr = 1;
         } else if (access((gv->REC_FILE), 4) != 0) {
             log_error("Receiver file %s cannot be read, no read permission.\n", (gv->REC_FILE));
-            fserr = 1;
-        }
-    }
-
-    /* checkpoint file */
-    if ((gv->CHECKPTREAD) || (gv->CHECKPTWRITE)) {
-        if (access((gv->CHECKPTFILE), 0) != 0) {
-            log_error("Checkpoint file %s does not exist.\n", (gv->CHECKPTFILE));
-            fserr = 1;
-        } else if (access((gv->CHECKPTFILE), 6) != 0) {
-            log_error("Checkpoint file %s cannot be read, no read permission.\n", (gv->CHECKPTFILE));
             fserr = 1;
         }
     }

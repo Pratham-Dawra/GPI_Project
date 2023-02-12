@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SOFI2D. See file COPYING and/or
-  * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------
@@ -49,56 +49,53 @@ void update_v_interior(int nt, float **srcpos_loc, float **signals, int nsrc, fl
      * rip and rjp are reciprocal values of averaged densities
      * ------------------------------------------------------------ */
 
-    if (!gv->CHECKPTREAD)
-        for (int l = 1; l <= nsrc; l++) {
-            int i = (int)srcpos_loc[1][l];
-            int j = (int)srcpos_loc[2][l];
-            float azi_rad = srcpos_loc[7][l] * PI / 180;
+    for (int l = 1; l <= nsrc; l++) {
+	int i = (int)srcpos_loc[1][l];
+	int j = (int)srcpos_loc[2][l];
+	float azi_rad = srcpos_loc[7][l] * PI / 180;
+	
+	//amp=signals[l][nt]; // unscaled force amplitude
+	amp = (gv->DT * signals[l][nt]) / (gv->DH * gv->DH);    // scaled force amplitude with F= 1N
 
-            //amp=signals[l][nt]; // unscaled force amplitude
-            amp = (gv->DT * signals[l][nt]) / (gv->DH * gv->DH);    // scaled force amplitude with F= 1N
+	gv->SOURCE_TYPE = (int)srcpos_loc[8][l];
 
-            gv->SOURCE_TYPE = (int)srcpos_loc[8][l];
-
-            switch (gv->SOURCE_TYPE) {
-              case 2:          /* single force in x */
-
-                  mpw->pvx[j][i] += mpm->prip[j][i] * amp;
-
-                  /* previous implementation of body forces as seismic sources.
-                   * Implementation according to Coutant et al., BSSA, Vol. 85, No 5, 1507-1512.
-                   * The stress tensor components sxx and syy are incremented prior to
-                   * particle velocity update. Thereby the body force (both directions)
-                   * are located at full grid point (i,j) (same position as pressure source).
-                   * as a consequence, source signals are added [and weighted] at multiple grid points.
-                   * This implementation works but not quite physical when considering e.g. a force of 1 N
-                   * and aiming to gain the particle velocity strictly according to that force.
-                   * Therefore it has been commented */
-
-                  /*for (m=1; m<=fdoh; m++) {
-                   * vx[j][i+m-1]  +=  hc[m]*rip[j][i]*amp;
-                   * vx[j][i-m]    +=  hc[m]*rip[j][i-1]*amp;
-                   * } */
-                  break;
-              case 3:          /* single force in y */
-                  mpw->pvy[j][i] += mpm->prjp[j][i] * amp;
-                  /*for (m=1; m<=fdoh; m++) {
-                   * vy[j+m-1][i]  +=  hc[m]*rjp[j][i]*amp;
-                   * vy[j-m][i]    +=  hc[m]*rjp[j][i-1]*amp;
-                   * } */
-                  break;
-              case 4:          /* custom force */
-                  mpw->pvx[j][i] += sin(azi_rad) * (mpm->prip[j][i] * amp);
-                  mpw->pvy[j][i] += cos(azi_rad) * (mpm->prjp[j][i] * amp);
-                  /*for (m=1; m<=fdoh; m++) {
-                   * vx[j][i+m-1]  +=  sin(azi_rad)*(hc[m]*rip[j][i]*amp);
-                   * vx[j][i-m]    +=  sin(azi_rad)*(hc[m]*rip[j][i-1]*amp);
-                   * vy[j+m-1][i]  +=  cos(azi_rad)*(hc[m]*rjp[j][i]*amp);
-                   * vy[j-m][i]    +=  cos(azi_rad)*(hc[m]*rjp[j][i-1]*amp);
-                   * } */
-                  break;
-            }
-        }
+	switch (gv->SOURCE_TYPE) {
+	case 2:          /* single force in x */
+	    mpw->pvx[j][i] += mpm->prip[j][i] * amp;
+	    /* previous implementation of body forces as seismic sources.
+	     * Implementation according to Coutant et al., BSSA, Vol. 85, No 5, 1507-1512.
+	     * The stress tensor components sxx and syy are incremented prior to
+	     * particle velocity update. Thereby the body force (both directions)
+	     * are located at full grid point (i,j) (same position as pressure source).
+	     * as a consequence, source signals are added [and weighted] at multiple grid points.
+	     * This implementation works but not quite physical when considering e.g. a force of 1 N
+	     * and aiming to gain the particle velocity strictly according to that force.
+	     * Therefore it has been commented */
+	    
+	    /*for (m=1; m<=fdoh; m++) {
+	     * vx[j][i+m-1]  +=  hc[m]*rip[j][i]*amp;
+	     * vx[j][i-m]    +=  hc[m]*rip[j][i-1]*amp;
+	     * } */
+	    break;
+	case 3:          /* single force in y */
+	    mpw->pvy[j][i] += mpm->prjp[j][i] * amp;
+	    /*for (m=1; m<=fdoh; m++) {
+	     * vy[j+m-1][i]  +=  hc[m]*rjp[j][i]*amp;
+	     * vy[j-m][i]    +=  hc[m]*rjp[j][i-1]*amp;
+	     * } */
+	    break;
+	case 4:          /* custom force */
+	    mpw->pvx[j][i] += sin(azi_rad) * (mpm->prip[j][i] * amp);
+	    mpw->pvy[j][i] += cos(azi_rad) * (mpm->prjp[j][i] * amp);
+	    /*for (m=1; m<=fdoh; m++) {
+	     * vx[j][i+m-1]  +=  sin(azi_rad)*(hc[m]*rip[j][i]*amp);
+	     * vx[j][i-m]    +=  sin(azi_rad)*(hc[m]*rip[j][i-1]*amp);
+	     * vy[j+m-1][i]  +=  cos(azi_rad)*(hc[m]*rjp[j][i]*amp);
+	     * vy[j-m][i]    +=  cos(azi_rad)*(hc[m]*rjp[j][i-1]*amp);
+	     * } */
+	    break;
+	}
+    }
 
     switch (gv->FDORDER) {
       case 2:

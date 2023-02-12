@@ -108,9 +108,6 @@ typedef struct {
     char LOG_VERBOSITY[STRING_SIZE];    // log output level (verbosity)       
     char LOG_FILE[STRING_SIZE]; // name of output file of logging information
     int OUTNTIMESTEPINFO;       // every OUTNTIMESTEPINFO th timestep, information on the time step will be given to screen/file
-    int CHECKPTREAD;            // switch to read wavefield from checkpoint file
-    int CHECKPTWRITE;           // switch to save wavefield to checkpoint file
-    char CHECKPTFILE[STRING_SIZE];  // name of checkpoint file
 //}
 
 //struct FDParams{

@@ -169,7 +169,6 @@ FDMOD_FILES := sofi2D.c \
                prepare_update_s_tti.c \
                prepare_update_s_4.c \
                psource.c \
-               read_checkpoint.c \
                read_par_json.c \
                read_srcsig.c \
                read_su.c \
@@ -181,7 +180,6 @@ FDMOD_FILES := sofi2D.c \
                readmod_visco_vti.c \
                readmod_visco_tti.c \
                receiver.c \
-               save_checkpoint.c\
                saveseis_glob.c \
                seismo_ssg.c \
                snap_ssg.c \

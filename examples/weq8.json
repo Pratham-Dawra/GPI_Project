@@ -113,10 +113,5 @@
 			"LOG_FILE" : "./log/test.log",
 			"LOG" : "0",
 			"OUT_TIMESTEP_INFO" : "100",
-			"LOG_VERBOSITY" : "info",
-
-"Checkpoints" : "comment",
-			"CHECKPTREAD" : "0",
-			"CHECKPTWRITE" : "0",
-			"CHECKPT_FILE" : "./checkpoint_sofi2D"
+			"LOG_VERBOSITY" : "info"
 }
