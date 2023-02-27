@@ -31,8 +31,8 @@
 #include "enums.h"
 #include "memw_struct.h"
 
-typedef void (*FDop_s_fct) (int i, int j, float *vxx, float *vyx, float *vxy, float *vyy, MemWavefield * mpw);
-typedef void (*FDop_v_fct) (int i, int j, float *sxx_x, float *sxy_x, float *sxy_y, float *syy_y, MemWavefield * mpw);
+typedef void (*FDop_s_fct) (int i, int j, float *vxx, float *vyx, float *vxy, float *vyy, MemWavefield *mpw);
+typedef void (*FDop_v_fct) (int i, int j, float *sxx_x, float *sxy_x, float *sxy_y, float *syy_y, MemWavefield *mpw);
 
 typedef struct {
 //struct ModelVar {
@@ -115,7 +115,6 @@ typedef struct {
     float DH;                   // spacial increment [m]
     int FDORDER;                // spatial FD order
     int ND;                     // gv->FDORDER / 2
-    int FDO3;                   // gv->ND * 2
     float TIME;                 // time (of modelling) [s]
     float DT;                   // time increment (of modelling) [s]
     int FDORDER_TIME;           // temporal FD order

@@ -15,19 +15,18 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with SOFI2D. See file COPYING and/or 
-  * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
 /* -------------------------------------------------------------
  * This is function initmem.
  * Initialising memory for variables.
- *
  * -------------------------------------------------------------*/
 
 #include "fd.h"
 #include "logging.h"
 
-void initmem(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
+void initmem(MemModel *mpm, MemWavefield * mpw, GlobVar *gv)
 {
 
     int nseismograms = 0;
@@ -57,9 +56,8 @@ void initmem(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
 
     /*estimate memory requirements for dynamic, static and buffer arrays */
     gv->ND = gv->FDORDER / 2;
-    gv->FDO3 = 2 * gv->ND;      // WHY ????
 
-    fac1 = (gv->NX + gv->FDO3) * (gv->NY + gv->FDO3);
+    fac1 = (gv->NX + gv->FDORDER) * (gv->NY + gv->FDORDER);
     fac2 = sizeof(float) * pow(2.0, -20.0);
     memadd = 0.0;
     memadd_L = 0.0;
@@ -76,8 +74,8 @@ void initmem(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     }
 
     memseismograms = nseismograms * gv->NTR * gv->NS * fac2;
-    membuffer = 2.0 * gv->FDO3 * (gv->NY + gv->NX) * fac2;
-    gv->BUFFSIZE = 2.0 * 2.0 * gv->FDO3 * (gv->NX + gv->NY) * sizeof(MPI_FLOAT);
+    membuffer = 2.0 * gv->FDORDER * (gv->NY + gv->NX) * fac2;
+    gv->BUFFSIZE = 2.0 * 2.0 * gv->FDORDER * (gv->NX + gv->NY) * sizeof(MPI_FLOAT);
     if (gv->ABS_TYPE == 1)
         memcpml = 2.0 * gv->FW * 4.0 * (gv->NY + gv->NX) * fac2 + 20.0 * 2.0 * gv->FW * fac2;
     memtotal = memdyn + memmodel + memseismograms + membuffer + memcpml + (gv->BUFFSIZE * pow(2.0, -20.0));

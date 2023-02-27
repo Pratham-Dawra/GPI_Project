@@ -15,18 +15,17 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with SOFI2D. See file COPYING and/or 
-  * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
 /* -------------------------------------------------------------
  * This is function initmem_elastic.
  * Initialising memory for wavefield variables.
- *
  * -------------------------------------------------------------*/
 
 #include "fd.h"
 
-void initmem_wavefield(MemWavefield * mpw, GlobVar * gv)
+void initmem_wavefield(MemWavefield *mpw, GlobVar *gv)
 {
 
     /* dynamic (wavefield) arrays (elastic + viscoelastic) */
@@ -112,8 +111,8 @@ void initmem_wavefield(MemWavefield * mpw, GlobVar * gv)
 
     /* memory allocation for buffer arrays in which the wavefield
      * information to be exchanged between neighboring PEs is stored */
-    mpw->bufferlef_to_rig = matrix(1, gv->NY, 1, gv->FDO3);
-    mpw->bufferrig_to_lef = matrix(1, gv->NY, 1, gv->FDO3);
-    mpw->buffertop_to_bot = matrix(1, gv->NX, 1, gv->FDO3);
-    mpw->bufferbot_to_top = matrix(1, gv->NX, 1, gv->FDO3);
+    mpw->bufferlef_to_rig = matrix(1, gv->NY, 1, gv->FDORDER);
+    mpw->bufferrig_to_lef = matrix(1, gv->NY, 1, gv->FDORDER);
+    mpw->buffertop_to_bot = matrix(1, gv->NX, 1, gv->FDORDER);
+    mpw->bufferbot_to_top = matrix(1, gv->NX, 1, gv->FDORDER);
 }
