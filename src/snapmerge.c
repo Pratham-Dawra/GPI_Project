@@ -49,8 +49,6 @@ int main(int argc, char **argv)
         log_fatal("Parameter file has no json suffix.\n");
     }
 
-    gv.NXG = gv.NX;
-    gv.NYG = gv.NY;
     gv.NX = gv.NXG / gv.NPROCX;
     gv.NY = gv.NYG / gv.NPROCY;
 

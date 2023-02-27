@@ -127,9 +127,9 @@ void read_par_json(const char *fileinp, GlobVar * gv)
     if (get_int_from_objectlist
         ("MAXRELERROR", number_readobjects, &(gv->MAXRELERROR), varname_list, value_list, used_list))
         log_fatal("Variable MAXRELERROR could not be retrieved from the json input file!");
-    if (get_int_from_objectlist("NX", number_readobjects, &(gv->NX), varname_list, value_list, used_list))
+    if (get_int_from_objectlist("NX", number_readobjects, &(gv->NXG), varname_list, value_list, used_list))
         log_fatal("Variable NX could not be retrieved from the json input file!");
-    if (get_int_from_objectlist("NY", number_readobjects, &(gv->NY), varname_list, value_list, used_list))
+    if (get_int_from_objectlist("NY", number_readobjects, &(gv->NYG), varname_list, value_list, used_list))
         log_fatal("Variable NY could not be retrieved from the json input file!");
     if (get_float_from_objectlist("DH", number_readobjects, &(gv->DH), varname_list, value_list, used_list))
         log_fatal("Variable DH could not be retrieved from the json input file!");
@@ -342,9 +342,10 @@ void read_par_json(const char *fileinp, GlobVar * gv)
         }
     }
 
-    /* =================================
+    /* =========================================
      * section general model and log parameters
-     * ================================= */
+     * ========================================= */
+
     if (get_string_from_objectlist("MFILE", number_readobjects, (gv->MFILE), varname_list, value_list, used_list))
         log_fatal("Variable MFILE could not be retrieved from the json input file!");
     if (get_int_from_objectlist
@@ -417,10 +418,9 @@ void read_par_json(const char *fileinp, GlobVar * gv)
         (gv->FL) = NULL;
     }
 
-  /********************************************/
+    /********************************************/
     /* Check files and directories if necessary */
-
-  /********************************************/
+    /********************************************/
 
     /* signal file */
     if ((gv->SOURCE_SHAPE) == 3) {
@@ -455,10 +455,9 @@ void read_par_json(const char *fileinp, GlobVar * gv)
         }
     }
 
-  /********************************************/
+    /********************************************/
     /* ERROR                                    */
-
-  /********************************************/
+    /********************************************/
     if (fserr) {
         log_fatal("Error(s) encountered while processing json parameter file.\n");
     }

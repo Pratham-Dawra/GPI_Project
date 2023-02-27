@@ -15,7 +15,7 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with SOFI2D. See file COPYING and/or 
-  * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
 /*  ----------------------------------------------------------------------
@@ -24,20 +24,20 @@
 
 #include "fd.h"
 
-float **splitsrc(float **srcpos, int *nsrc_loc, int nsrc, GlobVar * gv)
+float **splitsrc(float **srcpos, int *nsrc_loc, int nsrc, GlobVar *gv)
 {
     int a, b, i = 0;
     float **srcpos_local = NULL;
     float **srcpos_dummy = matrix(1, NSPAR, 1, nsrc);
 
     for (int j = 1; j <= nsrc; j++) {
-        a = (iround(srcpos[1][j] / gv->DH) - 1) / gv->IENDX;
-        b = (iround(srcpos[2][j] / gv->DH) - 1) / gv->IENDY;
+        a = (iround(srcpos[1][j] / gv->DH) - 1) / gv->NX;
+        b = (iround(srcpos[2][j] / gv->DH) - 1) / gv->NY;
 
         if ((gv->POS[1] == a) && (gv->POS[2] == b)) {
             i++;
-            srcpos_dummy[1][i] = (float)(((iround(srcpos[1][j] / gv->DH) - 1) % gv->IENDX) + 1);
-            srcpos_dummy[2][i] = (float)(((iround(srcpos[2][j] / gv->DH) - 1) % gv->IENDY) + 1);
+            srcpos_dummy[1][i] = (float)(((iround(srcpos[1][j] / gv->DH) - 1) % gv->NX) + 1);
+            srcpos_dummy[2][i] = (float)(((iround(srcpos[2][j] / gv->DH) - 1) % gv->NY) + 1);
             srcpos_dummy[3][i] = 0.0f;
             srcpos_dummy[4][i] = srcpos[4][j];
             srcpos_dummy[5][i] = srcpos[5][j];

@@ -71,8 +71,8 @@ void exchange_par(GlobVar * gv)
         idum[2] = gv->NPROCY;
         idum[3] = gv->LOG;
         idum[4] = gv->NPROC;
-        idum[5] = gv->NX;
-        idum[6] = gv->NY;
+        idum[5] = gv->NXG;
+        idum[6] = gv->NYG;
         idum[7] = gv->FW;
         idum[8] = gv->SOURCE_SHAPE;
         idum[9] = gv->SOURCE_TYPE;
@@ -165,8 +165,8 @@ void exchange_par(GlobVar * gv)
     gv->NPROCY = idum[2];
     gv->LOG = idum[3];
     gv->NPROC = idum[4];
-    gv->NX = idum[5];
-    gv->NY = idum[6];
+    gv->NXG = idum[5];
+    gv->NYG = idum[6];
     gv->FW = idum[7];
     gv->SOURCE_SHAPE = idum[8];
     gv->SOURCE_TYPE = idum[9];

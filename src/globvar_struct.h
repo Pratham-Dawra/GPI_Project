@@ -39,8 +39,8 @@ typedef struct {
     // Models
     int READMOD;                // switch to read model parameters from MFILE
     char MFILE[STRING_SIZE];    // model file name
-    int NX;                     // number of grid points in x-direction
-    int NY;                     // number of grid points in y-direction (depth)
+    int NXG;                    // number of grid points in x-direction (global)
+    int NYG;                    // number of grid points in y-direction (global)
     // Attenuation
     int L;                      // number of relaxation parameters
     float F_REF;                // reference frequency for dispersion [Hz]
@@ -121,8 +121,8 @@ typedef struct {
     int NT;                     //// number of timesteps (=iround(TIME/DT))
     FDop_s_fct FDOP_S;          // function pointer for FD operator
     FDop_v_fct FDOP_V;          // function pointer for FD operator
-    // MPI-variables
     int MAXRELERROR;            // switch of maximum relative group velocity error
+    // MPI-variables
     int NPROCX;                 // number of processors in x-direction
     int NPROCY;                 // number of processors in y-direction
     int *GX;                    // subgrid array in x-direction
@@ -132,12 +132,10 @@ typedef struct {
     int NPROC;                  // number of processors (=NPROCX*NPROCY)
     int NP;                     // number of processors from mpirun command
     int MPID;                   // ID of processor
-    int INDEX[5];               // ID of neighboring processes (slot 0 unused; slots 1...4 used to be consistent with util.c)
-    int POS[3];                 // processor location in the 3D logical proc array (MPID%NPROCX; MPID/NPROCX) (slot 0 unused)
-    int IENDX;                  // size of domain in x-direction (=NX/NPROCX)
-    int IENDY;                  // size of domain in y-direction (=NY/NPROCY)
-    int NXG;                    // number of grid points in x-direction (global)
-    int NYG;                    // number of grid points in y-direction (global)
+    int INDEX[5];               // ID of neighboring processes (1=left, 2=right, 3=upper, 4=lower, slot 0 unused)
+    int POS[3];                 // processor location in the logical proc array (1=x, 2=y, slot 0 unused)
+    int NX;                     // number of grid points in x-direction for this processor (local)
+    int NY;                     // number of grid points in y-direction for this processor (local)
     const int TAG1;             // MPI tag
     const int TAG2;             // MPI tag
     const int TAG3;             // MPI tag

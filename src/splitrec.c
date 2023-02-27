@@ -15,7 +15,7 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with SOFI2D. See file COPYING and/or 
-  * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
 /* ----------------------------------------------------------------------
@@ -24,7 +24,7 @@
 
 #include "fd.h"
 
-int **splitrec(int **recpos, int *recswitch, GlobVar * gv)
+int **splitrec(int **recpos, int *recswitch, GlobVar *gv)
 {
     int a, b, i = 0;
     int **recpos_local = NULL;
@@ -33,13 +33,13 @@ int **splitrec(int **recpos, int *recswitch, GlobVar * gv)
 
     for (int j = 1; j <= gv->NTRG; j++) {
         recswitch[j] = 0;
-        a = (recpos[1][j] - 1) / gv->IENDX;
-        b = (recpos[2][j] - 1) / gv->IENDY;
+        a = (recpos[1][j] - 1) / gv->NX;
+        b = (recpos[2][j] - 1) / gv->NY;
         if ((gv->POS[1] == a) && (gv->POS[2] == b)) {
             recswitch[j] = 1;
             i++;                /* number of receivers i of each process */
-            recpos_dummy[1][i] = ((recpos[1][j] - 1) % gv->IENDX) + 1;
-            recpos_dummy[2][i] = ((recpos[2][j] - 1) % gv->IENDY) + 1;
+            recpos_dummy[1][i] = ((recpos[1][j] - 1) % gv->NX) + 1;
+            recpos_dummy[2][i] = ((recpos[2][j] - 1) % gv->NY) + 1;
             recpos_dummy[3][i] = j;
         }
     }

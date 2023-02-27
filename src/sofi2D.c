@@ -36,7 +36,6 @@
  *  give a reference to the following paper:
  *  Bohlen, T., 2002, Parallel 3-D viscoelastic finite-difference seismic modelling,
  *  Computers @ Geopsciences, Vol. 28, No. 8, 887-889.
- *
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
@@ -186,14 +185,6 @@ int main(int argc, char **argv)
     if (gv.MPID == 0) {
         write_par(&gv);
     }
-
-    /* NXG, NYG denote size of the entire (global) grid */
-    gv.NXG = gv.NX;
-    gv.NYG = gv.NY;
-
-    /* In the following, NX and NY denote size of the local grid ! */
-    gv.NX = gv.IENDX;
-    gv.NY = gv.IENDY;
     
     /* Reading acquisition parameters */
     acq_read(&acq, &gv);
