@@ -12,16 +12,17 @@ usage()
     echo -e "${BOLD}$(basename $0) test${RESET}"
     echo
     echo "where 'test' is:"
-    echo "  1    :: acoustic wave equation"
-    echo "  2    :: visco-acoustic wave equation"
-    echo "  3    :: elastic wave equation"
-    echo "  4    :: visco-elastic wave equation"
-    echo "  5    :: elastic VTI wave equation"
-    echo "  6    :: visco-elastic VTI wave equation"
-    echo "  7    :: elastiv TTI wave equation"
-    echo "  8    :: visco-elastic TTI wave equation"
-    echo "  3_fy :: elastic wave equation with y-force source"
-    echo "  8_fy :: visco-elastic TTI wave equation with y-force source"
+    echo "  1      :: acoustic wave equation"
+    echo "  2      :: visco-acoustic wave equation"
+    echo "  3      :: elastic wave equation"
+    echo "  4      :: visco-elastic wave equation"
+    echo "  5      :: elastic VTI wave equation"
+    echo "  6      :: visco-elastic VTI wave equation"
+    echo "  7      :: elastiv TTI wave equation"
+    echo "  8      :: visco-elastic TTI wave equation"
+    echo "  3_fy   :: elastic wave equation with y-force source"
+    echo "  8_fy   :: visco-elastic TTI wave equation with y-force source"
+    echo "  4_fdt4 :: visco-elastic wave equation with 4th order in time"
     echo
 }
 
@@ -37,10 +38,10 @@ fi
 
 weq="$1"
 
-if [[ "${weq}" =~ ^("1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"3_fy"|"8_fy")$ ]]; then
+if [[ "${weq}" =~ ^("1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"3_fy"|"8_fy"|"4_fdt4")$ ]]; then
     echo "Running test for weq${weq}..."
 else
-    echo "Error: argument not in allowed list of 1, 2, 3, 4, 5, 6, 7, 8, 3_fy or 8_fy."
+    echo "Error: argument not in allowed list of 1, 2, 3, 4, 5, 6, 7, 8, 3_fy, 8_fy or 4_fdt4."
     exit 1
 fi
 
@@ -76,6 +77,6 @@ if [[ ${snap_found} -ne 0 ]] ; then
     exit 1
 fi
 
-outdir=$(echo ${weq} | sed 's/_fy//g')
+outdir=$(echo ${weq} | sed 's/_fy//g' | sed 's/_fdt4//g')
 
 ${mpiexe} -np 4 ${sofiexe} ${json} && ${snapexe} ${json} && rm -f weq${outdir}/*.bin.{vx,vy,p,curl,div}.*.*

@@ -58,6 +58,28 @@ double maximum(float **a, int nx, int ny)
     return maxi;
 }
 
+void shift_var2(float ***var1, float ***var2, float ***var3, float ***var4)
+{
+    /* Adam Bashforth time shift */
+    float **shift_1 = *var4;
+
+    *var4 = *var3;
+    *var3 = *var2;
+    *var2 = *var1;
+    *var1 = shift_1;
+}
+
+void shift_var3(float ****var1, float ****var2, float ****var3, float ****var4)
+{
+    /* Adam Bashforth time shift */
+    float ***shift_1 = *var4;
+
+    *var4 = *var3;
+    *var3 = *var2;
+    *var2 = *var1;
+    *var1 = shift_1;
+}
+
 float *vector(int nl, int nh)
 {
     /* allocate a float vector with subscript range v[nl..nh] and initializing

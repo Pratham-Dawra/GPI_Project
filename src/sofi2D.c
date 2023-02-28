@@ -68,11 +68,6 @@ int main(int argc, char **argv)
     double time_av_v_update = 0.0, time_av_s_update = 0.0,
         time_av_v_exchange = 0.0, time_av_s_exchange = 0.0, time_av_timestep = 0.0;
 
-    /* We need some pointers for the time shift for Adam Bashforth */
-    float **shift_s1 = NULL, **shift_s2 = NULL;
-    float **shift_v1 = NULL, **shift_v2 = NULL, **shift_v3 = NULL, **shift_v4 = NULL;
-    float ***shift_r1 = NULL, ***shift_r2 = NULL, ***shift_r3 = NULL;
-
     float *hc = NULL;
     float **signals = NULL;
 
@@ -607,16 +602,8 @@ int main(int argc, char **argv)
                 }
 
                 /* Shift spatial derivations of the stress one time step back */
-                shift_s1 = mpw.svx_4;
-                mpw.svx_4 = mpw.svx_3;
-                mpw.svx_3 = mpw.svx_2;
-                mpw.svx_2 = mpw.svx_1;
-                mpw.svx_1 = shift_s1;
-                shift_s2 = mpw.svy_4;
-                mpw.svy_4 = mpw.svy_3;
-                mpw.svy_3 = mpw.svy_2;
-                mpw.svy_2 = mpw.svy_1;
-                mpw.svy_1 = shift_s2;
+                shift_var2(&(mpw.svx_1), &(mpw.svx_2), &(mpw.svx_3), &(mpw.svx_4));
+                shift_var2(&(mpw.svy_1), &(mpw.svy_2), &(mpw.svy_3), &(mpw.svy_4));
             }
 
             if ((gv.MPID == 0) && ((nt - 1) % gv.OUTNTIMESTEPINFO == 0)) {
@@ -625,10 +612,9 @@ int main(int argc, char **argv)
                 log_debug("Starting particle velocity exchange between PEs...\n");
             }
 
-            /*---------------------------------------------------------------*/
-            /* ------- exchange of particle velocities between PEs -------------- */
-
-            /*---------------------------------------------------------------*/
+            /*---------------------------------------------------------------*
+             * ------- exchange of particle velocities between PEs --------- *
+             *---------------------------------------------------------------*/
 
             exchange_v(mpw.pvx, mpw.pvy, &mpw, &gv);
 
@@ -763,21 +749,9 @@ int main(int argc, char **argv)
                         }
                     }
                     /* Shift memory variables one time step back */
-                    shift_r1 = mpw.pp_4;
-                    mpw.pp_4 = mpw.pp_3;
-                    mpw.pp_3 = mpw.pp_2;
-                    mpw.pp_2 = mpw.pp;
-                    mpw.pp = shift_r1;
-                    shift_r2 = mpw.pr_4;
-                    mpw.pr_4 = mpw.pr_3;
-                    mpw.pr_3 = mpw.pr_2;
-                    mpw.pr_2 = mpw.pr;
-                    mpw.pr = shift_r2;
-                    shift_r3 = mpw.pq_4;
-                    mpw.pq_4 = mpw.pq_3;
-                    mpw.pq_3 = mpw.pq_2;
-                    mpw.pq_2 = mpw.pq;
-                    mpw.pq = shift_r3;
+                    shift_var3(&(mpw.pp), &(mpw.pp_2), &(mpw.pp_3), &(mpw.pp_4));
+                    shift_var3(&(mpw.pr), &(mpw.pr_2), &(mpw.pr_3), &(mpw.pr_4));
+                    shift_var3(&(mpw.pq), &(mpw.pq_2), &(mpw.pq_3), &(mpw.pq_4));
                 } else {        /* elastic */
                     update_s_elastic_interior_4(nt, hc, &mpm, &mpw, &gv);
 
@@ -789,26 +763,10 @@ int main(int argc, char **argv)
                     }
                 }
                 /* Shift spatial derivatives from the velocity one time step back */
-                shift_v1 = mpw.vxx_4;
-                mpw.vxx_4 = mpw.vxx_3;
-                mpw.vxx_3 = mpw.vxx_2;
-                mpw.vxx_2 = mpw.vxx_1;
-                mpw.vxx_1 = shift_v1;
-                shift_v2 = mpw.vyy_4;
-                mpw.vyy_4 = mpw.vyy_3;
-                mpw.vyy_3 = mpw.vyy_2;
-                mpw.vyy_2 = mpw.vyy_1;
-                mpw.vyy_1 = shift_v2;
-                shift_v3 = mpw.vxy_4;
-                mpw.vxy_4 = mpw.vxy_3;
-                mpw.vxy_3 = mpw.vxy_2;
-                mpw.vxy_2 = mpw.vxy_1;
-                mpw.vxy_1 = shift_v3;
-                shift_v4 = mpw.vyx_4;
-                mpw.vyx_4 = mpw.vyx_3;
-                mpw.vyx_3 = mpw.vyx_2;
-                mpw.vyx_2 = mpw.vyx_1;
-                mpw.vyx_1 = shift_v4;
+                shift_var2(&(mpw.vxx_1), &(mpw.vxx_2), &(mpw.vxx_3), &(mpw.vxx_4));
+                shift_var2(&(mpw.vyy_1), &(mpw.vyy_2), &(mpw.vyy_3), &(mpw.vyy_4));
+                shift_var2(&(mpw.vxy_1), &(mpw.vxy_2), &(mpw.vxy_3), &(mpw.vxy_4));
+                shift_var2(&(mpw.vyx_1), &(mpw.vyx_2), &(mpw.vyx_3), &(mpw.vyx_4));
             }
 
             /* explosive source */

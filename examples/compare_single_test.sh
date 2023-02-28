@@ -12,16 +12,17 @@ usage()
     echo -e "${BOLD}$(basename $0) test${RESET}"
     echo
     echo "where 'test' is:"
-    echo "  1    :: acoustic wave equation"
-    echo "  2    :: visco-acoustic wave equation"
-    echo "  3    :: elastic wave equation"
-    echo "  4    :: visco-elastic wave equation"
-    echo "  5    :: elastic VTI wave equation"
-    echo "  6    :: visco-elastic VTI wave equation"
-    echo "  7    :: elastiv TTI wave equation"
-    echo "  8    :: visco-elastic TTI wave equation"
-    echo "  3_fy :: elastic wave equation with y-force source"
-    echo "  8_fy :: visco-elastic TTI wave equation with y-force source"
+    echo "  1      :: acoustic wave equation"
+    echo "  2      :: visco-acoustic wave equation"
+    echo "  3      :: elastic wave equation"
+    echo "  4      :: visco-elastic wave equation"
+    echo "  5      :: elastic VTI wave equation"
+    echo "  6      :: visco-elastic VTI wave equation"
+    echo "  7      :: elastiv TTI wave equation"
+    echo "  8      :: visco-elastic TTI wave equation"
+    echo "  3_fy   :: elastic wave equation with y-force source"
+    echo "  8_fy   :: visco-elastic TTI wave equation with y-force source"
+    echo "  4_fdt4 :: visco-elastic wave equation with 4th order in time"
     echo
 }
 
@@ -37,10 +38,10 @@ fi
 
 weq="$1"
 
-if [[ "${weq}" =~ ^("1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"3_fy"|"8_fy")$ ]]; then
+if [[ "${weq}" =~ ^("1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"3_fy"|"8_fy"|"4_fdt4")$ ]]; then
     echo "Running comparison weq${weq}."
 else
-    echo "Error: argument not in allowed list of 1, 2, 3, 4, 5, 6, 7, 8, 3_fy or 8_fy."
+    echo "Error: argument not in allowed list of 1, 2, 3, 4, 5, 6, 7, 8, 3_fy, 8_fy or 4_fdt4."
     exit 1
 fi
 
@@ -51,7 +52,14 @@ else
   is_fy=true
 fi
 
-no="$(echo ${weq} | sed 's/_fy//g')"
+fdt=$(echo ${weq} | grep -c "_fdt4")
+if [[ ${fdt} -eq 0 ]] ; then
+  is_fdt=false
+else
+  is_fdt=true
+fi
+
+no="$(echo ${weq} | sed 's/_fy//g' | sed 's/_fdt4//g')"
 testdir="weq${no}"
 refdir="${testdir}_ref"
 
@@ -72,6 +80,10 @@ fi
 if ${is_fy} ; then
     sufiles="seis_fy_curl.su seis_fy_div.su seis_fy_p.su seis_fy_vx.su seis_fy_vy.su"
     snapfiles="snap_fy.bin.curl snap_fy.bin.div snap_fy.bin.p snap_fy.bin.vx snap_fy.bin.vy"
+    sigfiles="signal_out.shot1.su"
+elif ${is_fdt} ; then
+    sufiles="seis_fdt4_curl.su seis_fdt4_div.su seis_fdt4_p.su seis_fdt4_vx.su seis_fdt4_vy.su"
+    snapfiles="snap_fdt4.bin.curl snap_fdt4.bin.div snap_fdt4.bin.p snap_fdt4.bin.vx snap_fdt4.bin.vy"
     sigfiles="signal_out.shot1.su"
 else
     sufiles="seis_curl.su seis_div.su seis_p.su seis_vx.su seis_vy.su"
