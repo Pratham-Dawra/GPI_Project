@@ -34,7 +34,7 @@ usage()
     echo "overwritten with the generated '_new' version."
     echo
     echo "Current indent parameters:"
-    echo "${options} ${options212}" | tr -s " " | fold -sw55
+    echo "${options} ${options212} ${typedef}" | tr -s " " | fold -sw55
     echo
     if [ ${USEOPTIONAL} -eq 0 ] ; then
 	echo "Version of indent <${MINREQVERSION}. Options '-sar -as -fnc'"
@@ -65,6 +65,9 @@ options="-nbad -bap -bbb -sob -sc -br -ce -cdw -cli2 -ss -npcs \
 -ncs -saf -sai -saw -nbc -di1 -nbfda -nbfde -brs -blf \
 -nut -i4 -ci0 -l120 -lp -ip0 -nbbo -bli0 -c33 -cbi0 -cd0 \
 -cp33 -nlps -nprs -npsl -ts4"
+
+typedef="-T AcqVar -T WEQTYPE -T GlobVar -T log_Level -T log_Program \
+-T MemModel -T MemWavefield -T SUgather -T SUhead -T FILE"
 
 # the following options are only available for indent version >=2.2.12
 if [ ${USEOPTIONAL} -eq 0 ] ; then
@@ -99,7 +102,7 @@ for file in ${ARGS} ; do
     out="${file}${SUFFIX_NEW}"
     bck="${file}${SUFFIX_BCK}"
     echo -e -n "${RED}"
-    indent ${options} ${options212} ${file} -o ${out}
+    indent ${options} ${options212} ${typedef} ${file} -o ${out}
     echo -e -n "${RESET}"
     if [ ${OVERWRITE} -eq 1 ] ; then
 	cp -p ${file} ${bck}
