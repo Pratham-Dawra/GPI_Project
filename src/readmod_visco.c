@@ -27,8 +27,9 @@
 #include "read_su.h"
 #include <unistd.h>
 #include <stdbool.h>
+#include <float.h>
 
-void readmod_visco(MemModel * mpm, GlobVar * gv)
+void readmod_visco(MemModel *mpm, GlobVar *gv)
 {
     float muv, piv, *pts, ts, tp, sumu, sumpi;
     int ii, jj;
@@ -60,7 +61,6 @@ void readmod_visco(MemModel * mpm, GlobVar * gv)
         mpm->peta[l] = gv->DT / pts[l];
     }
 
-    // float ws = 2.0 * PI / gv->TS;
     float ws = 2.0 * PI * gv->F_REF;
     log_infoc(0, "Visco: Center frequency of %5.2fHz applied for calculation of relaxed moduli.\n", gv->F_REF);
 
@@ -109,6 +109,10 @@ void readmod_visco(MemModel * mpm, GlobVar * gv)
     }
 
     float **para = (float **)malloc2d(NPARA, ny, sizeof(float));
+    gv->VPMIN = FLT_MAX;
+    gv->VPMAX = 0.0;
+    gv->VSMIN = FLT_MAX;
+    gv->VSMAX = 0.0;
 
     /* loop over global grid */
     for (int i = 1; i <= gv->NXG; i++) {
@@ -126,23 +130,31 @@ void readmod_visco(MemModel * mpm, GlobVar * gv)
             fread(&(para[P_QS][0]), sizeof(float), ny, fp[P_QS]);
         }
         for (int j = 1; j <= gv->NYG; j++) {
+            float vp = para[P_VP][j-1];
+            float vs = para[P_VS][j-1];
             tp = 2.0 / (para[P_QP][j - 1] * gv->L);
             ts = 2.0 / (para[P_QS][j - 1] * gv->L);
-            muv = para[P_VS][j - 1] * para[P_VS][j - 1] * para[P_RHO][j - 1];
-            piv = para[P_VP][j - 1] * para[P_VP][j - 1] * para[P_RHO][j - 1];
             sumu = 0.0f;
             sumpi = 0.0f;
             for (int l = 1; l <= gv->L; l++) {
-                sumu += ((ws * ws * pts[l] * pts[l] * ts) / (1.0 + ws * ws * pts[l] * pts[l]));
-                sumpi += ((ws * ws * pts[l] * pts[l] * tp) / (1.0 + ws * ws * pts[l] * pts[l]));
+              sumu += ((ws * ws * pts[l] * pts[l] * ts) / (1.0 + ws * ws * pts[l] * pts[l]));
+              sumpi += ((ws * ws * pts[l] * pts[l] * tp) / (1.0 + ws * ws * pts[l] * pts[l]));
             }
-            muv = muv / (1.0 + sumu);
-            piv = piv / (1.0 + sumpi);
+            float vsmin = vs / sqrt(1.0 + sumu);
+            float vsmax = vsmin * sqrt(1 + gv->L * ts);
+            float vpmin = vp / sqrt(1.0 + sumpi);
+            float vpmax = vpmin * sqrt(1 + gv->L * tp);
+            if (vpmin < gv->VPMIN && vp > V_IGNORE) gv->VPMIN = vpmin;
+            if (vpmax > gv->VPMAX && vp > V_IGNORE) gv->VPMAX = vpmax;
+            if (vsmin < gv->VSMIN && vs > V_IGNORE) gv->VSMIN = vsmin;
+            if (vsmax > gv->VSMAX && vs > V_IGNORE) gv->VSMAX = vsmax;
             /* only the PE which belongs to the current global gridpoint 
              * is saving model parameters in his local arrays */
             if ((gv->POS[1] == ((i - 1) / gv->NX)) && (gv->POS[2] == ((j - 1) / gv->NY))) {
                 ii = i - gv->POS[1] * gv->NX;
                 jj = j - gv->POS[2] * gv->NY;
+                muv = vs * vs * para[P_RHO][j - 1] / (1.0 + sumu);
+                piv = vp * vp * para[P_RHO][j - 1] / (1.0 + sumpi);
                 mpm->ptaus[jj][ii] = ts;
                 mpm->ptaup[jj][ii] = tp;
                 mpm->pu[jj][ii] = muv;

@@ -41,6 +41,10 @@ typedef struct {
     char MFILE[STRING_SIZE];    // model file name
     int NXG;                    // number of grid points in x-direction (global)
     int NYG;                    // number of grid points in y-direction (global)
+    float VPMIN;                // min P-wave velocity
+    float VPMAX;                // max P-wave velocity
+    float VSMIN;                // min S-wave velocity
+    float VSMAX;                // max S-wave velocity
     // Attenuation
     int L;                      // number of relaxation parameters
     float F_REF;                // reference frequency for dispersion [Hz]

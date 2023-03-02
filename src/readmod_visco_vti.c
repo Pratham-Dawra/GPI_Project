@@ -27,11 +27,12 @@
 #include "read_su.h"
 #include <unistd.h>
 #include <stdbool.h>
+#include <float.h>
 
-void readmod_visco_vti(MemModel * mpm, GlobVar * gv)
+void readmod_visco_vti(MemModel *mpm, GlobVar *gv)
 {
     float c11, c33, c13, c55, tau11, tau33, tau13, tau55;
-    float *pts, sumc11, sumc13, sumc33, sumc55;
+    float *pts, sumc13, ts, tp, sumu, sumpi;
     int ii, jj;
     size_t ny;
     char filename[STRING_SIZE + 16];
@@ -101,6 +102,10 @@ void readmod_visco_vti(MemModel * mpm, GlobVar * gv)
     }
 
     float **para = (float **)malloc2d(NPARA, ny, sizeof(float));
+    gv->VPMIN = FLT_MAX;
+    gv->VPMAX = 0.0;
+    gv->VSMIN = FLT_MAX;
+    gv->VSMAX = 0.0;
 
     /* vector for maxwellbodies */
     pts = vector(1, gv->L);
@@ -109,7 +114,6 @@ void readmod_visco_vti(MemModel * mpm, GlobVar * gv)
         mpm->peta[l] = gv->DT / pts[l];
     }
 
-    //float fc = 1.0 / gv->TS;
     float ws = 2.0 * PI * gv->F_REF;
     log_infoc(0, "VTI: Center frequency of %5.2fHz applied for calculation of relaxed moduli.\n", gv->F_REF);
 
@@ -133,40 +137,53 @@ void readmod_visco_vti(MemModel * mpm, GlobVar * gv)
             fread(&(para[P_QS][0]), sizeof(float), ny, fp[P_QS]);
         }
         for (int j = 1; j <= gv->NYG; j++) {
-            c33 = para[P_RHO][j - 1] * para[P_VP][j - 1] * para[P_VP][j - 1];
-            c55 = para[P_RHO][j - 1] * para[P_VS][j - 1] * para[P_VS][j - 1];
-            c11 = c33 * (2.0 * para[P_EPS][j - 1] + 1.0);
-            c13 = sqrt((2.0 * para[P_DEL][j - 1] * c33 * (c33 - c55)) + ((c33 - c55) * (c33 - c55))) - c55;
-            tau11 = tau33 = 2.0 / (para[P_QP][j - 1] * gv->L);
-            tau55 = 2.0 / (para[P_QS][j - 1] * gv->L);
-            sumc11 = 0.0f;
-            sumc33 = 0.0f;
-            sumc55 = 0.0f;
+            float vp = para[P_VP][j-1];
+            float vs = para[P_VS][j-1];
+	        float vp_90 = vp * sqrt(2.0 * para[P_EPS][j - 1] + 1.0);
+	        float vs_45 = vs > 0.0 ? vs * (1.0 + pow(vp/vs, 2) * 0.25 * (para[P_EPS][j - 1] - para[P_DEL][j - 1])) : 0.0;
+	        // epsilon can (theoretically) be negative, delta as well; make sure we get correct min/max
+	        float vpmax = vp_90 > vp ? vp_90 : vp;
+	        float vpmin = vp_90 < vp ? vp_90 : vp;
+	        float vsmax = vs_45 > vs ? vs_45 : vs;
+	        float vsmin = vs_45 < vs ? vs_45 : vs;
+            tp = 2.0 / (para[P_QP][j - 1] * gv->L);
+            ts = 2.0 / (para[P_QS][j - 1] * gv->L);
+            sumu = 0.0f;
+            sumpi = 0.0f;
             for (int l = 1; l <= gv->L; l++) {
-                sumc11 += ((ws * ws * pts[l] * pts[l] * tau11) / (1.0 + ws * ws * pts[l] * pts[l]));
-                sumc33 += ((ws * ws * pts[l] * pts[l] * tau33) / (1.0 + ws * ws * pts[l] * pts[l]));
-                sumc55 += ((ws * ws * pts[l] * pts[l] * tau55) / (1.0 + ws * ws * pts[l] * pts[l]));
+              sumu += ((ws * ws * pts[l] * pts[l] * ts) / (1.0 + ws * ws * pts[l] * pts[l]));
+              sumpi += ((ws * ws * pts[l] * pts[l] * tp) / (1.0 + ws * ws * pts[l] * pts[l]));
             }
-
-            /* relaxed moduli */
-            c11 = c11 / (1.0 + sumc11);
-            c33 = c33 / (1.0 + sumc33);
-            c55 = c55 / (1.0 + sumc55);
-
-            /* isotropic attenuation */
-            tau13 = (c11 * gv->L * tau11 - 2.0 * c55 * gv->L * tau55) / (c11 - 2.0 * c55);
-
-            sumc13 = 0.0f;
-            for (int l = 1; l <= gv->L; l++) {
-                sumc13 += ((ws * ws * pts[l] * pts[l] * tau13) / (1.0 + ws * ws * pts[l] * pts[l]));
-            }
-            c13 = c13 / (1.0 + sumc13);
-
+            vsmin = vsmin / sqrt(1.0 + sumu);
+            vsmax = vsmax * sqrt((1 + gv->L * ts) / (1.0 + sumu));
+            vpmin = vpmin / sqrt(1.0 + sumpi);
+            vpmax = vpmax * sqrt((1 + gv->L * tp) / (1.0 + sumpi));
+            if (vpmin < gv->VPMIN && vp > V_IGNORE) gv->VPMIN = vpmin;
+            if (vpmax > gv->VPMAX && vp > V_IGNORE) gv->VPMAX = vpmax;
+            if (vsmin < gv->VSMIN && vs > V_IGNORE) gv->VSMIN = vsmin;
+            if (vsmax > gv->VSMAX && vs > V_IGNORE) gv->VSMAX = vsmax;
             /* only the PE which belongs to the current global gridpoint 
              * is saving model parameters in his local arrays */
             if ((gv->POS[1] == ((i - 1) / gv->NX)) && (gv->POS[2] == ((j - 1) / gv->NY))) {
                 ii = i - gv->POS[1] * gv->NX;
                 jj = j - gv->POS[2] * gv->NY;
+                c33 = para[P_RHO][j - 1] * vp * vp;
+                c55 = para[P_RHO][j - 1] * vs * vs;
+                c11 = c33 * (2.0 * para[P_EPS][j - 1] + 1.0);
+                c13 = sqrt((2.0 * para[P_DEL][j - 1] * c33 * (c33 - c55)) + ((c33 - c55) * (c33 - c55))) - c55;
+                tau11 = tau33 = tp;
+                tau55 = ts;
+                /* relaxed moduli */
+                c11 = c11 / (1.0 + sumpi);
+                c33 = c33 / (1.0 + sumpi);
+                c55 = c55 / (1.0 + sumu);
+                /* isotropic attenuation */
+                tau13 = (c11 * gv->L * tau11 - 2.0 * c55 * gv->L * tau55) / (c11 - 2.0 * c55);
+                sumc13 = 0.0f;
+                for (int l = 1; l <= gv->L; l++) {
+                  sumc13 += ((ws * ws * pts[l] * pts[l] * tau13) / (1.0 + ws * ws * pts[l] * pts[l]));
+                }
+                c13 = c13 / (1.0 + sumc13);
                 mpm->pc11[jj][ii] = c11;
                 mpm->pc13[jj][ii] = c13;
                 mpm->pc33[jj][ii] = c33;

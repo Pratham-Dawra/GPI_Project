@@ -27,6 +27,7 @@
 #include "read_su.h"
 #include <unistd.h>
 #include <stdbool.h>
+#include <float.h>
 
 void readmod_elastic_tti(MemModel * mpm, GlobVar * gv)
 {
@@ -35,7 +36,6 @@ void readmod_elastic_tti(MemModel * mpm, GlobVar * gv)
     size_t ny;
     float l1, l2, l12, l22, l14, l24, l13, l23;
     float a1, a3, a4, a5, a6;
-    float c11t, c33t, c55t, c13t, c15t, c35t;
     char filename[STRING_SIZE + 16];
     bool b_issu = false;
 
@@ -102,6 +102,10 @@ void readmod_elastic_tti(MemModel * mpm, GlobVar * gv)
     }
 
     float **para = (float **)malloc2d(NPARA, ny, sizeof(float));
+    gv->VPMIN = FLT_MAX;
+    gv->VPMAX = 0.0;
+    gv->VSMIN = FLT_MAX;
+    gv->VSMAX = 0.0;
 
     /* loop over global grid */
     for (int i = 1; i <= gv->NXG; i++) {
@@ -121,44 +125,50 @@ void readmod_elastic_tti(MemModel * mpm, GlobVar * gv)
             fread(&(para[P_TET][0]), sizeof(float), ny, fp[P_TET]);
         }
         for (int j = 1; j <= gv->NYG; j++) {
-            c33 = para[P_RHO][j - 1] * para[P_VP][j - 1] * para[P_VP][j - 1];
-            c55 = para[P_RHO][j - 1] * para[P_VS][j - 1] * para[P_VS][j - 1];
-            c11 = c33 * (2.0 * para[P_EPS][j - 1] + 1.0);
-            c13 = sqrt((2.0 * para[P_DEL][j - 1] * c33 * (c33 - c55)) + ((c33 - c55) * (c33 - c55))) - c55;
-
-            /* Bond transformation (Oh et al, 2020, GJI, doi: 10.1093/gji/ggaa295 */
-            t = para[P_TET][j - 1] * PI / 180.0;
-            l1 = cos(t);
-            l2 = sin(t);
-            l12 = l1 * l1;
-            l22 = l2 * l2;
-            l14 = l12 * l12;
-            l24 = l22 * l22;
-            l13 = l1 * l12;
-            l23 = l2 * l22;
-            a1 = 2.0 * c13 + 4.0 * c55;
-            a3 = c11 + c33 - 4.0 * c55;
-            a4 = c11 + c33 - 2.0 * c13;
-            a5 = c13 - c11 + 2.0 * c55;
-            a6 = c13 - c33 + 2.0 * c55;
-            c11t = c11 * l14 + c33 * l24 + a1 * l12 * l22;
-            c33t = c11 * l24 + c33 * l14 + a1 * l12 * l22;
-            c13t = a3 * l12 * l22 + c13 * (l14 + l24);
-            c55t = a4 * l12 * l22 + c55 * (l12 - l22) * (l12 - l22);
-            c15t = a5 * l13 * l2 - a6 * l1 * l23;
-            c35t = a5 * l23 * l1 - a6 * l2 * l13;
+            float vp = para[P_VP][j-1];
+            float vs = para[P_VS][j-1];
+            float vp_90 = vp * sqrt(2.0 * para[P_EPS][j - 1] + 1.0);
+            float vs_45 = vs > 0.0 ? vs * (1.0 + pow(vp/vs, 2) * 0.25 * (para[P_EPS][j - 1] - para[P_DEL][j - 1])) : 0.0;
+            // epsilon can (theoretically) be negative, delta as well; make sure we get correct min/max
+	        float vpmax = vp_90 > vp ? vp_90 : vp;
+            float vpmin = vp_90 < vp ? vp_90 : vp;
+            float vsmax = vs_45 > vs ? vs_45 : vs;
+            float vsmin = vs_45 < vs ? vs_45 : vs;
+            if (vpmin < gv->VPMIN && vp > V_IGNORE) gv->VPMIN = vpmin;
+            if (vpmax > gv->VPMAX && vp > V_IGNORE) gv->VPMAX = vpmax;
+            if (vsmin < gv->VSMIN && vs > V_IGNORE) gv->VSMIN = vsmin;
+            if (vsmax > gv->VSMAX && vs > V_IGNORE) gv->VSMAX = vsmax;
             /* only the PE which belongs to the current global gridpoint 
              * is saving model parameters in his local arrays */
             if ((gv->POS[1] == ((i - 1) / gv->NX)) && (gv->POS[2] == ((j - 1) / gv->NY))) {
                 ii = i - gv->POS[1] * gv->NX;
                 jj = j - gv->POS[2] * gv->NY;
-                mpm->pc11[jj][ii] = c11t;
+                c33 = para[P_RHO][j - 1] * vp * vp;
+                c55 = para[P_RHO][j - 1] * vs * vs;
+                c11 = c33 * (2.0 * para[P_EPS][j - 1] + 1.0);
+                c13 = sqrt((2.0 * para[P_DEL][j - 1] * c33 * (c33 - c55)) + ((c33 - c55) * (c33 - c55))) - c55;
+                /* Bond transformation (Oh et al, 2020, GJI, doi: 10.1093/gji/ggaa295 */
+                t = para[P_TET][j - 1] * PI / 180.0;
+                l1 = cos(t);
+                l2 = sin(t);
+                l12 = l1 * l1;
+                l22 = l2 * l2;
+                l14 = l12 * l12;
+                l24 = l22 * l22;
+                l13 = l1 * l12;
+                l23 = l2 * l22;
+                a1 = 2.0 * c13 + 4.0 * c55;
+                a3 = c11 + c33 - 4.0 * c55;
+                a4 = c11 + c33 - 2.0 * c13;
+                a5 = c13 - c11 + 2.0 * c55;
+                a6 = c13 - c33 + 2.0 * c55;
+                mpm->pc11[jj][ii] = c11 * l14 + c33 * l24 + a1 * l12 * l22;           // c11t
                 mpm->prho[jj][ii] = para[P_RHO][j - 1];
-                mpm->pc33[jj][ii] = c33t;
-                mpm->pc13[jj][ii] = c13t;
-                mpm->pc55[jj][ii] = c55t;
-                mpm->pc15[jj][ii] = c15t;
-                mpm->pc35[jj][ii] = c35t;
+                mpm->pc33[jj][ii] = c11 * l24 + c33 * l14 + a1 * l12 * l22;           // c33t
+                mpm->pc13[jj][ii] = a3 * l12 * l22 + c13 * (l14 + l24);               // c13t
+                mpm->pc55[jj][ii] = a4 * l12 * l22 + c55 * (l12 - l22) * (l12 - l22); // c55t
+                mpm->pc15[jj][ii] = a5 * l13 * l2 - a6 * l1 * l23;                    // c15t
+                mpm->pc35[jj][ii] = a5 * l23 * l1 - a6 * l2 * l13;                    // c35t
             }
         }
     }

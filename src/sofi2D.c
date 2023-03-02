@@ -55,7 +55,6 @@ int main(int argc, char **argv)
     int nt;
     int lsnap, nsnap = 0;
     int nsrc_loc = 0;
-//    int infocounter = 0;
     int ishot, nshots;          /* Added ishot and nshots for multiple shots */
     int **dummy = NULL;
     /*Limits for local grids defined in subgrid_bounds.c */
@@ -65,8 +64,6 @@ int main(int argc, char **argv)
 
     char ext[10];
     double time1 = 0.0, time2 = 0.0, time9 = 0.0;
-//    double time_av_v_update = 0.0, time_av_s_update = 0.0,
-//        time_av_v_exchange = 0.0, time_av_s_exchange = 0.0, time_av_timestep = 0.0;
 
     float *hc = NULL;
     float **signals = NULL;
@@ -203,50 +200,7 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
 
     /* check if the FD run will be stable and free of numerical dispersion */
-    switch (gv.WEQ) {
-      case AC_ISO:             /* acoustic */
-          log_fatal("not yet implemented\n");
-          break;
-      case AC_VTI:             /* acoustic VTI */
-          log_fatal("not yet implemented\n");
-          break;
-      case AC_TTI:             /* acoustic TTI */
-          log_fatal("not yet implemented\n");
-          break;
-      case EL_ISO:             /* elastic */
-          checkfd(mpm.prho, mpm.ppi, mpm.pu, mpm.ptaus, mpm.ptaup, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
-          break;
-      case VEL_ISO:            /* viscoelastic */
-          checkfd(mpm.prho, mpm.ppi, mpm.pu, mpm.ptaus, mpm.ptaup, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
-          break;
-      case EL_VTI:             /* elastic VTI */
-          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptaus, mpm.ptaup, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos,
-                  &gv);
-          break;
-      case VEL_VTI:            /* viscoelastic VTI */
-          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptau55, mpm.ptau11, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos,
-                  &gv);
-          break;
-      case EL_TTI:             /* elastic TTI */
-          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptaus, mpm.ptaup, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos,
-                  &gv);
-          break;
-      case VEL_TTI:            /* viscoelastic TTI */
-          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptau55, mpm.ptau11, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos,
-                  &gv);
-          break;
-      case VAC_ISO:            /* viscoacoustic */
-          log_fatal("not yet implemented\n");
-          break;
-      case VAC_VTI:            /* viscoacoustic VTI */
-          log_fatal("not yet implemented\n");
-          break;
-      case VAC_TTI:            /* viscoacoustic TTI */
-          log_fatal("not yet implemented\n");
-          break;
-      default:
-          log_fatal("Unknown WEQ.\n");
-    }
+    checkfd(hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
 
     /* calculate damping coefficients for CPMLs */
     if (gv.ABS_TYPE == 1) {

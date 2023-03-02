@@ -30,25 +30,18 @@
 #include "fd.h"
 #include "logging.h"
 
-/*************************************************************/
+/*************************************************************
+ * TODO: Calculation of global grid size wrong! To be fixed. *
+ *************************************************************/
 
-/* TODO: Calculation of global grid size wrong! To be fixed. */
-
-/*************************************************************/
-
-void checkfd(float **prho, float **ppi, float **pu, float **ptaus, float **ptaup, float *peta,
-             float *hc, float **srcpos, int nsrc, int **recpos, GlobVar * gv)
+void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar * gv)
 {
-    float c, cwater = 1.0, fmax, gamma;
-    float cmax = 0.0, cmin = 1e9, sum, dtstab, dhstab, ts, cmax_r, cmin_r, temporal;
+    float fmax, gamma;
+    float dtstab, dhstab, temporal;
     float snapoutx = 0.0, snapouty = 0.0;
     float srec_minx = gv->DH * gv->NX * gv->NPROCX + 1, srec_miny = gv->DH * gv->NY * gv->NPROCY + 1;
     float srec_maxx = -1.0, srec_maxy = -1.0;
     float CFL;
-    const float w = 2.0 * PI / gv->TS;  /*center frequency of source */
-    int ny1 = 1;
-    int nx = gv->NX;
-    int ny = gv->NY;
 
     if (0 == gv->MPID) {
         log_info("------------------------- Min/max velocities ----------------\n");
@@ -56,97 +49,8 @@ void checkfd(float **prho, float **ppi, float **pu, float **ptaus, float **ptaup
         log_info("determining stable DH and DT parameters.\n");
     }
 
-    /* low Q frame not yet applied as a absorbing boundary */
-    /* if (!FREE_SURF) ny1=1+FW; */
-    /* nfw=FW; check only outside the absorbing frame */
-    int nfw = 0;
-    float cmax_s = 0.f;
-    float cmin_s = 1e9;
-    float cmax_p = 0.f;
-    float cmin_p = 1e9;
-
-    /* find maximum model phase velocity of shear waves at infinite frequency within the whole model */
-    if (gv->L > 0) {            /*viscoelastic */
-        for (int i = 1 + nfw; i <= (nx - nfw); i++) {
-            for (int j = ny1; j <= (ny - nfw); j++) {
-                c = sqrt(pu[j][i] * (1.0 / prho[j][i]) * (1.0 + gv->L * ptaus[j][i]));
-                /*if c is close to zero (water, air), c will be ignored for finding cmax,cmin */
-                if ((cmax_s < c) && (c > cwater))
-                    cmax_s = c;
-                /* find minimum model phase velocity of shear waves at center frequency of the source */
-                sum = 0.0;
-                for (int l = 1; l <= gv->L; l++) {
-                    ts = gv->DT / peta[l];
-                    sum = sum + ((w * w * ptaus[j][i] * ts * ts) / (1.0 + w * w * ts * ts));
-                }
-                c = sqrt((pu[j][i] / prho[j][i]));
-                if ((cmin_s > c) && (c > cwater))
-                    cmin_s = c;
-            }
-        }
-    } else {                    /* L=0, elastic */
-        for (int i = 1 + nfw; i <= (nx - nfw); i++) {
-            for (int j = ny1; j <= (ny - nfw); j++) {
-                c = sqrt(pu[j][i] / prho[j][i]);
-
-                /*if c is close to zero (water, air), c will be ignored for finding cmax,cmin */
-                if ((c > cwater) && (cmax_s < c))
-                    cmax_s = c;
-                if ((c > cwater) && (cmin_s > c))
-                    cmin_s = c;
-            }
-        }
-    }
-
-    /* find maximum model phase velocity of P-waves at infinite frequency within the whole model */
-    if (gv->L > 0) {            /*viscoelastic */
-        for (int i = 1 + nfw; i <= (nx - nfw); i++) {
-            for (int j = ny1; j <= (ny - nfw); j++) {
-                c = sqrt(ppi[j][i] * (1.0 / prho[j][i]) * (1.0 + gv->L * ptaup[j][i]));
-                if ((c > cwater) && (cmax_p < c))
-                    cmax_p = c;
-                /* find minimum model phase velocity of P-waves at center frequency of the source */
-                sum = 0.0;
-                for (int l = 1; l <= gv->L; l++) {
-                    ts = gv->DT / peta[l];
-                    sum = sum + ((w * w * ptaup[j][i] * ts * ts) / (1.0 + w * w * ts * ts));
-                }
-                c = sqrt((ppi[j][i] / prho[j][i]));
-                if ((c > cwater) && (cmin_p > c))
-                    cmin_p = c;
-            }
-        }
-    } else {                    /* L=0, elastic */
-        for (int i = 1 + nfw; i <= (nx - nfw); i++) {
-            for (int j = ny1; j <= (ny - nfw); j++) {
-                c = sqrt(ppi[j][i] / prho[j][i]);
-                /*if c is close to zero (water, air), c will be ignored for finding cmax,cmin */
-                if ((c > cwater) && (cmax_p < c))
-                    cmax_p = c;
-                if ((c > cwater) && (cmin_p > c))
-                    cmin_p = c;
-            }
-        }
-    }
-
-    log_debug("Vp_min(f=fc)=%.2f, Vp_max(f=inf)=%.2f, Vs_min(f=fc)=%.2f, Vs_max(f=inf)=%.2f\n", cmin_p, cmax_p, cmin_s,
-              cmax_s);
-
-    if (cmax_s > cmax_p)
-        cmax = cmax_s;
-    else
-        cmax = cmax_p;
-
-    if (cmin_s < cmin_p)
-        cmin = cmin_s;
-    else
-        cmin = cmin_p;
-
-    /* find global maximum for Vp and global minimum for Vs */
-    MPI_Allreduce(&cmax, &cmax_r, 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
-    MPI_Allreduce(&cmin, &cmin_r, 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
-    cmax = cmax_r;
-    cmin = cmin_r;
+    float cmax = gv->VSMAX > gv->VPMAX ? gv->VSMAX : gv->VPMAX;
+    float cmin = gv->VSMIN < gv->VPMIN ? gv->VSMIN : gv->VPMIN;
 
     if (gv->FDORDER_TIME == 4) {
         temporal = 3.0 / 2.0;
@@ -161,7 +65,10 @@ void checkfd(float **prho, float **ppi, float **pu, float **ptaus, float **ptaup
     CFL = cmax * gv->DT / gv->DH;
 
     if (gv->MPID == 0) {
-        log_info("Min and max model velocity: V_min=%.2fm/s, V_max=%.2fm/s\n", cmin, cmax);
+        log_info("The following velocities take anisotropy and/or attenuation into account.\n");
+        log_info("Min and max P-wave phase velocity: Vp_min=%.2fm/s, Vp_max=%.2fm/s\n", gv->VPMIN, gv->VPMAX);
+        log_info("Min and max S-wave phase velocity: Vs_min=%.2fm/s, Vs_max=%.2fm/s\n", gv->VSMIN, gv->VSMAX);
+        log_info("Overall global min and max velocity: V_min=%.2fm/s, V_max=%.2fm/s\n", cmin, cmax);
         log_info("------------------------- Grid dispersion -------------------\n");
         log_info("To limit grid dispersion, the number of grid points per min.\n");
         log_info("wavelength (of S-waves) should be at least 6. Here, the min.\n");
