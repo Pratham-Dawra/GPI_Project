@@ -18,6 +18,8 @@
 
 #define PI M_PI
 
+#define V_IGNORE 1.0
+
 #define iround(x) ((int)(floor)((x)+0.5))
 
 #define min(x,y) (((x)<(y))?(x):(y))

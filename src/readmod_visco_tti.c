@@ -27,17 +27,12 @@
 #include "read_su.h"
 #include <unistd.h>
 #include <stdbool.h>
+#include <float.h>
 
-#ifdef EBUG
-#include "su_struct.h"
-#include "write_su.h"
-#define NOUT 13
-#endif
-
-void readmod_visco_tti(MemModel * mpm, GlobVar * gv)
+void readmod_visco_tti(MemModel *mpm, GlobVar *gv)
 {
     float c11, c33, c13, c55, tau11, tau33, tau13, tau55, tau15, tau35;
-    float *pts, sumc11, sumc13, sumc33, sumc55;
+    float *pts, sumc13, ts, tp, sumu, sumpi;
     float l1, l2, l12, l22, l14, l24, l13, l23;
     float a1, a3, a4, a5, a6, t;
     float c11t, c33t, c55t, c13t, c15t, c35t;
@@ -112,6 +107,10 @@ void readmod_visco_tti(MemModel * mpm, GlobVar * gv)
     }
 
     float **para = (float **)malloc2d(NPARA, ny, sizeof(float));
+    gv->VPMIN = FLT_MAX;
+    gv->VPMAX = 0.0;
+    gv->VSMIN = FLT_MAX;
+    gv->VSMAX = 0.0;
 
     /* vector for maxwellbodies */
     pts = vector(1, gv->L);
@@ -120,29 +119,8 @@ void readmod_visco_tti(MemModel * mpm, GlobVar * gv)
         mpm->peta[l] = gv->DT / pts[l];
     }
 
-    //float fc = 1.0 / gv->TS;
     float ws = 2.0 * PI * gv->F_REF;
     log_infoc(0, "TTI: Center frequency of %5.2fHz applied for calculation of relaxed moduli.\n", gv->F_REF);
-
-#ifdef EBUG
-    // set up output of all initial matrices for debug purpose
-    float **debug_buffer = NULL;
-    FILE *fp_debug[NOUT];
-    char modfile[STRING_SIZE + 16];
-    const char *debug_name[] = { "pc11", "rho", "pc33", "pc13", "pc55", "pc15", "pc35", 
-				 "ptau11", "ptau33", "ptau13", "ptau55", "ptau15", "ptau35" };
-
-    if (0 == gv->MPID) {
-	debug_buffer = (float **)malloc2d(NOUT, ny, sizeof(float));
-	for (int i = 0; i < NOUT; ++i) {
-	    sprintf(modfile, "%s.debug.%s.su", gv->MFILE, debug_name[i]);
-	    log_debug("Opening debug file %s.\n", modfile);
-	    fp_debug[i] = fopen(modfile, "wb");
-	    if (!fp_debug[i])
-		log_fatal("Could not open debug file %s for writing.\n", modfile);
-	}
-    }
-#endif
 
     /* loop over global grid */
     for (int i = 1; i <= gv->NXG; i++) {
@@ -166,82 +144,74 @@ void readmod_visco_tti(MemModel * mpm, GlobVar * gv)
             fread(&(para[P_QS][0]), sizeof(float), ny, fp[P_QS]);
         }
         for (int j = 1; j <= gv->NYG; j++) {
-            /* calculation of required elastic constants:
-             * c11, c33, c13, c55, tau11, tau33, tau55 */
-            c33 = para[P_RHO][j - 1] * para[P_VP][j - 1] * para[P_VP][j - 1];
-            c55 = para[P_RHO][j - 1] * para[P_VS][j - 1] * para[P_VS][j - 1];
-            c11 = c33 * (2.0 * para[P_EPS][j - 1] + 1.0);
-            c13 = sqrt((2.0 * para[P_DEL][j - 1] * c33 * (c33 - c55)) + ((c33 - c55) * (c33 - c55))) - c55;
-            tau11 = tau33 = 2.0 / (para[P_QP][j - 1] * gv->L);
-            tau55 = 2.0 / (para[P_QS][j - 1] * gv->L);
-            sumc11 = 0.0f;
-            sumc33 = 0.0f;
-            sumc55 = 0.0f;
+            float vp = para[P_VP][j-1];
+            float vs = para[P_VS][j-1];
+	        float vp_90 = vp * sqrt(2.0 * para[P_EPS][j - 1] + 1.0);
+	        float vs_45 = vs > 0.0 ? vs * (1.0 + pow(vp/vs, 2) * 0.25 * (para[P_EPS][j - 1] - para[P_DEL][j - 1])) : 0.0;
+	        // epsilon can (theoretically) be negative, delta as well; make sure we get correct min/max
+	        float vpmax = vp_90 > vp ? vp_90 : vp;
+	        float vpmin = vp_90 < vp ? vp_90 : vp;
+	        float vsmax = vs_45 > vs ? vs_45 : vs;
+	        float vsmin = vs_45 < vs ? vs_45 : vs;
+            tp = 2.0 / (para[P_QP][j - 1] * gv->L);
+            ts = 2.0 / (para[P_QS][j - 1] * gv->L);
+            sumu = 0.0f;
+            sumpi = 0.0f;
             for (int l = 1; l <= gv->L; l++) {
-                sumc11 += ((ws * ws * pts[l] * pts[l] * tau11) / (1.0 + ws * ws * pts[l] * pts[l]));
-                sumc33 += ((ws * ws * pts[l] * pts[l] * tau33) / (1.0 + ws * ws * pts[l] * pts[l]));
-                sumc55 += ((ws * ws * pts[l] * pts[l] * tau55) / (1.0 + ws * ws * pts[l] * pts[l]));
+              sumu += ((ws * ws * pts[l] * pts[l] * ts) / (1.0 + ws * ws * pts[l] * pts[l]));
+              sumpi += ((ws * ws * pts[l] * pts[l] * tp) / (1.0 + ws * ws * pts[l] * pts[l]));
             }
-
-            /* relaxed moduli */
-            c11 = c11 / (1.0 + sumc11);
-            c33 = c33 / (1.0 + sumc33);
-            c55 = c55 / (1.0 + sumc55);
-
-            /* isotropic attenuation */
-            tau13 = tau15 = tau35 = (c11 * gv->L * tau11 - 2.0 * c55 * gv->L * tau55) / (c11 - 2.0 * c55);
-
-            sumc13 = 0.0f;
-            for (int l = 1; l <= gv->L; l++) {
-                sumc13 = sumc13 + ((ws * ws * pts[l] * pts[l] * tau13) / (1.0 + ws * ws * pts[l] * pts[l]));
-            }
-            c13 = c13 / (1.0 + sumc13);
-
-            /* Bond transformation (Oh et al, 2020, GJI, doi: 10.1093/gji/ggaa295 */
-            t = para[P_TET][j - 1] * PI / 180.0;
-            l1 = cos(t);
-            l2 = sin(t);
-            l12 = l1 * l1;
-            l22 = l2 * l2;
-            l14 = l12 * l12;
-            l24 = l22 * l22;
-            l13 = l1 * l12;
-            l23 = l2 * l22;
-            a1 = 2.0 * c13 + 4.0 * c55;
-            a3 = c11 + c33 - 4.0 * c55;
-            a4 = c11 + c33 - 2.0 * c13;
-            a5 = c13 - c11 + 2.0 * c55;
-            a6 = c13 - c33 + 2.0 * c55;
-            c11t = c11 * l14 + c33 * l24 + a1 * l12 * l22;
-            c33t = c11 * l24 + c33 * l14 + a1 * l12 * l22;
-            c13t = a3 * l12 * l22 + c13 * (l14 + l24);
-            c55t = a4 * l12 * l22 + c55 * (l12 - l22) * (l12 - l22);
-            c15t = a5 * l13 * l2 - a6 * l1 * l23;
-            c35t = a5 * l23 * l1 - a6 * l2 * l13;
-
-#ifdef EBUG
-	    if (0 == gv->MPID) {
-		debug_buffer[0][j-1] = c11t;
-		debug_buffer[1][j-1] = para[P_RHO][j - 1];
-		debug_buffer[2][j-1] = c33t;
-		debug_buffer[3][j-1] = c13t;
-		debug_buffer[4][j-1] = c55t;
-		debug_buffer[5][j-1] = c15t;
-		debug_buffer[6][j-1] = c35t;
-		debug_buffer[7][j-1] = tau11;
-		debug_buffer[8][j-1] = tau33;
-		debug_buffer[9][j-1] = tau13;
-		debug_buffer[10][j-1] = tau55;
-		debug_buffer[11][j-1] = tau15;
-		debug_buffer[12][j-1] = tau35;
-	    }
-#endif
-
+            vsmin = vsmin / sqrt(1.0 + sumu);
+            vsmax = vsmax * sqrt((1 + gv->L * ts) / (1.0 + sumu));
+            vpmin = vpmin / sqrt(1.0 + sumpi);
+            vpmax = vpmax * sqrt((1 + gv->L * tp) / (1.0 + sumpi));
+            if (vpmin < gv->VPMIN && vp > V_IGNORE) gv->VPMIN = vpmin;
+            if (vpmax > gv->VPMAX && vp > V_IGNORE) gv->VPMAX = vpmax;
+            if (vsmin < gv->VSMIN && vs > V_IGNORE) gv->VSMIN = vsmin;
+            if (vsmax > gv->VSMAX && vs > V_IGNORE) gv->VSMAX = vsmax;
             /* only the PE which belongs to the current global gridpoint 
              * is saving model parameters in his local arrays */
             if ((gv->POS[1] == ((i - 1) / gv->NX)) && (gv->POS[2] == ((j - 1) / gv->NY))) {
                 ii = i - gv->POS[1] * gv->NX;
                 jj = j - gv->POS[2] * gv->NY;
+                c33 = para[P_RHO][j - 1] * vp * vp;
+                c55 = para[P_RHO][j - 1] * vs * vs;
+                c11 = c33 * (2.0 * para[P_EPS][j - 1] + 1.0);
+                c13 = sqrt((2.0 * para[P_DEL][j - 1] * c33 * (c33 - c55)) + ((c33 - c55) * (c33 - c55))) - c55;
+                tau11 = tau33 = tp;
+                tau55 = ts;
+                /* relaxed moduli */
+                c11 = c11 / (1.0 + sumpi);
+                c33 = c33 / (1.0 + sumpi);
+                c55 = c55 / (1.0 + sumu);
+                /* isotropic attenuation */
+                tau13 = tau15 = tau35 = (c11 * gv->L * tau11 - 2.0 * c55 * gv->L * tau55) / (c11 - 2.0 * c55);
+                sumc13 = 0.0f;
+                for (int l = 1; l <= gv->L; l++) {
+                  sumc13 += ((ws * ws * pts[l] * pts[l] * tau13) / (1.0 + ws * ws * pts[l] * pts[l]));
+                }
+                c13 = c13 / (1.0 + sumc13);
+                /* Bond transformation (Oh et al, 2020, GJI, doi: 10.1093/gji/ggaa295 */
+                t = para[P_TET][j - 1] * PI / 180.0;
+                l1 = cos(t);
+                l2 = sin(t);
+                l12 = l1 * l1;
+                l22 = l2 * l2;
+                l14 = l12 * l12;
+                l24 = l22 * l22;
+                l13 = l1 * l12;
+                l23 = l2 * l22;
+                a1 = 2.0 * c13 + 4.0 * c55;
+                a3 = c11 + c33 - 4.0 * c55;
+                a4 = c11 + c33 - 2.0 * c13;
+                a5 = c13 - c11 + 2.0 * c55;
+                a6 = c13 - c33 + 2.0 * c55;
+                c11t = c11 * l14 + c33 * l24 + a1 * l12 * l22;
+                c33t = c11 * l24 + c33 * l14 + a1 * l12 * l22;
+                c13t = a3 * l12 * l22 + c13 * (l14 + l24);
+                c55t = a4 * l12 * l22 + c55 * (l12 - l22) * (l12 - l22);
+                c15t = a5 * l13 * l2 - a6 * l1 * l23;
+                c35t = a5 * l23 * l1 - a6 * l2 * l13;
                 mpm->pc11[jj][ii] = c11t;
                 mpm->prho[jj][ii] = para[P_RHO][j - 1];
                 mpm->pc33[jj][ii] = c33t;
@@ -257,64 +227,15 @@ void readmod_visco_tti(MemModel * mpm, GlobVar * gv)
                 mpm->ptau35[jj][ii] = tau35;
             }
         }
-
-#ifdef EBUG
-	// output matrix column (=trace)
-	if (0 == gv->MPID) {
-	    int ierr = 0;
-	    SUhead head;
-	    init_SUhead(&head);
-	    head.ns =  (unsigned short)gv->NYG;
-	    head.dt =  (int)gv->DH;
-	    head.tracl = head.tracr = i;
-	    head.ntr = gv->NXG;
-	    head.d1 = head.d2 = gv->DH;	    
-	    for (int k = 0; k < NOUT; ++k) {
-		ierr = su_write_trace(fp_debug[k], &head, &(debug_buffer[k][0]));
-		if (0 != ierr) {
-		    sprintf(modfile, "%s.debug.%s.su", gv->MFILE, debug_name[k]);   
-		    log_warn("Error while writing SU debug file %s.\n", modfile);
-		}
-	    }
-	}
-#endif
-
     }
 
     free_vector(pts, 1, gv->L);
     if (para)
         free(para);
 
-#ifdef EBUG
-    if (0 == gv->MPID) {
-	if (debug_buffer)
-	    free(debug_buffer);
-	for (int i = 0; i < NOUT; ++i) {
-	    fclose(fp_debug[i]);
-	}
-    }
-#endif
-
     for (int i = 0; i < NPARA; ++i) {
         fclose(fp[i]);
     }
-
-#ifdef EBUG
-    debug_check_matrix(mpm->prho, 0, gv->NX, gv->NY, 8, 0, "prho");
-    debug_check_matrix(mpm->pc11, 0, gv->NX, gv->NY, 8, 0, "pc11");
-    debug_check_matrix(mpm->pc33, 0, gv->NX, gv->NY, 8, 0, "pc33");
-    debug_check_matrix(mpm->pc13, 0, gv->NX, gv->NY, 8, 0, "pc13");
-    debug_check_matrix(mpm->pc55, 0, gv->NX, gv->NY, 8, 0, "pc55");
-    debug_check_matrix(mpm->pc15, 0, gv->NX, gv->NY, 8, 0, "pc15");
-    debug_check_matrix(mpm->pc35, 0, gv->NX, gv->NY, 8, 0, "pc35");
-    debug_check_matrix(mpm->ptau11, 0, gv->NX, gv->NY, 8, 0, "ptau11");
-    debug_check_matrix(mpm->ptau33, 0, gv->NX, gv->NY, 8, 0, "ptau33");
-    debug_check_matrix(mpm->ptau13, 0, gv->NX, gv->NY, 8, 0, "ptau13");
-    debug_check_matrix(mpm->ptau55, 0, gv->NX, gv->NY, 8, 0, "ptau55");
-    debug_check_matrix(mpm->ptau15, 0, gv->NX, gv->NY, 8, 0, "ptau15");
-    debug_check_matrix(mpm->ptau35, 0, gv->NX, gv->NY, 8, 0, "ptau35");
-    debug_check_vector(mpm->peta, 0, gv->L, 8, 0, "peta");
-#endif
 
     return;
 }

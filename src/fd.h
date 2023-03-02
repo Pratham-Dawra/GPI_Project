@@ -59,8 +59,7 @@ void av_tau(float **taus, float **tausipjp, GlobVar * gv);
 
 void check_fs(GlobVar * gv);
 
-void checkfd(float **prho, float **ppi, float **pu, float **ptaus, float **ptaup, float *peta,
-             float *hc, float **srcpos, int nsrc, int **recpos, GlobVar * gv);
+void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar * gv);
 
 void catseis(float **data, float **fulldata, int *recswitch, int ntr_glob, int ns);
 

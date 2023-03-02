@@ -15,7 +15,7 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with SOFI2D. See file COPYING and/or 
-  * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
 /* ------------------------------------------------------------------------
@@ -27,8 +27,9 @@
 #include "read_su.h"
 #include <unistd.h>
 #include <stdbool.h>
+#include <float.h>
 
-void readmod_elastic_vti(MemModel * mpm, GlobVar * gv)
+void readmod_elastic_vti(MemModel *mpm, GlobVar *gv)
 {
     float c11, c33, c13, c55;
     int ii, jj;
@@ -98,6 +99,10 @@ void readmod_elastic_vti(MemModel * mpm, GlobVar * gv)
     }
 
     float **para = (float **)malloc2d(NPARA, ny, sizeof(float));
+    gv->VPMIN = FLT_MAX;
+    gv->VPMAX = 0.0;
+    gv->VSMIN = FLT_MAX;
+    gv->VSMAX = 0.0;
 
     /* loop over global grid */
     for (int i = 1; i <= gv->NXG; i++) {
@@ -115,15 +120,28 @@ void readmod_elastic_vti(MemModel * mpm, GlobVar * gv)
             fread(&(para[P_DEL][0]), sizeof(float), ny, fp[P_DEL]);
         }
         for (int j = 1; j <= gv->NYG; j++) {
-            c33 = para[P_RHO][j - 1] * para[P_VP][j - 1] * para[P_VP][j - 1];
-            c55 = para[P_RHO][j - 1] * para[P_VS][j - 1] * para[P_VS][j - 1];
-            c11 = c33 * (2.0 * para[P_EPS][j - 1] + 1.0);
-            c13 = sqrt((2.0 * para[P_DEL][j - 1] * c33 * (c33 - c55)) + ((c33 - c55) * (c33 - c55))) - c55;
+            float vp = para[P_VP][j-1];
+	        float vs = para[P_VS][j-1];
+	        float vp_90 = vp * sqrt(2.0 * para[P_EPS][j - 1] + 1.0);
+	        float vs_45 = vs > 0.0 ? vs * (1.0 + pow(vp/vs, 2) * 0.25 * (para[P_EPS][j - 1] - para[P_DEL][j - 1])) : 0.0;
+	        // epsilon can (theoretically) be negative, delta as well; make sure we get correct min/max
+	        float vpmax = vp_90 > vp ? vp_90 : vp;
+	        float vpmin = vp_90 < vp ? vp_90 : vp;
+	        float vsmax = vs_45 > vs ? vs_45 : vs;
+	        float vsmin = vs_45 < vs ? vs_45 : vs;
+	        if (vpmin < gv->VPMIN && vp > V_IGNORE) gv->VPMIN = vpmin;
+	        if (vpmax > gv->VPMAX && vp > V_IGNORE) gv->VPMAX = vpmax;
+	        if (vsmin < gv->VSMIN && vs > V_IGNORE) gv->VSMIN = vsmin;
+	        if (vsmax > gv->VSMAX && vs > V_IGNORE) gv->VSMAX = vsmax;
             /* only the PE which belongs to the current global gridpoint 
              * is saving model parameters in his local arrays */
             if ((gv->POS[1] == ((i - 1) / gv->NX)) && (gv->POS[2] == ((j - 1) / gv->NY))) {
                 ii = i - gv->POS[1] * gv->NX;
                 jj = j - gv->POS[2] * gv->NY;
+		        c33 = para[P_RHO][j - 1] * vp * vp;
+		        c55 = para[P_RHO][j - 1] * vs * vs;
+		        c11 = c33 * (2.0 * para[P_EPS][j - 1] + 1.0);
+		        c13 = sqrt((2.0 * para[P_DEL][j - 1] * c33 * (c33 - c55)) + ((c33 - c55) * (c33 - c55))) - c55;
                 mpm->pc11[jj][ii] = c11;
                 mpm->pc13[jj][ii] = c13;
                 mpm->pc33[jj][ii] = c33;

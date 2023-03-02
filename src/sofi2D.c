@@ -266,46 +266,7 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
 
     /* check if the FD run will be stable and free of numerical dispersion */
-    switch (gv.WEQ) {
-      case AC_ISO:             /* acoustic */
-          log_fatal("not yet implemented\n");
-          break;
-      case AC_VTI:             /* acoustic VTI */
-          log_fatal("not yet implemented\n");
-          break;
-      case AC_TTI:             /* acoustic TTI */
-          log_fatal("not yet implemented\n");
-          break;
-      case EL_ISO:             /* elastic */
-          checkfd(mpm.prho, mpm.ppi, mpm.pu, mpm.ptaus, mpm.ptaup, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
-          break;
-      case VEL_ISO:            /* viscoelastic */
-          checkfd(mpm.prho, mpm.ppi, mpm.pu, mpm.ptaus, mpm.ptaup, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
-          break;
-      case EL_VTI:             /* elastic VTI */
-          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptaus, mpm.ptaup, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
-          break;
-      case VEL_VTI:            /* viscoelastic VTI */
-          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptau55, mpm.ptau11, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
-          break;
-      case EL_TTI:             /* elastic TTI */
-          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptaus, mpm.ptaup, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
-          break;
-      case VEL_TTI:            /* viscoelastic TTI */
-          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptau55, mpm.ptau11, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
-          break;
-      case VAC_ISO:            /* viscoacoustic */
-          log_fatal("not yet implemented\n");
-          break;
-      case VAC_VTI:            /* viscoacoustic VTI */
-          log_fatal("not yet implemented\n");
-          break;
-      case VAC_TTI:            /* viscoacoustic TTI */
-          log_fatal("not yet implemented\n");
-          break;
-      default:
-          log_fatal("Unknown WEQ.\n");
-    }
+    checkfd(hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
 
     /* calculate damping coefficients for CPMLs */
     if (gv.ABS_TYPE == 1) {

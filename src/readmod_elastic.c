@@ -27,10 +27,10 @@
 #include "read_su.h"
 #include <unistd.h>
 #include <stdbool.h>
+#include <float.h>
 
-void readmod_elastic(MemModel * mpm, GlobVar * gv)
+void readmod_elastic(MemModel *mpm, GlobVar *gv)
 {
-    float muv, piv;
     int ii, jj;
     size_t ny;
     char filename[STRING_SIZE + 16];
@@ -94,6 +94,10 @@ void readmod_elastic(MemModel * mpm, GlobVar * gv)
     }
 
     float **para = (float **)malloc2d(NPARA, ny, sizeof(float));
+    gv->VPMIN = FLT_MAX;
+    gv->VPMAX = 0.0;
+    gv->VSMIN = FLT_MAX;
+    gv->VSMAX = 0.0;
 
     /* loop over global grid */
     for (int i = 1; i <= gv->NXG; i++) {
@@ -107,16 +111,20 @@ void readmod_elastic(MemModel * mpm, GlobVar * gv)
             fread(&(para[P_RHO][0]), sizeof(float), ny, fp[P_RHO]);
         }
         for (int j = 1; j <= gv->NYG; j++) {
-            muv = para[P_VS][j - 1] * para[P_VS][j - 1] * para[P_RHO][j - 1];
-            piv = para[P_VP][j - 1] * para[P_VP][j - 1] * para[P_RHO][j - 1];
+            float vp = para[P_VP][j-1];
+            float vs = para[P_VS][j-1];
+	        if (vp < gv->VPMIN && vp > V_IGNORE) gv->VPMIN = vp;
+	        if (vp > gv->VPMAX && vp > V_IGNORE) gv->VPMAX = vp;
+	        if (vs < gv->VSMIN && vs > V_IGNORE) gv->VSMIN = vs;
+	        if (vs > gv->VSMAX && vs > V_IGNORE) gv->VSMAX = vs;
             /* only the PE which belongs to the current global gridpoint 
              * is saving model parameters in his local arrays */
             if ((gv->POS[1] == ((i - 1) / gv->NX)) && (gv->POS[2] == ((j - 1) / gv->NY))) {
                 ii = i - gv->POS[1] * gv->NX;
                 jj = j - gv->POS[2] * gv->NY;
-                mpm->pu[jj][ii] = muv;
+                mpm->pu[jj][ii] = vs * vs * para[P_RHO][j - 1];
                 mpm->prho[jj][ii] = para[P_RHO][j - 1];
-                mpm->ppi[jj][ii] = piv;
+                mpm->ppi[jj][ii] = vp * vp * para[P_RHO][j - 1];
             }
         }
     }
