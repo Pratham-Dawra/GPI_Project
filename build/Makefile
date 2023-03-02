@@ -168,11 +168,13 @@ FDMOD_FILES := sofi2D.c \
                prepare_update_s_vti.c \
                prepare_update_s_tti.c \
                prepare_update_s_4.c \
+               prepmod.c \
                psource.c \
                read_par_json.c \
                read_srcsig.c \
                read_su.c \
                readdsk.c \
+               readmod.c \
                readmod_visco.c \
                readmod_elastic.c \
                readmod_elastic_vti.c \
@@ -180,6 +182,7 @@ FDMOD_FILES := sofi2D.c \
                readmod_visco_vti.c \
                readmod_visco_tti.c \
                receiver.c \
+               saveseis.c \
                saveseis_glob.c \
                seismo_ssg.c \
                snap_ssg.c \
@@ -191,6 +194,7 @@ FDMOD_FILES := sofi2D.c \
                subgrid_bounds.c \
                surface.c \
                surface_elastic.c \
+               time_loop.c \
                update_s_elastic_abs.c \
                update_s_elastic_VTI_abs.c \
                update_s_elastic_abs_4.c \

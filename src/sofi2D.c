@@ -53,8 +53,9 @@ int main(int argc, char **argv)
 {
     /* variables in main */
     int nt;
-    int lsnap, nsnap = 0, lsamp = 0;
-    int nsrc_loc = 0, infocounter = 0;
+    int lsnap, nsnap = 0;
+    int nsrc_loc = 0;
+//    int infocounter = 0;
     int ishot, nshots;          /* Added ishot and nshots for multiple shots */
     int **dummy = NULL;
     /*Limits for local grids defined in subgrid_bounds.c */
@@ -63,10 +64,9 @@ int main(int argc, char **argv)
     FILE *log_fp = NULL;
 
     char ext[10];
-    double time1 = 0.0, time2 = 0.0, time3 = 0.0, time4 = 0.0;
-    double time5 = 0.0, time6 = 0.0, time7 = 0.0, time8 = 0.0;
-    double time_av_v_update = 0.0, time_av_s_update = 0.0,
-        time_av_v_exchange = 0.0, time_av_s_exchange = 0.0, time_av_timestep = 0.0;
+    double time1 = 0.0, time2 = 0.0, time9 = 0.0;
+//    double time_av_v_update = 0.0, time_av_s_update = 0.0,
+//        time_av_v_exchange = 0.0, time_av_s_exchange = 0.0, time_av_timestep = 0.0;
 
     float *hc = NULL;
     float **signals = NULL;
@@ -82,6 +82,9 @@ int main(int argc, char **argv)
 
     /* declare struct for model variables */
     MemModel mpm = { };
+
+    /* declare struct for performance measures */
+    Perform perf = { };
 
     /* initialize MPI environment */
     MPI_Init(&argc, &argv);
@@ -174,13 +177,12 @@ int main(int argc, char **argv)
     gv.NT = iround(gv.TIME / gv.DT);    /* number of time steps */
     gv.NS = iround(gv.NT / gv.NDT); /* number of samples per trace */
     lsnap = iround(gv.TSNAP1 / gv.DT);  /* first snapshot at this time step */
-    lsamp = gv.NDT;
 
     /* output of parameters */
     if (gv.MPID == 0) {
         write_par(&gv);
     }
-    
+
     /* Reading acquisition parameters */
     acq_read(&acq, &gv);
 
@@ -196,72 +198,7 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
 
     /* create model grids */
-    if (gv.READMOD) {
-        switch (gv.WEQ) {
-          case AC_ISO:         /* acoustic */
-              log_fatal("not yet implemented\n");
-              break;
-          case AC_VTI:         /* acoustic VTI */
-              log_fatal("not yet implemented\n");
-              break;
-          case AC_TTI:         /* acoustic TTI */
-              log_fatal("not yet implemented\n");
-              break;
-          case EL_ISO:         /* elastic */
-              readmod_elastic(&mpm, &gv);
-              break;
-          case VEL_ISO:        /* viscoelastic */
-              readmod_visco(&mpm, &gv);
-              break;
-          case EL_VTI:         /* elastic VTI */
-              readmod_elastic_vti(&mpm, &gv);
-              break;
-          case VEL_VTI:        /* viscoelastic VTI */
-              readmod_visco_vti(&mpm, &gv);
-              break;
-          case EL_TTI:         /* elastic TTI */
-              readmod_elastic_tti(&mpm, &gv);
-              break;
-          case VEL_TTI:        /* viscoelastic TTI */
-              readmod_visco_tti(&mpm, &gv);
-              break;
-          case VAC_ISO:        /* viscoacoustic */
-              log_fatal("not yet implemented\n");
-              break;
-          case VAC_VTI:        /* viscoacoustic VTI */
-              log_fatal("not yet implemented\n");
-              break;
-          case VAC_TTI:        /* viscoacoustic TTI */
-              log_fatal("not yet implemented\n");
-              break;
-          default:
-              log_fatal("Unknown WEQ.\n");
-        }
-    } else {
-        switch (gv.WEQ) {
-          case EL_ISO:         /* elastic */
-              model_elastic(&mpm, &gv);
-              break;
-          case VEL_ISO:        /* viscoelastic */
-              model_visco(&mpm, &gv);
-              break;
-          case EL_VTI:         /* elastic VTI */
-              model_elastic_VTI(&mpm, &gv);
-              break;
-          case VEL_VTI:        /* viscoelastic VTI */
-              model_visco_vti(&mpm, &gv);
-              break;
-          case EL_TTI:         /* elastic TTI */
-              model_elastic_TTI(&mpm, &gv);
-              break;
-          case VEL_TTI:        /* viscoelastic TTI */
-              model_visco_tti(&mpm, &gv);
-              break;
-          default:
-              log_fatal("Internal model for your chosen WEQ not implemented.\n");
-              break;
-        }
-    }
+    readmod(&mpm, &gv);
 
     MPI_Barrier(MPI_COMM_WORLD);
 
@@ -283,16 +220,20 @@ int main(int argc, char **argv)
           checkfd(mpm.prho, mpm.ppi, mpm.pu, mpm.ptaus, mpm.ptaup, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
           break;
       case EL_VTI:             /* elastic VTI */
-          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptaus, mpm.ptaup, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
+          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptaus, mpm.ptaup, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos,
+                  &gv);
           break;
       case VEL_VTI:            /* viscoelastic VTI */
-          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptau55, mpm.ptau11, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
+          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptau55, mpm.ptau11, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos,
+                  &gv);
           break;
       case EL_TTI:             /* elastic TTI */
-          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptaus, mpm.ptaup, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
+          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptaus, mpm.ptaup, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos,
+                  &gv);
           break;
       case VEL_TTI:            /* viscoelastic TTI */
-          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptau55, mpm.ptau11, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
+          checkfd(mpm.prho, mpm.pc11, mpm.pc55, mpm.ptau55, mpm.ptau11, mpm.peta, hc, acq.srcpos, acq.nsrc, acq.recpos,
+                  &gv);
           break;
       case VAC_ISO:            /* viscoacoustic */
           log_fatal("not yet implemented\n");
@@ -319,159 +260,7 @@ int main(int argc, char **argv)
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    /* For the calculation of the material parameters beteween gridpoints
-     * they have to be averaged. For this, values lying at 0 and NX+1,
-     * for example, are required on the local grid. These are now copied from the
-     * neighbouring grids */
-
-    switch (gv.WEQ) {
-      case AC_ISO:             /* acoustic */
-          log_fatal("not yet implemented\n");
-          break;
-      case AC_VTI:             /* acoustic VTI */
-          log_fatal("not yet implemented\n");
-          break;
-      case AC_TTI:             /* acoustic TTI */
-          log_fatal("not yet implemented\n");
-          break;
-      case EL_ISO:             /* elastic */
-          matcopy_elastic(mpm.prho, mpm.ppi, mpm.pu, &gv);
-          av_mue(mpm.pu, mpm.puipjp, &gv);
-          av_rho(mpm.prho, mpm.prip, mpm.prjp, &gv);
-          break;
-      case VEL_ISO:            /* viscoelastic */
-          matcopy(mpm.prho, mpm.ppi, mpm.pu, mpm.ptaus, mpm.ptaup, &gv);    //???? why here just matcopy and not matcopy_elastic
-          av_mue(mpm.pu, mpm.puipjp, &gv);
-          av_rho(mpm.prho, mpm.prip, mpm.prjp, &gv);
-          av_tau(mpm.ptaus, mpm.ptausipjp, &gv);
-          break;
-      case EL_VTI:             /* elastic VTI */
-          matcopy_elastic(mpm.prho, mpm.pc11, mpm.pc55, &gv);
-          av_mue(mpm.pc55, mpm.pc55ipjp, &gv);
-          av_rho(mpm.prho, mpm.prip, mpm.prjp, &gv);
-#ifdef EBUG
-          debug_check_matrix(mpm.pc55ipjp, 0, gv.NX, gv.NY, 55, 0, "pc55ipjp");
-          debug_check_matrix(mpm.prip, 0, gv.NX, gv.NY, 55, 0, "prip");
-          debug_check_matrix(mpm.prjp, 0, gv.NX, gv.NY, 55, 0, "prjp");
-#endif
-          break;
-      case VEL_VTI:            /* viscoelastic VTI */
-          matcopy_elastic(mpm.prho, mpm.ptau55, mpm.pc55, &gv);
-          av_mue(mpm.pc55, mpm.pc55ipjp, &gv);
-          av_rho(mpm.prho, mpm.prip, mpm.prjp, &gv);
-          av_tau(mpm.ptau55, mpm.ptau55ipjp, &gv);
-#ifdef EBUG
-          debug_check_matrix(mpm.pc55ipjp, 0, gv.NX, gv.NY, 66, 0, "pc55ipjp");
-          debug_check_matrix(mpm.prip, 0, gv.NX, gv.NY, 66, 0, "prip");
-          debug_check_matrix(mpm.prjp, 0, gv.NX, gv.NY, 66, 0, "prjp");
-          debug_check_matrix(mpm.ptau55ipjp, 0, gv.NX, gv.NY, 66, 0, "ptau55ipjp");
-#endif
-          break;
-      case EL_TTI:             /* elastic TTI */
-          matcopy_elastic(mpm.prho, mpm.pc11, mpm.pc55, &gv);
-          matcopy_elastic(mpm.prho, mpm.pc15, mpm.pc35, &gv);
-          av_mue(mpm.pc55, mpm.pc55ipjp, &gv);
-          av_mue(mpm.pc15, mpm.pc15ipjp, &gv);
-          av_mue(mpm.pc35, mpm.pc35ipjp, &gv);
-          av_rho(mpm.prho, mpm.prip, mpm.prjp, &gv);
-#ifdef EBUG
-          debug_check_matrix(mpm.pc55ipjp, 0, gv.NX, gv.NY, 77, 0, "pc55ipjp");
-          debug_check_matrix(mpm.prip, 0, gv.NX, gv.NY, 77, 0, "prip");
-          debug_check_matrix(mpm.prjp, 0, gv.NX, gv.NY, 77, 0, "prjp");
-          debug_check_matrix(mpm.pc15ipjp, 0, gv.NX, gv.NY, 77, 0, "pc15ipjp");
-          debug_check_matrix(mpm.pc35ipjp, 0, gv.NX, gv.NY, 77, 0, "pc35ipjp");
-#endif
-          break;
-      case VEL_TTI:            /* viscoelastic TTI */
-          matcopy_elastic(mpm.prho, mpm.ptau55, mpm.pc55, &gv);
-          matcopy_elastic(mpm.prho, mpm.ptau15, mpm.pc15, &gv);
-          matcopy_elastic(mpm.prho, mpm.ptau35, mpm.pc35, &gv);
-          av_mue(mpm.pc55, mpm.pc55ipjp, &gv);
-          av_mue(mpm.pc15, mpm.pc15ipjp, &gv);
-          av_mue(mpm.pc35, mpm.pc35ipjp, &gv);
-          av_rho(mpm.prho, mpm.prip, mpm.prjp, &gv);
-          av_tau(mpm.ptau55, mpm.ptau55ipjp, &gv);
-          av_tau(mpm.ptau15, mpm.ptau15ipjp, &gv);
-          av_tau(mpm.ptau35, mpm.ptau35ipjp, &gv);
-#ifdef EBUG
-          debug_check_matrix(mpm.pc55ipjp, 0, gv.NX, gv.NY, 88, 0, "pc55ipjp");
-          debug_check_matrix(mpm.prip, 0, gv.NX, gv.NY, 88, 0, "prip");
-          debug_check_matrix(mpm.prjp, 0, gv.NX, gv.NY, 88, 0, "prjp");
-          debug_check_matrix(mpm.pc15ipjp, 0, gv.NX, gv.NY, 88, 0, "pc15ipjp");
-          debug_check_matrix(mpm.pc35ipjp, 0, gv.NX, gv.NY, 88, 0, "pc35ipjp");
-          debug_check_matrix(mpm.ptau55ipjp, 0, gv.NX, gv.NY, 88, 0, "ptau55ipjp");
-          debug_check_matrix(mpm.ptau15ipjp, 0, gv.NX, gv.NY, 88, 0, "ptau15ipjp");
-          debug_check_matrix(mpm.ptau35ipjp, 0, gv.NX, gv.NY, 88, 0, "ptau35ipjp");
-#endif
-          break;
-      case VAC_ISO:            /* viscoacoustic */
-          log_fatal("not yet implemented\n");
-          break;
-      case VAC_VTI:            /* viscoacoustic VTI */
-          log_fatal("not yet implemented\n");
-          break;
-      case VAC_TTI:            /* viscoacoustic TTI */
-          log_fatal("not yet implemented\n");
-          break;
-      default:
-          log_fatal("Unknown WEQ.\n");
-    }
-
-    /* Preparing memory variables for update_s (viscoelastic only) */
-
-    if (gv.FDORDER_TIME == 2) {
-        switch (gv.WEQ) {
-          case AC_ISO:         /* acoustic */
-              break;
-          case AC_VTI:         /* acoustic VTI */
-              break;
-          case AC_TTI:         /* acoustic TTI */
-              break;
-          case EL_ISO:         /* elastic */
-              break;
-          case VEL_ISO:        /* viscoelastic */
-              prepare_update_s(&mpm, &gv);
-              break;
-          case EL_VTI:
-              dt_mult(gv.NX, gv.NY, gv.DT, mpm.pc11);
-              dt_mult(gv.NX, gv.NY, gv.DT, mpm.pc33);
-              dt_mult(gv.NX, gv.NY, gv.DT, mpm.pc13);
-              dt_mult(gv.NX, gv.NY, gv.DT, mpm.pc55ipjp);
-              break;
-          case VEL_VTI:        /* viscoelastic VTI */
-              prepare_update_s_vti(&mpm, &gv);
-
-              break;
-          case EL_TTI:
-              dt_mult(gv.NX, gv.NY, gv.DT, mpm.pc11);
-              dt_mult(gv.NX, gv.NY, gv.DT, mpm.pc33);
-              dt_mult(gv.NX, gv.NY, gv.DT, mpm.pc13);
-              dt_mult(gv.NX, gv.NY, gv.DT, mpm.pc15);
-              dt_mult(gv.NX, gv.NY, gv.DT, mpm.pc35);
-              dt_mult(gv.NX, gv.NY, gv.DT, mpm.pc55ipjp);
-              dt_mult(gv.NX, gv.NY, gv.DT, mpm.pc35ipjp);
-              dt_mult(gv.NX, gv.NY, gv.DT, mpm.pc15ipjp);
-              break;
-          case VEL_TTI:        /* viscoelastic TTI */
-              prepare_update_s_tti(&mpm, &gv);
-              break;
-          case VAC_ISO:        /* viscoacoustic */
-              log_fatal("not yet implemented\n");
-              break;
-          case VAC_VTI:        /* viscoacoustic VTI */
-              log_fatal("not yet implemented\n");
-              break;
-          case VAC_TTI:        /* viscoacoustic TTI */
-              log_fatal("not yet implemented\n");
-              break;
-          default:
-              log_fatal("Unknown WEQ.\n");
-        }
-    }
-
-    if ((gv.WEQ == VEL_ISO) && gv.FDORDER_TIME == 4) {
-        prepare_update_s_4(&mpm, &gv);
-    }
+    prepmod(&mpm, &gv);
 
     MPI_Barrier(MPI_COMM_WORLD);
 
@@ -540,9 +329,6 @@ int main(int argc, char **argv)
         /* initialize wavefield with zero */
         zero_wavefield(&mpw, &gv);
 
-        /* Reseting lsmap to NDT for saving seismograms  */
-        lsamp = gv.NDT;
-
         subgrid_bounds(1, gv.NX, 1, gv.NY, &gv);
 
         /*---------------------------------------------------------------*/
@@ -551,281 +337,7 @@ int main(int argc, char **argv)
 
         /*---------------------------------------------------------------*/
 
-        for (nt = 1; nt <= gv.NT; nt++) {
-
-            if (isnan(mpw.pvy[gv.NY / 2][gv.NX / 2])) {
-                log_error("Time step: %d; pvy: %f.\n", nt, mpw.pvy[gv.NY / 2][gv.NX / 2]);
-                log_fatal("Simulation is unstable!\n");
-            }
-
-            if ((gv.MPID == 0) && ((nt - 1) % gv.OUTNTIMESTEPINFO == 0)) {
-                log_info("Computing time step %d of %d.\n", nt, gv.NT);
-                time3 = MPI_Wtime();
-            }
-
-            /*---------------------------------------------------------------*/
-            /* update of particle velocities -------------------------------- */
-
-            /*---------------------------------------------------------------*/
-            if (gv.FDORDER_TIME == 2) {
-                update_v_interior(nt, acq.srcpos_loc, signals, nsrc_loc, hc, &mpm, &mpw, &gv);
-#ifdef EBUG
-                debug_check_matrix(mpw.pvx, nt, gv.NX, gv.NY, 121, 0, "pvx");
-                debug_check_matrix(mpw.pvy, nt, gv.NX, gv.NY, 121, 0, "pvy");
-#endif
-
-                if (gv.FW) {
-                    if (gv.ABS_TYPE == 1) {
-                        update_v_PML(gv.NX, gv.NY, nt, &mpm, &mpw, &gv);
-                    }
-
-                    if (gv.ABS_TYPE == 2) {
-                        update_v_abs(&mpm, &mpw, &gv);
-                    }
-#ifdef EBUG
-                    debug_check_matrix(mpw.pvx, nt, gv.NX, gv.NY, 122, 0, "pvx");
-                    debug_check_matrix(mpw.pvy, nt, gv.NX, gv.NY, 122, 0, "pvy");
-#endif
-                }
-            }
-
-            if (gv.FDORDER_TIME == 4) {
-                update_v_interior_4(nt, acq.srcpos_loc, signals, nsrc_loc, hc, &mpm, &mpw, &gv);
-                if (gv.FW) {
-                    if (gv.ABS_TYPE == 1) {
-                        update_v_PML_4(gv.NX, gv.NY, nt, &mpm, &mpw, &gv);
-                    }
-
-                    if (gv.ABS_TYPE == 2) {
-                        update_v_abs_4(nt, &mpm, &mpw, &gv);
-                    }
-                }
-
-                /* Shift spatial derivations of the stress one time step back */
-                shift_var2(&(mpw.svx_1), &(mpw.svx_2), &(mpw.svx_3), &(mpw.svx_4));
-                shift_var2(&(mpw.svy_1), &(mpw.svy_2), &(mpw.svy_3), &(mpw.svy_4));
-            }
-
-            if ((gv.MPID == 0) && ((nt - 1) % gv.OUTNTIMESTEPINFO == 0)) {
-                time4 = MPI_Wtime();
-                time_av_v_update += (time4 - time3);
-                log_debug("Starting particle velocity exchange between PEs...\n");
-            }
-
-            /*---------------------------------------------------------------*
-             * ------- exchange of particle velocities between PEs --------- *
-             *---------------------------------------------------------------*/
-
-            exchange_v(mpw.pvx, mpw.pvy, &mpw, &gv);
-
-            if ((gv.WEQ == EL_TTI) || (gv.WEQ == VEL_TTI)) {    /* TTI */
-                v_derivatives(&mpw, &gv);
-                exchange_v(mpw.pvxx, mpw.pvyy, &mpw, &gv);
-                exchange_v(mpw.pvyx, mpw.pvxy, &mpw, &gv);
-            }
-
-            if ((gv.MPID == 0) && ((nt - 1) % gv.OUTNTIMESTEPINFO == 0)) {
-                time5 = MPI_Wtime();
-                time_av_v_exchange += (time5 - time4);
-                log_debug("Finished particle velocity exchange between PEs (real time: %.4fs).\n", time5 - time4);
-            }
-
-            /*---------------------------------------------------------------*/
-            /* stress update ------------------------------------------------ */
-
-            /*---------------------------------------------------------------*/
-            if (gv.FDORDER_TIME == 2) {
-
-                switch (gv.WEQ) {
-                  case AC_ISO: /* acoustic */
-                      log_fatal("not yet implemented\n");
-                      break;
-                  case AC_VTI: /* acoustic VTI */
-                      log_fatal("not yet implemented\n");
-                      break;
-                  case AC_TTI: /* acoustic TTI */
-                      log_fatal("not yet implemented\n");
-                      break;
-                  case EL_ISO: /* elastic */
-                      update_s_elastic_interior(nt, hc, &mpm, &mpw, &gv);
-
-                      if (gv.FW) {
-                          if (gv.ABS_TYPE == 1)
-                              update_s_elastic_PML(nt, &mpm, &mpw, &gv);
-                          if (gv.ABS_TYPE == 2)
-                              update_s_elastic_abs(nt, &mpm, &mpw, &gv);
-                      }
-                      break;
-                  case VEL_ISO:    /* viscoelastic */
-                      update_s_visc_interior(nt, &mpm, &mpw, &gv);
-                      if (gv.FW) {
-                          if (gv.ABS_TYPE == 1)
-                              update_s_visc_PML(nt, &mpm, &mpw, &gv);
-                          if (gv.ABS_TYPE == 2)
-                              update_s_visc_abs(&mpm, &mpw, &gv);
-                      }
-                      break;
-                  case EL_VTI: /* elastic VTI */
-                      update_s_elastic_VTI_interior(nt, &mpm, &mpw, &gv);
-                      if (gv.FW) {
-                          if (gv.ABS_TYPE == 1)
-                              update_s_elastic_VTI_PML(&mpm, &mpw, &gv);
-                          if (gv.ABS_TYPE == 2)
-                              update_s_elastic_vti_abs(&mpm, &mpw, &gv);
-                      }
-#ifdef EBUG
-                      debug_check_matrix(mpw.psxx, nt, gv.NX, gv.NY, 555, 0, "psxx");
-                      debug_check_matrix(mpw.psyy, nt, gv.NX, gv.NY, 555, 0, "psyy");
-                      debug_check_matrix(mpw.psxy, nt, gv.NX, gv.NY, 555, 0, "psxy");
-#endif
-                      break;
-                  case VEL_VTI:    /* viscoelastic VTI */
-                      update_s_visc_VTI_interior(nt, &mpm, &mpw, &gv);
-                      if (gv.FW) {
-                          if (gv.ABS_TYPE == 1)
-                              update_s_visc_VTI_PML(&mpm, &mpw, &gv);
-                          if (gv.ABS_TYPE == 2)
-                              update_s_visc_vti_abs(&mpm, &mpw, &gv);
-                      }
-#ifdef EBUG
-                      debug_check_matrix(mpw.psxx, nt, gv.NX, gv.NY, 666, 0, "psxx");
-                      debug_check_matrix(mpw.psyy, nt, gv.NX, gv.NY, 666, 0, "psyy");
-                      debug_check_matrix(mpw.psxy, nt, gv.NX, gv.NY, 666, 0, "psxy");
-#endif
-                      break;
-                  case EL_TTI: /* elastic TTI */
-                      update_s_elastic_TTI_interior(nt, &mpm, &mpw, &gv);
-
-                      if (gv.FW) {
-                          if (gv.ABS_TYPE == 1)
-                              update_s_elastic_TTI_PML(&mpm, &mpw, &gv);
-                          if (gv.ABS_TYPE == 2)
-                              update_s_elastic_tti_abs(&mpm, &mpw, &gv);
-                      }
-#ifdef EBUG
-                      debug_check_matrix(mpw.psxx, nt, gv.NX, gv.NY, 777, 0, "psxx");
-                      debug_check_matrix(mpw.psyy, nt, gv.NX, gv.NY, 777, 0, "psyy");
-                      debug_check_matrix(mpw.psxy, nt, gv.NX, gv.NY, 777, 0, "psxy");
-#endif
-                      break;
-                  case VEL_TTI:    /* viscoelastic TTI */
-                      update_s_visc_TTI_interior(nt, &mpm, &mpw, &gv);
-                      if (gv.FW) {
-                          if (gv.ABS_TYPE == 1)
-                              update_s_visc_TTI_PML(&mpm, &mpw, &gv);
-                          if (gv.ABS_TYPE == 2)
-                              update_s_visc_tti_abs(&mpm, &mpw, &gv);
-                      }
-#ifdef EBUG
-                      debug_check_matrix(mpw.psxx, nt, gv.NX, gv.NY, 888, 0, "psxx");
-                      debug_check_matrix(mpw.psyy, nt, gv.NX, gv.NY, 888, 0, "psyy");
-                      debug_check_matrix(mpw.psxy, nt, gv.NX, gv.NY, 888, 0, "psxy");
-#endif
-                      break;
-                  case VAC_ISO:    /* viscoacoustic */
-                      log_fatal("not yet implemented\n");
-                      break;
-                  case VAC_VTI:    /* viscoacoustic VTI */
-                      log_fatal("not yet implemented\n");
-                      break;
-                  case VAC_TTI:    /* viscoacoustic TTI */
-                      log_fatal("not yet implemented\n");
-                      break;
-                  default:
-                      log_fatal("Unknown WEQ.\n");
-                }
-            }
-
-            if (gv.FDORDER_TIME == 4) {
-                if (gv.L) {     /* viscoelastic */
-                    /* Not supported right now */
-                    update_s_visc_interior_4(nt, hc, &mpm, &mpw, &gv);
-                    if (gv.FW) {
-                        if (gv.ABS_TYPE == 1) {
-                            update_s_visc_PML_4(nt, &mpm, &mpw, &gv);
-                        }
-                        if (gv.ABS_TYPE != 1) {
-                            update_s_visc_abs_4(nt, &mpm, &mpw, &gv);
-                        }
-                    }
-                    /* Shift memory variables one time step back */
-                    shift_var3(&(mpw.pp), &(mpw.pp_2), &(mpw.pp_3), &(mpw.pp_4));
-                    shift_var3(&(mpw.pr), &(mpw.pr_2), &(mpw.pr_3), &(mpw.pr_4));
-                    shift_var3(&(mpw.pq), &(mpw.pq_2), &(mpw.pq_3), &(mpw.pq_4));
-                } else {        /* elastic */
-                    update_s_elastic_interior_4(nt, hc, &mpm, &mpw, &gv);
-
-                    if (gv.FW) {
-                        if (gv.ABS_TYPE == 1)
-                            update_s_elastic_PML_4(nt, &mpm, &mpw, &gv);
-                        if (gv.ABS_TYPE != 1)
-                            update_s_elastic_abs_4(nt, &mpm, &mpw, &gv);
-                    }
-                }
-                /* Shift spatial derivatives from the velocity one time step back */
-                shift_var2(&(mpw.vxx_1), &(mpw.vxx_2), &(mpw.vxx_3), &(mpw.vxx_4));
-                shift_var2(&(mpw.vyy_1), &(mpw.vyy_2), &(mpw.vyy_3), &(mpw.vyy_4));
-                shift_var2(&(mpw.vxy_1), &(mpw.vxy_2), &(mpw.vxy_3), &(mpw.vxy_4));
-                shift_var2(&(mpw.vyx_1), &(mpw.vyx_2), &(mpw.vyx_3), &(mpw.vyx_4));
-            }
-
-            /* explosive source */
-            if (gv.SOURCE_TYPE == 1)
-                psource(nt, acq.srcpos_loc, signals, nsrc_loc, &mpw, &gv);
-
-            /* Applying free surface condition */
-            if ((gv.FREE_SURF) && (gv.POS[2] == 0)) {
-                if (gv.L)       /* viscoelastic */
-                    surface(1, hc, &mpm, &mpw, &gv);
-                else
-                    /* elastic */
-                    surface_elastic(1, hc, &mpm, &mpw, &gv);
-            }
-
-            if ((gv.MPID == 0) && ((nt - 1) % gv.OUTNTIMESTEPINFO == 0)) {
-                time6 = MPI_Wtime();
-                time_av_s_update += (time6 - time5);
-                log_debug("Starting stress exchange between PEs...\n");
-            }
-
-            /*---------------------------------------------------------------*/
-            /* -------- stress exchange between PEs -------- */
-
-            /*---------------------------------------------------------------*/
-            exchange_s(&mpw, &gv);
-
-            if ((gv.MPID == 0) && ((nt - 1) % gv.OUTNTIMESTEPINFO == 0)) {
-                time7 = MPI_Wtime();
-                time_av_s_exchange += (time7 - time6);
-                log_debug("Finished stress exchange between PEs (real time: %.4fs).\n", time7 - time6);
-            }
-
-            /* store amplitudes at receivers in section-arrays */
-            if ((gv.SEISMO) && (nt == lsamp) && (nt < gv.NT)) {
-
-                seismo_ssg(lsamp, acq.recpos_loc, hc, &mpm, &mpw, &gv);
-                lsamp += gv.NDT;
-            }
-
-            /* WRITE SNAPSHOTS TO DISK */
-            if ((gv.SNAP) && (nt == lsnap) && (nt <= gv.TSNAP2 / gv.DT)) {
-
-                snap(nt, ++nsnap, hc, &mpm, &mpw, &gv);
-                lsnap = lsnap + iround(gv.TSNAPINC / gv.DT);
-            }
-
-            if ((gv.MPID == 0) && ((nt - 1) % gv.OUTNTIMESTEPINFO == 0)) {
-                ++infocounter;
-                time8 = MPI_Wtime();
-                time_av_timestep += (time8 - time3);
-
-                // when we reach this point, we have completed nt out of gv.NT time steps; however, the
-                // time_av_timestep variable has only been updated every gv.OUTNTIMESTEPINFO time step;
-                // use infocounter to calculate correct average
-                log_info("Total real time for time step %d: %.4fs. Shot %d, time left: %.2lfs.\n", nt, time8 - time3,
-                         ishot, (gv.NT - nt) * time_av_timestep / (double)infocounter);
-            }
-        }
+        time_loop(ishot, lsnap, nsnap, hc, signals, nsrc_loc, &acq, &mpm, &mpw, &gv, &perf);
 
         /*---------------------------------------------------------------*/
 
@@ -833,64 +345,9 @@ int main(int argc, char **argv)
 
         /*---------------------------------------------------------------*/
 
-        log_infoc(0, "Finished time stepping.\n");
+        saveseis(ishot, &acq, &gv);
 
-        /* write seismograms to file(s) */
-        if (gv.SEISMO) {
-
-            /* saves seismograms portion of each PE individually to file */
-            //if (gv.NTR> 0) saveseis(SECTIONVX,SECTIONVY,SECTIONP,SECTIONCURL,SECTIONDIV,acq.recpos,acq.recpos_loc,gv.NTR,acq.srcpos_current,ishot,gv.NS);
-
-            /* merge of seismogram data from all PE and output data collectively */
-            switch (gv.SEISMO) {
-              case 1:          /* particle velocities only */
-                  catseis(gv.SECTIONVX, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
-                  if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 1, &gv);
-                  catseis(gv.SECTIONVY, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
-                  if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 2, &gv);
-
-                  break;
-              case 2:          /* pressure only */
-                  catseis(gv.SECTIONP, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
-                  if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 4, &gv);
-
-                  break;
-              case 3:          /* curl and div only */
-                  catseis(gv.SECTIONDIV, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
-                  if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 5, &gv);
-                  catseis(gv.SECTIONCURL, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
-                  if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 6, &gv);
-
-                  break;
-              case 4:          /* everything */
-                  catseis(gv.SECTIONVX, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
-                  if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 1, &gv);
-                  catseis(gv.SECTIONVY, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
-                  if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 2, &gv);
-                  catseis(gv.SECTIONP, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
-                  if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 4, &gv);
-                  catseis(gv.SECTIONDIV, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
-                  if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 5, &gv);
-                  catseis(gv.SECTIONCURL, gv.SEISMO_FULLDATA, acq.recswitch, gv.NTRG, gv.NS);
-                  if (gv.MPID == 0)
-                      saveseis_glob(gv.SEISMO_FULLDATA, acq.recpos, acq.srcpos, ishot, gv.NS, 6, &gv);
-
-                  break;
-              default:
-                  break;
-
-            }
-        }
-    }                           /* end of loop over shots */
+    }   /*----------------------  end of loop over multiple shots  ------------------*/
 
     /* deallocate memory */
     freemem(&mpm, &mpw, &gv);
@@ -901,21 +358,21 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
 
     if (gv.MPID == 0) {
-        time_av_v_update = time_av_v_update / (double)infocounter;
-        time_av_s_update = time_av_s_update / (double)infocounter;
-        time_av_v_exchange = time_av_v_exchange / (double)infocounter;
-        time_av_s_exchange = time_av_s_exchange / (double)infocounter;
-        time_av_timestep = time_av_timestep / (double)infocounter;
+        perf.time_av_v_update = perf.time_av_v_update / (double)perf.infocounter;
+        perf.time_av_s_update = perf.time_av_s_update / (double)perf.infocounter;
+        perf.time_av_v_exchange = perf.time_av_v_exchange / (double)perf.infocounter;
+        perf.time_av_s_exchange = perf.time_av_s_exchange / (double)perf.infocounter;
+        perf.time_av_timestep = perf.time_av_timestep / (double)perf.infocounter;
         log_info("Approximate average times for\n");
-        log_info("  velocity update: .. %.6lfs.\n", time_av_v_update);
-        log_info("  stress update: .... %.6lfs.\n", time_av_s_update);
-        log_info("  velocity exchange:  %.6lfs.\n", time_av_v_exchange);
-        log_info("  stress exchange: .. %.6lfs.\n", time_av_s_exchange);
-        log_info("  time step: ........ %.6lfs.\n", time_av_timestep);
+        log_info("  velocity update: .. %.6lfs.\n", perf.time_av_v_update);
+        log_info("  stress update: .... %.6lfs.\n", perf.time_av_s_update);
+        log_info("  velocity exchange:  %.6lfs.\n", perf.time_av_v_exchange);
+        log_info("  stress exchange: .. %.6lfs.\n", perf.time_av_s_exchange);
+        log_info("  time step: ........ %.6lfs.\n", perf.time_av_timestep);
         cpu_time = clock() - cpu_time1;
         log_info("CPU time of program per PE: %.3lfs.\n", (double)cpu_time / (double)CLOCKS_PER_SEC);
-        time8 = MPI_Wtime();
-        log_info("Total real time of program: %.3lfs.\n", time8 - time1);
+        time9 = MPI_Wtime();
+        log_info("Total real time of program: %.3lfs.\n", time9 - time1);
     }
 
     /* finalize logging */
