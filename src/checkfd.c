@@ -67,7 +67,11 @@ void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar * gv)
     if (gv->MPID == 0) {
         log_info("The following velocities take anisotropy and/or attenuation into account.\n");
         log_info("Min and max P-wave phase velocity: Vp_min=%.2fm/s, Vp_max=%.2fm/s\n", gv->VPMIN, gv->VPMAX);
-        log_info("Min and max S-wave phase velocity: Vs_min=%.2fm/s, Vs_max=%.2fm/s\n", gv->VSMIN, gv->VSMAX);
+        if (gv->VSMIN <= gv->VSMAX) {
+            log_info("Min and max S-wave phase velocity: Vs_min=%.2fm/s, Vs_max=%.2fm/s\n", gv->VSMIN, gv->VSMAX);
+        } else {
+            log_info("Min and max S-wave phase velocity not set (all values ignored).\n");
+        }
         log_info("Overall global min and max velocity: V_min=%.2fm/s, V_max=%.2fm/s\n", cmin, cmax);
         log_info("------------------------- Grid dispersion -------------------\n");
         log_info("To limit grid dispersion, the number of grid points per min.\n");

@@ -15,12 +15,12 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with SOFI2D. See file COPYING and/or 
-  * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
-/*------------------------------------------------------------------------
- *   Write FD-Parameters to stdout                           
- *  ----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*
+ * Write parameters to stdout                                           *
+ *----------------------------------------------------------------------*/
 
 #include "fd.h"
 #include "logging.h"
@@ -32,7 +32,23 @@ void write_par(GlobVar * gv)
     log_info("------------------------- Processors ------------------------\n");
     log_info("Number of subdomains in x-direction (NPROCX): %d\n", gv->NPROCX);
     log_info("Number of subdomains in y-direction (NPROCY): %d\n", gv->NPROCY);
-    log_info("Total number of MPI processes/subdomains (NP): %d\n", gv->NP);
+    log_info("Total number of MPI processes/subdomains: %d\n", gv->NPROC);
+    if (gv->NPROCX <= 20 && gv->NPROCY <=20) {
+      log_info("MPI Cartesian grid layout:\n");
+      int k = 0;
+      for (int iy = 0; iy<gv->NPROCY; ++iy) {
+        bool first = true;
+        for (int ix = 0; ix<gv->NPROC; ix+=gv->NPROCY) {
+          if (first) {
+            log_info("%4d", k++);
+            first = false;
+          } else {
+            log_std("%4d", k++);
+          }
+        }
+        log_std("\n");
+      }
+    }
 
     log_info("------------------------- FD Algorithm ----------------------\n");
     log_info("Grid: standard staggered grid (SSG) (Virieux-grid)\n");

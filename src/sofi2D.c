@@ -77,7 +77,6 @@ int main(int argc, char **argv)
 
     /* initialize MPI environment */
     MPI_Init(&argc, &argv);
-    MPI_Comm_size(MPI_COMM_WORLD, &gv.NP);
     MPI_Comm_rank(MPI_COMM_WORLD, &gv.MPID);
 
     /* initialize logging */
