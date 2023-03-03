@@ -52,21 +52,13 @@
 int main(int argc, char **argv)
 {
     /* variables in main */
-    int nt;
     int lsnap, nsnap = 0;
-    int nsrc_loc = 0;
     int ishot, nshots;          /* Added ishot and nshots for multiple shots */
-    int **dummy = NULL;
-    /*Limits for local grids defined in subgrid_bounds.c */
-    char sigf[STRING_SIZE * 2], file_ext[5];
     clock_t cpu_time1 = 0, cpu_time = 0;
     FILE *log_fp = NULL;
-
     char ext[10];
     double time1 = 0.0, time2 = 0.0, time9 = 0.0;
-
     float *hc = NULL;
-    float **signals = NULL;
 
     /* declare struct for global variables */
     GlobVar gv = {.MPID = -1,.OUTNTIMESTEPINFO = 100,.NDT = 1,.IDX = 1,.IDY = 1 };
@@ -172,7 +164,7 @@ int main(int argc, char **argv)
     initproc(&gv);
 
     gv.NT = iround(gv.TIME / gv.DT);    /* number of time steps */
-    gv.NS = iround(gv.NT / gv.NDT); /* number of samples per trace */
+    gv.NS = iround(gv.NT / gv.NDT);     /* number of samples per trace */
     lsnap = iround(gv.TSNAP1 / gv.DT);  /* first snapshot at this time step */
 
     /* output of parameters */
@@ -181,7 +173,7 @@ int main(int argc, char **argv)
     }
 
     /* Reading acquisition parameters */
-    acq_read(&acq, &gv);
+    nshots = acq_read(&acq, &gv);
 
     /* memory allocation of buffers */
     initmem(&mpm, &mpw, &gv);
@@ -223,81 +215,24 @@ int main(int argc, char **argv)
 
     /*----------------------  loop over multiple shots  ------------------*/
 
-    if (gv.RUN_MULTIPLE_SHOTS) {
-        nshots = acq.nsrc;
-    } else {
-        nshots = 1;
-    }
-
     for (ishot = 1; ishot <= nshots; ishot++) {
 
-        for (nt = 1; nt <= 12; nt++) {
-            acq.srcpos_current[nt][1] = acq.srcpos[nt][ishot];
-        }
-
-        if (gv.RUN_MULTIPLE_SHOTS) {
-            log_info("Starting simulation for shot %d of %d.\n", ishot, nshots);
-            //log_info("number\t    x\t\t    y\t\t  tshift\t    fc\t\t   amp\t    source_azimuth\n");
-            //log_info("   %i \t %6.2f \t %6.2f \t %6.2f \t %6.2f \t %6.2f  \t %6.2f\n", ishot, acq.srcpos_current[1][1], acq.srcpos_current[2][1],
-            //         acq.srcpos_current[4][1], acq.srcpos_current[5][1], acq.srcpos_current[6][1], acq.srcpos_current[7][1]);
-
-            /* find this single source positions on subdomains  */
-            if (nsrc_loc > 0)
-                free_matrix(acq.srcpos_loc, 1, NSPAR, 1, 1);
-            acq.srcpos_loc = splitsrc(acq.srcpos_current, &nsrc_loc, 1, &gv);
-        } else {
-            acq.srcpos_loc = splitsrc(acq.srcpos, &nsrc_loc, acq.nsrc, &gv);    /* Distribute source positions on subdomains */
-        }
-
-        MPI_Barrier(MPI_COMM_WORLD);
-
-        /* calculate wavelet for each source point */
-        signals = wavelet(acq.srcpos_loc, nsrc_loc, &gv);
-
-        /* write source wavelet to file in subdomain that contains source */
-        if (signals && 1 == gv.SIGOUT) {
-            switch (gv.SIGOUT_FORMAT) {
-              case 1:
-                  sprintf(file_ext, "su");
-                  break;
-              case 2:
-                  sprintf(file_ext, "txt");
-                  break;
-              case 3:
-                  sprintf(file_ext, "bin");
-                  break;
-              default:
-                  log_fatal("Unknown SIGOUT_FORMAT encountered.\n");
-                  break;
-            }
-            dummy = imatrix(1, 3, 1, 1);
-            dummy[1][1] = iround(acq.srcpos_loc[1][ishot] / gv.DH);
-            dummy[2][1] = iround(acq.srcpos_loc[2][ishot] / gv.DH);
-            dummy[3][1] = 0;
-            sprintf(sigf, "%s.shot%d.%s", gv.SIGOUT_FILE, ishot, file_ext);
-            log_info("Writing source wavelet to file %s.\n", sigf);
-            outseis_glob(fopen(sigf, "w"), signals, dummy, 1, acq.srcpos_loc, gv.NT, gv.SIGOUT_FORMAT, ishot, 0, &gv);
-            free_imatrix(dummy, 1, 3, 1, 1);
-        }
+        initsrc(ishot, nshots, &acq, &gv);
 
         /* initialize wavefield with zero */
         zero_wavefield(&mpw, &gv);
 
         subgrid_bounds(1, gv.NX, 1, gv.NY, &gv);
 
-        /*---------------------------------------------------------------*/
+        /*---------------------------------------------------------------
+         *----------------------  loop over timesteps  ------------------
+         *---------------------------------------------------------------*/
 
-        /*----------------------  loop over timesteps  ------------------*/
+        time_loop(ishot, lsnap, nsnap, hc, &acq, &mpm, &mpw, &gv, &perf);
 
-        /*---------------------------------------------------------------*/
-
-        time_loop(ishot, lsnap, nsnap, hc, signals, nsrc_loc, &acq, &mpm, &mpw, &gv, &perf);
-
-        /*---------------------------------------------------------------*/
-
-        /*--------------------  End  of loop over timesteps ----------*/
-
-        /*---------------------------------------------------------------*/
+        /*---------------------------------------------------------------
+         *--------------------  End  of loop over timesteps ----------
+         *---------------------------------------------------------------*/
 
         saveseis(ishot, &acq, &gv);
 

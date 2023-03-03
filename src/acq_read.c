@@ -19,14 +19,14 @@
 
 /*------------------------------------------------------------------------
  *   Allocate acquistion parameters
- *
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
-#include "macros.h"
 
-void acq_read(AcqVar *acq, GlobVar *gv){
-  
+int acq_read(AcqVar *acq, GlobVar *gv)
+{
+    int nshots = 1;
+
     /* Reading receiver positions from REC_FILE */
     if (gv->SEISMO) {
         acq->recpos = receiver(gv);
@@ -34,10 +34,12 @@ void acq_read(AcqVar *acq, GlobVar *gv){
         acq->recpos_loc = splitrec(acq->recpos, acq->recswitch, gv);
     }
 
-    /* Memory allocation for saving the current source position */
-    acq->srcpos_current = matrix(1, NSPAR, 1, 1);
-
     /* Reading source positions from SOURCE_FILE */
     sources(acq, gv);
-  
+    
+    if (gv->RUN_MULTIPLE_SHOTS) {
+        nshots = acq->nsrc;
+    }
+
+    return nshots;
 }

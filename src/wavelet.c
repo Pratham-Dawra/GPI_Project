@@ -30,29 +30,21 @@
 #include "read_srcsig.h"
 #include <complex.h>
 
-float **wavelet(float **srcpos_loc, int nsrc, GlobVar * gv)
+void wavelet(AcqVar *acq, GlobVar * gv)
 {
     int nts = 0;
     float *psource = NULL, tshift, amp = 0.0, a, fc, tau, t, ts, f2;
     float n, alpha, phi0deg, phi0, T, fmin, fmax, width, taper, sigmax;
-    float **signals = NULL;
 
     if (gv->SOURCE_SHAPE == 3)
         psource = read_srcsig(&nts, gv);
 
-    /* If there is no source in the current domain, return early as otherwise
-     * the call to matrix with nsrc=0 will cause memory corruption. It would
-     * determine nrow=0 and allocate one slot (C-index 0), later however try
-     * to access C-index 1 to start allocating NT columns. */
-    if (nsrc < 1)
-        return signals;
+    acq->signals = matrix(1, acq->nsrc_loc, 1, gv->NT);
 
-    signals = matrix(1, nsrc, 1, gv->NT);
-
-    for (int k = 1; k <= nsrc; k++) {
-        tshift = srcpos_loc[4][k];  // time shift
-        fc = srcpos_loc[5][k];  // centre frequency [Hz]; in case 5 (Berlage wavelet) lowest frequency
-        a = srcpos_loc[6][k];   // maximum amplitude
+    for (int k = 1; k <= acq->nsrc_loc; k++) {
+        tshift = acq->srcpos_loc[4][k]; // time shift
+        fc = acq->srcpos_loc[5][k];     // centre frequency [Hz]; in case 5 (Berlage wavelet) lowest frequency
+        a = acq->srcpos_loc[6][k];      // maximum amplitude
         ts = 1.0 / fc;
         sigmax = 0.0;
 
@@ -85,9 +77,9 @@ float **wavelet(float **srcpos_loc, int nsrc, GlobVar * gv)
                   break;        /* sinus raised to the power of three */
               case 5:
                   /* Berlage wavelet (minimum-phase) (Aldridge, 1990) */
-                  n = srcpos_loc[9][k]; // time exponent; >0 (Berlage only)
-                  alpha = srcpos_loc[10][k];    // exponential decay factor (Berlage only)
-                  phi0deg = srcpos_loc[11][k];  // initial phase angle [°] (Berlage only)
+                  n = acq->srcpos_loc[9][k]; // time exponent; >0 (Berlage only)
+                  alpha = acq->srcpos_loc[10][k];    // exponential decay factor (Berlage only)
+                  phi0deg = acq->srcpos_loc[11][k];  // initial phase angle [°] (Berlage only)
                   phi0 = phi0deg * PI / 180;
                   if (n <= 0)
                       log_fatal("No valid time exponent for Berlage wavelet (N>0) specified!\n");
@@ -100,10 +92,10 @@ float **wavelet(float **srcpos_loc, int nsrc, GlobVar * gv)
                   break;
               case 6:
                   /* Klauder wavelet */
-                  fmin = srcpos_loc[9][k];  // lowest frequency in sweep [Hz] (Klauder only)
-                  fmax = srcpos_loc[10][k]; // highest frequency in sweep [Hz] (Klauder only)
-                  T = srcpos_loc[11][k];    // sweep duration [s] (Klauder only)
-                  width = srcpos_loc[12][k];    // half width of the Klauder wavelet in number of centre periods
+                  fmin = acq->srcpos_loc[9][k];     // lowest frequency in sweep [Hz] (Klauder only)
+                  fmax = acq->srcpos_loc[10][k];    // highest frequency in sweep [Hz] (Klauder only)
+                  T = acq->srcpos_loc[11][k];       // sweep duration [s] (Klauder only)
+                  width = acq->srcpos_loc[12][k];   // half width of the Klauder wavelet in number of centre periods
 
                   f2 = (fmax - fmin) / T;
                   tau = (width / fc);   // Klauder wavelet is shifted by "width" centre periods
@@ -133,22 +125,21 @@ float **wavelet(float **srcpos_loc, int nsrc, GlobVar * gv)
             }
             if (fabs(amp) > sigmax)
                 sigmax = fabs(amp);
-            signals[k][nt] = amp * a;
+            acq->signals[k][nt] = amp * a;
         }
         /* Normalization to desired amplitude */
         if (0.0 == sigmax)
             log_fatal("Source signal contains only zeros!\n");
         if (gv->SOURCE_SHAPE == 5 || gv->SOURCE_SHAPE == 6) {
             for (int nt = 1; nt <= gv->NT; nt++) {
-                signals[k][nt] = signals[k][nt] / sigmax;
+                acq->signals[k][nt] = acq->signals[k][nt] / sigmax;
             }
         }
     }
 
-    log_info("%d source position(s) in subdomain assigned with source signal.\n", nsrc);
+    log_info("%d source position(s) in subdomain assigned with source signal.\n", acq->nsrc_loc);
 
     if (gv->SOURCE_SHAPE == 3)
         free(psource);
 
-    return signals;
 }

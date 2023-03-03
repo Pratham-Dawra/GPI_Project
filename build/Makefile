@@ -157,6 +157,7 @@ FDMOD_FILES := sofi2D.c \
                initmem_model.c \
                initmem_wavefield.c \
                initproc.c \
+               initsrc.c \
                json_parser.c \
                logging.c \
                matcopy.c \

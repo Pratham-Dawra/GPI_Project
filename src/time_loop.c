@@ -24,7 +24,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void time_loop(int ishot, int lsnap, int nsnap, float *hc, float **signals, int nsrc_loc, AcqVar *acq, MemModel *mpm,
+void time_loop(int ishot, int lsnap, int nsnap, float *hc, AcqVar *acq, MemModel *mpm,
                MemWavefield *mpw, GlobVar *gv, Perform *perf)
 {
     int nt;
@@ -47,7 +47,7 @@ void time_loop(int ishot, int lsnap, int nsnap, float *hc, float **signals, int 
          * update of particle velocities --------------------------------
          *---------------------------------------------------------------*/
         if (gv->FDORDER_TIME == 2) {
-            update_v_interior(nt, acq->srcpos_loc, signals, nsrc_loc, hc, mpm, mpw, gv);
+            update_v_interior(nt, acq->srcpos_loc, acq->signals, acq->nsrc_loc, hc, mpm, mpw, gv);
 #ifdef EBUG
             debug_check_matrix(mpw->pvx, nt, gv->NX, gv->NY, 121, 0, "pvx");
             debug_check_matrix(mpw->pvy, nt, gv->NX, gv->NY, 121, 0, "pvy");
@@ -69,7 +69,7 @@ void time_loop(int ishot, int lsnap, int nsnap, float *hc, float **signals, int 
         }
 
         if (gv->FDORDER_TIME == 4) {
-            update_v_interior_4(nt, acq->srcpos_loc, signals, nsrc_loc, hc, mpm, mpw, gv);
+            update_v_interior_4(nt, acq->srcpos_loc, acq->signals, acq->nsrc_loc, hc, mpm, mpw, gv);
             if (gv->FW) {
                 if (gv->ABS_TYPE == 1) {
                     update_v_PML_4(gv->NX, gv->NY, nt, mpm, mpw, gv);
@@ -248,7 +248,7 @@ void time_loop(int ishot, int lsnap, int nsnap, float *hc, float **signals, int 
 
         /* explosive source */
         if (gv->SOURCE_TYPE == 1)
-            psource(nt, acq->srcpos_loc, signals, nsrc_loc, mpw, gv);
+            psource(nt, acq, mpw, gv);
 
         /* Applying free surface condition */
         if ((gv->FREE_SURF) && (gv->POS[2] == 0)) {

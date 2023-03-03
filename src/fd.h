@@ -48,7 +48,7 @@ void abs_update_v(int i, int j, MemModel *mpm, MemWavefield *mpw);
 
 void absorb(float **absorb_coeff, GlobVar *gv);
 
-void acq_read(AcqVar *acq, GlobVar *gv);
+int acq_read(AcqVar *acq, GlobVar *gv);
 
 void av_mat(float **pi, float **u, float **ppijm, float **puip, float **pujm);
 
@@ -78,10 +78,6 @@ void exchange_s(MemWavefield *mpw, GlobVar *gv);
 
 void exchange_par(GlobVar *gv);
 
-/* void free_mem(int *gx, int *gy, float **signals, float **srcpos, float **srcpos_loc, int nsrc_loc, int **recpos,
-              float **bufferlef_to_rig, float **bufferrig_to_lef, float **buffertop_to_bot, float **bufferbot_to_top,
-              MemModel *mpm, MemWavefield *mpw, GlobVar *gv); */
-
 void freemem(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void freemem_model(MemModel *mpm, GlobVar *gv);
@@ -103,6 +99,8 @@ void initmem_wavefield(MemWavefield *mpw, GlobVar *gv);
 void initfd(GlobVar *gv);
 
 void initproc(GlobVar *gv);
+
+void initsrc(int ishot, int nshots, AcqVar *acq, GlobVar *gv);
 
 void model_elastic(MemModel *mpm, GlobVar *gv);
 
@@ -186,7 +184,7 @@ void prepare_update_s_tti(MemModel *mpm, GlobVar *gv);
 
 void prepmod(MemModel *mpm, GlobVar *gv);
 
-void psource(int nt, float **srcpos_loc, float **signals, int nsrc, MemWavefield *mpw, GlobVar *gv);
+void psource(int nt, AcqVar *acq, MemWavefield *mpw, GlobVar *gv);
 
 void psource_rsg(int nt, float **sxx, float **syy, float **srcpos_loc, float **signals, int nsrc, GlobVar *gv);
 
@@ -252,7 +250,7 @@ void surface(int ndepth, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *g
 
 void surface_elastic(int ndepth, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void time_loop(int ishot, int lsnap, int nsnap, float *hc, float **signals, int nsrc_loc, AcqVar *acq, MemModel *mpm,
+void time_loop(int ishot, int lsnap, int nsnap, float *hc, AcqVar *acq, MemModel *mpm,
                MemWavefield *mpw, GlobVar *gv, Perform *perf);
 
 /* void update_s_elastic(int nx1, int nx2, int ny1, int ny2, int nt,
@@ -379,7 +377,7 @@ void wavefield_update_v(int i, int j, float sxx_x, float sxy_x, float sxy_y, flo
 void wavefield_update_v_4(int i, int j, float sxx_x, float sxy_x, float sxy_y, float syy_y, MemModel *mpm,
                           MemWavefield *mpw, GlobVar *gv);
 
-float **wavelet(float **srcpos_loc, int nsrc, GlobVar *gv);
+void wavelet(AcqVar *acq, GlobVar *gv);
 
 void writebufs(float **sxx, float **syy,
                float **sxy, float **bufferlef_to_rig, float **bufferrig_to_lef,
