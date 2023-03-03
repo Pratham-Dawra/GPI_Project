@@ -31,57 +31,58 @@ void initsrc(int ishot, int nshots, AcqVar *acq, GlobVar *gv)
     int nt;
     int **dummy = NULL;
     /*Limits for local grids defined in subgrid_bounds.c */
-    char sigf[STRING_SIZE * 2], file_ext[5];    
+    char sigf[STRING_SIZE * 2], file_ext[5];
     /* Memory allocation for saving the current source position */
     float **srcpos_current = matrix(1, NSPAR, 1, 1);
-    
-        for (nt = 1; nt <= NSPAR; nt++) {
-            srcpos_current[nt][1] = acq->srcpos[nt][ishot];
+
+    for (nt = 1; nt <= NSPAR; nt++) {
+        srcpos_current[nt][1] = acq->srcpos[nt][ishot];
+    }
+
+    if (gv->RUN_MULTIPLE_SHOTS) {
+        log_info("Starting simulation for shot %d of %d.\n", ishot, nshots);
+
+        /* find this single source positions on subdomains  */
+        if (acq->nsrc_loc > 0)
+            free_matrix(acq->srcpos_loc, 1, NSPAR, 1, 1);
+        acq->srcpos_loc = splitsrc(srcpos_current, &acq->nsrc_loc, 1, gv);
+    } else {
+        /* Distribute source positions on subdomains */
+        acq->srcpos_loc = splitsrc(acq->srcpos, &acq->nsrc_loc, acq->nsrc, gv);
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    /* calculate wavelet for each source point. Only done, if there is
+     * no source in the current domain */
+    if (acq->nsrc_loc > 0) {
+        wavelet(acq, gv);
+    }
+
+    /* write source wavelet to file in subdomain that contains source */
+    if (acq->signals && 1 == gv->SIGOUT) {
+        switch (gv->SIGOUT_FORMAT) {
+          case 1:
+              sprintf(file_ext, "su");
+              break;
+          case 2:
+              sprintf(file_ext, "txt");
+              break;
+          case 3:
+              sprintf(file_ext, "bin");
+              break;
+          default:
+              log_fatal("Unknown SIGOUT_FORMAT encountered.\n");
+              break;
         }
-
-        if (gv->RUN_MULTIPLE_SHOTS) {
-            log_info("Starting simulation for shot %d of %d.\n", ishot, nshots);
-
-            /* find this single source positions on subdomains  */
-            if (acq->nsrc_loc > 0)
-                free_matrix(acq->srcpos_loc, 1, NSPAR, 1, 1);
-            acq->srcpos_loc = splitsrc(srcpos_current, &acq->nsrc_loc, 1, gv);
-        } else {
-            /* Distribute source positions on subdomains */
-            acq->srcpos_loc = splitsrc(acq->srcpos, &acq->nsrc_loc, acq->nsrc, gv);    
-        }
-
-        MPI_Barrier(MPI_COMM_WORLD);
-
-        /* calculate wavelet for each source point. Only done, if there is
-         * no source in the current domain */
-        if (acq->nsrc_loc > 0) {
-            wavelet(acq, gv);
-        }
-
-        /* write source wavelet to file in subdomain that contains source */
-        if (acq->signals && 1 == gv->SIGOUT) {
-            switch (gv->SIGOUT_FORMAT) {
-              case 1:
-                  sprintf(file_ext, "su");
-                  break;
-              case 2:
-                  sprintf(file_ext, "txt");
-                  break;
-              case 3:
-                  sprintf(file_ext, "bin");
-                  break;
-              default:
-                  log_fatal("Unknown SIGOUT_FORMAT encountered.\n");
-                  break;
-            }
-            dummy = imatrix(1, 3, 1, 1);
-            dummy[1][1] = iround(acq->srcpos_loc[1][ishot] / gv->DH);
-            dummy[2][1] = iround(acq->srcpos_loc[2][ishot] / gv->DH);
-            dummy[3][1] = 0;
-            sprintf(sigf, "%s.shot%d.%s", gv->SIGOUT_FILE, ishot, file_ext);
-            log_info("Writing source wavelet to file %s.\n", sigf);
-            outseis_glob(fopen(sigf, "w"), acq->signals, dummy, 1, acq->srcpos_loc, gv->NT, gv->SIGOUT_FORMAT, ishot, 0, gv);
-            free_imatrix(dummy, 1, 3, 1, 1);
-        } 
+        dummy = imatrix(1, 3, 1, 1);
+        dummy[1][1] = iround(acq->srcpos_loc[1][ishot] / gv->DH);
+        dummy[2][1] = iround(acq->srcpos_loc[2][ishot] / gv->DH);
+        dummy[3][1] = 0;
+        sprintf(sigf, "%s.shot%d.%s", gv->SIGOUT_FILE, ishot, file_ext);
+        log_info("Writing source wavelet to file %s.\n", sigf);
+        outseis_glob(fopen(sigf, "w"), acq->signals, dummy, 1, acq->srcpos_loc, gv->NT, gv->SIGOUT_FORMAT, ishot, 0,
+                     gv);
+        free_imatrix(dummy, 1, 3, 1, 1);
+    }
 }

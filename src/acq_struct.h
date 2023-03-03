@@ -31,14 +31,14 @@ typedef struct {
     // Acquisition parameters
     float **srcpos;
     float **srcpos_loc;
-    
+
     int **recpos;
     int **recpos_loc;
     int *recswitch;
-    
-    int nsrc;               // number of shots (in case of multiple shots)
-    int nsrc_loc;           // number of shots (for each subdomain)
-    float **signals;        // source wavelet
+
+    int nsrc;                   // number of shots (in case of multiple shots)
+    int nsrc_loc;               // number of shots (for each subdomain)
+    float **signals;            // source wavelet
 
 } AcqVar;
 

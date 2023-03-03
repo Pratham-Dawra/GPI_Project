@@ -163,7 +163,7 @@ int main(int argc, char **argv)
     initproc(&gv);
 
     gv.NT = iround(gv.TIME / gv.DT);    /* number of time steps */
-    gv.NS = iround(gv.NT / gv.NDT);     /* number of samples per trace */
+    gv.NS = iround(gv.NT / gv.NDT); /* number of samples per trace */
     lsnap = iround(gv.TSNAP1 / gv.DT);  /* first snapshot at this time step */
 
     /* output of parameters */

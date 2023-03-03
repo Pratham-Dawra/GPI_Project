@@ -36,7 +36,7 @@ int acq_read(AcqVar *acq, GlobVar *gv)
 
     /* Reading source positions from SOURCE_FILE */
     sources(acq, gv);
-    
+
     if (gv->RUN_MULTIPLE_SHOTS) {
         nshots = acq->nsrc;
     }

@@ -30,7 +30,7 @@
 #include "read_srcsig.h"
 #include <complex.h>
 
-void wavelet(AcqVar *acq, GlobVar * gv)
+void wavelet(AcqVar *acq, GlobVar *gv)
 {
     int nts = 0;
     float *psource = NULL, tshift, amp = 0.0, a, fc, tau, t, ts, f2;
@@ -43,8 +43,8 @@ void wavelet(AcqVar *acq, GlobVar * gv)
 
     for (int k = 1; k <= acq->nsrc_loc; k++) {
         tshift = acq->srcpos_loc[4][k]; // time shift
-        fc = acq->srcpos_loc[5][k];     // centre frequency [Hz]; in case 5 (Berlage wavelet) lowest frequency
-        a = acq->srcpos_loc[6][k];      // maximum amplitude
+        fc = acq->srcpos_loc[5][k]; // centre frequency [Hz]; in case 5 (Berlage wavelet) lowest frequency
+        a = acq->srcpos_loc[6][k];  // maximum amplitude
         ts = 1.0 / fc;
         sigmax = 0.0;
 
@@ -77,9 +77,9 @@ void wavelet(AcqVar *acq, GlobVar * gv)
                   break;        /* sinus raised to the power of three */
               case 5:
                   /* Berlage wavelet (minimum-phase) (Aldridge, 1990) */
-                  n = acq->srcpos_loc[9][k]; // time exponent; >0 (Berlage only)
-                  alpha = acq->srcpos_loc[10][k];    // exponential decay factor (Berlage only)
-                  phi0deg = acq->srcpos_loc[11][k];  // initial phase angle [°] (Berlage only)
+                  n = acq->srcpos_loc[9][k];    // time exponent; >0 (Berlage only)
+                  alpha = acq->srcpos_loc[10][k];   // exponential decay factor (Berlage only)
+                  phi0deg = acq->srcpos_loc[11][k]; // initial phase angle [°] (Berlage only)
                   phi0 = phi0deg * PI / 180;
                   if (n <= 0)
                       log_fatal("No valid time exponent for Berlage wavelet (N>0) specified!\n");
@@ -92,9 +92,9 @@ void wavelet(AcqVar *acq, GlobVar * gv)
                   break;
               case 6:
                   /* Klauder wavelet */
-                  fmin = acq->srcpos_loc[9][k];     // lowest frequency in sweep [Hz] (Klauder only)
+                  fmin = acq->srcpos_loc[9][k]; // lowest frequency in sweep [Hz] (Klauder only)
                   fmax = acq->srcpos_loc[10][k];    // highest frequency in sweep [Hz] (Klauder only)
-                  T = acq->srcpos_loc[11][k];       // sweep duration [s] (Klauder only)
+                  T = acq->srcpos_loc[11][k];   // sweep duration [s] (Klauder only)
                   width = acq->srcpos_loc[12][k];   // half width of the Klauder wavelet in number of centre periods
 
                   f2 = (fmax - fmin) / T;

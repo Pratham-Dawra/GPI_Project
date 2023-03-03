@@ -24,7 +24,7 @@
 
 #include "fd.h"
 
-void psource(int nt, AcqVar *acq, MemWavefield * mpw, GlobVar * gv)
+void psource(int nt, AcqVar *acq, MemWavefield *mpw, GlobVar *gv)
 {
     float amp = 0.0f;
     int i, j;
@@ -36,7 +36,7 @@ void psource(int nt, AcqVar *acq, MemWavefield * mpw, GlobVar * gv)
         j = (int)acq->srcpos_loc[2][l];
 
         //amp=acq->signals[l][nt]; //unscaled explosive source
-        amp = (acq->signals[l][nt]) / (gv->DH * gv->DH); //scaled explosive source, seismic Moment = 1 Nm
+        amp = (acq->signals[l][nt]) / (gv->DH * gv->DH);    //scaled explosive source, seismic Moment = 1 Nm
 
         if (nt == 1) {
             amp = acq->signals[l][nt + 1] / (2.0 * gv->DH * gv->DH);
