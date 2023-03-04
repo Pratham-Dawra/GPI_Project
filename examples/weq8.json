@@ -58,7 +58,6 @@
 			"L" : "1",
 			"F_REF": "50.0",
 			"FL1" : "50.0", 
-			"TAU" : "0.0001",
 
 "Boundary Conditions" : "comment",
                         "FREE_SURF" : "0",
@@ -76,7 +75,6 @@
 
 			"Parameter for ABS_TYPE=2" : "comment",
                         "DAMPING" : "8.0",
-
 
 "Snapshots" : "comment",
 			"SNAP" : "4",
@@ -112,6 +110,6 @@
 "Monitoring the simulation" : "comment",
 			"LOG_FILE" : "./log/test.log",
 			"LOG" : "0",
-			"OUT_TIMESTEP_INFO" : "100",
-			"LOG_VERBOSITY" : "info"
+			"LOG_VERBOSITY" : "INFO",
+			"OUT_TIMESTEP_INFO" : "100"
 }

@@ -112,8 +112,6 @@ void read_par_json(const char *fileinp, GlobVar * gv)
     if (get_int_from_objectlist("NPROCY", number_readobjects, &(gv->NPROCY), varname_list, value_list, used_list))
         log_fatal("Variable NPROCY could not be retrieved from the json input file!");
     gv->NPROC = (gv->NPROCX) * (gv->NPROCY);
-    /*    if (get_int_from_objectlist("RSG",number_readobjects,&(gv->RSG),varname_list, value_list, used_list))
-     * log_fatal("Variable RSG could not be retrieved from the json input file!"); */
     if (get_int_from_objectlist("FDORDER", number_readobjects, &(gv->FDORDER), varname_list, value_list, used_list))
         log_fatal("Variable FDORDER could not be retrieved from the json input file!");
     if (get_int_from_objectlist
@@ -360,9 +358,9 @@ void read_par_json(const char *fileinp, GlobVar * gv)
     if (get_int_from_objectlist
         ("OUT_TIMESTEP_INFO", number_readobjects, &(gv->OUTNTIMESTEPINFO), varname_list, value_list, used_list)) {
     }
-
-    if (get_float_from_objectlist("TAU", number_readobjects, &(gv->TAU), varname_list, value_list, used_list))
-        log_fatal("Variable TAU could not be retrieved from the json input file!");
+    if (get_float_from_objectlist("TAU", number_readobjects, &(gv->TAU), varname_list, value_list, used_list)) {
+        gv->TAU = 0.0001;
+    }
     if (get_int_from_objectlist("L", number_readobjects, &(gv->L), varname_list, value_list, used_list))
         log_fatal("Variable L could not be retrieved from the json input file!");
 
