@@ -15,12 +15,12 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with SOFI2D. See file COPYING and/or 
-  * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
-/*------------------------------------------------------------------------
- *   Write merged seismograms from all PEs to disk
- *  ----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------
+ * Write merged seismograms from all PEs to disk
+ *----------------------------------------------------------------------*/
 
 #include "fd.h"
 #include "su_struct.h"
@@ -28,7 +28,7 @@
 #include "logging.h"
 
 void outseis_glob(FILE * fpdata, float **section,
-                  int **recpos, int ntr, float **srcpos, int ns, int seis_form, int ishot, int comp, GlobVar * gv)
+                  int **recpos, int ntr, float **srcpos, int ns, int seis_form, int ishot, int comp, GlobVar *gv)
 {
     const float xshift = 800.0, yshift = 800.0;
 
@@ -38,16 +38,15 @@ void outseis_glob(FILE * fpdata, float **section,
 
     switch (seis_form) {
       case 1:
-          /* if there are more than one source position/coordinate specified
+          /* if there is more than one source position/coordinate specified
            * in SOURCE_FILE, only the first position is written into trace header fields,
-           * in case of RUN_MULTIPLE_SHOTS is activated the individual shot position is used 
-           */
+           * in case RUN_MULTIPLE_SHOTS is activated the individual shot position is used */
           XS = srcpos[1][ishot];
           YS = srcpos[2][ishot];
-          for (int tracl1 = 1; tracl1 <= ntr; tracl1++) {   /*SEGY (without file-header) */
+          for (int tracl1 = 1; tracl1 <= ntr; tracl1++) {   /* SEGY (without file-header) */
               init_SUhead(&tr); /* set all headers to zero by default */
-              xr = recpos[1][tracl1] * gv->DH;
-              yr = recpos[2][tracl1] * gv->DH;
+              xr = (recpos[1][tracl1]-1) * gv->DH;
+              yr = (recpos[2][tracl1]-1) * gv->DH;
               x = xr - gv->REFREC[1];
               y = yr - gv->REFREC[2];
 
@@ -60,7 +59,7 @@ void outseis_glob(FILE * fpdata, float **section,
               tr.gelev = (int)iround(yr * 1000.0);
               tr.sdepth = (int)iround(YS * 1000.0); /* source depth (positive) */
               /* angle between receiver position and reference point
-               * (sperical coordinate system: swdep=theta, gwdep=phi) */
+               * (spherical coordinate system: swdep=theta, gwdep=phi) */
               tr.swdep = iround(((360.0 / (2.0 * PI)) * atan2(x - xshift, y - yshift)) * 1000.0);
               tr.scalel = (short)-1000;
               tr.scalco = (short)-1000;
@@ -70,7 +69,7 @@ void outseis_glob(FILE * fpdata, float **section,
               tr.gx = (int)iround(xr * 1000.0);
 
               tr.ns = (unsigned short)ns;   /* number of samples in this trace */
-              tr.dt = (unsigned short)iround(((float)gv->NDT * gv->DT) * 1.0e6);    /* sample interval in micro-seconds */
+              tr.dt = (unsigned short)iround((float)gv->NDT * gv->DT * 1.0e6);    /* sample interval in micro-seconds */
               tr.d1 = (float)tr.dt * 1.0e-6;    /* sample spacing for non-seismic data */
 
               tr.tracr = tr.tracl;  /* trace sequence number within reel */

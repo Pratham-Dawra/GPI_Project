@@ -25,6 +25,7 @@
 
 #include "fd.h"
 #include "logging.h"
+#include "macros.h"
 
 void sources(AcqVar *acq, GlobVar *gv)
 {
@@ -325,15 +326,15 @@ void sources(AcqVar *acq, GlobVar *gv)
 
                 tan_phi = tan(gv->PLANE_WAVE_ANGLE * PI / 180.0);
 
-                dz = (float)gv->NXG * gv->DH * tan_phi;
+                dz = (float)(gv->NXG-1) * gv->DH * tan_phi;
                 log_info("Maximum depth of plane wave: %5.2fm\n", gv->PLANE_WAVE_DEPTH + dz);
-                if ((gv->PLANE_WAVE_DEPTH + dz) <= gv->NYG * gv->DH) {
+                if ((gv->PLANE_WAVE_DEPTH + dz) <= (gv->NYG-1) * gv->DH) {
                     acq->nsrc = gv->NXG;
                     acq->srcpos = matrix(1, 8, 1, acq->nsrc);
                     isrc = 0;
                     for (i = 1; i <= gv->NXG; i++) {
                         isrc++;
-                        x = (float)i *gv->DH;
+                        x = (i-1) * gv->DH;
                         acq->srcpos[1][isrc] = x;
                         acq->srcpos[2][isrc] = gv->PLANE_WAVE_DEPTH + (tan_phi * x);
                         acq->srcpos[3][isrc] = 0.0;
@@ -357,7 +358,7 @@ void sources(AcqVar *acq, GlobVar *gv)
 
     if (gv->MPID != 0)
         acq->srcpos = matrix(1, NSPAR, 1, acq->nsrc);
-    MPI_Bcast(&(acq->srcpos[1][1]), (acq->nsrc) * 12, MPI_FLOAT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&(acq->srcpos[1][1]), (acq->nsrc) * NSPAR, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
     if (gv->MPID == 0) {
         if (acq->nsrc > 50)

@@ -15,32 +15,26 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SOFI2D. See file COPYING and/or
-  * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
-/*-------------------------------------------------------------
- *  Check FD-Grid for stability and grid dispersion.
- *  If the stability criterion is not fulfilled the program will
- *  terminate.
- *
- *  ----------------------------------------------------------*/
+/*----------------------------------------------------------
+ * Check FD-Grid for stability and grid dispersion.
+ * If the stability criterion is not fulfilled the program
+ * will terminate.
+ *----------------------------------------------------------*/
 
 #include <limits.h>
 
 #include "fd.h"
 #include "logging.h"
 
-/*************************************************************
- * TODO: Calculation of global grid size wrong! To be fixed. *
- *************************************************************/
-
-void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar * gv)
+void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar *gv)
 {
     float fmax, gamma;
     float dtstab, dhstab, temporal;
     float snapoutx = 0.0, snapouty = 0.0;
-    float srec_minx = gv->DH * gv->NX * gv->NPROCX + 1, srec_miny = gv->DH * gv->NY * gv->NPROCY + 1;
-    float srec_maxx = -1.0, srec_maxy = -1.0;
+    float srec_minx, srec_miny, srec_maxx, srec_maxy;
     float CFL;
 
     if (0 == gv->MPID) {
@@ -66,11 +60,11 @@ void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar * gv)
 
     if (gv->MPID == 0) {
         log_info("The following velocities take anisotropy and/or attenuation into account.\n");
-        log_info("Min and max P-wave phase velocity: Vp_min=%.2fm/s, Vp_max=%.2fm/s\n", gv->VPMIN, gv->VPMAX);
+        log_info("Min and max P-wave (phase) velocity: Vp_min=%.2fm/s, Vp_max=%.2fm/s\n", gv->VPMIN, gv->VPMAX);
         if (gv->VSMIN <= gv->VSMAX) {
-            log_info("Min and max S-wave phase velocity: Vs_min=%.2fm/s, Vs_max=%.2fm/s\n", gv->VSMIN, gv->VSMAX);
+            log_info("Min and max S-wave (phase) velocity: Vs_min=%.2fm/s, Vs_max=%.2fm/s\n", gv->VSMIN, gv->VSMAX);
         } else {
-            log_info("Min and max S-wave phase velocity not set (all values ignored).\n");
+            log_info("Min and max S-wave (phase) velocity not set (all values ignored).\n");
         }
         log_info("Overall global min and max velocity: V_min=%.2fm/s, V_max=%.2fm/s\n", cmin, cmax);
         log_info("------------------------- Grid dispersion -------------------\n");
@@ -109,12 +103,12 @@ void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar * gv)
             }
             snapoutx = gv->NX / (float)gv->IDX;
             snapouty = gv->NY / (float)gv->IDY;
-            log_info("Output of snapshot grid points (x) per node: %8.2f\n", snapoutx);
-            log_info("Output of snapshot grid points (y) per node: %8.2f\n", snapouty);
             if (snapoutx - (int)snapoutx > 0)
                 log_fatal("Ratio NX-NPROCX-IDX must be integer.\n");
             if (snapouty - (int)snapouty > 0)
                 log_fatal("Ratio NY-NPROCY-IDY must be integer.\n");
+            log_info("Output of snapshot grid points (x) per node: %d\n", (int)snapoutx);
+            log_info("Output of snapshot grid points (y) per node: %d\n", (int)snapouty);
         } else {
             log_info("Skipping checks of snapshot parameters.\n");
         }
@@ -122,32 +116,31 @@ void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar * gv)
         if (gv->SEISMO) {
             log_info("Number of modeling time steps: %d\n", gv->NT);
             log_info("Seismogram sampling interval in time steps: %d\n", gv->NDT);
-            log_info("Number of seismogram output samples: %d\n", gv->NT / gv->NDT);
+            log_info("Number of seismogram output samples: %d\n", gv->NS);
 
             /* SU and SEG-Y allow 32767 samples, furthermore the exist programs allow for 65535 
              * samples and pseudo-SEG-Y formats allow foralmost arbitrarily long traces.
              * For binary and textual output the limit is arbitrary. USHRT_MAX is the limut of 
              * an unsigned short specified in limits.h */
 
-            if ((gv->SEIS_FORMAT == 1) && (gv->NT / gv->NDT) > (USHRT_MAX)) {
-                log_error("Maximum number of samples per trace in SU format: %d. Your value: %d\n", USHRT_MAX,
-                          gv->NT / gv->NDT);
+            if ((gv->SEIS_FORMAT == 1) && (gv->NS > USHRT_MAX)) {
+                log_error("Maximum number of samples per trace in SU format: %d. Your value: %d\n", USHRT_MAX, gv->NS);
                 log_fatal("Too many output samples per receiver for SU format.\n");
             }
-
-            srec_minx = gv->DH * gv->NX * gv->NPROCX + 1, srec_miny = gv->DH * gv->NY * gv->NPROCY + 1;
-            srec_maxx = -1.0, srec_maxy = -1.0;
             log_info("Checking for receiver position(s) as specified in json file.\n");
-            log_info("Global grid size in m: %5.2f (x) : %5.2f (y)\n", gv->NX * gv->DH * gv->NPROCX,
-                     gv->NY * gv->DH * gv->NPROCY);
+            log_info("Global grid size in m: %5.2f (x) : %5.2f (y)\n", (gv->NXG-1) * gv->DH, (gv->NYG-1) * gv->DH);
             if (gv->FREE_SURF == 0)
-                log_info("Global grid size in m(-width of abs.boundary): %5.2f-%5.2f (x in m) : %5.2f-%5.2f (y in m)\n",
-                         (float)gv->FW * gv->DH, gv->NX * gv->DH * gv->NPROCX - (float)gv->FW * gv->DH,
-                         (float)gv->FW * gv->DH, gv->NY * gv->DH * gv->NPROCY - (float)gv->FW * gv->DH);
+                log_info("Global grid size in m (minus width of abs. boundary): %5.2f-%5.2f (x) : %5.2f-%5.2f (y)\n",
+                         (float)(gv->FW - 1) * gv->DH, (gv->NXG - 1) * gv->DH - (float)(gv->FW - 1) * gv->DH,
+                         (float)(gv->FW - 1) * gv->DH, (gv->NYG - 1) * gv->DH - (float)(gv->FW - 1) * gv->DH);
             if (gv->FREE_SURF == 1)
-                log_info("Global grid size in m(-width of abs.boundary): %5.2f-%5.2f (x in m) : %5.2f-%5.2f (y in m)\n",
-                         (float)gv->FW * gv->DH, gv->NX * gv->DH * gv->NPROCX - (float)gv->FW * gv->DH, gv->DH,
-                         gv->NY * gv->DH * gv->NPROCY - (float)gv->FW * gv->DH);
+                log_info("Global grid size in m (minus width of abs. boundary): %5.2f-%5.2f (x) : %5.2f-%5.2f (y)\n",
+                         (float)(gv->FW - 1) * gv->DH, (gv->NXG - 1) * gv->DH - (float)(gv->FW - 1) * gv->DH, 0.0,
+                         (gv->NYG - 1) * gv->DH - (float)(gv->FW - 1) * gv->DH);
+
+            srec_minx = gv->NXG * gv->DH; // beyond last valid value
+            srec_miny = gv->NYG * gv->DH; // beyond last valid value
+            srec_maxx = srec_maxy = -1.0;
 
             /* find maximum and minimum source positions coordinate ---- from input file */
             if (gv->READREC == 0) {
@@ -169,18 +162,12 @@ void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar * gv)
             }
 
             if (gv->READREC == 1) {
-                /* find maximum and minimum source positions coordinate ---- from receiver file */
+                /* find maximum and minimum receiver position coordinate ---- from receiver file */
                 for (int k = 1; k <= gv->NTRG; k++) {
-                    /* find maximum source positions coordinate */
-                    if ((recpos[1][k] * gv->DH) > srec_maxx)
-                        srec_maxx = recpos[1][k] * gv->DH;
-                    if ((recpos[2][k] * gv->DH) > srec_maxy)
-                        srec_maxy = recpos[2][k] * gv->DH;
-                    /* find minimum source positions coordinate */
-                    if ((recpos[1][k] * gv->DH) < srec_minx)
-                        srec_minx = recpos[1][k] * gv->DH;
-                    if ((recpos[2][k] * gv->DH) < srec_miny)
-                        srec_miny = recpos[2][k] * gv->DH;
+                    if (((recpos[1][k]-1) * gv->DH) > srec_maxx) srec_maxx = (recpos[1][k]-1) * gv->DH;
+                    if (((recpos[2][k]-1) * gv->DH) > srec_maxy) srec_maxy = (recpos[2][k]-1) * gv->DH;
+                    if (((recpos[1][k]-1) * gv->DH) < srec_minx) srec_minx = (recpos[1][k]-1) * gv->DH;
+                    if (((recpos[2][k]-1) * gv->DH) < srec_miny) srec_miny = (recpos[2][k]-1) * gv->DH;
                 }
                 log_info("Number of receiver positions: %d\n", gv->NTRG);
             }
@@ -192,106 +179,97 @@ void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar * gv)
             if (((srec_maxx < 0.0) || (srec_maxy < 0.0)) || ((srec_minx < 0.0) || (srec_miny < 0.0))) {
                 log_fatal("Coordinate of at least one receiver location is outside the global grid.\n");
             }
-            if ((srec_maxx > gv->NX * gv->DH * gv->NPROCX) || (srec_maxy > gv->NY * gv->DH * gv->NPROCY)) {
+            if ((srec_maxx > (gv->NXG - 1) * gv->DH) || (srec_maxy > (gv->NYG - 1) * gv->DH)) {
                 log_fatal("Coordinate of at least one receiver location is outside the global grid.\n");
             }
 
-            /* checking if receiver coordinate of first receiver in line specified in input-file is outside the Absorbing Boundary  */
-            if ((srec_maxx < ((float)gv->FW * gv->DH)) || (srec_minx < ((float)gv->FW * gv->DH))) {
-                /* this warning appears, when at least a single receiver is located in AB between 0 - FW+DX/DX/DZ ("inner boundary") */
-                log_warn
-                    ("Coordinate of at least one receiver location is inside the Absorbing Boundary (left boundary).\n");
+            if ((srec_maxx <= ((float)(gv->FW - 1) * gv->DH)) || (srec_minx <= ((float)(gv->FW - 1) * gv->DH))) {
+                /* this warning appears, when at least a single receiver is located
+                   in AB between 0 - FW+DX/DX/DZ ("inner boundary") */
+                log_warn("Coordinate of at least one receiver location is inside the absorbing boundary (left boundary).\n");
             }
 
-            if (srec_maxx > (gv->NX * gv->DH * gv->NPROCX - (float)gv->FW * gv->DH)) {
-                /* this warning appears, when at least a single receiver is located in AB between NX/NY/NZ-FW+DX/DX/DZ and NX/NY/NZ ("outer boundary") */
-                log_warn
-                    ("Coordinate of at least one receiver location is inside the Absorbing Boundary (right boundary).\n");
+            if (srec_maxx >= ((gv->NXG - 1) * gv->DH - (float)(gv->FW - 1) * gv->DH)) {
+                /* this warning appears, when at least a single receiver is located
+                   in AB between NX/NY/NZ-FW+DX/DX/DZ and NX/NY/NZ ("outer boundary") */
+                log_warn("Coordinate of at least one receiver location is inside the absorbing boundary (right boundary).\n");
             }
 
-            if (srec_maxy > (gv->NY * gv->DH * gv->NPROCY - (float)gv->FW * gv->DH)) {
-                /* this warning appears, when at least a single receiver is located in AB between NX/NY/NZ-FW+DX/DX/DZ and NX/NY/NZ ("outer boundary") */
-                log_warn
-                    ("Coordinate of at least one receiver location is inside the Absorbing Boundary (lower boundary).\n");
+            if (srec_maxy > ((gv->NYG - 1) * gv->DH - (float)(gv->FW - 1) * gv->DH)) {
+                /* this warning appears, when at least a single receiver is located
+                   in AB between NX/NY/NZ-FW+DX/DX/DZ and NX/NY/NZ ("outer boundary") */
+                log_warn("Coordinate of at least one receiver location is inside the absorbing boundary (lower boundary).\n");
             }
 
-            if ((srec_miny < ((float)gv->FW * gv->DH)) && !(gv->FREE_SURF)) {
-                /* this warning appears, when at least a single receiver is located in AB between NX/NY/NZ-FW+DX/DX/DZ and NX/NY/NZ ("outer boundary") */
-                log_warn
-                    ("Coordinate of at least one receiver location is inside the Absorbing Boundary (top boundary).\n");
+            if ((srec_miny <= ((float)(gv->FW - 1) * gv->DH)) && !(gv->FREE_SURF)) {
+                /* this warning appears, when at least a single receiver is located
+                   in AB between NX/NY/NZ-FW+DX/DX/DZ and NX/NY/NZ ("outer boundary") */
+                log_warn("Coordinate of at least one receiver location is inside the absorbing boundary (top boundary).\n");
             }
         } else {
             log_info("Skipping checks of seismogram parameters.\n");
         }
 
         if (gv->SRCREC == 1) {
-            srec_minx = gv->DH * gv->NX * gv->NPROCX + 1, srec_miny = gv->DH * gv->NY * gv->NPROCY + 1;
-            srec_maxx = -1.0, srec_maxy = -1.0;
+            srec_minx = gv->NXG * gv->DH; // beyond last valid value
+            srec_miny = gv->NYG * gv->DH; // beyond last valid value
+            srec_maxx = srec_maxy = -1.0;
+
             log_info("Checking for source position(s) as specified in source file.\n");
-            log_info("Global grid size in m: %5.2f (x) : %5.2f (y)\n", gv->NX * gv->DH * gv->NPROCX,
-                     gv->NY * gv->DH * gv->NPROCY);
             if (gv->FREE_SURF == 0)
-                log_info("Global grid size in m(-width of abs.boundary): %5.2f-%5.2f (x in m) : %5.2f-%5.2f (y in m)\n",
-                         (float)gv->FW * gv->DH, gv->NX * gv->DH * gv->NPROCX - (float)gv->FW * gv->DH,
-                         (float)gv->FW * gv->DH, gv->NY * gv->DH * gv->NPROCY - (float)gv->FW * gv->DH);
+                log_info("Global grid size in m (minus width of abs.boundary): %5.2f-%5.2f (x) : %5.2f-%5.2f (y)\n",
+                         (float)(gv->FW - 1) * gv->DH, (gv->NXG - 1) * gv->DH - (float)(gv->FW - 1) * gv->DH,
+                         (float)(gv->FW - 1) * gv->DH, (gv->NYG - 1) * gv->DH - (float)(gv->FW - 1) * gv->DH);
             if (gv->FREE_SURF == 1)
-                log_info("Global grid size in m(-width of abs.boundary): %5.2f-%5.2f (x in m) : %5.2f-%5.2f (y in m)\n",
-                         (float)gv->FW * gv->DH, gv->NX * (float)gv->DH * gv->NPROCX - (float)gv->FW * gv->DH, gv->DH,
-                         gv->NY * gv->DH * gv->NPROCY - (float)gv->FW * gv->DH);
+                log_info("Global grid size in m (minus width of abs.boundary): %5.2f-%5.2f (x) : %5.2f-%5.2f (y)\n",
+                     (float)(gv->FW - 1) * gv->DH, (gv->NXG - 1) * gv->DH - (float)(gv->FW - 1) * gv->DH, 0.0,
+                     (gv->NYG - 1) * gv->DH - (float)(gv->FW - 1) * gv->DH);
 
             for (int k = 1; k <= nsrc; k++) {
-                /* find maximum source positions coordinate */
-                if (srcpos[1][k] > srec_maxx)
-                    srec_maxx = srcpos[1][k];
-                if (srcpos[2][k] > srec_maxy)
-                    srec_maxy = srcpos[2][k];
-                /* find minimum source positions coordinate */
-                if (srcpos[1][k] < srec_minx)
-                    srec_minx = srcpos[1][k];
-                if (srcpos[2][k] < srec_miny)
-                    srec_miny = srcpos[2][k];
+                if (srcpos[1][k] > srec_maxx) srec_maxx = srcpos[1][k];
+                if (srcpos[2][k] > srec_maxy) srec_maxy = srcpos[2][k];
+                if (srcpos[1][k] < srec_minx) srec_minx = srcpos[1][k];
+                if (srcpos[2][k] < srec_miny) srec_miny = srcpos[2][k];
             }
 
             log_info("Number of source positions: %d\n", nsrc);
             log_info("Minimum source position coordinates: %5.2f (x) : %5.2f (y)\n", srec_minx, srec_miny);
             log_info("Maximum source position coordinates: %5.2f (x) : %5.2f (y)\n", srec_maxx, srec_maxy);
 
-            /* checking if receiver coordinate of first receiver in line specified in input-file is inside the global grid */
+            /* checking if source coordinates are inside the global grid */
             if (((srec_maxx < 0.0) || (srec_maxy < 0.0)) || ((srec_minx < 0.0) || (srec_miny < 0.0))) {
                 log_fatal("Coordinate of at least one source location is outside the global grid.\n");
             }
-
-            if ((srec_maxx > gv->NX * gv->DH * gv->NPROCX) || (srec_maxy > gv->NY * gv->DH * gv->NPROCY)) {
+            if ((srec_maxx > (gv->NXG - 1) * gv->DH) || (srec_maxy > (gv->NYG - 1) * gv->DH)) {
                 log_fatal("Coordinate of at least one source location is outside the global grid.\n");
             }
 
-            /* checking if receiver coordinate of first receiver in line specified in input-file is outside the Absorbing Boundary  */
-            if ((srec_maxx < ((float)gv->FW * gv->DH)) || (srec_minx < ((float)gv->FW * gv->DH))) {
-                /* this warning appears, when at least a single receiver is located in AB between 0 - FW+DX/DX/DZ ("inner boundary") */
-                log_warn
-                    ("Coordinate of at least one source location is inside the Absorbing Boundary (left boundary).\n");
+            if ((srec_maxx <= ((float)(gv->FW - 1) * gv->DH)) || (srec_minx <= ((float)(gv->FW - 1) * gv->DH))) {
+                /* this warning appears, when at least a single source
+                   is located in AB between 0 - FW+DX/DX/DZ ("inner boundary") */
+                log_warn("Coordinate of at least one source location is inside the absorbing boundary (left boundary).\n");
             }
-            if (srec_maxx > (gv->NX * gv->DH * gv->NPROCX - (float)gv->FW * gv->DH)) {
-                /* this warning appears, when at least a single receiver is located in AB between NX/NY/NZ-FW+DX/DX/DZ and NX/NY/NZ ("outer boundary") */
-                log_warn
-                    ("Coordinate of at least one source location is inside the Absorbing Boundary (right boundary).\n");
+            if (srec_maxx >= ((gv->NXG - 1) * gv->DH - (float)(gv->FW - 1) * gv->DH)) {
+                /* this warning appears, when at least a single source
+                   is located in AB between NX/NY/NZ-FW+DX/DX/DZ and NX/NY/NZ ("outer boundary") */
+                log_warn("Coordinate of at least one source location is inside the absorbing boundary (right boundary).\n");
             }
-            if (srec_maxy > (gv->NY * gv->DH * gv->NPROCY - (float)gv->FW * gv->DH)) {
-                /* this warning appears, when at least a single receiver is located in AB between NX/NY/NZ-FW+DX/DX/DZ and NX/NY/NZ ("outer boundary") */
-                log_warn
-                    ("Coordinate of at least one source location is inside the Absorbing Boundary (lower boundary).\n");
+            if (srec_maxy >= ((gv->NYG - 1) * gv->DH - (float)(gv->FW - 1) * gv->DH)) {
+                /* this warning appears, when at least a single source
+                   is located in AB between NX/NY/NZ-FW+DX/DX/DZ and NX/NY/NZ ("outer boundary") */
+                log_warn("Coordinate of at least one source location is inside the absorbing boundary (lower boundary).\n");
             }
-            if ((srec_miny < ((float)gv->FW * gv->DH)) && !(gv->FREE_SURF)) {
-                /* this warning appears, when at least a single receiver is located in AB between NX/NY/NZ-FW+DX/DX/DZ and NX/NY/NZ ("outer boundary") */
-                log_warn
-                    ("Coordinate of at least one source location is inside the Absorbing Boundary (top boundary).\n");
+            if ((srec_miny <= ((float)(gv->FW - 1) * gv->DH)) && !(gv->FREE_SURF)) {
+                /* this warning appears, when at least a single source
+                   is located in AB between NX/NY/NZ-FW+DX/DX/DZ and NX/NY/NZ ("outer boundary") */
+                log_warn("Coordinate of at least one source location is inside the absorbing boundary (top boundary).\n");
             }
         }
 
         log_info("------------------------- Absorbing frame checks ------------\n");
         if (gv->ABS_TYPE == 1) {
             log_info("CPML boundary (ABS_TYPE=1) with width of %d grid points (%5.2fm).\n", gv->FW,
-                     (float)gv->FW * gv->DH);
+                     (float)(gv->FW-1) * gv->DH);
             if (gv->FW < 10) {
                 log_warn("Width (FW) of absorbing frame should be at least 10 grid points.\n");
                 log_warn("Be aware of artificial reflections from grid boundaries!\n");
@@ -299,19 +277,17 @@ void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar * gv)
         }
         if (gv->ABS_TYPE == 2) {
             log_info("Absorbing boundary (ABS_TYPE=2) with width of %d grid points (%5.2fm).\n", gv->FW,
-                     (float)gv->FW * gv->DH);
+                     (float)(gv->FW-1) * gv->DH);
             if (gv->FW < 30) {
                 log_warn("Width (FW) of absorbing frame should be at least 30 grid points.\n");
                 log_warn("Be aware of artificial reflections from grid boundaries!\n");
             }
         }
         if (((gv->NX) < gv->FW) || ((gv->NY) < gv->FW)) {
-            log_error
-                ("Width of absorbing boundary (FW=%d grid points) is larger than at least one subdomain dimension.\n",
-                 gv->FW);
-            log_error("Subdomain dimensions: NX/NPROCX=%d, NY/NPROCY=%d in grid points.\n", gv->NX, gv->NY);
-            log_fatal
-                ("You need to choose a smaller width of absorbing frame (FW) or increase the subdomain dimensions.\n");
+            log_error("Width of absorbing boundary (FW=%d grid points) is larger than at least one subdomain dimension.\n",
+                      gv->FW);
+            log_error("Subdomain dimensions: NX=%d, NY=%d in grid points.\n", gv->NX, gv->NY);
+            log_fatal("You need to choose a smaller width of absorbing frame (FW) or increase the subdomain dimensions.\n");
         }
         if (gv->BOUNDARY) {
             if (gv->ABS_TYPE == 1 || gv->ABS_TYPE == 2) {

@@ -95,8 +95,8 @@ void exchange_par(GlobVar * gv)
 	//
         idum[27] = gv->NDT;
         idum[28] = gv->SEIS_FORMAT;
-	//
-	//
+        idum[29] = gv->NT;
+        idum[30] = gv->NS;
         idum[31] = gv->FDORDER;
         idum[32] = gv->MAXRELERROR;
         idum[33] = gv->RUN_MULTIPLE_SHOTS;
@@ -189,8 +189,8 @@ void exchange_par(GlobVar * gv)
     //
     gv->NDT = idum[27];
     gv->SEIS_FORMAT = idum[28];
-    //
-    //
+    gv->NT = idum[29];
+    gv->NS = idum[30];
     gv->FDORDER = idum[31];
     gv->MAXRELERROR = idum[32];
     gv->RUN_MULTIPLE_SHOTS = idum[33];

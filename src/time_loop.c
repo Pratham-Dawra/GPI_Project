@@ -24,12 +24,18 @@
 #include "fd.h"
 #include "logging.h"
 
-void time_loop(int ishot, int lsnap, int nsnap, float *hc, AcqVar *acq, MemModel *mpm,
+void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
                MemWavefield *mpw, GlobVar *gv, Perform *perf)
 {
-    int nt;
+    int nt, lsnap, isnap, esnap;
     double time3 = 0.0, time4 = 0.0, time5 = 0.0, time6 = 0.0, time7 = 0.0, time8 = 0.0;
     int lsamp = gv->NDT;
+
+    static int nsnap = 0;
+
+    lsnap = iround(gv->TSNAP1 / gv->DT);      /* first snapshot at this time step */
+    isnap = iround(gv->TSNAPINC / gv->DT);    /* snapshot increment in number of timesteps */
+    esnap = iround(gv->TSNAP2 / gv->DT);      /* last snapshot no later than this time step */
 
     for (nt = 1; nt <= gv->NT; nt++) {
 
@@ -283,11 +289,10 @@ void time_loop(int ishot, int lsnap, int nsnap, float *hc, AcqVar *acq, MemModel
             lsamp += gv->NDT;
         }
 
-        /* WRITE SNAPSHOTS TO DISK */
-        if ((gv->SNAP) && (nt == lsnap) && (nt <= gv->TSNAP2 / gv->DT)) {
-
+        /* write snapshot to disk */
+        if ((gv->SNAP) && (nt == lsnap) && (nt <= esnap)) {
             snap(nt, ++nsnap, hc, mpm, mpw, gv);
-            lsnap = lsnap + iround(gv->TSNAPINC / gv->DT);
+            lsnap += isnap;
         }
 
         if ((gv->MPID == 0) && ((nt - 1) % gv->OUTNTIMESTEPINFO == 0)) {

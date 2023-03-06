@@ -29,6 +29,7 @@
 #include "fd.h"
 #include "logging.h"
 #include "enums.h"
+#include "macros.h"
 
 static const char *weq_descr[NWEQ] = { "AC_ISO", "AC_VTI", "AC_TTI",
     "EL_ISO", "VEL_ISO", "EL_VTI",
@@ -373,6 +374,9 @@ void read_par_json(const char *fileinp, GlobVar * gv)
         log_warn("L reset to zero for elastic/acoustic simulation.\n");
         (gv->L) = 0;
     }
+
+    gv->NT = iround(gv->TIME / gv->DT);     /* number of time steps */
+    gv->NS = iround(gv->NT / gv->NDT);      /* number of samples per trace */
 
     /* do NOT remove the FALLTHRU comments below, they are used to tell the compiler
      * that this is an intentional fall through */

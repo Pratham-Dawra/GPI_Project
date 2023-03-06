@@ -250,8 +250,7 @@ void surface(int ndepth, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *g
 
 void surface_elastic(int ndepth, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void time_loop(int ishot, int lsnap, int nsnap, float *hc, AcqVar *acq, MemModel *mpm,
-               MemWavefield *mpw, GlobVar *gv, Perform *perf);
+void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm, MemWavefield *mpw, GlobVar *gv, Perform *perf);
 
 /* void update_s_elastic(int nx1, int nx2, int ny1, int ny2, int nt,
                       float **vx, float **vy, float **sxx, float **syy,

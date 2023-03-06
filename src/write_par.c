@@ -19,13 +19,14 @@
 --------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------*
- * Write parameters to stdout                                           *
+ * Write summary of parameters to stdout                                *
  *----------------------------------------------------------------------*/
 
 #include "fd.h"
 #include "logging.h"
+#include <stdbool.h>
 
-void write_par(GlobVar * gv)
+void write_par(GlobVar *gv)
 {
     char file_ext[8];
 
@@ -34,7 +35,7 @@ void write_par(GlobVar * gv)
     log_info("Number of subdomains in y-direction (NPROCY): %d\n", gv->NPROCY);
     log_info("Total number of MPI processes/subdomains: %d\n", gv->NPROC);
     if (gv->NPROCX <= 20 && gv->NPROCY <=20) {
-      log_info("MPI Cartesian grid layout:\n");
+      log_info("MPI Cartesian grid layout in terms of ranks:\n");
       int k = 0;
       for (int iy = 0; iy<gv->NPROCY; ++iy) {
         bool first = true;
@@ -61,10 +62,10 @@ void write_par(GlobVar * gv)
     log_info("------------------------- Discretization --------------------\n");
     log_info("Model size (grid points) in x-direction (NX): %d\n", gv->NXG);
     log_info("Model size (grid points) in y-direction (NY): %d\n", gv->NYG);
-    log_info("Grid-spacing (DH): %em\n", gv->DH);
-    log_info("Model size (real) in x-direction: %em\n", (gv->NXG - 1) * gv->DH);
-    log_info("Model size (real) in y-direction: %em\n", (gv->NYG - 1) * gv->DH);
-    log_info("Time of wave propagation (TIME): %es\n", gv->TIME);
+    log_info("Grid-spacing (DH) in m: %-12.4f\n", gv->DH);
+    log_info("Model size (real) in x-direction in m: %-12.4f\n", (gv->NXG - 1) * gv->DH);
+    log_info("Model size (real) in y-direction in m: %-12.4f\n", (gv->NYG - 1) * gv->DH);
+    log_info("Time of wave propagation (TIME) in s: %-12.6f\n", gv->TIME);
     log_info("Time step interval (DT): %es\n", gv->DT);
     log_info("Number of time steps: %d \n", gv->NT);
 
@@ -190,7 +191,6 @@ void write_par(GlobVar * gv)
     log_info("Number of relaxation mechanisms (L): %d\n", gv->L);
     if (gv->L > 0) {
         log_info("Reference frequency for dispersion (F_REF): %f\n", gv->F_REF);
-        log_info("Value for tau (TAU): %f\n", gv->TAU);
         for (int l = 1; l <= gv->L; l++) {
             log_info("Relaxation frequency %d (FL%d): %fHz\n", l, l, gv->FL[l]);
         }
@@ -224,6 +224,7 @@ void write_par(GlobVar * gv)
         log_info("Snapshot increment (TSNAPINC): %8.5fs\n", gv->TSNAPINC);
         log_info("First and last_horizontal grid point: %d, %d\n", 1, gv->NXG);
         log_info("First and last vertical grid point: %d, %d\n", 1, gv->NYG);
+        log_info("Grid point increment: %d, %d\n", gv->IDX, gv->IDY);
         log_info("Snapshot output file (SNAP_FILE): %s\n", gv->SNAP_FILE);
         switch (gv->SNAP_FORMAT) {
           case 1:
@@ -286,7 +287,7 @@ void write_par(GlobVar * gv)
         log_info("Sampling interval of output data: %fs\n", gv->NDT * gv->DT);
         if (!gv->READREC)
             log_info("Trace-spacing: %5.2fm\n", gv->NGEOPH * gv->DH);
-        log_info("Number of samples per output trace: %d\n", iround((gv->NT - 1) / gv->NDT));
+        log_info("Number of samples per output trace: %d\n", gv->NS);
     }
 
     log_info("-------------------------------------------------------------\n");

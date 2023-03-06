@@ -15,17 +15,17 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with SOFI2D. See file COPYING and/or 
-  * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
-/*------------------------------------------------------------------------
- *   store amplitudes (particle velocities or pressure or curl and div) 
- *   at receiver positions in arrays
- *  ----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------
+ * store amplitudes (particle velocities or pressure or curl and div)
+ * at receiver positions in arrays
+ *----------------------------------------------------------------------*/
 
 #include "fd.h"
 
-void seismo_ssg(int lsamp, int **recpos, float *hc, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
+void seismo_ssg(int lsamp, int **recpos, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv)
 {
     int i, j, ins, nxrec, nyrec, m;
     float vxx, vyy, vxy, vyx;
@@ -47,7 +47,8 @@ void seismo_ssg(int lsamp, int **recpos, float *hc, MemModel * mpm, MemWavefield
               i = nxrec;
               j = nyrec;
               //gv->SECTIONP[itr][ins]=-sxx[nyrec][nxrec]-syy[nyrec][nxrec]; // unscaled amplitude
-              gv->SECTIONP[itr][ins] = ((3.0 * mpm->ppi[j][i] - 4.0 * mpm->pu[j][i]) / (2.0 * mpm->ppi[j][i] - 2.0 * mpm->pu[j][i])) * (-mpw->psxx[nyrec][nxrec] - mpw->psyy[nyrec][nxrec]) / 3;    // true amplitude
+              gv->SECTIONP[itr][ins] = ((3.0 * mpm->ppi[j][i] - 4.0 * mpm->pu[j][i]) / (2.0 * mpm->ppi[j][i] - 2.0 * mpm->pu[j][i]))
+                                       * (-mpw->psxx[nyrec][nxrec] - mpw->psyy[nyrec][nxrec]) / 3;    // true amplitude
               break;
 
           case 3:              /* curl +div */

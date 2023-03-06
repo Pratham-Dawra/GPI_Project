@@ -18,11 +18,12 @@
  * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
-/*  ----------------------------------------------------------------------
+/* ----------------------------------------------------------------------
  * Computation of local source coordinates
- * ---------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------*/
 
 #include "fd.h"
+#include <math.h>
 
 float **splitsrc(float **srcpos, int *nsrc_loc, int nsrc, GlobVar *gv)
 {
@@ -31,13 +32,12 @@ float **splitsrc(float **srcpos, int *nsrc_loc, int nsrc, GlobVar *gv)
     float **srcpos_dummy = matrix(1, NSPAR, 1, nsrc);
 
     for (int j = 1; j <= nsrc; j++) {
-        a = (iround(srcpos[1][j] / gv->DH) - 1) / gv->NX;
-        b = (iround(srcpos[2][j] / gv->DH) - 1) / gv->NY;
-
-        if ((gv->POS[1] == a) && (gv->POS[2] == b)) {
+        a = (int)floor(srcpos[1][j] / gv->DH) + 1;  // convert x coordinate to index grid point
+        b = (int)floor(srcpos[2][j] / gv->DH) + 1;  // convert y coordinate to index grid point
+        if (a >= gv->GGRID[1] && a <= gv->GGRID[2] && b >= gv->GGRID[3] && b <= gv->GGRID[4]) {
             i++;
-            srcpos_dummy[1][i] = (float)(((iround(srcpos[1][j] / gv->DH) - 1) % gv->NX) + 1);
-            srcpos_dummy[2][i] = (float)(((iround(srcpos[2][j] / gv->DH) - 1) % gv->NY) + 1);
+            srcpos_dummy[1][i] = (float)(a - gv->GGRID[1] + 1);
+            srcpos_dummy[2][i] = (float)(b - gv->GGRID[3] + 1);
             srcpos_dummy[3][i] = 0.0f;
             srcpos_dummy[4][i] = srcpos[4][j];
             srcpos_dummy[5][i] = srcpos[5][j];

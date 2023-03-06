@@ -52,7 +52,6 @@
 int main(int argc, char **argv)
 {
     /* variables in main */
-    int lsnap, nsnap = 0;
     int ishot, nshots;          /* Added ishot and nshots for multiple shots */
     clock_t cpu_time1 = 0, cpu_time = 0;
     FILE *log_fp = NULL;
@@ -162,16 +161,12 @@ int main(int argc, char **argv)
     /* domain decomposition */
     initproc(&gv);
 
-    gv.NT = iround(gv.TIME / gv.DT);    /* number of time steps */
-    gv.NS = iround(gv.NT / gv.NDT); /* number of samples per trace */
-    lsnap = iround(gv.TSNAP1 / gv.DT);  /* first snapshot at this time step */
-
     /* output of parameters */
     if (gv.MPID == 0) {
         write_par(&gv);
     }
 
-    /* Reading acquisition parameters */
+    /* reading acquisition parameters */
     nshots = acq_read(&acq, &gv);
 
     /* memory allocation of buffers */
@@ -221,18 +216,13 @@ int main(int argc, char **argv)
         /* initialize wavefield with zero */
         zero_wavefield(&mpw, &gv);
 
+        /* determine block index boundaries for inner area and frame */
         subgrid_bounds(1, gv.NX, 1, gv.NY, &gv);
 
-        /*---------------------------------------------------------------
-         *----------------------  loop over timesteps  ------------------
-         *---------------------------------------------------------------*/
+        /* look over all time steps */
+        time_loop(ishot, hc, &acq, &mpm, &mpw, &gv, &perf);
 
-        time_loop(ishot, lsnap, nsnap, hc, &acq, &mpm, &mpw, &gv, &perf);
-
-        /*---------------------------------------------------------------
-         *--------------------  End  of loop over timesteps ----------
-         *---------------------------------------------------------------*/
-
+        /* gather and output seismograms if applicable */
         saveseis(ishot, &acq, &gv);
 
     }   /*----------------------  end of loop over multiple shots  ------------------*/

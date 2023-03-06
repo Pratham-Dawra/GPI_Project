@@ -15,18 +15,19 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with SOFI2D. See file COPYING and/or 
-  * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
-/*------------------------------------------------------------------------
- *  compute receiver positions or read them from external file
- *  ----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------
+ * compute receiver positions or read them from external file
+ *----------------------------------------------------------------------*/
 
 #include "fd.h"
 #include "logging.h"
+#include <math.h>
 #include <stdbool.h>
 
-int **receiver(GlobVar * gv)
+int **receiver(GlobVar *gv)
 {
     int **recpos1 = NULL, **recpos = NULL;
     int itr = 1, itr1 = 0, itr2 = 0, recflag = 0, n, i, j;
@@ -52,10 +53,6 @@ int **receiver(GlobVar * gv)
                 testbuff2 = strchr(buffer, '%');
                 testbuff3 = sscanf(buffer, "%s", bufferstring) == 1;
 
-                /*the following output is for debugging */
-                /*testbuff4=(testbuff1==1 || testbuff2==1);
-                 * log_std(fp," buffer: _%s_with testbuff1=_%i_ testbuff2=_%i_testbuff3=_%i_ testbuff4=_%i_\n",buffer,testbuff1, testbuff2, testbuff3,testbuff4); */
-
                 /* checks if the line contains a '%' or '#' character which indicates a
                  * comment line, and if the reading of a string was successful, 
                  * which is not the case for an empty line */
@@ -68,8 +65,8 @@ int **receiver(GlobVar * gv)
             recpos1 = imatrix(1, 3, 1, gv->NTRG);
             for (itr = 1; itr <= gv->NTRG; itr++) {
                 fscanf(fpr, "%f%f\n", &xrec, &yrec);
-                recpos1[1][itr] = iround((xrec + gv->REFREC[1]) / gv->DH);
-                recpos1[2][itr] = iround((yrec + gv->REFREC[2]) / gv->DH);
+                recpos1[1][itr] = (int)floor((xrec + gv->REFREC[1]) / gv->DH) + 1;
+                recpos1[2][itr] = (int)floor((yrec + gv->REFREC[2]) / gv->DH) + 1;
                 recpos1[3][itr] = itr;
             }
             fclose(fpr);
@@ -77,8 +74,7 @@ int **receiver(GlobVar * gv)
             /* check if more than one receiver is located at the same gridpoint */
             for (itr = 1; itr <= (gv->NTRG - 1); itr++)
                 for (itr1 = itr + 1; itr1 <= gv->NTRG; itr1++)
-                    if ((recpos1[1][itr] == recpos1[1][itr1])
-                        && (recpos1[2][itr] == recpos1[2][itr1]))
+                    if ((recpos1[1][itr] == recpos1[1][itr1]) && (recpos1[2][itr] == recpos1[2][itr1]))
                         recpos1[1][itr1] = -(++recflag);
 
             recpos = imatrix(1, 3, 1, gv->NTRG - recflag);
@@ -92,8 +88,8 @@ int **receiver(GlobVar * gv)
             int ntr_orig = gv->NTRG;
             gv->NTRG = itr2;
             if (recflag > 0) {
-                log_warn("Co-located receivers positions; reduced no. of receivers from %d to %d.\n", ntr_orig,
-                         gv->NTRG);
+                log_warn("Co-located receivers positions; reduced no. of receivers from %d to %d.\n",
+                         ntr_orig, gv->NTRG);
             }
 
             free_imatrix(recpos1, 1, 3, 1, gv->NTRG);
@@ -114,42 +110,42 @@ int **receiver(GlobVar * gv)
             }
         } else {                /* straight horizontal or vertical line of receivers */
             log_info("Receiver positions specified by json parameter file.\n");
-            nxrec1 = gv->XREC1 / gv->DH;    /* (nxrec1,nyrec1) and (nxrec2,nyrec2) are */
-            nyrec1 = gv->YREC1 / gv->DH;    /* the positions of the first and last receiver */
-            nxrec2 = gv->XREC2 / gv->DH;    /* in gridpoints */
-            nyrec2 = gv->YREC2 / gv->DH;
+            nxrec1 = (int)floor(gv->XREC1 / gv->DH) + 1;    /* (nxrec1,nyrec1) and (nxrec2,nyrec2) are */
+            nyrec1 = (int)floor(gv->YREC1 / gv->DH) + 1;    /* the positions of the first and last receiver */
+            nxrec2 = (int)floor(gv->XREC2 / gv->DH) + 1;    /* in gridpoints */
+            nyrec2 = (int)floor(gv->YREC2 / gv->DH) + 1;
 
             /* only 1 receiver */
-            if (((iround(nxrec2) - iround(nxrec1)) == 0) && ((iround(nyrec2) - iround(nyrec1)) == 0)) {
+            if ((nxrec2 - nxrec1) == 0 && (nyrec2 - nyrec1) == 0) {
                 log_info("A single receiver position determined from json file.\n");
                 gv->NTRG = 1;
                 recpos = imatrix(1, 3, 1, gv->NTRG);
-                recpos[1][1] = iround(nxrec1);
-                recpos[2][1] = iround(nyrec1);
+                recpos[1][1] = nxrec1;
+                recpos[2][1] = nyrec1;
                 recpos[3][1] = 1;
-            } else if (((iround(nyrec2) - iround(nyrec1)) == 0)) {
+            } else if ((nyrec2 - nyrec1) == 0) {
                 log_info("A horizontal receiver line (in x-direction) determined from json file.\n");
-                gv->NTRG = iround((nxrec2 - nxrec1) / gv->NGEOPH) + 1;
+                gv->NTRG = (int)floor((nxrec2 - nxrec1) / gv->NGEOPH) + 1;
                 recpos = imatrix(1, 3, 1, gv->NTRG);
                 nxrec = nxrec1;
                 for (n = 1; n <= gv->NTRG; n++) {
                     nyrec = nyrec1 + ((nyrec2 - nyrec1) / (nxrec2 - nxrec1) * (nxrec - nxrec1));
-                    itr = iround((nxrec - nxrec1) / gv->NGEOPH) + 1;
-                    recpos[1][itr] = iround(nxrec);
-                    recpos[2][itr] = iround(nyrec);
+                    itr = (int)floor((nxrec - nxrec1) / gv->NGEOPH) + 1;
+                    recpos[1][itr] = nxrec;
+                    recpos[2][itr] = nyrec;
                     recpos[3][itr] = itr;
                     nxrec += gv->NGEOPH;
                 }
-            } else if (((iround(nxrec2) - iround(nxrec1)) == 0)) {
+            } else if ((nxrec2 - nxrec1) == 0) {
                 log_info("A vertical receiver line (in y-direction) determined from json file.\n");
-                gv->NTRG = iround((nyrec2 - nyrec1) / gv->NGEOPH) + 1;
+                gv->NTRG = (int)floor((nyrec2 - nyrec1) / gv->NGEOPH) + 1;
                 recpos = imatrix(1, 3, 1, gv->NTRG);
                 nyrec = nyrec1;
                 for (n = 1; n <= gv->NTRG; n++) {
                     nxrec = nxrec1 + ((nxrec2 - nxrec1) / (nyrec2 - nyrec1) * (nyrec - nyrec1));
-                    itr = iround((nyrec - nyrec1) / gv->NGEOPH) + 1;
-                    recpos[1][itr] = iround(nxrec);
-                    recpos[2][itr] = iround(nyrec);
+                    itr = (int)floor((nyrec - nyrec1) / gv->NGEOPH) + 1;
+                    recpos[1][itr] = nxrec;
+                    recpos[2][itr] = nyrec;
                     recpos[3][itr] = itr;
                     nyrec += gv->NGEOPH;
                 }
@@ -164,11 +160,8 @@ int **receiver(GlobVar * gv)
         log_info("Number of receiver positions: %d\n", gv->NTRG);
 
         for (itr = 1; itr <= gv->NTRG; itr++) {
-            /* check for 0's */
-            for (n = 1; n <= 2; n++) {
-                if (recpos[n][itr] == 0)
-                    recpos[n][itr] = 1;
-            }
+            if (recpos[1][itr] == 0) recpos[1][itr] = 1;
+            if (recpos[2][itr] == 0) recpos[2][itr] = 1;
         }
     }
     /* End of if(gv->MPID==0) */
@@ -181,17 +174,17 @@ int **receiver(GlobVar * gv)
     if (gv->MPID == 0) {
         if (gv->NTRG > 50)
             log_warn("The following table is quite large (%d lines); only printing the first 50 entries!\n", gv->NTRG);
-        log_info("Receiver positions in the global model-system:\n");
-        log_info(" x (gridpoints) y (gridpoints) \t x (in m) \t y (in m)\n");
-        log_info(" -------------  -------------- \t ---------\t --------\n");
+        log_info("Receiver positions in the global model (indices are one-based):\n");
+        log_info("x (gridpts)  y (gridpts)      x (in m)      y (in m)\n");
+        log_info("-----------  -----------  ------------  ------------\n");
 
         int maxprint = gv->NTRG;
         if (maxprint > 50)
             maxprint = 50;
 
         for (itr = 1; itr <= maxprint; itr++) {
-            log_info(" %d\t\t %d \t\t %6.2f \t %6.2f\n", recpos[1][itr], recpos[2][itr], recpos[1][itr] * gv->DH,
-                     recpos[2][itr] * gv->DH);
+            log_info("%11d  %11d  %12.2f  %12.2f\n",
+                     recpos[1][itr], recpos[2][itr], (recpos[1][itr]-1) * gv->DH, (recpos[2][itr]-1) * gv->DH);
         }
     }
 

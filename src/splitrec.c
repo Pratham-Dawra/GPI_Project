@@ -26,20 +26,19 @@
 
 int **splitrec(int **recpos, int *recswitch, GlobVar *gv)
 {
-    int a, b, i = 0;
+    int i = 0;
     int **recpos_local = NULL;
 
     int **recpos_dummy = imatrix(1, 3, 1, gv->NTRG);
 
     for (int j = 1; j <= gv->NTRG; j++) {
         recswitch[j] = 0;
-        a = (recpos[1][j] - 1) / gv->NX;
-        b = (recpos[2][j] - 1) / gv->NY;
-        if ((gv->POS[1] == a) && (gv->POS[2] == b)) {
+        if (recpos[1][j] >= gv->GGRID[1] && recpos[1][j] <= gv->GGRID[2] &&
+            recpos[2][j] >= gv->GGRID[3] && recpos[2][j] <= gv->GGRID[4]) {
             recswitch[j] = 1;
             i++;                /* number of receivers i of each process */
-            recpos_dummy[1][i] = ((recpos[1][j] - 1) % gv->NX) + 1;
-            recpos_dummy[2][i] = ((recpos[2][j] - 1) % gv->NY) + 1;
+            recpos_dummy[1][i] = recpos[1][j] - gv->GGRID[1] + 1;
+            recpos_dummy[2][i] = recpos[2][j] - gv->GGRID[3] + 1;
             recpos_dummy[3][i] = j;
         }
     }
