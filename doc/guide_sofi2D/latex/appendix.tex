@@ -39,26 +39,26 @@ MODEL PARAMETERS
     YREC1=0.0 ........................ y-position of first receiver [m]
     YREC2=0.0 ........................ y-position of last receiver [m]
     NGEOPH ........................... distance between two adjacent receivers 
-                                       [gridpoints]
+                                       [grid points]
     REC_ARRAY=0 ...................... number of receivers in 1D receiver array
     REC_ARRAY_DEPTH=0.0 .............. depth of first plane [m] 
     REC_ARRAY_DIST=0.0 ............... increment between receiver planes [m]
     DRX=0............................. increment between receivers in each plane 
-                                       [gridpoints]
+                                       [grid points]
     attenuation parameters
     
     L=0 .............................. number of relaxation parameters
+    F_REF ............................ reference frequency [Hz]
     FL=0.0 ........................... frequency of each relaxation parameters 
                                        [Hz]
     TAU=0.0 .......................... ratio of retardation and relaxation time
     
-
 IO PARAMETERS
     
     seismogram parameters
     
     SEISMO=0 ......................... switch to output components of seismograms
-    NDT=1 ............................ sampling rate of seismograms [timesteps]
+    NDT=1 ............................ sampling rate of seismograms [time steps]
     SEIS_FORMAT=0 .................... data output format for seismograms
     SEIS_FILE="" ..................... name of output file of seismograms
     
@@ -70,8 +70,8 @@ IO PARAMETERS
     TSNAP1=0.0 ....................... first snapshot [s]
     TSNAP2=0.0 ....................... last snapshot [s]
     TSNAPINC=0.0 ..................... increment between snapshots [s]
-    IDX=1 ............................ increment in x-direction [gridpoints]
-    IDY=1 ............................ increment in y-direction [gridpoints]
+    IDX=1 ............................ increment in x-direction [grid points]
+    IDY=1 ............................ increment in y-direction [grid points]
     
     other parameters
     
@@ -81,7 +81,7 @@ IO PARAMETERS
     SIGOUT_FILE="" ................... name of output file of source wavelet
     LOG=0 ............................ switch to output logging information
     LOG_FILE="" ...................... name of output file of logging information
-    LOG_VERBOSITY .................... set how much information is output
+    LOG_VERBOSITY="INFO" ............. set how much information is output
     OUTNTIMESTEPINFO=1 ............... information on the time step given to
                                        screen/file
 
@@ -109,7 +109,7 @@ FD PARAMETERS
     BOUNDARY=0........................ switch to apply periodic boundary condi- 
                                        tion at edges
     ABS_TYPE ......................... type of the absorbing boundary
-    FW=0 ............................. width of absorbing frame [gridpoints]
+    FW=0 ............................. width of absorbing frame [grid points]
     DAMPING=0.0 ...................... attenuation at the edges of the grid
                                        [%]
     

@@ -215,7 +215,7 @@ The \texttt{Makefile} is documented. In other words, in case there is a need to 
 
 \subsection{First tests}
 \label{qguide}
-At this point, we assume you have successfully compiled and installed the software. You can now enter SOFI's \texttt{examples} directory where you will find scripts to run basic tests and compare your results to our reference results. All tests should run within a few seconds -- they are not meant to stress-test the software or your system, they main purpose is to check that you have successfully compiled and installed the software, and that you can successfully launch MPI jobs. Each test will use four CPU cores, which should work fine on any reasonably modern system. The following scripts are provided:
+At this point, we assume you have successfully compiled and installed the software. You can now enter SOFI's \texttt{examples} directory where you will find scripts to run basic tests and compare your results to our reference results. All tests should run within a few seconds -- they are not meant to stress-test the software or your system, their main purpose is to check that you have successfully compiled and installed the software, and that you can successfully launch MPI jobs. Each test will use four CPU cores, which should work fine on any reasonably modern system. The following scripts are provided:
 \begin{itemize}
 \item \textbf{run\_single\_test.sh}: A shell script to run a single test.
 \item \textbf{run\_all\_tests.sh}: A shell script to loop through all available individual short tests.
@@ -228,7 +228,7 @@ Attention: It is mandatory that you use the same MPI environment at runtime that
 
 In principle, each SOFI run looks as follows (the example here assumes you would like to run SOFI directly from the commandline):\\
 \verb+$> mpirun -np N /path/to/sofi2D /path/to/sofi2D.json+\RET{}\\
-In principle you, are instructing MPI to run N processes of \texttt{sofi2D} and use the file \texttt{sofi2D.json} as the only argument for the program. The json file contains all the parameters that SOFI requires. They are listed in detail in subsequent chapters of this manual.
+Basically, you are instructing MPI to run N processes of \texttt{sofi2D} and use the file \texttt{sofi2D.json} as the only argument for the program. The json file contains all the parameters that SOFI requires. They are listed in detail in subsequent chapters of this manual.
 
 In practice, you will most likely run SOFI on a compute cluster using a queuing system like, for instance, Slurm (\url{https://slurm.schedmd.com/}). In this case, you need to set up a shell script with instructions for Slurm and the mpirun-command for SOFI, and finally submit the shell script to the queuing manager using a command like \texttt{sbatch}. An exemplary, basic script to run SOFI via Slurm is shown below:
 \begin{verbatim}
@@ -240,7 +240,7 @@ mpirun /path/to/sofi2D /path/to/sofi2D.json
 \end{verbatim}
 Please check your local queuing manager documentation for details. Note: You need to make sure that the total number of FD modelling partitions (domain decomposition) matches the number of total MPI processes.
 
-If wavefield snapshots are output, each MPI process will write to a shared directory but the files are not merged during execution (neither by broadcasting individual results so the main MPI process could combine them nor by MPI I/O), as this could significantly slow down the program. Individual wavefield snapshots are simply merged after a successful SOFI run using a program called \texttt{snapmerge}. In principle, you simply run\\
+If wavefield snapshots are output, each MPI process will write to a shared directory but the files are not merged during execution (neither by broadcasting individual results so the main MPI process could combine them nor by MPI I/O), as this could significantly slow down the program. Individual wavefield snapshots are merged after a successful SOFI run using a program called \texttt{snapmerge}. In principle, you simply run\\
 \verb+$> /path/to/snapmerge /path/to/sofi2D.json+\RET{}\\
 in order to merge the files. Obviously, you need to pass the same json file to \texttt{snapmerge} that you used for \texttt{sofi2D} to create the wavefield snapshots in the first place, otherwise the process of merging will fail.
 

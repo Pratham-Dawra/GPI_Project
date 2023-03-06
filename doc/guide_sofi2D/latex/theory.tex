@@ -1,23 +1,23 @@
 \section{Theory}
 \label{theory}
 
-\subsection{Equations of motion for an elastic medium}
+\subsection{Equation of motion for an elastic medium}
 \label{ch:eq_motion_elastic}
 The propagation of waves in a general elastic medium can be described by a system of coupled linear partial differential equations. They consist of the \textbf{equations of motion}
 \begin{equation}
     \rho\;\frac{\partial v_i}{\partial t} = \frac{\partial \sigma_{ij}}{\partial x_j} + f_i\;,\\
     \label{eq:1}
 \end{equation}
-which simply state that the momentum of the medium, the product of density $\rho$ and the derivative of displacement velocity $v_i$, i.e., acceleration, can be changed by surface forces, described by the stress tensor $\sigma_{ij}$ or body forces $f_i$. This is the {\textbf{Stress-Velocity}} formulation. 
+which simply states that the momentum of the medium, the product of density $\rho$ and the derivative of displacement velocity $v_i$, i.e., acceleration, can be changed by surface forces, described by the stress tensor $\sigma_{ij}$, or body forces $f_i$. This is the {\textbf{stress-velocity}} formulation. 
 
-Another common form of the elastic equations of motion can be deduced by taking the time derivative of the displacement velocity ($v_i = \frac{\partial u_i}{\partial t}$). Eq.~\ref{eq:1} can be then transformed into second-order partial differential equations:
+Another common form of the elastic equation of motion can be deduced by taking the time derivative of the displacement velocity ($v_i = \frac{\partial u_i}{\partial t}$). Eq.~\ref{eq:1} can then be transformed into a second-order partial differential equation:
 \begin{equation}
     \rho \frac{\partial^2 u_i}{\partial t^2} = \frac{\partial \sigma_{ij}}{\partial x_j} + f_i\;.
     \label{eq:2}
 \end{equation}  
-This expression is called {\textbf{Stress-Displacement}} formulation. Both formulations describe a general medium, like gas, fluid, solid or plasma. The material specific properties are introduced by additional equations which describe how the medium reacts when a certain force is applied. 
+This expression is called {\textbf{stress-displacement}} formulation. Both formulations describe a general medium, like gas, fluid, solid or plasma. The material-specific properties are introduced by additional equations which describe how the medium reacts when a certain force is applied. 
 
-The \textbf{generalized stress-strain relationship} for any elastic medium, valid for infinitesimally small deformations, is generally formulated as
+The \textbf{generalized stress-strain relationship} (Hooke's law) for any elastic medium, valid for infinitesimally small deformations, is generally formulated as
 \begin{equation}
     \sigma_{ij}(t) = C_{ijkl}(t)\;\varepsilon_{kl}(t)\;,
     \label{eq:stress_strain}
@@ -27,7 +27,7 @@ where $C_{ijkl}$ represents the elasticity (or stiffness) tensor, which is descr
     \varepsilon_{kl} = \frac{1}{2} \left(\diffp{u_k}{x_l} + \frac{\partial u_l}{\partial x_k} \right)\;. 
     \label{eq:strain}
 \end{equation}
-$\varepsilon_{kl}$ is a second-order symmetric tensor with $u_k$ and $u_l$ representing the displacement of a particle in the direction of the $l$-th and $k$-th dimension, respectively, of a Cartesian coordinate system. Its derivative has the form of
+The variable $\varepsilon_{kl}$ is a second-order symmetric tensor with $u_k$ and $u_l$ representing the displacement of a particle in the direction of the $l$-th and $k$-th dimension, respectively, of a Cartesian coordinate system. Its derivative has the form of
 \begin{equation}
     \frac{\partial \varepsilon_{kl}}{\partial t} = \frac{1}{2} \left(\frac{\partial v_k}{\partial x_l} + \frac{\partial v_l}{\partial x_k} \right)\,,
     \label{eq:strain_deriv}
@@ -39,19 +39,18 @@ In the special case of \textbf{isotropy}, the stress-strain relation in the modi
     \sigma_{ij} = \lambda\,\theta\,\delta_{ij} + 2\,\mu\,\varepsilon_{ij}\;,
     \label{eq:hooke_iso}
 \end{align}
-where $\theta$ denotes the cubic dilatation, i.e., the trace of $\varepsilon_{ij}$, and $\delta_{ij}$ is the Kronecker delta; $\lambda$ and $\mu$ represent the two Lam\'e parameters, both of them time-invariant, with $\mu$ also referred to as the shear modulus. By taking the derivative with respect to time, equation~\ref{eq:hooke_iso} becomes
+where $\theta$ denotes the cubic dilatation, i.e., the trace of $\varepsilon_{ij}$, and $\delta_{ij}$ is the Kronecker delta; $\lambda$ and $\mu$ represent the two Lam\'e parameters, both of them time-invariant, with $\mu$ also referred to as the shear modulus. By taking the derivative with respect to time, eq.~\ref{eq:hooke_iso} becomes
 \begin{align}
     \frac{\partial \sigma_{ij}}{\partial t} = \lambda\,\frac{\partial v_k}{\partial x_k}\,\delta_{ij} + \mu\,\left(\frac{\partial v_i}{\partial x_j}+\frac{\partial v_j}{\partial x_i}\right)\;.
     \label{eq:hooke_iso_dot}
 \end{align}
 
-\subsection{Equations of motion for a viscoelastic medium}
+\subsection{Equation of motion for a viscoelastic medium}
 \label{ch:eq_motion_visco}
 %\footnote{For equations of motion for an viscoelastic medium and the implementation by finite differences have a look at the Ph.D. thesis of Thomas Bohlen (\cite{bohlen:98}).} 
 When propagating through the Earth, the amplitudes of seismic waves decrease due to a couple of different physical phenomena: geometrical spreading, intrinsic attenuation, and scattering. Of great importance is the \textbf{intrinsic (anelastic) attenuation}, which represents the actual dissipation of seismic wave mechanical energy that is then converted to heat (mainly due to changes in viscosity); it is often anisotropic (\cite{Bai:19}). To quantify its propagation effects, a dimensionless frequency-dependent parameter must be introduced, namely the seismic quality factor $Q$, which physically describes the relative energy loss per period: $Q(\omega) = 4\pi\,\frac{E}{\Delta E}$ (\cite{oconnell:78}). 
 
-The mathematical framework that allows us to describe the effects of attenuation is the viscoelastic model. In such a model, the stress-strain relation is governed by the presence of a time dependency referred to as the \enquote{\textbf{memory (or relaxation) effect}}, which means that the stress $\sigma_{ij}$ depends on the entire history of the strain field, not only on its current value, which is the case for purely elastic media. 
-Equation~\ref{eq:stress_strain} becomes
+The mathematical framework that allows us to describe the effects of attenuation is the viscoelastic model. In such a model, the stress-strain relation is governed by the presence of a time dependency referred to as the \enquote{\textbf{memory (or relaxation) effect}}, which means that the stress $\sigma_{ij}$ depends on the entire history of the strain field, not only on its current value, which is the case for purely elastic media. Eq.~\ref{eq:stress_strain} becomes
 \begin{equation}
     \sigma_{ij}(t) = C_{ijkl}(t) \ast \varepsilon_{kl}(t)\;,
     \label{eq:stress_strain_visco}
@@ -198,11 +197,11 @@ which, in the special case of isotropy, reads
     \dot \sigma_{ij} = \left[\pi\,(1+L\,\tau_{\varepsilon l}^P)-2\mu\,(1+L\,\tau_{\varepsilon l}^S)\right]\frac{\partial v_k}{\partial x_k}\,\delta_{ij} + \mu\,(1+L\,\tau_{\varepsilon l}^S)\left(\frac{\partial v_i}{\partial x_j}+\frac{\partial v_j}{\partial x_i}\right) + \sum_{l=1}^{L}r_{ij}^l\;.
 \end{equation}
 
-\subsection{Equations of motion for an anisotropic medium}
+\subsection{Equation of motion for an anisotropic medium}
 \label{ch:anisotropy}
 
 \subsubsection{Seismic anisotropy and elasticity tensor}
-As opposed to isotropy, which means homogeneity in all directions, anisotropy is the property of directional dependency. In seismics, anisotropy describes the directional or angle dependence of the velocity of seismic waves in a medium within the Earth, which can help to characterize preferred orientation and in-situ stress conditions. If the rock properties are aligned over a greater volume extending several wavelengths, they can create certain symmetries of seismic anisotropy (\cite{Thomsen:86}). Hexagonal (or cylindrical) symmetry is of particular interest in seismics, as it is relatively simple but can still approximate many actual situations in the Earth, for instance where sedimentary layers are neatly ordered. The most typical anisotropic medium that exhibits hexagonal symmetry is \textbf{transversely isotropic}, which means that the velocity normal to the bedding is slower than the one along it. Commonly investigated symmetries are \textbf{vertical-transverse isotropy} (VTI), with a vertical symmetry axis and infinite number of horizontal planes with isotropic behavior, and \textbf{tilted-transverse isotropy} (TTI), with a rotated symmetry axis, and thus properties changing with azimuth (\cite{Tsvankin:12}) (see Fig.~\ref{fig:tti}). \citet{Bai:16} developed a detailed numerical demonstration and analysis of vertical-transverse isotropic attenuation by 2D time-domain finite-difference modeling, while \citet{Oh:20} developed a similar tilted-transverse version. 
+As opposed to isotropy, anisotropy is the property of directional dependency. In seismics, anisotropy describes the directional or angular dependence of the velocity of seismic waves in a medium within the Earth, which can help to characterize preferred orientation and in-situ stress conditions. If the rock properties are aligned over a greater volume extending several wavelengths, they can create certain symmetries of seismic anisotropy (\cite{Thomsen:86}). Hexagonal (or cylindrical) symmetry is of particular interest in seismics, as it is relatively simple but can still approximate many actual situations in the Earth, for instance where sedimentary layers are neatly ordered. The most typical anisotropic medium that exhibits hexagonal symmetry is \textbf{transversely isotropic}, which means that the velocity normal to the bedding is slower than the one along it. Commonly investigated symmetries are \textbf{vertical-transverse isotropy} (VTI), with a vertical symmetry axis and infinite number of horizontal planes with isotropic behavior, and \textbf{tilted-transverse isotropy} (TTI), with a rotated symmetry axis, and thus properties changing with azimuth (\cite{Tsvankin:12}) (see Fig.~\ref{fig:tti}). \citet{Bai:16} developed a detailed numerical demonstration and analysis of vertical-transverse isotropic attenuation by 2D time-domain finite-difference modeling, while \citet{Oh:20} developed a similar tilted-transverse version. 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/tti.png}
@@ -210,7 +209,7 @@ As opposed to isotropy, which means homogeneity in all directions, anisotropy is
     \label{fig:tti}
 \end{figure}
 
-The structure of the \textbf{stiffness tensor} $\mathbf{C_{ijkl}}$, previously introduced in subchapter~\ref{ch:eq_motion_elastic}, is the factor that determines the velocity and polarization of seismic waves for any propagation direction (\cite{Tsvankin:12}), thus uniquely describing the above-mentioned symmetries and their elastic moduli. In 3D, the fourth-order tensor had 36 independent components:
+The structure of the \textbf{stiffness tensor} $\mathbf{C_{ijkl}}$, previously introduced in section~\ref{ch:eq_motion_elastic}, is the factor that determines the velocity and polarization of seismic waves for any propagation direction (\cite{Tsvankin:12}), thus uniquely describing the above-mentioned symmetries and their elastic moduli. In 3D, the fourth-order tensor has 36 independent components,
 \begin{equation}
     \mathbf{C} = 
     \begin{pmatrix}
@@ -225,7 +224,7 @@ The structure of the \textbf{stiffness tensor} $\mathbf{C_{ijkl}}$, previously i
 \end{equation}
 which is expressed in the Voigt notation (\cite{Voigt:10}).
 
-For a polarization direction of the P-SV waves in 2D only, namely in the $x_1x_2$-plane, with the axes of the Cartesian coordinate system defined as $x_1$ for horizontal axis and $x_2$ for the vertical (depth) axis, the stiffness matrix becomes a $3 \times 3$ matrix with elements defining the $x_1x_1$-, $x_2x_2$-, and $x_1x_2$-directions. The stiffness tensor is then reduced to a combination of the Lam\'e parameters
+For a polarization direction of the P-SV waves in 2D only, namely in the $x_1x_2$-plane, with the axes of the Cartesian coordinate system defined as $x_1$ for horizontal axis and $x_2$ for the vertical (depth) axis, the stiffness matrix becomes a $3 \times 3$ matrix with elements defining the $x_1x_1$-, $x_2x_2$-, and $x_1x_2$-directions. The stiffness tensor is then reduced to 
 \begin{equation}
     \mathbf{C} =
     \begin{pmatrix}
@@ -255,7 +254,7 @@ which form the elements of the stiffness matrix in 2D isotropic media:
     \end{pmatrix}\;.
     \label{eq:c_iso_3x3}
 \end{equation}
-The P- and S-wave velocities will read then as
+The P- and S-wave velocities will then read
 \begin{subequations}
 \allowdisplaybreaks
     \begin{align}
@@ -263,7 +262,7 @@ The P- and S-wave velocities will read then as
         v_{SV,ver} &= \sqrt{\frac{\mu}{\rho}}\;.
     \end{align}
 \end{subequations}
-In the case of 2D VTI media, Eq.~\ref{eq:c_3x3} reads (\cite{Thomsen:86})
+In the case of 2D VTI media, eq.~\ref{eq:c_3x3} reads (\cite{Thomsen:86})
 \begin{equation}
     \mathbf{C}^\mathbf{VTI} =
     \begin{pmatrix}
@@ -273,7 +272,7 @@ In the case of 2D VTI media, Eq.~\ref{eq:c_3x3} reads (\cite{Thomsen:86})
     \end{pmatrix}\;.
     \label{eq:c_vti_3x3}
 \end{equation}
-Under the assumption of weak anisotropy, i.e., less than 20\%, these independent elastic constants have been combined by \citet{Thomsen:86} into the so-called \textbf{Thomsen anisotropic parameters} $\varepsilon$ and $\delta$ (dimensionless), such that they can better describe the seismic wave propagation:
+Under the assumption of weak anisotropy, i.e., less than approx.~20\%, these independent elastic constants have been combined by \citet{Thomsen:86} into the so-called \textbf{Thomsen anisotropic parameters} $\varepsilon$ and $\delta$ (dimensionless), such that they can better describe the seismic wave propagation:
 \begin{subequations}
 \allowdisplaybreaks
 \begin{align}
@@ -303,8 +302,8 @@ with the maximal P-wave velocity given for a horizontal direction of wave propag
     v_{S,45^{\circ}} &\equiv \frac{v_{P,hor}^2\,(\varepsilon-\delta)}{4\,v_{SV,ver}}+v_{SV,ver}\;.
     \end{align}
     \label{eq:v_aniso}
-\end{subequations}
-In the case of $C_{ijkl}$ set along the symmetry axis, i.e., $\theta=0^{\circ}$, the elements of the stiffness matrix $\mathbf{C}^\mathbf{VTI}$ in Eq.~\ref{eq:c_vti_3x3} can be expressed as
+\end{subequations}%
+In the case of $C_{ijkl}$ set along the symmetry axis, i.e., $\theta=0^{\circ}$, the elements of the stiffness matrix $\mathbf{C}^\mathbf{VTI}$ in eq.~\ref{eq:c_vti_3x3} can be expressed as
 \begin{equation}
     \renewcommand{\arraystretch}{2}
     \begin{pmatrix}
@@ -323,7 +322,7 @@ In the case of $C_{ijkl}$ set along the symmetry axis, i.e., $\theta=0^{\circ}$,
 \end{equation}
 It can be observed that, while $\varepsilon$ quantifies the velocity difference for wave propagation along and perpendicular to the symmetry axis, $\delta$ controls the P-wave propagation for angles near the symmetry axis. 
 
-In the case of TTI media, the stiffness matrix can be derived from the $\mathbf{C}^\mathbf{VTI}$ using the Bond transformation (\cite{Bond:43}; \cite{Carcione:07}) as suggested by \citet{Oh:20}: 
+In the case of TTI media, the stiffness matrix can be derived from $\mathbf{C}^\mathbf{VTI}$ using the Bond transformation (\cite{Bond:43}; \cite{Carcione:07}) as suggested by \citet{Oh:20}: 
 \begin{equation}
     \Tilde{\mathbf{C}}^\mathbf{TTI} = D(\theta_T)\,\mathbf{C}^{VTI}\,D^T(\theta_T)\;,
 \end{equation}
@@ -458,7 +457,7 @@ The model parameters in the implementation of viscoelastic modeling are represen
 In order to emphasize the pronounced effects of anisotropy on the wavefield, we show the directional variation of P- and S-waves in a highly anisotropic VTI medium (Fig.~\ref{fig:snapshots}). The P-wave velocity increases significantly towards the horizontal direction ($\theta = \ang{90}$). The angular variation of S-wave depends upon polarity. Horizontally polarized S-waves (SH) are fastest in the horizontal direction, whereas vertically polarized S-waves (SV) have a maximum velocity around $\theta = \ang{45}$.
 
 We also compare numerical results for the elastic and viscoelastic
-case to highlight the effects of attenuation. Whereas attenuation mainly leads to a frequency dependent decay of amplitudes with distance, anisotropy affects both travel times and amplitudes considerably. Note for instance the strong deformation of both the P- and SV-wave wavefronts in the VTI case according to the directional variation of phase velocities depicted in Fig.~\ref{fig:snapshots}. Furthermore, in the VTI medium the SV-wave develops significant amplitude anomalies along the diagonal direction ($\theta = \ang{45}$), known as cusps. The counter-clockwise rotation of the symmetry axis in the TTI case by $\theta = \ang{30}$ is clearly visible and has a strong impact on the radiation pattern of the wavefield for both P- and SV-waves.
+case to highlight the effects of attenuation. Whereas attenuation mainly leads to a frequency dependent decay of amplitudes with distance, anisotropy affects both traveltimes and amplitudes considerably. Note, for instance, the strong deformation of both the P- and SV-wave wavefronts in the VTI case according to the directional variation of phase velocities depicted in Fig.~\ref{fig:snapshots}. Furthermore, in the VTI medium the SV-wave develops significant amplitude anomalies along the diagonal direction ($\theta = \ang{45}$), known as cusps. The counter-clockwise rotation of the symmetry axis in the TTI case by $\theta = \ang{30}$ is clearly visible and has a strong impact on the radiation pattern of the wavefield for both P- and SV-waves.
 
 \begin{figure}[h!]
     \centering
@@ -469,7 +468,7 @@ case to highlight the effects of attenuation. Whereas attenuation mainly leads t
 
 \subsection{Solution of the wave equation by finite differences}
 \label{elastic_FD_Code}
-Solving the above-mentioned wave equations analytically is only possible for very simple models. In more realistic cases, wave propagation can only be estimated using numerical approaches. One of them is the \textbf{finite-differences (FD) method}, in which spatial and temporal derivatives in the wave equations are approximated by FD operators, making it numerical efficient and relatively straightforward to implement. This approximation requires the discretization of the wave equation in both space and time using a Cartesian coordinate system of equidistant grid spacing. Thus, the continuous space coordinates $x$ and $z$ and the time vector $t$ are replaced by their discrete form in a way that $x = i\,\Delta h$, $z = j\,\Delta h$, and $t = n\,\Delta t$, with $i,j$ representing the position of a specific grid point and $n$ referring to a specific \textbf{time step}; $\Delta h$ denotes the spatial distance between two adjacent grid points (i.e., \textbf{grid spacing}) and $\Delta t$ the difference between two successive time steps (i.e., time sampling interval). Therefore, every grid point is located in the interval  $i \in N | [1,NX]$, $j \in N | [1,NY]$ and $n \in N | [1,NT]$, where $NX$, $NY$ and $NT$ are the number of discrete spatial grid points and time steps, respectively. 
+Solving the above-mentioned wave equations analytically is only possible for very simple models. In more realistic cases, wave propagation can only be estimated using numerical approaches. One of them is the \textbf{finite-difference (FD) method}, in which spatial and temporal derivatives in the wave equations are approximated by FD operators, making it numerical efficient and relatively straightforward to implement. This approximation requires the discretization of the wave equation in both space and time using a Cartesian coordinate system of equidistant grid spacing. Thus, the continuous space coordinates $x$ and $z$ and the time vector $t$ are replaced by their discrete form in a way that $x = (i-1)\,\Delta h$, $z = (j-1)\,\Delta h$, and $t = n\,\Delta t$, with $i,j$ representing the position of a specific grid point and $n$ referring to a specific \textbf{time step}; $\Delta h$ denotes the spatial distance between two adjacent grid points (i.e., the \textbf{grid spacing}) and $\Delta t$ the difference between two successive time steps (i.e., the time sampling interval). Therefore, every grid point is located in the interval  $i \in N | [1,NX]$, $j \in N | [1,NY]$ and $n \in N | [1,NT]$, where $NX$, $NY$ and $NT$ are the number of discrete spatial grid points and time steps, respectively.\footnote{Although SOFI is written in the C programming language, it internally uses one-based indices, hence the index range from $[1,N]$ rather than $[0,N-1]$ as you might expect in C.}
 
 Two types of operators can be distinguished, forward and backward operators $D^+,D^-$. The derivative of a function $y$ with respect to a variable $x$ can be approximated by the following operators:  
 \begin{subequations}
@@ -484,7 +483,7 @@ Two types of operators can be distinguished, forward and backward operators $D^+
 \label{ssg}
 The propagation of elastic waves in the stress-velocity formulation can be modeled on a standard staggered grid (SSG), which ensures stability and high accuracy (\cite{virieux:86}; \cite{levander:88}). On such a grid, different components of one physical parameter are defined at different staggered points. Fig.~\ref{fig:ssg} shows the locations of viscoelastic wavefield parameters and material parameters on the SSG. Fig.~\ref{fig:ssg} shows the locations of wavefield parameters: the two different components of the particle velocity $v_i$ are distributed over two different staggered locations, at half grid points; the stress components $\sigma_{ij}$ are distributed over two different locations: the diagonal stresses on full grid points, and the shear stresses on half grid points; the same holds for the memory variables.
 
-The material parameters, namely $\rho$, $\mu$, $\tau$, and the $c_{ij}$ components need to be locally averaged, i.e., calculated from neighboring grid points. The averaging of material parameters is critical for the accuracy at strong discontinuities \cite{zahradnik:93,falk:98,moczo:02}. To obtain stable results, arithmetic averaging  must be used for the density $\rho$ and attenuation parameter $\tau^S$, and harmonic averaging is required for the shear modulus (\cite{fellinger:95,graves:96,falk:98,vossen:02,moczo:02}):
+The material parameters, namely $\rho$, $\mu$, $\tau$, and the $c_{ij}$ components need to be locally averaged, i.e., calculated from neighboring grid points. The averaging of material parameters is critical for the accuracy at strong discontinuities \citep{zahradnik:93,falk:98,moczo:02}. To obtain stable results, arithmetic averaging  must be used for the density $\rho$ and attenuation parameter $\tau^S$, and harmonic averaging is required for the shear modulus (\cite{fellinger:95,graves:96,falk:98,vossen:02,moczo:02}):
 \begin{subequations}
 \allowdisplaybreaks
     \begin{align}
@@ -495,7 +494,7 @@ The material parameters, namely $\rho$, $\mu$, $\tau$, and the $c_{ij}$ componen
         \label{eq:stress_vti2}
     \end{align}
 \end{subequations}
-This averaging procedure satisfies the condition of traction continuity across the interface between two media on standard staggered grids (\cite{moczo:02}). Harmonic averaging of the shear modulus $\mu$ yields higher accuracy than arithmetic averaging for modeling Scholte waves propagating along fluid-solid interfaces (\cite{falk:98}). What is more, our numerical tests show that arithmetic averaging of the shear modulus across free surfaces leads to instabilities; harmonic averaging produces stable simulations. 
+This averaging procedure satisfies the condition of traction continuity across the interface between two media on standard staggered grids (\cite{moczo:02}). Harmonic averaging of the shear modulus $\mu$ yields higher accuracy than arithmetic averaging for modeling Scholte waves propagating along fluid-solid interfaces (\cite{falk:98}). What matters even more, our numerical tests show that arithmetic averaging of the shear modulus across free surfaces leads to instabilities; harmonic averaging produces stable simulations. 
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=10cm]{figures/ssg_final.png}
@@ -516,8 +515,7 @@ Varying topography in FD modeling can only be represented by staircases (Fig.~\r
     \label{fig:ssg_topo}
 \end{figure}
 
-The interface between the elastic medium and air at the surface is very important when trying to model surface waves or multiple reflections in a marine environment. Since all stresses in the normal direction at this interface vanish in a way that $\sigma_{xy} = \sigma_{yy}=0.0$; this boundary condition is called (stress) {\textbf{free surface}}. Two types of implementations are common. \textcolor{red}{In the implicit definition of the free surface, a small layer with the acoustic parameters of air
-($v_P=\SI{300}{m/s}$, $v_S=\SI{0}{m/s}$, $\rho=\SI{1.25}{kg/m^3}$) is placed on top of the model}. One advantage of the implicit definition of the free surface is the easy implementation of topography on the FD grid, however to get accurate results for surface waves or multiples, this approach requires a fine spatial sampling of the FD grid near the free surface. An explicit free surface can be implemented by using the mirroring technique by Levander, which leads to stable and accurate solutions for plain interfaces (\cite{levander:88}, \cite{robertsson:95}). If the planar free surface is located at grid point $j=h$, the stress at this point is set to zero and the stresses below the free surface are mirrored with an inverse sign:
+The interface between the elastic medium and air at the surface is very important when trying to model surface waves or multiple reflections in a marine environment. Since all stresses in the normal direction at this interface vanish in a way that $\sigma_{xy} = \sigma_{yy}=0.0$; this boundary condition is called (stress-){\textbf{free surface}}. Two types of implementations are common. In the implicit definition of the free surface, a small layer with the acoustic parameters of air ($v_P=\SI{300}{m/s}$, $v_S=\SI{0}{m/s}$, $\rho=\SI{1.25}{kg/m^3}$) is placed on top of the model. One advantage of the implicit definition of the free surface is the easy implementation of topography on the FD grid; however, to get accurate results for surface waves or multiples, this approach requires a fine spatial sampling of the FD grid near the free surface. An explicit free surface can be implemented by using the mirroring technique by Levander, which leads to stable and accurate solutions for plain interfaces (\cite{levander:88}, \cite{robertsson:95}). If the planar free surface is located at grid point $j=h$, the stress at this point is set to zero and the stresses below the free surface are mirrored with an inverse sign:
 \begin{equation}
 \begin{split}
         \sigma_{yy}[h,i] &= 0\,,\\
@@ -535,7 +533,7 @@ The vertical derivative of $v_{yy}$ can be replaced by using the boundary condit
     v_{yy} &= - \frac{\pi-2\mu}{\pi} v_{xx}\;.
 \end{split}
 \end{equation}
-Therefore equation ... can be written as
+Therefore, $\sigma_{xx}$ can be written as
 \begin{equation}
 \sigma_{xx}={\Delta t}\left(4\mu -\frac{(2\mu)^2}{\pi} \right) v_{xx}\;.
 \end{equation}
@@ -648,7 +646,7 @@ In the following we provide an extract of \citet{bohlen2015higher2} to demonstra
 
 In SOFI2D, only a fourth-order accurate Adams-Bashforth time integrator is implemented, due to the superior performance over third-order.
 
-\paragraph{Theory}
+\paragraph{Theory.}
 For the sake of simplicity, we illustrate the staggered ABS method using the 1D acoustic wave equation in velocity-stress formulation
 \begin{subequations}
     \begin{align}
@@ -698,7 +696,7 @@ The weights for the time accuracy orders $M=2,3,4$ are given in Table~\ref{abswe
     \end{tabular}
 \end{table}
 
-\paragraph{Accuracy in 1-D}
+\paragraph{Accuracy in 1-D.}
 We first compare seismograms calculated with the 1D ABS-method using Eq.~\ref{absmethod} for different orders of accuracy in time ($M$). We use a 1D homogeneous acoustic  medium with a wave velocity of $c=\SI{3000}{m/s}$ and constant density of $\rho=\SI{2000}{kg/m^3}$. The source signal is a Ricker signal with a center frequency of \SI{60}{Hz}. We choose a large source-receiver distance of 120 dominant wavelength to emphasize the effects of numerical dispersion and numerical dissipation in the synthetic seismograms. The spatial derivatives are computed with high accuracy using a centered staggered FD stencil of 8th order accuracy.  The spatial grid spacing is held constant at $\Delta x=0.4$\,m corresponding to approximately 14 grid points per dominant wavelength. Discrepancies to the analytical solution (time-shifted Ricker signal) are thus mainly caused by the chosen time step interval $\Delta t$ and the order of the temporal discretization ($M=2,3,4$). The numerical results for Courant numbers $r=c \Delta t/\Delta x=0.4, 0.2, 0.1$ and temporal orders of accuracy $M=2, 3, 4$ are compared with the analytical solution in Fig.~\ref{fig_1dfdseis}. For a large Courant number of $r=0.4$ (corresponding to a large time step interval) and second order approximation of the time derivative ($M=2$) we can observe a large time dispersion error causing a leading phase with high amplitude (Fig.~\ref{fig_1dfdseis}, top-left). Fig.~\ref{fig_1dfdseis} compares two ways to reduce this time discretization error. The conventional way is to  stay with the given temporal accuracy order (typically $M=2$) and then reduce the time step interval, i.e., Courant number. The resulting waveforms are shown in the rows of Fig.~\ref{fig_1dfdseis}.
 
 Reducing the Courant number (time step interval) will increase the computation time proportional to $1/r$.  The alternative  way proposed in this study is to increase the order of the temporal discretization with the ABS-method which requires to store $M-1$ previously calculated spatial derivatives of wavefields. The resulting waveforms are shown in the columns of Fig.~\ref{fig_1dfdseis}.
@@ -720,8 +718,8 @@ In Fig.~\ref{fig_L2} we plot the normalized L2-misfit over the number of time st
     \label{fig_L2}
 \end{figure}
 
-\subsubsection{Absorbing Boundary Conditions}
-Due to limited computational resources, the FD grid has to be as small as possible. To model problems with an infinite extension in different directions, e.g., a full or half-space problem,  an artificial absorbing boundary condition has to be applied. A very effective way to damp the waves near the boundaries are {\textbf{Perfectly Matched Layers (PMLs)}}. This can be achieved by a coordinate stretch of the wave equations in the frequency domain \cite{komatitsch:07}. The coordinate stretch creates exponentially decaying plane wave solutions in the absorbing boundary frame. The PMLs are only reflectionless if the exact wave equation is solved. As soon as the problem is discretized (for example using finite differences) you are solving an approximate wave equation and the analytical perfection of the PML is no longer valid. In SOFI2D, a damping profile $d_x$ after \citet{collino2001application} is implemented:
+\subsubsection{Absorbing boundary conditions}
+Due to limited computational resources, the FD grid has to be as small as possible. To model problems with an infinite extension in different directions, e.g., a full or half-space problem,  an artificial absorbing boundary condition has to be applied. A very effective way to damp the waves near the boundaries are {\textbf{perfectly matched layers (PMLs)}}. This can be achieved by a coordinate stretch of the wave equations in the frequency domain \cite{komatitsch:07}. The coordinate stretch creates exponentially decaying plane wave solutions in the absorbing boundary frame. The PMLs are only reflectionless if the exact wave equation is solved. As soon as the problem is discretized (for example using finite differences) you are solving an approximate wave equation and the analytical perfection of the PML is no longer valid. In SOFI2D, a damping profile $d_x$ after \citet{collino2001application} is implemented:
 \begin{equation}
     d_x(x) = d_0\left(\frac{x}{L}\right)^n\;,
 \end{equation}
@@ -735,7 +733,7 @@ where $V_{PML}$ denotes the typical P-wave velocity of the medium in the absorbi
 \label{num_instab}
 To avoid numerical artifacts and instabilities during a FD modeling run, a spatial and temporal sampling condition for the wavefield has to be satisfied. These will be discussed in the following two sections. 
 
-\subsubsection{Grid Dispersion}
+\subsubsection{Grid dispersion}
 \label{grid-dispersion}
 The first question when building a FD model is: What is the maximum spatial grid point distance $\Delta h$, for a correct sampling of the wavefield? To answer this question we take a look at this simple example: The particle displacement in $x$-direction is defined by a sine function:
 \begin{equation}
@@ -762,7 +760,7 @@ To avoid the occurence of grid dispersion the following criteria for the spatial
 \end{equation}
 where $\lambda_{min}$ denotes the minimum wavelength, $V_{min}$ the minimum velocity in the model, and $f_{max}$ is the maximum frequency of the source signal.  
 
-Depending on the accuracy of the used FD operator the parameter $n$ is different. In Table~\ref{grid_disp.2} n is listed for different FD operator lengths and types (Taylor and Holberg operators). The Holberg coefficients are calculated for a minimum dispersion error of $0.1\%$ at $3 f_{max}$. For short operators n should be chosen relatively large, so the spatial grid spacing is small, while for longer FD operators n is smaller and the grid spacing can be larger. 
+Depending on the accuracy of the used FD operator, the parameter $n$ is different. In Table~\ref{grid_disp.2} the parameter $n$ is listed for different FD operator lengths and types (Taylor and Holberg operators). The Holberg coefficients are calculated for a minimum dispersion error of $0.1\%$ at $3 f_{max}$. For short operators n should be chosen relatively large, so the spatial grid spacing is small, while for longer FD operators n is smaller and the grid spacing can be larger. 
 \begin{figure}[ht!]
 \centering
     \begin{subfigure}[b]{0.45\textwidth}
@@ -822,7 +820,7 @@ Depending on the accuracy of the used FD operator the parameter $n$ is different
 \caption{\label{grid_disp.2} The number of grid points per minimum wavelength $n$ for different orders (2nd-12th) and types (Taylor and Holberg) of FD operators. For the Holberg coefficients n is calculated for a minimum dispersion error of $0.1\%$ at $3\,f_{max}$.}
 \centering
 \begin{tabular}{c|c|c}
-    \textbf{FDORDER} & \textbf{n (Taylor)} & \textbf{n (Holberg)} \\ \hline 
+    \textbf{FD-order} & \textbf{n (Taylor)} & \textbf{n (Holberg)} \\ \hline 
     2nd   &   12       &  12         \\
     4th   &   8        &  8.32       \\
     6th   &   6        &  4.77       \\
@@ -832,7 +830,7 @@ Depending on the accuracy of the used FD operator the parameter $n$ is different
 \end{tabular}
 \end{table} 
 
-\subsubsection{The Courant Instability}
+\subsubsection{The Courant instability}
 \label{courant}
 Beside the spatial, the temporal discretization has to satisfy a sampling criterion to ensure the stability of the FD code. If a 
 wave is propagating on a discrete grid, then the timestep $\Delta t$ has to be less than the time for the wave to travel between two adjacent grid 
@@ -841,9 +839,9 @@ points with grid spacing $\Delta h$. For an elastic 2D grid this means mathemati
     \Delta t \le \frac{\Delta h}{h \sqrt{2} V_{max}}\;,
     \label{courant_crit}
 \end{equation}
-where $V_{max}$ is the maximum velocity in the model. The factor $h$ depends on the order of the FD operator and can easily calculated by summing over the weighting coefficients $\beta_i$: $h = \sum_i \beta_i$. In Table~\ref{courant.1} $h$ is listed for different FD operator lengths and types (Taylor and Holberg operators). Criterion Eq.~\ref{courant_crit} is called {\textbf{Courant-Friedrichs-Lewy criterion}} (\cite{courant:28}, \cite{courant:67}). 
+where $V_{max}$ is the maximum velocity in the model. The factor $h$ depends on the order of the FD operator and can easily calculated by summing over the weighting coefficients $\beta_i$: $h = \sum_i \beta_i$. In Table~\ref{courant.1} the parameter $h$ is listed for different FD operator lengths and types (Taylor and Holberg operators). Criterion Eq.~\ref{courant_crit} is called {\textbf{Courant-Friedrichs-Lewy criterion}} (\cite{courant:28}, \cite{courant:67}). 
 Fig.~\ref{fig_courant} shows the evolution of the pressure field when the Courant criterion is violated. After a few time steps the amplitudes are growing to infinity and the calculation becomes unstable.
-\begin{figure}[ht!]
+\begin{figure}[htb!]
 \centering
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
@@ -876,7 +874,7 @@ Fig.~\ref{fig_courant} shows the evolution of the pressure field when the Couran
 \caption{\label{courant.1} The factor $h$ in the Courant criterion for different orders (2nd-12th) and types (Taylor and Holberg) of FD operators.}
 \centering
 \begin{tabular}{c|c|c}
-\textbf{FDORDER} & \textbf{h (Taylor)}      & \textbf{h (Holberg)} \\ \hline
+\textbf{FD-order} & \textbf{h (Taylor)}      & \textbf{h (Holberg)} \\ \hline
 2nd   &   1.0             &  1.0        \\
 4th   &   7/6             &  1.184614   \\
 6th   &   149/120         &  1.283482   \\
