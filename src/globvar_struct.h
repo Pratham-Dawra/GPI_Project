@@ -137,6 +137,7 @@ typedef struct {
     int MPID;                   // ID of processor
     int INDEX[5];               // ID of neighboring processes (1=left, 2=right, 3=upper, 4=lower, slot 0 unused)
     int GGRID[5];               // global grid points that this process ID actually handles (1=left, 2=right, ...)
+    int SNAPIDX[5];             // start/end indices for snapshots for this processor (1=left, 2=right, ...)
     int POS[3];                 // processor location in the logical proc array (1=x, 2=y, slot 0 unused)
     int NX;                     // number of grid points in x-direction for this processor (local)
     int NY;                     // number of grid points in y-direction for this processor (local)

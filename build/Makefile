@@ -53,7 +53,7 @@ DOC := sofi2D_manual.pdf
 ### GNU compiler with OpenMPI (standard)
 CC             := mpicc
 CPPFLAGS        = -D_GNU_SOURCE -DLOG_COLOR
-EXTRA_CPPFLAGS := -DLOG_MPI
+EXTRA_CPPFLAGS := -DUSE_MPI
 CFLAGS          = -O3 -Wall -Wextra -g -fstack-protector -std=c99 -ftree-vectorize
 CDEPEND         = -MMD -MP -MF .dep-$(subst /,-,$@)
 LD             := $(CC)
@@ -124,8 +124,9 @@ MERGE_FILES := snapmerge.c \
                merge.c \
                read_par_json.c \
                readdsk.c \
-               writedsk.c \
-               util.c 
+               sources.c \
+               util.c \
+               writedsk.c
 
 FDMOD_FILES := sofi2D.c \
                abs_update.c \

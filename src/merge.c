@@ -18,17 +18,17 @@
  * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
-/*------------------------------------------------------------------------
- *   merge snapshots files written by the different processes to 
- *   a single file                                 
- *  ----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------
+ * merge snapshots files written by the different processes to
+ * a single file
+ *----------------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <string.h>
 #include "fd.h"
 #include "logging.h"
 
-void merge(int nsnap, int type, GlobVar * gv)
+void merge(int nsnap, int type, int SNAPIDX[][5], GlobVar *gv)
 {
     char file[STRING_SIZE], mfile[STRING_SIZE], outfile[STRING_SIZE], ext[10];
     FILE *fp[gv->NPROCY][gv->NPROCX], *fpout = NULL;
@@ -82,8 +82,8 @@ void merge(int nsnap, int type, GlobVar * gv)
     fpout = fopen(outfile, "w");
     log_debug("Opening snapshot files %s.*.* for reading.\n", mfile);
 
-    for (int ip = 0; ip <= (gv->NPROCX) - 1; ip++) {
-        for (int jp = 0; jp <= (gv->NPROCY) - 1; jp++) {
+    for (int ip = 0; ip < gv->NPROCX; ip++) {
+        for (int jp = 0; jp < gv->NPROCY; jp++) {
             sprintf(file, "%s.%i.%i", mfile, ip, jp);
             fp[jp][ip] = fopen(file, "r");
             if (fp[jp][ip] == NULL)
@@ -92,25 +92,28 @@ void merge(int nsnap, int type, GlobVar * gv)
     }
     log_debug("Finished opening all input files. Now copying the data.\n");
 
-    float max = 0.0f;
-    for (int n = 0; n <= nsnap - 2; n++) {
-        for (int ip = 0; ip <= (gv->NPROCX) - 1; ip++) {
-            for (int i = 1; i <= (gv->NX); i += (gv->IDX)) {
-                for (int jp = 0; jp <= (gv->NPROCY) - 1; jp++) {
-                    for (int j = 1; j <= (gv->NY); j += (gv->IDY)) {
+    float max = 0.0;
+    int n1 = 0, n2 = 0;
+    for (int n = 0; n < nsnap; ++n) {
+        for (int ip = 0; ip < gv->NPROCX; ip++) {
+            for (int i = SNAPIDX[ip][1]; i <= SNAPIDX[ip][2]; i += gv->IDX) {
+                if (0 == n) ++n2;
+                for (int jp = 0; jp < gv->NPROCY; jp++) {
+                    for (int j = SNAPIDX[jp*gv->NPROCX][3]; j <= SNAPIDX[jp*gv->NPROCX][4]; j += gv->IDY) {
                         a = readdsk(fp[jp][ip], (gv->SNAP_FORMAT));
-                        if (a > max)
-                            max = a;
-                        writedsk(fpout, a, (gv->SNAP_FORMAT));
+                        if (a > max) max = a;
+                        writedsk(fpout, a, gv->SNAP_FORMAT);
+                        if (0 == n && 1 == n2) ++n1;
                     }
                 }
             }
         }
     }
+
     log_debug("Finished copying the data. Now closing all input files.\n");
 
-    for (int ip = 0; ip <= (gv->NPROCX) - 1; ip++) {
-        for (int jp = 0; jp <= (gv->NPROCY) - 1; jp++) {
+    for (int ip = 0; ip < gv->NPROCX; ip++) {
+        for (int jp = 0; jp < gv->NPROCY; jp++) {
             fclose(fp[jp][ip]);
         }
     }
@@ -120,8 +123,7 @@ void merge(int nsnap, int type, GlobVar * gv)
         log_info("Use...\n");
         log_std
             ("%sxmovie n1=%d n2=%d < %s loop=1 label1=\"Y\" label2=\"X\" title=\"%%g\" d1=%f d2=%f f1=%f f2=%f clip=%e sleep=1%s\n",
-             LOG_COLOR_BOLD, (((gv->NYG) - 1) / (gv->IDY)) + 1, (((gv->NXG) - 1) / (gv->IDY)) + 1, outfile, gv->DH,
-             gv->DH, gv->DH, gv->DH, max / 10.0, LOG_ALL_RESET);
+             LOG_COLOR_BOLD, n1, n2, outfile, gv->DH*gv->IDY, gv->DH*gv->IDX, 0.0, 0.0, max / 10.0, LOG_ALL_RESET);
         log_info("...to play the snapshot movie.\n");
     }
 }

@@ -29,7 +29,6 @@
 
 void sources(AcqVar *acq, GlobVar *gv)
 {
-//    float **srcpos = NULL;
     int i, l, isrc = 0, current_source = 0, nvarin = 0;
     float xsrc, ysrc, tshift, tan_phi, dz, x, fc = 0.0;
     char buffer[STRING_SIZE], bufferstring[10], cline[256];
@@ -352,6 +351,7 @@ void sources(AcqVar *acq, GlobVar *gv)
             log_fatal("SRCREC parameter is invalid (SRCREC!=1 or SRCREC!=2)! No source parameters specified!\n");
     }                           // end gv->MPID==0
 
+#ifdef USE_MPI
     MPI_Barrier(MPI_COMM_WORLD);
     MPI_Bcast(&(acq->nsrc), 1, MPI_INT, 0, MPI_COMM_WORLD);
     MPI_Bcast(&(gv->TS), 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
@@ -359,6 +359,7 @@ void sources(AcqVar *acq, GlobVar *gv)
     if (gv->MPID != 0)
         acq->srcpos = matrix(1, NSPAR, 1, acq->nsrc);
     MPI_Bcast(&(acq->srcpos[1][1]), (acq->nsrc) * NSPAR, MPI_FLOAT, 0, MPI_COMM_WORLD);
+#endif
 
     if (gv->MPID == 0) {
         if (acq->nsrc > 50)

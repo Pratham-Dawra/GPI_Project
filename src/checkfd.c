@@ -33,7 +33,6 @@ void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar *gv)
 {
     float fmax, gamma;
     float dtstab, dhstab, temporal;
-    float snapoutx = 0.0, snapouty = 0.0;
     float srec_minx, srec_miny, srec_maxx, srec_maxy;
     float CFL;
 
@@ -101,14 +100,6 @@ void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar *gv)
                      gv->TSNAP2, gv->TIME);
                 gv->TSNAP2 = gv->TIME;
             }
-            snapoutx = gv->NX / (float)gv->IDX;
-            snapouty = gv->NY / (float)gv->IDY;
-            if (snapoutx - (int)snapoutx > 0)
-                log_fatal("Ratio NX-NPROCX-IDX must be integer.\n");
-            if (snapouty - (int)snapouty > 0)
-                log_fatal("Ratio NY-NPROCY-IDY must be integer.\n");
-            log_info("Output of snapshot grid points (x) per node: %d\n", (int)snapoutx);
-            log_info("Output of snapshot grid points (y) per node: %d\n", (int)snapouty);
         } else {
             log_info("Skipping checks of snapshot parameters.\n");
         }

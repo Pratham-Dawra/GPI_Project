@@ -17,9 +17,9 @@
  * along with IFOS. See file COPYING and/or <http://www.gnu.org/licenses/gpl-2.0.html>.
 -----------------------------------------------------------------------------------------*/
 
-/*------------------------------------------------------------------------
- *   time loop or finite-difference forward modelling
- *  ----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------
+ * time loop of finite-difference forward modelling
+ *----------------------------------------------------------------------*/
 
 #include "fd.h"
 #include "logging.h"
@@ -309,4 +309,5 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
     }
 
     log_infoc(0, "Finished time stepping.\n");
+    if (gv->SNAP) log_infoc(0,"Number of snapshots for this shot: %d\n", nsnap);
 }

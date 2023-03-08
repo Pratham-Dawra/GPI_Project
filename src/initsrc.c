@@ -25,7 +25,6 @@
 #include "fd.h"
 #include "logging.h"
 #include "macros.h"
-#include <math.h>
 #include <stdio.h>
 
 void initsrc(int ishot, int nshots, AcqVar *acq, GlobVar *gv)
@@ -80,7 +79,7 @@ void initsrc(int ishot, int nshots, AcqVar *acq, GlobVar *gv)
         }
         int **dummy = imatrix(1, 3, 1, 1);
         dummy[1][1] = (int)(acq->srcpos_loc[1][1]) - 1 + gv->GGRID[1];
-	dummy[2][1] = (int)(acq->srcpos_loc[2][1]) - 1 + gv->GGRID[3];
+        dummy[2][1] = (int)(acq->srcpos_loc[2][1]) - 1 + gv->GGRID[3];
         dummy[3][1] = 0;
         sprintf(sigf, "%s.shot%d.%s", gv->SIGOUT_FILE, ishot, file_ext);
         log_info("Writing source wavelet to file %s.\n", sigf);

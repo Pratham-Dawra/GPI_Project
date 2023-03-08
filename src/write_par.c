@@ -222,8 +222,6 @@ void write_par(GlobVar *gv)
         log_info("First snapshot (TSNAP1): %8.5fs\n", gv->TSNAP1);
         log_info("Last snapshot (TSNAP2): %8.5fs\n", gv->TSNAP2);
         log_info("Snapshot increment (TSNAPINC): %8.5fs\n", gv->TSNAPINC);
-        log_info("First and last_horizontal grid point: %d, %d\n", 1, gv->NXG);
-        log_info("First and last vertical grid point: %d, %d\n", 1, gv->NYG);
         log_info("Grid point increment: %d, %d\n", gv->IDX, gv->IDY);
         log_info("Snapshot output file (SNAP_FILE): %s\n", gv->SNAP_FILE);
         switch (gv->SNAP_FORMAT) {

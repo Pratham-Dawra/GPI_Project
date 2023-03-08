@@ -11,7 +11,7 @@
 #include <sys/time.h>
 #include <sys/utsname.h>
 #include <sys/resource.h>
-#ifdef LOG_MPI
+#ifdef USE_MPI
 #include <mpi.h>
 #endif
 
@@ -63,7 +63,7 @@ const char *log_get_nodename()
 
 void log_init(FILE * fp)
 {
-#ifdef LOG_MPI
+#ifdef USE_MPI
     MPI_Comm_rank(MPI_COMM_WORLD, &log_mpid_);
 #endif
     if (fp) {
@@ -206,7 +206,7 @@ void log_general_(log_Level level, const char *file, int line, const char *fmt, 
 #endif
           vfprintf(fperr, fmt, ap);
           fflush(fperr);
-#ifdef LOG_MPI
+#ifdef USE_MPI
           MPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
 #else
           exit(EXIT_FAILURE);
@@ -246,13 +246,13 @@ void log_banner(log_Program prog)
         log_std("* Program compiled from git commit: %-33s *\n", LOG_COMMIT);
         log_std("***********************************************************************\n");
     }
-#ifdef LOG_MPI
+#ifdef USE_MPI
     MPI_Barrier(MPI_COMM_WORLD);
 #endif
 
     log_info("Node: %s (%s %s, %s)\n", kern.nodename, kern.sysname, kern.machine, kern.release);
 
-#ifdef LOG_MPI
+#ifdef USE_MPI
     MPI_Barrier(MPI_COMM_WORLD);
 #endif
 
@@ -277,7 +277,7 @@ void log_finalize()
     log_infoc(0, "Process terminated %s.\n", log_get_date_());
 #endif
 
-#ifdef LOG_MPI
+#ifdef USE_MPI
     MPI_Barrier(MPI_COMM_WORLD);
 #endif
 

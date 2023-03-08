@@ -15,17 +15,17 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with SOFI2D. See file COPYING and/or 
-  * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
-/*------------------------------------------------------------------------
- *   Write 2D snapshot for current timestep  to file                                   
- *  ----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------
+ * Write 2D snapshot for current timestep to file
+ *----------------------------------------------------------------------*/
 
 #include "fd.h"
 #include "logging.h"
 
-void snap(int nt, int nsnap, float *hc, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
+void snap(int nt, int nsnap, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv)
 {
     /* 
      * different data formats of output:
@@ -82,8 +82,8 @@ void snap(int nt, int nsnap, float *hc, MemModel * mpm, MemWavefield * mpw, Glob
               fpx1 = fopen(snapfile_x, "a");
               fpy1 = fopen(snapfile_y, "a");
           }
-          for (int i = 1; i <= gv->NX; i += gv->IDX) {
-              for (int j = 1; j <= gv->NY; j += gv->IDY) {
+          for (int i = gv->SNAPIDX[1]; i <= gv->SNAPIDX[2]; i += gv->IDX) {
+              for (int j = gv->SNAPIDX[3]; j <= gv->SNAPIDX[4]; j += gv->IDY) {
                   writedsk(fpx1, mpw->pvx[j][i], gv->SNAP_FORMAT);
                   writedsk(fpy1, mpw->pvy[j][i], gv->SNAP_FORMAT);
               }
@@ -99,8 +99,8 @@ void snap(int nt, int nsnap, float *hc, MemModel * mpm, MemWavefield * mpw, Glob
               fpx1 = fopen(snapfile_p, "a");
           }
 
-          for (int i = 1; i <= gv->NX; i += gv->IDX) {
-              for (int j = 1; j <= gv->NY; j += gv->IDY) {
+          for (int i = gv->SNAPIDX[1]; i <= gv->SNAPIDX[2]; i += gv->IDX) {
+              for (int j = gv->SNAPIDX[3]; j <= gv->SNAPIDX[4]; j += gv->IDY) {
                   amp = -mpw->psxx[j][i] - mpw->psyy[j][i];
                   writedsk(fpx1, amp, gv->SNAP_FORMAT);
               }
@@ -121,8 +121,8 @@ void snap(int nt, int nsnap, float *hc, MemModel * mpm, MemWavefield * mpw, Glob
               fpp = fopen(snapfile_p, "a");
           }
 
-          for (int i = 1; i <= gv->NX; i += gv->IDX) {
-              for (int j = 1; j <= gv->NY; j += gv->IDY) {
+          for (int i = gv->SNAPIDX[1]; i <= gv->SNAPIDX[2]; i += gv->IDX) {
+              for (int j = gv->SNAPIDX[3]; j <= gv->SNAPIDX[4]; j += gv->IDY) {
                   writedsk(fpx1, mpw->pvx[j][i], gv->SNAP_FORMAT);
                   writedsk(fpy1, mpw->pvy[j][i], gv->SNAP_FORMAT);
                   amp = -mpw->psxx[j][i] - mpw->psyy[j][i];
@@ -150,8 +150,8 @@ void snap(int nt, int nsnap, float *hc, MemModel * mpm, MemWavefield * mpw, Glob
           int nd = gv->FDORDER / 2;
           curlfield = matrix(-nd + 1, gv->NY + nd, -nd + 1, gv->NX + nd);
 
-          for (int i = 1; i <= gv->NX; i += gv->IDX) {
-              for (int j = 1; j <= gv->NY; j += gv->IDY) {
+          for (int i = gv->SNAPIDX[1]; i <= gv->SNAPIDX[2]; i += gv->IDX) {
+              for (int j = gv->SNAPIDX[3]; j <= gv->SNAPIDX[4]; j += gv->IDY) {
 
                   /* spatial derivatives using Holberg coefficients */
                   vyx = 0;
@@ -167,8 +167,8 @@ void snap(int nt, int nsnap, float *hc, MemModel * mpm, MemWavefield * mpw, Glob
               }
           }
 
-          for (int i = 1; i <= gv->NX; i += gv->IDX) {
-              for (int j = 1; j <= gv->NY; j += gv->IDY) {
+          for (int i = gv->SNAPIDX[1]; i <= gv->SNAPIDX[2]; i += gv->IDX) {
+              for (int j = gv->SNAPIDX[3]; j <= gv->SNAPIDX[4]; j += gv->IDY) {
                   writedsk(fpy2, curlfield[j][i], gv->SNAP_FORMAT);
               }
           }
@@ -177,8 +177,8 @@ void snap(int nt, int nsnap, float *hc, MemModel * mpm, MemWavefield * mpw, Glob
           /* output of the divergence of the velocity field according to Dougherty and
            * Stephen (PAGEOPH, 1988) */
           divfield = matrix(-nd + 1, gv->NY + nd, -nd + 1, gv->NX + nd);
-          for (int i = 1; i <= gv->NX; i += gv->IDX) {
-              for (int j = 1; j <= gv->NY; j += gv->IDY) {
+          for (int i = gv->SNAPIDX[1]; i <= gv->SNAPIDX[2]; i += gv->IDX) {
+              for (int j = gv->SNAPIDX[3]; j <= gv->SNAPIDX[4]; j += gv->IDY) {
 
                   /* spatial derivatives using Holberg coefficients */
                   vxx = 0;
@@ -194,8 +194,8 @@ void snap(int nt, int nsnap, float *hc, MemModel * mpm, MemWavefield * mpw, Glob
               }
           }
 
-          for (int i = 1; i <= gv->NX; i += gv->IDX) {
-              for (int j = 1; j <= gv->NY; j += gv->IDY) {
+          for (int i = gv->SNAPIDX[1]; i <= gv->SNAPIDX[2]; i += gv->IDX) {
+              for (int j = gv->SNAPIDX[3]; j <= gv->SNAPIDX[4]; j += gv->IDY) {
                   writedsk(fpx2, divfield[j][i], gv->SNAP_FORMAT);
               }
           }

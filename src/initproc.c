@@ -84,6 +84,43 @@ void initproc(GlobVar *gv)
               gv->MPID, gv->POS[1], gv->POS[2], gv->INDEX[1], gv->INDEX[2], gv->INDEX[3], gv->INDEX[4],
               gv->GGRID[1], gv->GGRID[2], gv->GGRID[3], gv->GGRID[4]);
 
+    /* if IDX and/or IDY not equal to 1, snapshots are coarser than the model grid; find *
+     * global indices each logical processor has to output;  1=left (idx xmin), ...      */
+    if (gv->IDX == 1) {
+        gv->SNAPIDX[1] = gv->GGRID[1];
+        gv->SNAPIDX[2] = gv->GGRID[2];
+    } else {
+        gv->SNAPIDX[1] = gv->NXG+1;
+        gv->SNAPIDX[2] = -1;
+        for (int i = 1; i <= gv->NXG; i += gv->IDX) {
+            if (i >= gv->GGRID[1] && i <= gv->GGRID[2]) {
+                if (i < gv->SNAPIDX[1]) gv->SNAPIDX[1] = i;
+                if (i > gv->SNAPIDX[2]) gv->SNAPIDX[2] = i;
+            }
+        }
+    }
+    if (gv->IDY == 1) {
+        gv->SNAPIDX[3] = gv->GGRID[3];
+        gv->SNAPIDX[4] = gv->GGRID[4];
+    } else {
+        gv->SNAPIDX[3] = gv->NYG+1;
+        gv->SNAPIDX[4] = -1;
+        for (int j = 1; j <= gv->NYG; j += gv->IDY) {
+            if (j >= gv->GGRID[3] && j <= gv->GGRID[4]) {
+                if (j < gv->SNAPIDX[3]) gv->SNAPIDX[3] = j;
+                if (j > gv->SNAPIDX[4]) gv->SNAPIDX[4] = j;
+            }
+        }
+    }
+    /* now convert global indices to local processor indices */
+    gv->SNAPIDX[1] = gv->SNAPIDX[1] - gv->GGRID[1] + 1;
+    gv->SNAPIDX[2] = gv->SNAPIDX[2] - gv->GGRID[1] + 1;
+    gv->SNAPIDX[3] = gv->SNAPIDX[3] - gv->GGRID[3] + 1;
+    gv->SNAPIDX[4] = gv->SNAPIDX[4] - gv->GGRID[3] + 1;
+
+    log_debug("PE %d; col %d; row %d; snap indices xs-xe %d,%d yb-ye %d,%d\n",
+              gv->MPID, gv->POS[1], gv->POS[2], gv->SNAPIDX[1], gv->SNAPIDX[2], gv->SNAPIDX[3], gv->SNAPIDX[4]);
+
     return;
 }
 
