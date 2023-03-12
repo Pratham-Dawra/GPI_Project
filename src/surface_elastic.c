@@ -18,13 +18,13 @@
  * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
-/*------------------------------------------------------------------------
- *   stress free surface condition
- *  ----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------
+ * stress free surface condition
+ *----------------------------------------------------------------------*/
 
 #include "fd.h"
 
-void surface_elastic(int ndepth, float *hc, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
+void surface_elastic(int ndepth, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv)
 {
 
     int h1;
@@ -34,10 +34,10 @@ void surface_elastic(int ndepth, float *hc, MemModel * mpm, MemWavefield * mpw, 
     int fdoh = gv->FDORDER / 2;
     float dhi = 1.0 / gv->DH;
 
-    int j = ndepth;             /* The free surface is located exactly in y=dh !! */
+    int j = ndepth;             /* The free surface is located exactly in y=0 */
     for (int i = 1; i <= gv->NX; i++) {
 
-        /*Mirroring the components of the stress tensor to make
+        /* Mirroring the components of the stress tensor to make
          * a stress free surface (method of imaging) */
         mpw->psyy[j][i] = 0.0;
 
@@ -46,7 +46,7 @@ void surface_elastic(int ndepth, float *hc, MemModel * mpm, MemWavefield * mpw, 
 
         for (int m = 1; m <= fdoh; m++) {
 
-            /*Mirroring the components of the stress tensor to make
+            /* Mirroring the components of the stress tensor to make
              * a stress free surface (method of imaging) */
             mpw->psyy[j - m][i] = -mpw->psyy[j + m][i];
             mpw->psxy[j - m][i] = -mpw->psxy[j + m - 1][i];
@@ -80,9 +80,9 @@ void surface_elastic(int ndepth, float *hc, MemModel * mpm, MemWavefield * mpw, 
         fjm = mpm->pu[j][i] * 2.0;
         g = mpm->ppi[j][i];
 
-        /*Update sxx without vertical derivates (last update will be canceld)
-         *sxx=sxx_new - sxx =  gv->DT*fjm*(2-fjm/g)vxx   -  ( g* ( vxx+vyy ) - fjm *vyy)
-         *                  = -(gv->DT*(g-fmj)*(g-fmj)*vxx/g)-(gv->DT*(g-fjm)*vyy) */
+        /* Update sxx without vertical derivates (last update will be canceld)
+         * sxx=sxx_new - sxx =  gv->DT*fjm*(2-fjm/g)vxx   -  ( g* ( vxx+vyy ) - fjm *vyy)
+         *                   = -(gv->DT*(g-fmj)*(g-fmj)*vxx/g)-(gv->DT*(g-fjm)*vyy) */
 
         mpw->psxx[j][i] += -(gv->DT * (g - fjm) * (g - fjm) * vxx / g) - (gv->DT * (g - fjm) * vyy);
 

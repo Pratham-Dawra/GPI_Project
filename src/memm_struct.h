@@ -19,8 +19,7 @@
 --------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------
- * mem_struct.h - variables used for memory initiallisation.
- *
+ * memm_struct.h - variables used for memory initiallisation.
  * ----------------------------------------------------------------------*/
 
 #ifndef MEMM_STRUCT_H_INCLUDED
@@ -40,8 +39,6 @@ typedef struct {
 
     float **ptaus;
     float **ptaup;
-    float *etaip;
-    float *etajm;
     float *peta;
     float **ptausipjp;
     float **fipjp;

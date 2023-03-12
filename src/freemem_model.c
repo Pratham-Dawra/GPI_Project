@@ -15,18 +15,17 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with SOFI2D. See file COPYING and/or 
-  * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
-/* -------------------------------------------------------------
+/* -----------------------------------------------------------
  * This is function freemem_model.
  * De-allocating memory of model variables.
- *
- * -------------------------------------------------------------*/
+ * -----------------------------------------------------------*/
 
 #include "fd.h"
 
-void freemem_model(MemModel * mpm, GlobVar * gv)
+void freemem_model(MemModel *mpm, GlobVar *gv)
 {
 
     if (gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI) {
@@ -50,8 +49,6 @@ void freemem_model(MemModel * mpm, GlobVar * gv)
         free_matrix(mpm->f, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         free_matrix(mpm->g, -gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         free_vector(mpm->peta, 1, gv->L);
-        free_vector(mpm->etaip, 1, gv->L);
-        free_vector(mpm->etajm, 1, gv->L);
         free_vector(mpm->bip, 1, gv->L);
         free_vector(mpm->bjm, 1, gv->L);
         free_vector(mpm->cip, 1, gv->L);

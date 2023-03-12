@@ -15,18 +15,17 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with SOFI2D. See file COPYING and/or 
-  * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
-/*------------------------------------------------------------------------
- *   stress free surface condition
- *  ----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------
+ * stress free surface condition
+ *----------------------------------------------------------------------*/
 
 #include "fd.h"
 
-void surface(int ndepth, float *hc, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
+void surface(int ndepth, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv)
 {
-
     int h1;
     float bjm, djm, e, fjm, g;
     float vxx, vyy, sump = 0.0f;
@@ -35,28 +34,20 @@ void surface(int ndepth, float *hc, MemModel * mpm, MemWavefield * mpw, GlobVar 
     float dhi = 1.0 / gv->DH;
     float dthalbe = gv->DT / 2.0;
 
-    int j = ndepth;             /* The free surface is located exactly in y=dh !! */
+    int j = ndepth;             /* The free surface is located exactly in y=0 */
     for (int i = 1; i <= gv->NX; i++) {
 
         /* Compute values for shearmodulus u[j][i], P-wave modulus pi[j][i],
          * tau for S-waves and P-waves taus[j][i], taup[j][i] at half indizes: */
 
-/*		for (l=1;l<=gv->L;l++){
-			etajm[l]=0.5*(eta(i,j-1,l)+eta[j][i][l]);
-		}
-*/
-        for (int l = 1; l <= gv->L; l++) {
-            mpm->etajm[l] = mpm->peta[l];
-        }
-
-        /*Mirroring the components of the stress tensor to make
+        /* Mirroring the components of the stress tensor to make
          * a stress free surface (method of imaging) */
         mpw->psyy[j][i] = 0.0;
 
         /* since syy is zero on the free surface also the
          * corresponding memory-variables must set to zero */
         for (int l = 1; l <= gv->L; l++)
-            mpw->pq[j][i][l] = 0.0;
+	    mpw->pq[j][i][l] = 0.0;
 
         /* now updating the stress component sxx and the memory-
          * variables p[j][i][l] at the free surface */
@@ -66,7 +57,7 @@ void surface(int ndepth, float *hc, MemModel * mpm, MemWavefield * mpw, GlobVar 
         vxx = 0.0;
         vyy = 0.0;
         for (int m = 1; m <= fdoh; m++) {
-            /*Mirroring the components of the stress tensor to make
+            /* Mirroring the components of the stress tensor to make
              * a stress free surface (method of imaging) */
             mpw->psyy[j - m][i] = -mpw->psyy[j + m][i];
             mpw->psxy[j - m][i] = -mpw->psxy[j + m - 1][i];
@@ -110,13 +101,13 @@ void surface(int ndepth, float *hc, MemModel * mpm, MemWavefield * mpw, GlobVar 
         /* updating the memory-variable p[j][i][l] at the free surface */
         sump = 0.0;
         for (int l = 1; l <= gv->L; l++) {
-            bjm = mpm->etajm[l] / (1.0 + (mpm->etajm[l] * 0.5));
+            bjm = mpm->peta[l] / (1.0 + (mpm->peta[l] * 0.5));
             djm = 2.0 * mpm->pu[j][i] * mpm->ptaus[j][i];
             e = mpm->ppi[j][i] * mpm->ptaup[j][i];
             mpw->pp[j][i][l] += bjm * (((djm - e) * ((fjm / g) - 1.0) * vxx) - ((djm - e) * vyy));
             sump += mpw->pp[j][i][l];
         }
-        /*completely updating the stress sxx */
+        /* completely updating the stress sxx */
         mpw->psxx[j][i] += (dthalbe * sump);
     }
 }

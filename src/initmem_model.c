@@ -15,18 +15,17 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with SOFI2D. See file COPYING and/or 
-  * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
 --------------------------------------------------------------------------*/
 
-/* -------------------------------------------------------------
- * This is function initmem_elastic.
+/* -----------------------------------------------------------
+ * This is function initmem_model.
  * Initialising memory for model variables.
- *
- * -------------------------------------------------------------*/
+ * -----------------------------------------------------------*/
 
 #include "fd.h"
 
-void initmem_model(MemModel * mpm, GlobVar * gv)
+void initmem_model(MemModel *mpm, GlobVar *gv)
 {
 
     /* static (model) arrays (isotropic elastic + viscoelastic) */
@@ -52,8 +51,6 @@ void initmem_model(MemModel * mpm, GlobVar * gv)
         mpm->f = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         mpm->g = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         mpm->peta = vector(1, gv->L);
-        mpm->etaip = vector(1, gv->L);
-        mpm->etajm = vector(1, gv->L);
         mpm->bip = vector(1, gv->L);
         mpm->bjm = vector(1, gv->L);
         mpm->cip = vector(1, gv->L);
