@@ -428,10 +428,10 @@ void read_par_json(const char *fileinp, GlobVar * gv)
     if ((gv->SOURCE_SHAPE) == 3) {
         if (access((gv->SIGNAL_FILE), 0) != 0) {
             log_error("Signal file %s does not exists.\n", (gv->SIGNAL_FILE));
-            fserr = 1;
+            fserr += 1;
         } else if (access((gv->SIGNAL_FILE), 4) != 0) {
             log_error("Signal file %s cannot be read, no read permission.\n", (gv->SIGNAL_FILE));
-            fserr = 1;
+            fserr += 1;
         }
     }
 
@@ -439,10 +439,10 @@ void read_par_json(const char *fileinp, GlobVar * gv)
     if ((gv->SRCREC) == 1) {
         if (access((gv->SOURCE_FILE), 0) != 0) {
             log_error("Source file %s does not exist.\n", (gv->SOURCE_FILE));
-            fserr = 1;
+            fserr += 1;
         } else if (access((gv->SOURCE_FILE), 4) != 0) {
             log_error("Source file %s cannot be read, no read permission.\n", (gv->SOURCE_FILE));
-            fserr = 1;
+            fserr += 1;
         }
     }
 
@@ -450,18 +450,18 @@ void read_par_json(const char *fileinp, GlobVar * gv)
     if ((gv->READREC)) {
         if (access((gv->REC_FILE), 0) != 0) {
             log_error("Receiver file %s does not exist.\n", (gv->REC_FILE));
-            fserr = 1;
+            fserr += 1;
         } else if (access((gv->REC_FILE), 4) != 0) {
             log_error("Receiver file %s cannot be read, no read permission.\n", (gv->REC_FILE));
-            fserr = 1;
+            fserr += 1;
         }
     }
 
     /********************************************/
     /* ERROR                                    */
     /********************************************/
-    if (fserr) {
-        log_fatal("Error(s) encountered while processing json parameter file.\n");
+    if (fserr > 0) {
+        log_fatal("%d error(s) encountered while processing json parameter file.\n",fserr);
     }
 
     for (i = 0; i < number_readobjects; ++i) {

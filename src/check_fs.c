@@ -45,7 +45,7 @@ void check_fs(GlobVar * gv)
         char *dname = dirname(dirc);
         if (access(dname, W_OK) != 0) {
             log_error("Cannot write to log directory %s.\n", dname);
-            fserr = 1;
+            fserr += 1;
         } else {
             log_infoc(0, "Filesystem check: log file directory %s is writable.\n", dname);
         }
@@ -60,7 +60,7 @@ void check_fs(GlobVar * gv)
         char *dname = dirname(dirc);
         if (access(dname, W_OK) != 0) {
             log_error("Cannot write to seismogram directory %s.\n", dname);
-            fserr = 1;
+            fserr += 1;
         } else {
             log_infoc(0, "Filesystem check: seismogram directory %s is writable.\n", dname);
         }
@@ -75,7 +75,7 @@ void check_fs(GlobVar * gv)
         char *dname = dirname(dirc);
         if (access(dname, W_OK) != 0) {
             log_error("Cannot write to snapshot directory %s.\n", dname);
-            fserr = 1;
+            fserr += 1;
         } else {
             log_infoc(0, "Filesystem check: snapshot directory %s is writable.\n", dname);
         }
@@ -90,7 +90,7 @@ void check_fs(GlobVar * gv)
         char *dname = dirname(dirc);
         if (access(dname, W_OK) != 0) {
             log_error("Cannot write to model file directory %s.\n", dname);
-            fserr = 1;
+            fserr += 1;
         } else {
             log_infoc(0, "Filesystem check: model file directory %s is writable.\n", dname);
         }
@@ -105,7 +105,7 @@ void check_fs(GlobVar * gv)
         char *dname = dirname(dirc);
         if (access(dname, W_OK) != 0) {
             log_error("Cannot write to source output directory %s.\n", dname);
-            fserr = 1;
+            fserr += 1;
         } else {
             log_infoc(0, "Filesystem check: source output directory %s is writable.\n", dname);
         }
@@ -116,8 +116,8 @@ void check_fs(GlobVar * gv)
     /* ERROR                                    */
 
   /********************************************/
-    if (fserr) {
-        log_fatal("Error(s) encountered while checking filesystem for correct permissions.\n");
+    if (fserr>0) {
+        log_fatal("%d error(s) encountered while checking filesystem for correct permissions.\n",fserr);
     }
 
     return;
