@@ -123,6 +123,7 @@ MERGE_FILES := snapmerge.c \
                logging.c \
                merge.c \
                read_par_json.c \
+               read_par_json_fwi.c \
                readdsk.c \
                sources.c \
                util.c \
@@ -173,6 +174,7 @@ FDMOD_FILES := sofi2D.c \
                prepmod.c \
                psource.c \
                read_par_json.c \
+               read_par_json_fwi.c \
                read_srcsig.c \
                read_su.c \
                readdsk.c \

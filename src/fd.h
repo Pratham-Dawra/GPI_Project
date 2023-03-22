@@ -34,6 +34,7 @@
 #include <time.h>
 #include <mpi.h>
 #include "globvar_struct.h"
+#include "globvar_struct_fwi.h"
 #include "acq_struct.h"
 #include "memm_struct.h"
 #include "memw_struct.h"
@@ -58,7 +59,7 @@ void av_rho(float **rho, float **rip, float **rjp, GlobVar *gv);
 
 void av_tau(float **taus, float **tausipjp, GlobVar *gv);
 
-void check_fs(GlobVar *gv);
+void check_fs(GlobVar *gv, GlobVarInv *vinv);
 
 void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar *gv);
 
@@ -87,6 +88,8 @@ void freemem_wavefield(MemWavefield *mpw, GlobVar *gv);
 int get_fd_order(GlobVar *gv);
 
 const char *get_weq_verbose(WEQTYPE wt);
+
+const char *get_mode_verbose(RUNMODE md);
 
 float *holbergcoeff(GlobVar *gv);
 
@@ -200,7 +203,9 @@ void readbufv(float **vx, float **vy,
 void read_checkpoint(int nx1, int nx2, int ny1, int ny2,
                      float **vx, float **vy, float **sxx, float **syy, float **sxy, GlobVar *gv);
 
-void read_par_json(const char *fileinp, GlobVar *gv);
+void read_par_json(const char *fileinp, GlobVar *gv, GlobVarInv *vinv);
+
+int read_par_json_fwi(int number_readobjects, char **varname_list, char **value_list, int *used_list, int fserr, GlobVarInv *vinv);
 
 void readmod(MemModel *mpm, GlobVar *gv);
 

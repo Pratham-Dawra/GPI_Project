@@ -35,7 +35,32 @@ typedef void (*FDop_s_fct) (int i, int j, float *vxx, float *vyx, float *vxy, fl
 typedef void (*FDop_v_fct) (int i, int j, float *sxx_x, float *sxy_x, float *sxy_y, float *syy_y, MemWavefield *mpw);
 
 typedef struct {
-//struct ModelVar {
+
+    // FD Params
+    RUNMODE MODE;               // run mode (Forward only, FWI) 
+    WEQTYPE WEQ;                // wave equation
+    float DH;                   // spacial increment [m]
+    int FDORDER;                // spatial FD order
+    int ND;                     // gv->FDORDER / 2
+    float TIME;                 // time (of modelling) [s]
+    float DT;                   // time increment (of modelling) [s]
+    int FDORDER_TIME;           // temporal FD order
+    int NT;                     //// number of timesteps (=iround(TIME/DT))
+    FDop_s_fct FDOP_S;          // function pointer for FD operator
+    FDop_v_fct FDOP_V;          // function pointer for FD operator
+    int MAXRELERROR;            // switch of maximum relative group velocity error
+    // Boundary
+    int FREE_SURF;              // switch to apply free surface at the top of the model
+    int BOUNDARY;               // switch to apply periodic boundary condition at edges
+    int ABS_TYPE;               // type of the absorbing boundary
+    int FW;                     // width of absorbing frame [gridpoints]
+    float DAMPING;              // attenuation at the edges of the grid [%]
+    // PML-Parameters
+    float NPOWER;               // exponent for calculation of damping profile
+    float K_MAX_CPML;           // 
+    float FPML;                 // dominant signal frequency (usually FC) [Hz]
+    float VPPML;                // attenuation velocity within the PML boundary [m/s]
+
     // Models
     int READMOD;                // switch to read model parameters from MFILE
     char MFILE[STRING_SIZE];    // model file name
@@ -50,6 +75,7 @@ typedef struct {
     float F_REF;                // reference frequency for dispersion [Hz]
     float *FL;                  // frequency of each relaxation parameters [Hz]
     float TAU;                  // ratio of retardation and relaxation time
+
     // Source
     int SOURCE_TYPE;            // type of source
     int SOURCE_SHAPE;           // shape of source-signal
@@ -78,9 +104,7 @@ typedef struct {
     float REC_ARRAY_DEPTH;      // depth of first plane [m] 
     float REC_ARRAY_DIST;       // increment between receiver planes [m]
     int DRX;                    // increment between receivers in each plane [gridpoints]
-//}
 
-//struct IOVar {
     // Seismograms
     int SEISMO;                 // switch to output components of seismograms
     int NDT;                    // sampling rate of seismograms [timesteps DT]
@@ -97,9 +121,9 @@ typedef struct {
     int SNAP;                   // switch to output of snapshots
     int SNAP_FORMAT;            // data output format for snapshots
     char SNAP_FILE[STRING_SIZE];    // name of output file of snapshots
-    float TSNAP1;               // first snapshot [s]
-    float TSNAP2;               // last snapshot [s]
-    float TSNAPINC;             // increment between snapshots [s]
+    float TSNAP1;               // first snapshot [s] (IFOS: SNAPSHOT_START)
+    float TSNAP2;               // last snapshot [s] (IFOS: SNAPSHOT_END)
+    float TSNAPINC;             // increment between snapshots [s] (IFOS: SNAPSHOT_INCR)
     int IDX;                    // increment in x-direction [gridpoints]
     int IDY;                    // increment in y-direction [gridpoints]
     // Others
@@ -111,53 +135,29 @@ typedef struct {
     char LOG_VERBOSITY[STRING_SIZE];    // log output level (verbosity)       
     char LOG_FILE[STRING_SIZE]; // name of output file of logging information
     int OUTNTIMESTEPINFO;       // every OUTNTIMESTEPINFO th timestep, information on the time step will be given to screen/file
-//}
 
-//struct FDParams{
-    // FD Params
-    WEQTYPE WEQ;                // wave equation
-    float DH;                   // spacial increment [m]
-    int FDORDER;                // spatial FD order
-    int ND;                     // gv->FDORDER / 2
-    float TIME;                 // time (of modelling) [s]
-    float DT;                   // time increment (of modelling) [s]
-    int FDORDER_TIME;           // temporal FD order
-    int NT;                     //// number of timesteps (=iround(TIME/DT))
-    FDop_s_fct FDOP_S;          // function pointer for FD operator
-    FDop_v_fct FDOP_V;          // function pointer for FD operator
-    int MAXRELERROR;            // switch of maximum relative group velocity error
     // MPI-variables
+    int MPID;                   // ID of processor
+    int NPROC;                  // number of processors (=NPROCX*NPROCY; also number of MPI processes)
     int NPROCX;                 // number of processors in x-direction
     int NPROCY;                 // number of processors in y-direction
-    int *GX;                    // subgrid array in x-direction
-    int *GY;                    // subgrid array in y-diection
-    char *BUFF_ADDR;            // buffer for buffering messages
-    int BUFFSIZE;               // size of buffer for buffering messages
-    int NPROC;                  // number of processors (=NPROCX*NPROCY; also number of MPI processes)
-    int MPID;                   // ID of processor
+    int POS[3];                 // processor location in the logical proc array (1=x, 2=y, slot 0 unused)
     int INDEX[5];               // ID of neighboring processes (1=left, 2=right, 3=upper, 4=lower, slot 0 unused)
     int GGRID[5];               // global grid points that this process ID actually handles (1=left, 2=right, ...)
-    int SNAPIDX[5];             // start/end indices for snapshots for this processor (1=left, 2=right, ...)
-    int POS[3];                 // processor location in the logical proc array (1=x, 2=y, slot 0 unused)
+    int *GX;                    // subgrid array in x-direction
+    int *GY;                    // subgrid array in y-diection
     int NX;                     // number of grid points in x-direction for this processor (local)
     int NY;                     // number of grid points in y-direction for this processor (local)
+    int SNAPIDX[5];             // start/end indices for snapshots for this processor (1=left, 2=right, ...)
+    char *BUFF_ADDR;            // buffer for buffering messages
+    int BUFFSIZE;               // size of buffer for buffering messages
     const int TAG1;             // MPI tag
     const int TAG2;             // MPI tag
     const int TAG3;             // MPI tag
     const int TAG4;             // MPI tag
     const int TAG5;             // MPI tag
     const int TAG6;             // MPI tag
-    // Boundary
-    int FREE_SURF;              // switch to apply free surface at the top of the model
-    int BOUNDARY;               // switch to apply periodic boundary condition at edges
-    int ABS_TYPE;               // type of the absorbing boundary
-    int FW;                     // width of absorbing frame [gridpoints]
-    float DAMPING;              // attenuation at the edges of the grid [%]
-    // PML-Parameters
-    float NPOWER;               // exponent for calculation of damping profile
-    float K_MAX_CPML;           // 
-    float FPML;                 // dominant signal frequency (usually FC) [Hz]
-    float VPPML;                // attenuation velocity within the PML boundary [m/s]
+
 } GlobVar;
 
 #endif

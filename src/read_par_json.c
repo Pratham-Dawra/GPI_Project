@@ -74,7 +74,42 @@ static void parse_weqtype(const char *weqt, GlobVar * gv)
     }
 }
 
-void read_par_json(const char *fileinp, GlobVar * gv)
+static const char *mode_descr[NMODE] = { "FWI", "FW", "RTM" };
+
+static const char *mode_verbose[NMODE] = { "Full Waveform Inversion (FWI)",
+    "Forward Modelling",
+    "Reverse Time Migration"
+};
+
+const char *get_mode_verbose(RUNMODE md)
+{
+    return mode_verbose[md];
+}
+
+static void parse_runmode(const char *mode, GlobVar * gv)
+{
+    bool b_found = false;
+
+    for (int i = 0; i < NMODE; ++i) {
+        if (!strncasecmp(mode, mode_descr[i], STRING_SIZE - 1)) {
+            gv->MODE = (RUNMODE) i;
+            b_found = true;
+            break;
+        }
+    }
+
+    if (!b_found) {
+        log_error("Unknown value '%s' for parameter MODE.\n", mode);
+        log_fatal("Unknown run mode (MODE) specified in parameter file.\n");
+    }
+
+    if (gv->MODE == RTM) {
+        log_error("MODE '%s' is not yet implemented.\n", mode);
+        log_fatal("Please choose a different run mode.\n");
+    }
+}
+
+void read_par_json(const char *fileinp, GlobVar * gv, GlobVarInv *vinv)
 {
     /* definition of local variables */
     int number_readobjects = 0, fserr = 0, i;
@@ -138,6 +173,18 @@ void read_par_json(const char *fileinp, GlobVar * gv)
         log_fatal("Variable DT could not be retrieved from the json input file!");
 
     /* =================================
+     * run mode
+     * ================================= */
+
+    char runmode[STRING_SIZE];
+
+    if (get_string_from_objectlist("MODE", number_readobjects, runmode, varname_list, value_list, used_list)) {
+        gv->MODE = FW;
+    } else {
+        parse_runmode(runmode, gv);
+    }
+
+    /* =================================
      * wave equation
      * ================================= */
 
@@ -162,7 +209,7 @@ void read_par_json(const char *fileinp, GlobVar * gv)
     } else {
         if ((gv->SIGOUT) == 1) {
             if (get_string_from_objectlist
-                ("SIGOUT_FILE", number_readobjects, gv->SIGOUT_FILE, varname_list, value_list, used_list)) {
+                ("SIGOUT_FILE", number_readobjects, (gv->SIGOUT_FILE), varname_list, value_list, used_list)) {
                 log_fatal("Variable SIGOUT_FILE could not be retrieved from the json input file!");
             }
             if (get_int_from_objectlist
@@ -420,6 +467,15 @@ void read_par_json(const char *fileinp, GlobVar * gv)
         (gv->FL) = NULL;
     }
 
+    if ((gv->MODE) == FWI) {
+        /*if (gv->IDX != 1 || gv->IDY != 1) {
+            gv->IDX = 1;
+            gv->IDY = 1;
+            log_warn("No snapshot interpolation implemented for FWI yet. IDX and IDY set to 1.\n");
+        }*/
+        fserr = read_par_json_fwi(number_readobjects, varname_list, value_list, used_list, fserr, vinv);
+    }
+    
     /********************************************/
     /* Check files and directories if necessary */
     /********************************************/

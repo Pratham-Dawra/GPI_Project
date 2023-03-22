@@ -26,6 +26,7 @@
 int main(int argc, char **argv)
 {
     GlobVar gv = {.MPID = 0,.OUTNTIMESTEPINFO = 1,.NDT = 1,.IDX = 1,.IDY = 1 };
+    GlobVarInv vinv = {.ITERMAX = 1, .DTINV = 1 };
     AcqVar acq = { };
 
     log_init(NULL);
@@ -44,7 +45,7 @@ int main(int argc, char **argv)
     }
 
     if (strstr(fileinp, ".json")) {
-        read_par_json(fileinp, &gv);
+        read_par_json(fileinp, &gv, &vinv);
     } else {
         log_fatal("Parameter file has no json suffix.\n");
     }

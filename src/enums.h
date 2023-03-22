@@ -22,4 +22,11 @@ typedef enum WEQTYPE {
     NWEQ
 } WEQTYPE;
 
+typedef enum RUNMODE {
+    FWI = 0,
+    FW,
+    RTM,
+    NMODE
+} RUNMODE;
+
 #endif

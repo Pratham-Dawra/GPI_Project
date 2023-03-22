@@ -51,6 +51,9 @@ void write_par(GlobVar *gv)
       }
     }
 
+    log_info("--------------------------- RUN MODE ------------------------\n");
+    log_info("Run Mode (MODE): %s\n", get_mode_verbose(gv->MODE));
+
     log_info("------------------------- FD Algorithm ----------------------\n");
     log_info("Grid: standard staggered grid (SSG) (Virieux-grid)\n");
     log_info("Order of spatial FD operators (FDORDER): %d\n", gv->FDORDER);

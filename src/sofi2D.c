@@ -40,6 +40,7 @@
 
 #include "fd.h"
 #include "globvar_struct.h"
+#include "globvar_struct_fwi.h"
 #include "logging.h"
 #include "macros.h"
 #include "enums.h"
@@ -61,6 +62,10 @@ int main(int argc, char **argv)
 
     /* declare struct for global variables */
     GlobVar gv = {.MPID = -1,.OUTNTIMESTEPINFO = 100,.NDT = 1,.IDX = 1,.IDY = 1 };
+    
+    /* declare struct for inversion variables */
+    GlobVarInv vinv = {.ITERMAX = 1, .DTINV = 1 };
+
 
     /* declare struct for acquisition variables */
     AcqVar acq = { };
@@ -104,7 +109,7 @@ int main(int argc, char **argv)
         }
 
         /* read json parameter file */
-        read_par_json(fileinp, &gv);
+        read_par_json(fileinp, &gv, &vinv);
     }
 
     /* exchange parameters between MPI processes */
@@ -114,7 +119,7 @@ int main(int argc, char **argv)
     log_set_level_from_string(&(gv.LOG_VERBOSITY[0]));
 
     /* check file system/output directories */
-    check_fs(&gv);
+    check_fs(&gv, &vinv);
 
     sprintf(ext, ".%i", gv.MPID);
     strcat(gv.LOG_FILE, ext);

@@ -28,7 +28,7 @@
 #include "globvar_struct.h"
 #include "logging.h"
 
-void check_fs(GlobVar * gv)
+void check_fs(GlobVar * gv, GlobVarInv *vinv)
 {
     int fserr = 0;
 
@@ -110,6 +110,49 @@ void check_fs(GlobVar * gv)
             log_infoc(0, "Filesystem check: source output directory %s is writable.\n", dname);
         }
         free(dirc);
+    }
+    
+    if ((gv->MODE) == FWI) {
+
+        /* Data directory */
+        char *datadirc = strdup(vinv->DATA_DIR);
+        if (!datadirc)
+            log_fatal("Could not copy string in check_fs.c - memory issue encountered.\n");
+        char *dataname = dirname(datadirc);
+        if (access(dataname, W_OK) != 0) {
+            log_error("Cannot write to data file directory %s.\n", dataname);
+            fserr = 1;
+        } else {
+            log_infoc(0, "Filesystem check: data file directory %s is writable.\n", dataname);
+        }
+        free(datadirc);
+
+        /* Model directory */
+        char *moddirc = strdup(vinv->INV_MODELFILE);
+        if (!moddirc)
+            log_fatal("Could not copy string in check_fs.c - memory issue encountered.\n");
+        char *modname = dirname(moddirc);
+        if (access(modname, W_OK) != 0) {
+            log_error("Cannot write to FWI model file directory %s.\n", modname);
+            fserr = 1;
+        } else {
+            log_infoc(0, "Filesystem check: FWI model file directory %s is writable.\n", modname);
+        }
+        free(moddirc);
+
+        /* Gradient directory */
+        char *jacdirc = strdup(vinv->JACOBIAN);
+        if (!jacdirc)
+            log_fatal("Could not copy string in check_fs.c - memory issue encountered.\n");
+        char *jacname = dirname(jacdirc);
+        if (access(jacname, W_OK) != 0) {
+            log_error("Cannot write to gradient file directory %s.\n", jacname);
+            fserr = 1;
+        } else {
+            log_infoc(0, "Filesystem check: gradient file directory %s is writable.\n", jacname);
+        }
+        free(jacdirc);
+
     }
 
   /********************************************/
