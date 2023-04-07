@@ -27,9 +27,9 @@
 #include "macros.h"
 #include <stdio.h>
 
-void initsrc(int ishot, int nshots, AcqVar *acq, GlobVar *gv)
+int initsrc(int ishot, int nshots, AcqVar *acq, GlobVar *gv)
 {
-    int nt;
+    int nt, snapcheck;
     char sigf[STRING_SIZE * 2], file_ext[5];
 
     if (acq->nsrc_loc > 0) {
@@ -91,4 +91,13 @@ void initsrc(int ishot, int nshots, AcqVar *acq, GlobVar *gv)
         }
         free_imatrix(dummy, 1, 3, 1, 1);
     }
+    
+    /* Check if snapshot output for this shot is wanted */
+    if (((ishot-gv->SNAPSHOT_START)%gv->SNAPSHOT_INCR) == 0 && ishot <= gv->SNAPSHOT_START) {
+        snapcheck=1;
+    } else {
+        snapcheck=0;
+    }
+    
+    return (snapcheck);
 }

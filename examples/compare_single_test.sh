@@ -23,6 +23,8 @@ usage()
     echo "  3_fy   :: elastic wave equation with y-force source"
     echo "  8_fy   :: visco-elastic TTI wave equation with y-force source"
     echo "  4_fdt4 :: visco-elastic wave equation with 4th order in time"
+    echo "  3_fwi  :: FWI of elastic wave equation"
+    echo "  4_fwi  :: FWI of visco-elastic wave equation"
     echo
 }
 
@@ -38,10 +40,10 @@ fi
 
 weq="$1"
 
-if [[ "${weq}" =~ ^("1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"3_fy"|"8_fy"|"4_fdt4")$ ]]; then
+if [[ "${weq}" =~ ^("1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"3_fy"|"8_fy"|"4_fdt4"|"3_fwi"|"4_fwi")$ ]]; then
     echo "Running comparison weq${weq}."
 else
-    echo "Error: argument not in allowed list of 1, 2, 3, 4, 5, 6, 7, 8, 3_fy, 8_fy or 4_fdt4."
+    echo "Error: argument not in allowed list of 1, 2, 3, 4, 5, 6, 7, 8, 3_fy, 8_fy, 4_fdt4, 3_fwi or 4_fwi."
     exit 1
 fi
 
@@ -127,6 +129,13 @@ for file in ${sigfiles} ; do
         suxwigb perc=99.9 key=tracl title="${file} (test result, ref. result, diff. : 3x1 trace)"   
 done
 
+fwi=$(echo ${weq} | grep -c "_fwi")
+if [[ ${fwi} -eq 0 ]] ; then
+  nsamp=200
+else
+  nsamp=400
+fi
+
 for file in ${snapfiles} ; do
     tfile="${testdir}/${file}"
     rfile="${refdir}/${file}"
@@ -141,9 +150,9 @@ for file in ${snapfiles} ; do
     fi
     echo "Comparing file ${file}..."
     tmp1=$(mktemp -p .)
-    suaddhead ns=200 < ${tfile} > ${tmp1}
+    suaddhead ns=${nsamp} < ${tfile} > ${tmp1}
     tmp2=$(mktemp -p .)
-    suaddhead ns=200 < ${rfile} > ${tmp2}
+    suaddhead ns=${nsamp} < ${rfile} > ${tmp2}
     tmp3=$(mktemp -p .)
     sudiff ${tmp1} ${tmp2} > ${tmp3}
     cat ${tmp1} ${tmp2} ${tmp3} | sushw key=tracl,dt,d1 a=1,2,2 b=1,0,0 | \

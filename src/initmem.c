@@ -26,12 +26,13 @@
 #include "fd.h"
 #include "logging.h"
 
-void initmem(MemModel *mpm, MemWavefield * mpw, GlobVar *gv)
+void initmem(MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar *gv, GlobVarInv *vinv)
 {
 
     int nseismograms = 0;
 
     float memdyn, memmodel, memseismograms, membuffer, memtotal, memcpml = 0.0;
+    float memfwt, memfwt1, memfwtdata;
     float fac1, fac2, memadd, memadd_L;
 
     /* number of seismogram sections which have to be stored in core memory */
@@ -80,12 +81,34 @@ void initmem(MemModel *mpm, MemWavefield * mpw, GlobVar *gv)
         memcpml = 2.0 * gv->FW * 4.0 * (gv->NY + gv->NX) * fac2 + 20.0 * 2.0 * gv->FW * fac2;
     memtotal = memdyn + memmodel + memseismograms + membuffer + memcpml + (gv->BUFFSIZE * pow(2.0, -20.0));
 
-    if (gv->MPID == 0) {
+    if (gv->MPID == 0 && gv->MODE == FW) {
         log_info("Size of local grids: NX=%d, NY=%d\n", gv->NX, gv->NY);
         log_info("Each process is now trying to allocate memory for:\n");
         log_info("  Dynamic variables: ............. %6.2f MB\n", memdyn);
         log_info("  Static variables: .............. %6.2f MB\n", memmodel);
         log_info("  Seismograms: ................... %6.2f MB\n", memseismograms);
+        log_info("  Buffer arrays for grid exchange: %6.2f MB\n", membuffer);
+        log_info("  Network buffer for MPI_Bsend: .. %6.2f MB\n", gv->BUFFSIZE * pow(2.0, -20.0));
+        if (gv->ABS_TYPE == 1)
+            log_info("  CPML variables: ................ %6.2f MB\n", memcpml);
+        log_info("------------------------------------------------\n");
+        log_info("Total memory required: ........... %6.2f MB.\n", memtotal);
+    } else if (gv->MPID == 0 && gv->MODE == FWI) {
+        int IDXI = 1, IDYI=1;
+        memfwt = 5.0 * ((gv->NX / IDXI) + gv->FDORDER) * ((gv->NY / IDYI) + gv->FDORDER) * vinv->NTDTINV * fac2;
+        memfwt1 = 20.0 * gv->NX * gv->NY * fac2;
+        memfwtdata = 6.0 * gv->NTR * gv->NS * fac2;
+
+        memtotal += memfwt + memfwt1 + memfwtdata;
+
+        log_info("Size of local grids: NX=%d, NY=%d\n", gv->NX, gv->NY);
+        log_info("Each process is now trying to allocate memory for:\n");
+        log_info("  Dynamic variables: ............. %6.2f MB\n", memdyn);
+        log_info("  Static variables: .............. %6.2f MB\n", memmodel);
+        log_info("  Seismograms: ................... %6.2f MB\n", memseismograms);
+        log_info("  memfwt: ........................ %6.2f MB\n", memfwt);
+        log_info("  memfwt1: ....................... %6.2f MB\n", memfwt1);
+        log_info("  memfwtdata: .................... %6.2f MB\n", memfwtdata);
         log_info("  Buffer arrays for grid exchange: %6.2f MB\n", membuffer);
         log_info("  Network buffer for MPI_Bsend: .. %6.2f MB\n", gv->BUFFSIZE * pow(2.0, -20.0));
         if (gv->ABS_TYPE == 1)
@@ -110,6 +133,10 @@ void initmem(MemModel *mpm, MemWavefield * mpw, GlobVar *gv)
 
     /* Memory allocation for models */
     initmem_model(mpm, gv);
+
+    if (gv->MODE == FWI) {
+        initmem_fwi(minv, gv, vinv);
+    }
 
     /* allocate buffer for seismogram output, merged seismogram section of all PEs */
     if (gv->SEISMO)

@@ -22,6 +22,7 @@
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
+#include "logging.h"
 
 int acq_read(AcqVar *acq, GlobVar *gv)
 {
@@ -40,6 +41,9 @@ int acq_read(AcqVar *acq, GlobVar *gv)
     if (gv->RUN_MULTIPLE_SHOTS) {
         nshots = acq->nsrc;
     }
+    
+    if (gv->SNAPSHOT_END == -9999 || gv->SNAPSHOT_END > nshots)
+        gv->SNAPSHOT_END = nshots;
 
     return nshots;
 }

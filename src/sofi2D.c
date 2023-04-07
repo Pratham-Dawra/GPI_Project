@@ -53,7 +53,7 @@
 int main(int argc, char **argv)
 {
     /* variables in main */
-    int ishot, nshots;          /* Added ishot and nshots for multiple shots */
+    int ishot, nshots, snapcheck;   /* Added ishot and nshots for multiple shots */
     clock_t cpu_time1 = 0, cpu_time = 0;
     FILE *log_fp = NULL;
     char ext[10];
@@ -62,10 +62,9 @@ int main(int argc, char **argv)
 
     /* declare struct for global variables */
     GlobVar gv = {.MPID = -1,.OUTNTIMESTEPINFO = 100,.NDT = 1,.IDX = 1,.IDY = 1 };
-    
-    /* declare struct for inversion variables */
-    GlobVarInv vinv = {.ITERMAX = 1, .DTINV = 1 };
 
+    /* declare struct for inversion variables */
+    GlobVarInv vinv = {.ITERMAX = 1,.DTINV = 1 };
 
     /* declare struct for acquisition variables */
     AcqVar acq = { };
@@ -75,6 +74,11 @@ int main(int argc, char **argv)
 
     /* declare struct for model variables */
     MemModel mpm = { };
+
+    /* declare struct for FWI wavefield and model variables */
+//    if (gv.MODE == FWI) {
+    MemInv minv = { };
+//    }
 
     /* declare struct for performance measures */
     Perform perf = { };
@@ -110,13 +114,34 @@ int main(int argc, char **argv)
 
         /* read json parameter file */
         read_par_json(fileinp, &gv, &vinv);
+
+        /* read FWI workflow */
+        if (gv.MODE == FWI && vinv.USE_WORKFLOW) {
+            read_workflow(&vinv);
+
+            /*switch (vinv->TIME_FILT) {
+             * case 1:
+             * vinv->F_LOW_PASS = vinv->F_LOW_PASS_START;
+             * break; */
+            /*read frequencies from file */
+            /*case 2:
+             * vinv->F_LOW_PASS_EXT = filter_frequencies(&nfrq);
+             * vinv->F_LOW_PASS = F_LOW_PASS_EXT[FREQ_NR];
+             * break;
+             * } */
+            if (vinv.TIME_FILT == 2) {
+                /*read frequencies from file */
+                filter_frequencies(&vinv);
+                /* start with first low pass frequency */
+                vinv.F_LOW_PASS_START = vinv.F_LOW_PASS[1];
+            }
+        }
     }
 
     /* exchange parameters between MPI processes */
-    exchange_par(&gv);
+    exchange_par(&gv, &vinv);
 
     /* set logging verbosity */
-    log_set_level_from_string(&(gv.LOG_VERBOSITY[0]));
 
     /* check file system/output directories */
     check_fs(&gv, &vinv);
@@ -166,16 +191,15 @@ int main(int argc, char **argv)
     /* domain decomposition */
     initproc(&gv);
 
-    /* output of parameters */
-    if (gv.MPID == 0) {
-        write_par(&gv);
-    }
-
     /* reading acquisition parameters */
     nshots = acq_read(&acq, &gv);
 
+    /* output of parameters */
+    if (gv.MPID == 0) {
+        write_par(&gv, &vinv);
+    }
     /* memory allocation of buffers */
-    initmem(&mpm, &mpw, &gv);
+    initmem(&mpm, &mpw, &minv, &gv, &vinv);
 
     /* initialize FD operators */
     initfd(&gv);
@@ -216,7 +240,7 @@ int main(int argc, char **argv)
 
     for (ishot = 1; ishot <= nshots; ishot++) {
 
-        initsrc(ishot, nshots, &acq, &gv);
+        snapcheck = initsrc(ishot, nshots, &acq, &gv);
 
         /* initialize wavefield with zero */
         zero_wavefield(&mpw, &gv);
@@ -225,7 +249,7 @@ int main(int argc, char **argv)
         subgrid_bounds(1, gv.NX, 1, gv.NY, &gv);
 
         /* look over all time steps */
-        time_loop(ishot, hc, &acq, &mpm, &mpw, &gv, &perf);
+        time_loop(ishot, snapcheck, hc, &acq, &mpm, &mpw, &gv, &perf);
 
         /* gather and output seismograms if applicable */
         saveseis(ishot, &acq, &gv);

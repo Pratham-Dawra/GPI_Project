@@ -311,6 +311,15 @@ void read_par_json(const char *fileinp, GlobVar * gv, GlobVarInv *vinv)
             if (get_string_from_objectlist
                 ("SNAP_FILE", number_readobjects, (gv->SNAP_FILE), varname_list, value_list, used_list))
                 log_fatal("Variable SNAP_FILE could not be retrieved from the json input file!");
+            if (get_int_from_objectlist
+                ("SNAPSHOT_START",number_readobjects,&(gv->SNAPSHOT_START),varname_list, value_list, used_list))
+                gv->SNAPSHOT_START = 1;
+            if (get_int_from_objectlist
+                ("SNAPSHOT_END",number_readobjects,&(gv->SNAPSHOT_END),varname_list, value_list, used_list))
+                gv->SNAPSHOT_END = -9999;
+            if (get_int_from_objectlist
+                ("SNAPSHOT_INCR",number_readobjects,&(gv->SNAPSHOT_INCR),varname_list, value_list, used_list))
+                gv->SNAPSHOT_INCR = 1;
         }
     }
     /* increments are read in any case, because they will be also used as increment for model output */
@@ -468,12 +477,12 @@ void read_par_json(const char *fileinp, GlobVar * gv, GlobVarInv *vinv)
     }
 
     if ((gv->MODE) == FWI) {
-        /*if (gv->IDX != 1 || gv->IDY != 1) {
+        if (gv->IDX != 1 || gv->IDY != 1) {
             gv->IDX = 1;
             gv->IDY = 1;
-            log_warn("No snapshot interpolation implemented for FWI yet. IDX and IDY set to 1.\n");
-        }*/
-        fserr = read_par_json_fwi(number_readobjects, varname_list, value_list, used_list, fserr, vinv);
+            gv->SNAPIDCHECK = 1;
+        }
+        fserr = read_par_json_fwi(number_readobjects, varname_list, value_list, used_list, fserr, gv, vinv);
     }
     
     /********************************************/

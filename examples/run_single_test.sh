@@ -23,6 +23,8 @@ usage()
     echo "  3_fy   :: elastic wave equation with y-force source"
     echo "  8_fy   :: visco-elastic TTI wave equation with y-force source"
     echo "  4_fdt4 :: visco-elastic wave equation with 4th order in time"
+    echo "  3_fwi  :: FWI of elastic wave equation"
+    echo "  4_fwi  :: FWI of visco-elastic wave equation"
     echo
 }
 
@@ -38,10 +40,10 @@ fi
 
 weq="$1"
 
-if [[ "${weq}" =~ ^("1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"3_fy"|"8_fy"|"4_fdt4")$ ]]; then
+if [[ "${weq}" =~ ^("1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"3_fy"|"8_fy"|"4_fdt4"|"3_fwi"|"4_fwi")$ ]]; then
     echo "Running test for weq${weq}..."
 else
-    echo "Error: argument not in allowed list of 1, 2, 3, 4, 5, 6, 7, 8, 3_fy, 8_fy or 4_fdt4."
+    echo "Error: argument not in allowed list of 1, 2, 3, 4, 5, 6, 7, 8, 3_fy, 8_fy, 4_fdt4, 3_fwi or 4_fwi."
     exit 1
 fi
 
@@ -77,6 +79,6 @@ if [[ ${snap_found} -ne 0 ]] ; then
     exit 1
 fi
 
-outdir=$(echo ${weq} | sed 's/_fy//g' | sed 's/_fdt4//g')
+outdir=$(echo ${weq} | sed 's/_fy//g' | sed 's/_fdt4//g' | sed 's/_fwi//g')
 
 ${mpiexe} -np 4 ${sofiexe} ${json} && ${snapexe} ${json} && rm -f weq${outdir}/*.bin.{vx,vy,p,curl,div}.*.*

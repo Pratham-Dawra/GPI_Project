@@ -37,6 +37,7 @@
 #include "globvar_struct_fwi.h"
 #include "acq_struct.h"
 #include "memm_struct.h"
+#include "memfwi_struct.h"
 #include "memw_struct.h"
 #include "perform_struct.h"
 #include "util.h"
@@ -77,7 +78,9 @@ void exchange_v(float **vx, float **vy, MemWavefield *mpw, GlobVar *gv);
 
 void exchange_s(MemWavefield *mpw, GlobVar *gv);
 
-void exchange_par(GlobVar *gv);
+void exchange_par(GlobVar *gv, GlobVarInv *vinv);
+
+void filter_frequencies(GlobVarInv *vinv);
 
 void freemem(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
@@ -93,7 +96,9 @@ const char *get_mode_verbose(RUNMODE md);
 
 float *holbergcoeff(GlobVar *gv);
 
-void initmem(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+void initmem(MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
+
+void initmem_fwi(MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
 
 void initmem_model(MemModel *mpm, GlobVar *gv);
 
@@ -103,7 +108,7 @@ void initfd(GlobVar *gv);
 
 void initproc(GlobVar *gv);
 
-void initsrc(int ishot, int nshots, AcqVar *acq, GlobVar *gv);
+int initsrc(int ishot, int nshots, AcqVar *acq, GlobVar *gv);
 
 void model_elastic(MemModel *mpm, GlobVar *gv);
 
@@ -205,7 +210,9 @@ void read_checkpoint(int nx1, int nx2, int ny1, int ny2,
 
 void read_par_json(const char *fileinp, GlobVar *gv, GlobVarInv *vinv);
 
-int read_par_json_fwi(int number_readobjects, char **varname_list, char **value_list, int *used_list, int fserr, GlobVarInv *vinv);
+int read_par_json_fwi(int number_readobjects, char **varname_list, char **value_list, int *used_list, int fserr, GlobVar *gv, GlobVarInv *vinv);
+
+void read_workflow(GlobVarInv *vinv);
 
 void readmod(MemModel *mpm, GlobVar *gv);
 
@@ -255,7 +262,7 @@ void surface(int ndepth, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *g
 
 void surface_elastic(int ndepth, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm, MemWavefield *mpw, GlobVar *gv, Perform *perf);
+void time_loop(int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm, MemWavefield *mpw, GlobVar *gv, Perform *perf);
 
 /* void update_s_elastic(int nx1, int nx2, int ny1, int ny2, int nt,
                       float **vx, float **vy, float **sxx, float **syy,
@@ -390,7 +397,9 @@ void writebufs(float **sxx, float **syy,
 void writebufv(float **vx, float **vy,
                float **bufferlef_to_rig, float **bufferrig_to_lef, float **buffertop_to_bot, float **bufferbot_to_top);
 
-void write_par(GlobVar *gv);
+void write_par(GlobVar *gv, GlobVarInv *vinv);
+
+void write_par_fwi(GlobVar *gv, GlobVarInv *vinv);
 
 void writedsk(FILE *fp_out, float amp, int format);
 

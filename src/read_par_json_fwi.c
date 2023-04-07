@@ -30,7 +30,7 @@
 //char ** varname_list,** value_list;
 
 int read_par_json_fwi(int number_readobjects, char **varname_list, char **value_list, int *used_list, int fserr,
-                      GlobVarInv *vinv)
+                      GlobVar *gv, GlobVarInv *vinv)
 {
 
     /* extract variables form object list */
@@ -64,23 +64,12 @@ int read_par_json_fwi(int number_readobjects, char **varname_list, char **value_
     section inversion parameters
     =================================*/
 
-/*        if (get_int_from_objectlist("PARAMETERIZATION",number_readobjects,&(vinv->PARAMETERIZATION), varname_list, value_list, used_list)) {
-            log_fatal("Variable PARAMETERIZATION could not be retrieved from the json input file!");
-        } else {
-            if(gv->WEQ <= 2 || gv->WEQ >= 9 ){
-                PARAMETERIZATION=1;
-                log_warn("For acoustic modelling only PARAMETERIZATION=%d possible.\n",PARAMETERIZATION);
-            } */
     /* General inversion parameters */
     if (get_int_from_objectlist("ITERMAX", number_readobjects, &(vinv->ITERMAX), varname_list, value_list, used_list))
         log_fatal("Variable ITERMAX could not be retrieved from the json input file!");
     if (get_string_from_objectlist
         ("DATA_DIR", number_readobjects, (vinv->DATA_DIR), varname_list, value_list, used_list))
         log_fatal("Variable DATA_DIR could not be retrieved from the json input file!");
-
-/*                if (get_int_from_objectlist("INVTYPE",number_readobjects,&INVTYPE, varname_list, value_list, used_list)){
-                    INVTYPE=2;
-                    log_warn("\nVariable INVTYPE is set to default value %d.\n",INVTYPE);} */
     if (get_int_from_objectlist
         ("ADJOINT_TYPE", number_readobjects, &(vinv->ADJOINT_TYPE), varname_list, value_list, used_list))
         log_fatal("Variable ADJOINT_TYPE could not be retrieved from the json input file!");
@@ -96,7 +85,8 @@ int read_par_json_fwi(int number_readobjects, char **varname_list, char **value_
     if (get_int_from_objectlist
         ("USE_WORKFLOW", number_readobjects, &(vinv->USE_WORKFLOW), varname_list, value_list, used_list)) {
         vinv->USE_WORKFLOW = 0;
-    } else {
+    }
+    if (vinv->USE_WORKFLOW != 0) {
         if (get_string_from_objectlist
             ("FILE_WORKFLOW", number_readobjects, (vinv->FILE_WORKFLOW), varname_list, value_list, used_list))
             log_fatal("Variable FILE_WORKFLOW could not be retrieved from the json input file!");
@@ -138,17 +128,6 @@ int read_par_json_fwi(int number_readobjects, char **varname_list, char **value_
         log_fatal("Variable TESTSHOT_INCR could not be retrieved from the json input file!");
     /* calculation of number of testsshots */
     vinv->NO_OF_TESTSHOTS = (vinv->TESTSHOT_END - vinv->TESTSHOT_START) / vinv->TESTSHOT_INCR + 1;
-
-    /* Cosine taper */
-
-/*                if (get_int_from_objectlist("TAPER",number_readobjects,&TAPER, varname_list, value_list, used_list)){
-                    TAPER=0;
-                    log_warn("Variable TAPER is set to default value %d.\n",TAPER);
-                }
-                if (get_int_from_objectlist("TAPERLENGTH",number_readobjects,&TAPERLENGTH, varname_list, value_list, used_list)){
-                    TAPERLENGTH=1000;
-                    log_warn("Variable TAPERLENGTH is set to default value %d.\n",TAPERLENGTH);
-                } */
 
     /* Definition of gradient taper geometry */
     if (get_int_from_objectlist
@@ -264,20 +243,20 @@ int read_par_json_fwi(int number_readobjects, char **varname_list, char **value_
     if (get_string_from_objectlist
         ("INV_MODELFILE", number_readobjects, (vinv->INV_MODELFILE), varname_list, value_list, used_list))
         log_fatal("Variable INV_MODELFILE could not be retrieved from the json input file!");
-    if (get_int_from_objectlist("nfstart", number_readobjects, &(vinv->nfstart), varname_list, value_list, used_list))
-        log_fatal("Variable nfstart could not be retrieved from the json input file!");
-    if (get_int_from_objectlist("nf", number_readobjects, &(vinv->nf), varname_list, value_list, used_list))
-        log_fatal("Variable nf could not be retrieved from the json input file!");
+    if (get_int_from_objectlist("NFSTART", number_readobjects, &(vinv->NFSTART), varname_list, value_list, used_list))
+        log_fatal("Variable NFSTART could not be retrieved from the json input file!");
+    if (get_int_from_objectlist("NF", number_readobjects, &(vinv->NF), varname_list, value_list, used_list))
+        log_fatal("Variable NF could not be retrieved from the json input file!");
 
     /* Output of gradients */
     if (get_string_from_objectlist
         ("JACOBIAN", number_readobjects, (vinv->JACOBIAN), varname_list, value_list, used_list))
         log_fatal("Variable JACOBIAN could not be retrieved from the json input file!");
     if (get_int_from_objectlist
-        ("nfstart_jac", number_readobjects, &(vinv->nfstart_jac), varname_list, value_list, used_list))
-        log_fatal("Variable nfstart_jac could not be retrieved from the json input file!");
-    if (get_int_from_objectlist("nf_jac", number_readobjects, &(vinv->nf_jac), varname_list, value_list, used_list))
-        log_fatal("Variable nf_jac could not be retrieved from the json input file!");
+        ("NFSTART_JAC", number_readobjects, &(vinv->NFSTART_JAC), varname_list, value_list, used_list))
+        log_fatal("Variable NFSTART_JAC could not be retrieved from the json input file!");
+    if (get_int_from_objectlist("NF_JAC", number_readobjects, &(vinv->NF_JAC), varname_list, value_list, used_list))
+        log_fatal("Variable NF_JAC could not be retrieved from the json input file!");
 
     /* Inversion for density */
     if (get_int_from_objectlist
@@ -522,39 +501,22 @@ int read_par_json_fwi(int number_readobjects, char **varname_list, char **value_
         }
         if (get_float_from_objectlist
             ("F_HIGH_PASS", number_readobjects, &(vinv->F_HIGH_PASS), varname_list, value_list, used_list)) {
-            /* Support of old variable naming: Test if old variable naming is used */
-            if (get_float_from_objectlist
-                ("F_HP", number_readobjects, &(vinv->F_HIGH_PASS), varname_list, value_list, used_list)) {
-                vinv->F_HIGH_PASS = 0.0;
-                log_warn("Variable F_HIGH_PASS is set to default value %f.\n", vinv->F_HIGH_PASS);
-            }
+            vinv->F_HIGH_PASS = 0.0;
+            log_warn("Variable F_HIGH_PASS is set to default value %f.\n", vinv->F_HIGH_PASS);
         }
         if (vinv->TIME_FILT == 1) {
             if (get_float_from_objectlist
-                ("F_LOW_PASS_START", number_readobjects, &(vinv->F_LOW_PASS_START), varname_list, value_list,
-                 used_list)) {
-                /* Support of old variable naming: Test if old variable naming is used */
-                if (get_float_from_objectlist
-                    ("FC_START", number_readobjects, &(vinv->F_LOW_PASS_START), varname_list, value_list, used_list)) {
-                    log_fatal("Variable F_LOW_PASS_START could not be retrieved from the json input file!");
-                }
+                ("F_LOW_PASS_START", number_readobjects, &(vinv->F_LOW_PASS_START), varname_list, value_list,used_list)) {
+                log_fatal("Variable F_LOW_PASS_START could not be retrieved from the json input file!");
             }
             if (get_float_from_objectlist
                 ("F_LOW_PASS_END", number_readobjects, &(vinv->F_LOW_PASS_END), varname_list, value_list, used_list)) {
-                /* Support of old variable naming: Test if old variable naming is used */
-                if (get_float_from_objectlist
-                    ("FC_END", number_readobjects, &(vinv->F_LOW_PASS_END), varname_list, value_list, used_list)) {
-                    log_fatal("Variable F_LOW_PASS_END could not be retrieved from the json input file!");
-                }
+                log_fatal("Variable F_LOW_PASS_END could not be retrieved from the json input file!");
             }
             if (get_float_from_objectlist
                 ("F_LOW_PASS_INCR", number_readobjects, &(vinv->F_LOW_PASS_INCR), varname_list, value_list,
                  used_list)) {
-                /* Support of old variable naming: Test if old variable naming is used */
-                if (get_float_from_objectlist
-                    ("FC_INCR", number_readobjects, &(vinv->F_LOW_PASS_INCR), varname_list, value_list, used_list)) {
-                    log_fatal("Variable F_LOW_PASS_INCR could not be retrieved from the json input file!");
-                }
+                log_fatal("Variable F_LOW_PASS_INCR could not be retrieved from the json input file!");
             }
             if (get_int_from_objectlist
                 ("ORDER", number_readobjects, &(vinv->ORDER), varname_list, value_list, used_list)) {
@@ -582,8 +544,12 @@ int read_par_json_fwi(int number_readobjects, char **varname_list, char **value_
     if (get_int_from_objectlist
         ("NORMALIZE", number_readobjects, &(vinv->NORMALIZE), varname_list, value_list, used_list))
         log_fatal("Variable NORMALIZE could not be retrieved from the json input file!");
-    if (get_int_from_objectlist("DTINV", number_readobjects, &(vinv->DTINV), varname_list, value_list, used_list))
+    if (get_int_from_objectlist("DTINV", number_readobjects, &(vinv->DTINV), varname_list, value_list, used_list)) {
         log_fatal("Variable DTINV could not be retrieved from the json input file!");
+    } else {
+        if (vinv->DTINV <= 0) log_fatal("Variable DTINV must be a positive integer!");
+        vinv->NTDTINV = ceil((float)gv->NT / (float)vinv->DTINV);
+    }
     if (vinv->LNORM == 8) {
         if (get_float_from_objectlist
             ("WATERLEVEL_LNORM8", number_readobjects, &(vinv->WATERLEVEL_LNORM8), varname_list, value_list, used_list))
@@ -686,6 +652,7 @@ int read_par_json_fwi(int number_readobjects, char **varname_list, char **value_
 
     /********************************************/
     /* Check files and directories if necessary */
+
     /********************************************/
 
     /* workflow file */

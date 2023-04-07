@@ -24,7 +24,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
+void time_loop(int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm,
                MemWavefield *mpw, GlobVar *gv, Perform *perf)
 {
     int nt, lsnap, isnap, esnap;
@@ -290,7 +290,7 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
         }
 
         /* write snapshot to disk */
-        if ((gv->SNAP) && (nt == lsnap) && (nt <= esnap)) {
+        if ((gv->SNAP) && (snapcheck) && (nt == lsnap) && (nt <= esnap)) {
             snap(nt, ++nsnap, hc, mpm, mpw, gv);
             lsnap += isnap;
         }

@@ -11,6 +11,7 @@ void shift_var2(float ***var1, float ***var2, float ***var3, float ***var4);
 void shift_var3(float ****var1, float ****var2, float ****var3, float ****var4);
 float *vector(int nl, int nh);
 int *ivector(int nl, int nh);
+float **fmatrix(int nrl, int nrh, int ncl, int nch);
 float **matrix(int nrl, int nrh, int ncl, int nch);
 int **imatrix(int nrl, int nrh, int ncl, int nch);
 float ***f3tensor(int nrl, int nrh, int ncl, int nch, int ndl, int ndh);

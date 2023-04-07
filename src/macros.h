@@ -13,12 +13,15 @@
 
 #define STRING_SIZE 256
 
-#define NPAR 41                 // total max. number of json parameters
+#define NPAR 129                // total max. number of json parameters
 #define NSPAR 12                // number of source parameters (matrix size)
+#define LBFGS_NPAR 3            // LBFGS macro
 
 #define PI M_PI
 
 #define V_IGNORE 1.0
+
+#define WORKFLOW_MAX_VAR 14     // number of variables in the workflow file
 
 #define iround(x) ((int)(floor)((x)+0.5))
 

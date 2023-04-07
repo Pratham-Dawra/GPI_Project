@@ -87,7 +87,7 @@
 			"IDX" : "2",
 			"IDY" : "2",
 			"SNAP_FORMAT" : "3",
-			"SNAP_FILE" : "./weq3/snap",
+			"SNAP_FILE" : "./weq3_fwi/snap",
 
 "Receiver" : "comment",
 			"SEISMO" : "4",
@@ -99,7 +99,6 @@
 			"NGEOPH" : "5",
 
 "Receiver array" : "comment",
-
 			"REC_ARRAY" : "0",
 			"REC_ARRAY_DEPTH" : "70.0",
 			"REC_ARRAY_DIST" : "40.0", 
@@ -108,23 +107,32 @@
 "Seismograms" : "comment",
 			"NDT" : "10",
 			"SEIS_FORMAT" : "1",
-			"SEIS_FILE" : "./weq3/seis",
+			"SEIS_FILE" : "./weq3_fwi/seis",
 
 "General inversion parameters" : "comment",
 			"ITERMAX" : "10",
 			"DATA_DIR" : "weq3_fwi/measured_data/IFOS_real",
 			"PARAMETERIZATION" : "1",
 			"ADJOINT_TYPE" : "1",
-			
+
+"Workflow" : "comment",
+            "USE_WORKFLOW" : "0",
+            "FILE_WORKFLOW" : "workflow/workflow.txt",
+            
+            "SWS_TAPER_GRAD_SOURCES" : "0",
+            "SRTRADIUS" : "0",
+            "SRTSHAPE" : "0",
+            "FILTSIZE" : "0",
+
 "Output of inverted models" : "comment",
 			"INV_MODELFILE" : "model/modelTest",
-			"nfstart" : "1",
-			"nf" : "1",
+			"NFSTART" : "1",
+			"NF" : "1",
 
 "Output of gradients" : "comment",
 			"JACOBIAN" : "weq3_fwi/jacobian/jacobian_Test",
-			"nfstart_jac" : "1",
-			"nf_jac" : "1",
+			"NFSTART_JAC" : "1",
+			"NF_JAC" : "1",
 
 "Hessian and Gradient-Method" : "comment",
 			"GRAD_METHOD" : "1",

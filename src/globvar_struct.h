@@ -45,7 +45,7 @@ typedef struct {
     float TIME;                 // time (of modelling) [s]
     float DT;                   // time increment (of modelling) [s]
     int FDORDER_TIME;           // temporal FD order
-    int NT;                     //// number of timesteps (=iround(TIME/DT))
+    int NT;                     // number of timesteps (=iround(TIME/DT))
     FDop_s_fct FDOP_S;          // function pointer for FD operator
     FDop_v_fct FDOP_V;          // function pointer for FD operator
     int MAXRELERROR;            // switch of maximum relative group velocity error
@@ -124,8 +124,12 @@ typedef struct {
     float TSNAP1;               // first snapshot [s] (IFOS: SNAPSHOT_START)
     float TSNAP2;               // last snapshot [s] (IFOS: SNAPSHOT_END)
     float TSNAPINC;             // increment between snapshots [s] (IFOS: SNAPSHOT_INCR)
+    int SNAPSHOT_START;         // first shot to write snapshots
+    int SNAPSHOT_END;           // last shot to write snapshots
+    int SNAPSHOT_INCR;          // shot increment to write snapshots
     int IDX;                    // increment in x-direction [gridpoints]
     int IDY;                    // increment in y-direction [gridpoints]
+    int SNAPIDCHECK;            // reset IDX and IDY if MODE=FWI
     // Others
     int WRITE_MODELFILES;       // switch to output model files
     int SIGOUT;                 // switch to output source wavelet

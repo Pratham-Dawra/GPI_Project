@@ -144,6 +144,7 @@ FDMOD_FILES := sofi2D.c \
                exchange_par.c \
                exchange_s.c \
                exchange_v.c \
+               filter_frequencies.c \
                freemem.c \
                freemem_model.c \
                freemem_wavefield.c \
@@ -156,6 +157,7 @@ FDMOD_FILES := sofi2D.c \
                holbergcoeff.c \
                initfd.c \
                initmem.c \
+               initmem_fwi.c \
                initmem_model.c \
                initmem_wavefield.c \
                initproc.c \
@@ -177,6 +179,7 @@ FDMOD_FILES := sofi2D.c \
                read_par_json_fwi.c \
                read_srcsig.c \
                read_su.c \
+               read_workflow.c \
                readdsk.c \
                readmod.c \
                readmod_visco.c \
@@ -244,6 +247,7 @@ FDMOD_FILES := sofi2D.c \
                wavefield_update_v_4.c \
                wavelet.c \
                write_par.c \
+               write_par_fwi.c \
                write_su.c \
                writedsk.c \
                writemod.c \

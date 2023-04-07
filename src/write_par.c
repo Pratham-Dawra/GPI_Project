@@ -26,7 +26,7 @@
 #include "logging.h"
 #include <stdbool.h>
 
-void write_par(GlobVar *gv)
+void write_par(GlobVar *gv, GlobVarInv *vinv)
 {
     char file_ext[8];
 
@@ -51,7 +51,7 @@ void write_par(GlobVar *gv)
       }
     }
 
-    log_info("--------------------------- RUN MODE ------------------------\n");
+    log_info("--------------------------- Run Mode ------------------------\n");
     log_info("Run Mode (MODE): %s\n", get_mode_verbose(gv->MODE));
 
     log_info("------------------------- FD Algorithm ----------------------\n");
@@ -225,8 +225,14 @@ void write_par(GlobVar *gv)
         log_info("First snapshot (TSNAP1): %8.5fs\n", gv->TSNAP1);
         log_info("Last snapshot (TSNAP2): %8.5fs\n", gv->TSNAP2);
         log_info("Snapshot increment (TSNAPINC): %8.5fs\n", gv->TSNAPINC);
-        log_info("Grid point increment: %d, %d\n", gv->IDX, gv->IDY);
+        if ((gv->SNAPIDCHECK) == 1 ) {
+            log_warn("No snapshot interpolation implemented for FWI yet. IDX and IDY set to 1.\n");
+        }
+        log_info("Grid point increment (IDX, IDY): %d, %d\n", gv->IDX, gv->IDY);
         log_info("Snapshot output file (SNAP_FILE): %s\n", gv->SNAP_FILE);
+        log_info("First shot (SNAPSHOT_START): %d\n", gv->SNAPSHOT_START);
+        log_info("Last shot (SNAPSHOT_END): %d\n", gv->SNAPSHOT_END);
+        log_info("Shot increment (SNAPSHOT_INCR): %d\n", gv->SNAPSHOT_INCR);
         switch (gv->SNAP_FORMAT) {
           case 1:
               log_fatal("SNAP_FORMAT=1, i.e. SU format, not yet available!\n");
@@ -292,5 +298,9 @@ void write_par(GlobVar *gv)
     }
 
     log_info("-------------------------------------------------------------\n");
+    
+    if ((gv->MODE) == FWI) {
+        write_par_fwi(gv, vinv);
+    }
     return;
 }
