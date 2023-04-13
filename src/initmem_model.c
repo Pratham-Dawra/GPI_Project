@@ -34,10 +34,7 @@ void initmem_model(MemModel *mpm, GlobVar *gv)
         mpm->prip = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         mpm->prjp = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         mpm->absorb_coeff = matrix(1, gv->NY, 1, gv->NX);
-    }
-
-    /* static (model) arrays (isotropic elastic + isotropic viscoelastic) */
-    if (gv->WEQ == EL_ISO || gv->WEQ == VEL_ISO) {
+        /* static (model) arrays (isotropic elastic + isotropic viscoelastic) */
         mpm->ppi = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         mpm->pu = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         mpm->puipjp = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);

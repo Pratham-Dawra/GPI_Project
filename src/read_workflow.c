@@ -30,7 +30,7 @@
 #include "logging.h"
 #include "macros.h"
 
-void read_workflow(GlobVarInv *vinv)
+void read_workflow(GlobVar *gv, GlobVarInv *vinv)
 {
     /* workflow is a pointer to a pointer, keep care... */
 
@@ -40,7 +40,8 @@ void read_workflow(GlobVarInv *vinv)
     FILE *fwork;
     /* WORKFLOW_MAX_VAR is set in macros.h */
 
-    log_info("Reading workflow from file: %s\n", vinv->FILE_WORKFLOW);
+    if (gv->MPID == 0)
+        log_info("Reading workflow from file: %s\n", vinv->FILE_WORKFLOW);
 
     /* Open Workflow file */
     if ((fwork = fopen(vinv->FILE_WORKFLOW, "r")) == NULL) {
@@ -58,7 +59,8 @@ void read_workflow(GlobVarInv *vinv)
     }
 
     if (vinv->WORKFLOW_LINES == 0) {
-        log_warn("Could not determine number of workflow parameter sets; assuming %d.\n", vinv->WORKFLOW_LINES);
+        if (gv->MPID == 0)
+            log_warn("Could not determine number of workflow parameter sets; assuming %d.\n", vinv->WORKFLOW_LINES);
     } else {
         vinv->WORKFLOW_LINES -= 1;  // Don't count header line.
     }

@@ -54,6 +54,7 @@ typedef struct {
 
     /* Workflow setting */
     int USE_WORKFLOW;           // switch to use workflow file
+    int WORKFLOW_STAGE;         // 
     char FILE_WORKFLOW[STRING_SIZE];    // file containing workflow parameters
     float **WORKFLOW;           //
     int WORKFLOW_LINES;         //
@@ -76,10 +77,10 @@ typedef struct {
     int WOLFE_TRY_OLD_STEPLENGTH;   // switch to try old steplength first
     float WOLFE_C1_SL;          // c1 parameter of Wolfe condition
     float WOLFE_C2_SL;          // c2 parameter of Wolfe condition
-    int LBFGS_STEP_LENGTH;      // switch to use second step length search
-    float LBFGS_SCALE_GRADIENTS;    // NOT EXPLAINED IN MANUAL !!!
     /* Variables for L-BFGS */
-    //int LBFGS_iter_start = 1;   //
+    int LBFGS_STEP_LENGTH;      // switch to use second step length search
+    float LBFGS_SCALE_GRADIENTS;// NOT EXPLAINED IN MANUAL !!!
+    int LBFGS_ITER_START;       //
 
     /* for Wolfe condition */
     /*int steplength_search = 0;
@@ -168,10 +169,10 @@ typedef struct {
     int NFREQ;                  // number of frequencies in FREQ_FILE
     float *F_LOW_PASS;          // vector containing frequencies of low pass filter
     //int ZERO_PHASE   -> mentioned in manual but doesn't exist in code
-    int ORDER;                  // order of butterworth low pass filter
     float F_LOW_PASS_START;     // lower limit of butterworth low pass filter [Hz]
     float F_LOW_PASS_END;       // upper limit of butterworth low pass filter [Hz]
     float F_LOW_PASS_INCR;      // bandwidth increase per inversion step [Hz]
+    int ORDER;                  // order of butterworth low pass filter
     float F_HIGH_PASS;          // upper limit of an additional butterworth high pass filter [Hz]
     int WRITE_FILTERED_DATA;    // write the time filtered measured data to disk
 

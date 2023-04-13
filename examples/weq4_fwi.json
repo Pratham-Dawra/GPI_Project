@@ -110,10 +110,15 @@
 			"SEIS_FILE" : "./weq4_fwi/seis",
 
 "General inversion parameters" : "comment",
-			"ITERMAX" : "10",
-			"DATA_DIR" : "weq4_fwi/measured_data/IFOS_real",
-			"PARAMETERIZATION" : "1",
-			"ADJOINT_TYPE" : "1",
+            "ITERMAX" : "5",
+            "DATA_DIR" : "weq4_fwi/measured_data/IFOS_real",
+            "PARAMETERIZATION" : "1",
+            "ADJOINT_TYPE" : "1",
+            "VELOCITY" : "0",
+            "Inversion for ..." : "comment",
+            "INV_VP_ITER" : "2",
+            "INV_VS_ITER" : "10",
+            "INV_RHO_ITER" : "3",
 
 "Frequency filtering during inversion" : "comment",
             "TIME_FILT" : "2",
@@ -169,5 +174,6 @@
 			"LOG_FILE" : "./log/test.log",
 			"LOG" : "0",
 			"LOG_VERBOSITY" : "INFO",
-			"OUT_TIMESTEP_INFO" : "100"
+			"OUT_TIMESTEP_INFO" : "100",
+			"MISFIT_LOG_FILE" : "L2_LOG.dat"
 }

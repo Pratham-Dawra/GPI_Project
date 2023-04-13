@@ -54,6 +54,7 @@ int main(int argc, char **argv)
 {
     /* variables in main */
     int ishot, nshots, snapcheck;   /* Added ishot and nshots for multiple shots */
+    int iter;
     clock_t cpu_time1 = 0, cpu_time = 0;
     FILE *log_fp = NULL;
     char ext[10];
@@ -64,7 +65,7 @@ int main(int argc, char **argv)
     GlobVar gv = {.MPID = -1,.OUTNTIMESTEPINFO = 100,.NDT = 1,.IDX = 1,.IDY = 1 };
 
     /* declare struct for inversion variables */
-    GlobVarInv vinv = {.ITERMAX = 1,.DTINV = 1 };
+    GlobVarInv vinv = {.ITERMAX = 1,.DTINV = 1,.WORKFLOW_STAGE = 1,.LBFGS_ITER_START = 1 };
 
     /* declare struct for acquisition variables */
     AcqVar acq = { };
@@ -115,31 +116,35 @@ int main(int argc, char **argv)
         /* read json parameter file */
         read_par_json(fileinp, &gv, &vinv);
 
-        /* read FWI workflow */
-        if (gv.MODE == FWI && vinv.USE_WORKFLOW) {
-            read_workflow(&vinv);
-
-            /*switch (vinv->TIME_FILT) {
-             * case 1:
-             * vinv->F_LOW_PASS = vinv->F_LOW_PASS_START;
-             * break; */
-            /*read frequencies from file */
-            /*case 2:
-             * vinv->F_LOW_PASS_EXT = filter_frequencies(&nfrq);
-             * vinv->F_LOW_PASS = F_LOW_PASS_EXT[FREQ_NR];
-             * break;
-             * } */
-            if (vinv.TIME_FILT == 2) {
-                /*read frequencies from file */
-                filter_frequencies(&vinv);
-                /* start with first low pass frequency */
-                vinv.F_LOW_PASS_START = vinv.F_LOW_PASS[1];
-            }
-        }
     }
 
     /* exchange parameters between MPI processes */
     exchange_par(&gv, &vinv);
+
+    /* read FWI workflow */
+    if (gv.MODE == FWI && vinv.USE_WORKFLOW) {
+        read_workflow(&gv, &vinv);
+
+        /*switch (vinv->TIME_FILT) {
+         * case 1:
+         * vinv->F_LOW_PASS = vinv->F_LOW_PASS_START;
+         * break; */
+        /*read frequencies from file */
+        /*case 2:
+         * vinv->F_LOW_PASS_EXT = filter_frequencies(&nfrq);
+         * vinv->F_LOW_PASS = F_LOW_PASS_EXT[FREQ_NR];
+         * break;
+         * } */
+        if (vinv.TIME_FILT == 2) {
+            /*read frequencies from file */
+            filter_frequencies(&vinv);
+            /* start with first low pass frequency */
+            vinv.F_LOW_PASS_START = vinv.F_LOW_PASS[1];
+        } else {
+            vinv.F_LOW_PASS = vector(1, 1);
+            vinv.F_LOW_PASS[1] = vinv.F_LOW_PASS_START;
+        }
+    }
 
     /* set logging verbosity */
 
@@ -236,25 +241,41 @@ int main(int argc, char **argv)
     time2 = MPI_Wtime();
     log_infoc(0, "Starting time stepping around real time %4.2fs.\n", time2 - time1);
 
+    /*---------------------------  Start inversion  ----------------------*/
+
+    /*------------------------  loop over iterations  --------------------*/
+
+    for (iter = 1; iter <= vinv.ITERMAX; iter++) {  /* fullwaveform iteration loop */
+        if (gv.MPID ==0) 
+            log_info("Iteration: %d\n", iter);
+        
+        // At each iteration the workflow is applied
+        if (gv.MODE == FWI && vinv.USE_WORKFLOW) {
+            apply_workflow(iter, &gv, &vinv);
+        }
+
     /*----------------------  loop over multiple shots  ------------------*/
 
-    for (ishot = 1; ishot <= nshots; ishot++) {
+        for (ishot = 1; ishot <= nshots; ishot++) {
 
-        snapcheck = initsrc(ishot, nshots, &acq, &gv);
+            snapcheck = initsrc(ishot, nshots, &acq, &gv);
 
-        /* initialize wavefield with zero */
-        zero_wavefield(&mpw, &gv);
+            /* initialize wavefield with zero */
+            zero_wavefield(&mpw, &gv);
 
-        /* determine block index boundaries for inner area and frame */
-        subgrid_bounds(1, gv.NX, 1, gv.NY, &gv);
+            /* determine block index boundaries for inner area and frame */
+            subgrid_bounds(1, gv.NX, 1, gv.NY, &gv);
 
-        /* look over all time steps */
-        time_loop(ishot, snapcheck, hc, &acq, &mpm, &mpw, &gv, &perf);
+            /* look over all time steps */
+            time_loop(ishot, snapcheck, hc, &acq, &mpm, &mpw, &gv, &perf);
 
-        /* gather and output seismograms if applicable */
-        saveseis(ishot, &acq, &gv);
+            /* gather and output seismograms if applicable */
+            saveseis(ishot, &acq, &gv);
 
-    }   /*----------------------  end of loop over multiple shots  ------------------*/
+        }
+
+        /*----------------------  end of loop over multiple shots  ------------------*/
+    }
 
     /* deallocate memory */
     freemem(&mpm, &mpw, &gv);

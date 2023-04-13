@@ -52,6 +52,8 @@ void absorb(float **absorb_coeff, GlobVar *gv);
 
 int acq_read(AcqVar *acq, GlobVar *gv);
 
+void apply_workflow(int iter, GlobVar *gv, GlobVarInv *vinv);
+
 void av_mat(float **pi, float **u, float **ppijm, float **puip, float **pujm);
 
 void av_mue(float **u, float **uipjp, GlobVar *gv);
@@ -212,7 +214,7 @@ void read_par_json(const char *fileinp, GlobVar *gv, GlobVarInv *vinv);
 
 int read_par_json_fwi(int number_readobjects, char **varname_list, char **value_list, int *used_list, int fserr, GlobVar *gv, GlobVarInv *vinv);
 
-void read_workflow(GlobVarInv *vinv);
+void read_workflow(GlobVar *gv, GlobVarInv *vinv);
 
 void readmod(MemModel *mpm, GlobVar *gv);
 

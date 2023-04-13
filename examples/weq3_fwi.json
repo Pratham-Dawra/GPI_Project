@@ -110,13 +110,31 @@
 			"SEIS_FILE" : "./weq3_fwi/seis",
 
 "General inversion parameters" : "comment",
-			"ITERMAX" : "10",
+			"ITERMAX" : "5",
 			"DATA_DIR" : "weq3_fwi/measured_data/IFOS_real",
 			"PARAMETERIZATION" : "1",
 			"ADJOINT_TYPE" : "1",
+            "VELOCITY" : "0",
+            "Inversion for ..." : "comment",
+            "INV_VP_ITER" : "2",
+            "INV_VS_ITER" : "10",
+            "INV_RHO_ITER" : "3",
 
+"Frequency filtering during inversion" : "comment",
+            "TIME_FILT" : "0",
+            "F_HIGH_PASS" : "1",
+            "F_LOW_PASS_START" : "10.0",
+            "F_LOW_PASS_END" : "75.0",
+            "F_LOW_PASS_INCR" : "10.0",
+            "ORDER" : "2",
+            "ZERO_PHASE" : "0",
+            "FREQ_FILE" : "frequencies.dat",
+            "WRITE_FILTERED_DATA" : "0",
+"Minimum number of iteration per frequency" : "comment",
+            "MIN_ITER" : "10",
+            
 "Workflow" : "comment",
-            "USE_WORKFLOW" : "0",
+            "USE_WORKFLOW" : "1",
             "FILE_WORKFLOW" : "workflow/workflow.txt",
             
             "SWS_TAPER_GRAD_SOURCES" : "0",
@@ -156,5 +174,6 @@
 			"LOG_FILE" : "./log/test.log",
 			"LOG" : "0",
 			"LOG_VERBOSITY" : "INFO",
-			"OUT_TIMESTEP_INFO" : "100"
+			"OUT_TIMESTEP_INFO" : "100",
+			"MISFIT_LOG_FILE" : "L2_LOG.dat"
 }
