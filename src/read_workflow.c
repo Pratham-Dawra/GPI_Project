@@ -86,6 +86,8 @@ void read_workflow(GlobVar *gv, GlobVarInv *vinv)
                    &(vinv->WORKFLOW)[l][7], &(vinv->WORKFLOW)[l][8], &(vinv->WORKFLOW)[l][9], &(vinv->WORKFLOW)[l][10],
                    &(vinv->WORKFLOW)[l][11], &(vinv->WORKFLOW)[l][12], &(vinv->WORKFLOW)[l][13],
                    &(vinv->WORKFLOW)[l][14]);
+            /* set EPRECOND to the maximum in workflow */
+            if (vinv->EPRECOND_MAX < (vinv->WORKFLOW)[l][8]) vinv->EPRECOND_MAX = (vinv->WORKFLOW)[l][8];
         }
     }
     fclose(fwork);

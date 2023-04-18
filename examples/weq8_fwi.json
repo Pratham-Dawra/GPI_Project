@@ -3,6 +3,9 @@
 			"NPROCX" : "2",
 			"NPROCY" : "2",
 
+"Run Mode" : "comment",
+			"MODE" : "FWI",
+
 "FD order" : "comment",
 			"FDORDER" : "4",
 			"FDORDER_TIME" : "2",
@@ -16,9 +19,9 @@
 "Time Stepping" : "comment",
 			"TIME" : "0.2",
 			"DT" : "1.0e-4",
-      
+ 
 "Wave Equation" : "comment",
-			"WEQ" : "VEL_ISO",
+			"WEQ" : "VEL_TTI",
                         "WEQ values : AC_ISO:acoustic isotropic, AC_VTI:acoustic VTI, AC_TTI:acoustic TTI" : "comment",
                         "WEQ values : VAC_ISO:viscoacoustic isotropic, VAC_VTI:viscoacoustic VTI, VAC_TTI:viscoacoustic TTI" : "comment",
                         "WEQ values : EL_ISO:elastic isotropic, EL_VTI:elastic VTI, EL_TTI:elastic TTI" : "comment",
@@ -32,7 +35,7 @@
 			
 			"SIGOUT" : "1",
 			"Output source wavelet: yes=1, no=else" : "comment",
-			"SIGOUT_FILE" : "./weq4/signal_out",
+			"SIGOUT_FILE" : "./weq8/signal_out",
 			"SIGOUT_FORMAT" : "1",
 			"Supported output formats for SIGOUT_FORMAT: SU=1, ASCII=2, BINARY=3" : "comment",
 
@@ -84,7 +87,7 @@
 			"IDX" : "2",
 			"IDY" : "2",
 			"SNAP_FORMAT" : "3",
-			"SNAP_FILE" : "./weq4/snap",
+			"SNAP_FILE" : "./weq8_fwi/snap",
 
 "Receiver" : "comment",
 			"SEISMO" : "4",
@@ -96,7 +99,6 @@
 			"NGEOPH" : "5",
 
 "Receiver array" : "comment",
-
 			"REC_ARRAY" : "0",
 			"REC_ARRAY_DEPTH" : "70.0",
 			"REC_ARRAY_DIST" : "40.0", 
@@ -105,11 +107,73 @@
 "Seismograms" : "comment",
 			"NDT" : "10",
 			"SEIS_FORMAT" : "1",
-			"SEIS_FILE" : "./weq4/seis",
+			"SEIS_FILE" : "./weq8_fwi/seis",
+
+"General inversion parameters" : "comment",
+            "ITERMAX" : "5",
+            "DATA_DIR" : "weq8_fwi/measured_data/IFOS_real",
+            "PARAMETERIZATION" : "1",
+            "ADJOINT_TYPE" : "1",
+            "VELOCITY" : "0",
+            "Inversion for ..." : "comment",
+            "INV_VP_ITER" : "2",
+            "INV_VS_ITER" : "10",
+            "INV_RHO_ITER" : "3",
+
+"Frequency filtering during inversion" : "comment",
+            "TIME_FILT" : "2",
+            "F_HIGH_PASS" : "1",
+            "F_LOW_PASS_START" : "10.0",
+            "F_LOW_PASS_END" : "75.0",
+            "F_LOW_PASS_INCR" : "10.0",
+            "ORDER" : "2",
+            "ZERO_PHASE" : "0",
+            "FREQ_FILE" : "frequencies.dat",
+            "WRITE_FILTERED_DATA" : "0",
+"Minimum number of iteration per frequency" : "comment",
+            "MIN_ITER" : "10",
+
+"Workflow" : "comment",
+            "USE_WORKFLOW" : "1",
+            "FILE_WORKFLOW" : "workflow/workflow.txt",
+            
+            "SWS_TAPER_GRAD_SOURCES" : "0",
+            "SRTRADIUS" : "0",
+            "SRTSHAPE" : "0",
+            "FILTSIZE" : "0",
+
+"Output of inverted models" : "comment",
+			"INV_MODELFILE" : "model/modelTest",
+			"NFSTART" : "1",
+			"NF" : "1",
+
+"Output of gradients" : "comment",
+			"JACOBIAN" : "weq8_fwi/jacobian/jacobian_Test",
+			"NFSTART_JAC" : "1",
+			"NF_JAC" : "1",
+
+"Hessian and Gradient-Method" : "comment",
+			"GRAD_METHOD" : "1",
+
+"Gradient calculation" : "comment",
+			"LNORM" : "2",
+			"LNORM values: L1 norm=1, L2 norm=2, Cauchy=3, SECH=4, Global correlation=5, normalized L2 norm=7" : "comment",
+			"NORMALIZE" : "0",
+			"DTINV" : "2",
+
+"Step length estimation" : "comment", 
+			"EPS_SCALE" : "0.01", 
+			"STEPMAX" : "4",
+			"SCALEFAC" : "4.0",
+			"TESTSHOT_START , TESTSHOT_END , TESTSHOT_INCR" : "1 , 2 , 1",
+
+"Termination of the programmme" : "comment",
+			"PRO" : "0.01",
 
 "Monitoring the simulation" : "comment",
 			"LOG_FILE" : "./log/test.log",
 			"LOG" : "0",
 			"LOG_VERBOSITY" : "INFO",
-			"OUT_TIMESTEP_INFO" : "100"
+			"OUT_TIMESTEP_INFO" : "100",
+			"MISFIT_LOG_FILE" : "L2_LOG.dat"
 }

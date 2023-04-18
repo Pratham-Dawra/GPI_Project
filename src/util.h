@@ -3,10 +3,12 @@
 #define __UTIL_H_INCLUDED__
 
 #include <stdlib.h>
+#include "fd.h"
 
 /* utility functions */
 void dt_mult(int nx, int ny, float dt, float **a);
 double maximum(float **a, int nx, int ny);
+float average_matrix(float ** matrix, GlobVar *gv);
 void shift_var2(float ***var1, float ***var2, float ***var3, float ***var4);
 void shift_var3(float ****var1, float ****var2, float ****var3, float ****var4);
 float *vector(int nl, int nh);

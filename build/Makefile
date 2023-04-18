@@ -157,6 +157,8 @@ FDMOD_FILES := sofi2D.c \
                hh_visco_VTI.c \
                holbergcoeff.c \
                initfd.c \
+               init_grad.c \
+               init_inv.c \
                initmem.c \
                initmem_fwi.c \
                initmem_model.c \
@@ -164,6 +166,7 @@ FDMOD_FILES := sofi2D.c \
                initproc.c \
                initsrc.c \
                json_parser.c \
+               lbfgs.c \
                logging.c \
                matcopy.c \
                matcopy_elastic.c \

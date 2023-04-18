@@ -61,11 +61,23 @@ int main(int argc, char **argv)
     double time1 = 0.0, time2 = 0.0, time9 = 0.0;
     float *hc = NULL;
 
+    /* FWI variables */
+    /*float alpha_SL_old;
+     * int fwi_run = 1;
+     * int gradient_optimization = 1;
+     * int steplength_search = 0; */
+    /* Variables for step length calculation */
+    //int step3 = 0, countstep;
+    //int step1, step2, step3 = 0; // itests, iteste, stepmax, countstep;
+    //float scalefac;
+
     /* declare struct for global variables */
     GlobVar gv = {.MPID = -1,.OUTNTIMESTEPINFO = 100,.NDT = 1,.IDX = 1,.IDY = 1 };
 
     /* declare struct for inversion variables */
-    GlobVarInv vinv = {.ITERMAX = 1,.DTINV = 1,.WORKFLOW_STAGE = 1,.LBFGS_ITER_START = 1 };
+    GlobVarInv vinv = {.ITERMAX = 1,.DTINV = 1,.WORKFLOW_STAGE = 1,.LBFGS_ITER_START = 1,
+        .FWI_RUN = 1,.GRADIENT_OPTIMIZATION = 1
+    };
 
     /* declare struct for acquisition variables */
     AcqVar acq = { };
@@ -203,6 +215,7 @@ int main(int argc, char **argv)
     if (gv.MPID == 0) {
         write_par(&gv, &vinv);
     }
+
     /* memory allocation of buffers */
     initmem(&mpm, &mpw, &minv, &gv, &vinv);
 
@@ -215,7 +228,7 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
 
     /* create model grids */
-    readmod(&mpm, &gv);
+    readmod(&mpm, &minv, &gv, &vinv);
 
     MPI_Barrier(MPI_COMM_WORLD);
 
@@ -234,9 +247,9 @@ int main(int argc, char **argv)
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    prepmod(&mpm, &gv);
-
-    MPI_Barrier(MPI_COMM_WORLD);
+    /*prepmod(&mpm, &gv);
+     * 
+     * MPI_Barrier(MPI_COMM_WORLD); */
 
     time2 = MPI_Wtime();
     log_infoc(0, "Starting time stepping around real time %4.2fs.\n", time2 - time1);
@@ -246,35 +259,76 @@ int main(int argc, char **argv)
     /*------------------------  loop over iterations  --------------------*/
 
     for (iter = 1; iter <= vinv.ITERMAX; iter++) {  /* fullwaveform iteration loop */
-        if (gv.MPID ==0) 
-            log_info("Iteration: %d\n", iter);
-        
+        if(gv.MPID==0) log_info("OUT1: FWI_RUN: %d, STEPLENGTH_SEARCH: %d, GRADIENT_OPTIMIZATION: %d\n", vinv.FWI_RUN, vinv.STEPLENGTH_SEARCH, vinv.GRADIENT_OPTIMIZATION);
+        if (gv.MPID == 0) {
+            time2 = MPI_Wtime();
+            log_info("------------------------------------------------------------------\n");
+            if (gv.MODE == FWI) {
+                log_info("                   TD-FWI ITERATION %d \t of %d \n", iter, vinv.ITERMAX);
+            } else {
+                log_info("                        FD-SIMULATION \n");
+            }
+            log_info("------------------------------------------------------------------\n");
+        }
         // At each iteration the workflow is applied
-        if (gv.MODE == FWI && vinv.USE_WORKFLOW) {
-            apply_workflow(iter, &gv, &vinv);
-        }
+        if (gv.MODE == FWI) {
+            if (vinv.USE_WORKFLOW) {
+                apply_workflow(iter, &gv, &vinv);
+            }
 
-    /*----------------------  loop over multiple shots  ------------------*/
-
-        for (ishot = 1; ishot <= nshots; ishot++) {
-
-            snapcheck = initsrc(ishot, nshots, &acq, &gv);
-
-            /* initialize wavefield with zero */
-            zero_wavefield(&mpw, &gv);
-
-            /* determine block index boundaries for inner area and frame */
-            subgrid_bounds(1, gv.NX, 1, gv.NY, &gv);
-
-            /* look over all time steps */
-            time_loop(ishot, snapcheck, hc, &acq, &mpm, &mpw, &gv, &perf);
-
-            /* gather and output seismograms if applicable */
-            saveseis(ishot, &acq, &gv);
+            init_grad(iter, &minv, &gv, &vinv);
 
         }
 
-        /*----------------------  end of loop over multiple shots  ------------------*/
+        if(gv.MPID==0) log_info("OUT2: FWI_RUN: %d, STEPLENGTH_SEARCH: %d, GRADIENT_OPTIMIZATION: %d\n", vinv.FWI_RUN, vinv.STEPLENGTH_SEARCH, vinv.GRADIENT_OPTIMIZATION);
+        /*-----------------------------------------------------*/
+        /*  While loop for Wolfe step length search            */
+
+        /*-----------------------------------------------------*/
+        while (vinv.FWI_RUN || vinv.STEPLENGTH_SEARCH || vinv.GRADIENT_OPTIMIZATION) {
+
+            if(gv.MPID==0) log_info("FWI_RUN: %d\n", vinv.FWI_RUN);
+            /*-----------------------------------------------------*/
+            /*              Calculate Misfit and gradient          */
+
+            /*-----------------------------------------------------*/
+            if (vinv.FWI_RUN) {
+                /* For the calculation of the material parameters between gridpoints
+                 * they have to be averaged. For this, values lying at 0 and NX+1,
+                 * for example, are required on the local grid. These are now copied from the
+                 * neighbouring grids */
+                prepmod(&mpm, &gv);
+
+                MPI_Barrier(MPI_COMM_WORLD);
+
+                if(gv.MODE == FWI) init_inv(iter, &minv, &gv, &vinv);
+
+                /*----------------------  loop over multiple shots  ------------------*/
+                for (ishot = 1; ishot <= nshots; ishot++) {
+
+                    snapcheck = initsrc(ishot, nshots, &acq, &gv);
+
+                    /* initialize wavefield with zero */
+                    zero_wavefield(&mpw, &gv);
+
+                    /* determine block index boundaries for inner area and frame */
+                    subgrid_bounds(1, gv.NX, 1, gv.NY, &gv);
+
+                    /* look over all time steps */
+                    time_loop(ishot, snapcheck, hc, &acq, &mpm, &mpw, &gv, &perf);
+
+                    /* gather and output seismograms if applicable */
+                    saveseis(ishot, &acq, &gv);
+
+                }
+
+                /*----------------  end of loop over multiple shots  -----------------*/
+                vinv.FWI_RUN = 0;
+                vinv.STEPLENGTH_SEARCH = 0;
+                vinv.GRADIENT_OPTIMIZATION = 0;
+            }
+        }
+        vinv.FWI_RUN = 1;
     }
 
     /* deallocate memory */

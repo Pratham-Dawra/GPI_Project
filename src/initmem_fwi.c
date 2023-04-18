@@ -54,7 +54,7 @@ void initmem_fwi(MemInv *minv, GlobVar *gv, GlobVarInv *vinv)
     minv->vpmat = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
 
     /* other allocations */
-    if ((vinv->EPRECOND == 1) || (vinv->EPRECOND == 3)) {
+    if ((vinv->EPRECOND_MAX == 1) || (vinv->EPRECOND_MAX == 3)) {
         minv->We_sum = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
         minv->Ws = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);  /* total energy of the source wavefield */
         minv->Wr = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);  /* total energy of the receiver wavefield */

@@ -98,6 +98,12 @@ const char *get_mode_verbose(RUNMODE md);
 
 float *holbergcoeff(GlobVar *gv);
 
+void initfd(GlobVar *gv);
+
+void init_grad(int iter, MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
+
+void init_inv(int iter, MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
+
 void initmem(MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
 
 void initmem_fwi(MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
@@ -106,11 +112,17 @@ void initmem_model(MemModel *mpm, GlobVar *gv);
 
 void initmem_wavefield(MemWavefield *mpw, GlobVar *gv);
 
-void initfd(GlobVar *gv);
-
 void initproc(GlobVar *gv);
 
 int initsrc(int ishot, int nshots, AcqVar *acq, GlobVar *gv);
+
+void lbfgs_reset(int iter, MemInv * minv, GlobVar *gv, GlobVarInv *vinv);
+
+void lbfgs_core(int iter, float *q_LBFGS, float *alpha_LBFGS, float *r_LBFGS, MemInv * minv, GlobVar *gv,
+                GlobVarInv *vinv);
+
+void lbfgs(float **grad_vs, float **grad_rho, float **grad_vp, float Vs_avg, float rho_avg, float Vp_avg, int iter,
+           MemInv * minv, GlobVar *gv, GlobVarInv *vinv);
 
 void model_elastic(MemModel *mpm, GlobVar *gv);
 
@@ -216,19 +228,19 @@ int read_par_json_fwi(int number_readobjects, char **varname_list, char **value_
 
 void read_workflow(GlobVar *gv, GlobVarInv *vinv);
 
-void readmod(MemModel *mpm, GlobVar *gv);
+void readmod(MemModel *mpm, MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
 
-void readmod_elastic(MemModel *mpm, GlobVar *gv);
+void readmod_elastic(MemModel *mpm, MemInv *minv, GlobVar *gv);
 
-void readmod_elastic_vti(MemModel *mpm, GlobVar *gv);
+void readmod_elastic_vti(MemModel *mpm, MemInv *minv, GlobVar *gv);
 
-void readmod_elastic_tti(MemModel *mpm, GlobVar *gv);
+void readmod_elastic_tti(MemModel *mpm, MemInv *minv, GlobVar *gv);
 
-void readmod_visco(MemModel *mpm, GlobVar *gv);
+void readmod_visco(MemModel *mpm, MemInv *minv, GlobVar *gv);
 
-void readmod_visco_vti(MemModel *mpm, GlobVar *gv);
+void readmod_visco_vti(MemModel *mpm, MemInv *minv, GlobVar *gv);
 
-void readmod_visco_tti(MemModel *mpm, GlobVar *gv);
+void readmod_visco_tti(MemModel *mpm, MemInv *minv, GlobVar *gv);
 
 int **receiver(GlobVar *gv);
 

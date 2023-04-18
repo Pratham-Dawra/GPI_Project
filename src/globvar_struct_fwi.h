@@ -68,19 +68,28 @@ typedef struct {
     int EPRECOND_PER_SHOT;      // switch to calculate approximated Hessian for each shot
 //    int EPRECOND_PER_SHOT_SH;                     !!! NO SH !!!
     int EPRECOND_ITER;
+    int EPRECOND_MAX;            // maximum EPRECOND in workflow.
 
     /* PCG and L-BFGS */
     int GRAD_METHOD;            // choose method gradient calculation (PCG or L-BFGS)
-    int N_LBFGS;                // 
     int WOLFE_CONDITION;        // switch to use step length search based on Wolfe condition
     int WOLFE_NUM_TEST;         // maximum number of test calculations
     int WOLFE_TRY_OLD_STEPLENGTH;   // switch to try old steplength first
     float WOLFE_C1_SL;          // c1 parameter of Wolfe condition
     float WOLFE_C2_SL;          // c2 parameter of Wolfe condition
     /* Variables for L-BFGS */
+    int N_LBFGS;                // 
     int LBFGS_STEP_LENGTH;      // switch to use second step length search
     float LBFGS_SCALE_GRADIENTS;// NOT EXPLAINED IN MANUAL !!!
     int LBFGS_ITER_START;       //
+    float ALPHA_SL_OLD;         // switch
+    int FWI_RUN;            // switch
+    int GRADIENT_OPTIMIZATION;//switch
+    int STEPLENGTH_SEARCH;  // switch
+    /* Variables for step length calculation */
+    int STEP3;              //
+    int COUNTSTEP;              //
+    
 
     /* for Wolfe condition */
     /*int steplength_search = 0;
@@ -106,6 +115,7 @@ typedef struct {
     int TESTSHOT_END;           // highest shot number for calculation of misfit norm of data residuals
     int TESTSHOT_INCR;          // shot increment for calculation of misfit norm of data residuals
     int NO_OF_TESTSHOTS;        // number of test shots
+    int ITESTSHOT;              //
     float EPSILON;              //
     float EPSILON_u;            //
     float EPSILON_rho;          //
@@ -116,6 +126,10 @@ typedef struct {
     int DTINV;                  // increment of time samples used for misfit calculation
     int NTDTINV;                // number of timesteps used for misfit calculation (=ceil(NT/DTINV))
     float WATERLEVEL_LNORM8;    // finite water-level to keep division regular
+    float L2;                   //
+    float L2_ALL_SHOTS;         //
+    float ENERGY;               //
+    float ENERGY_ALL_SHOTS;     //
 
     /* Abort criterion */
     float PRO;                  // abort criterium per FWI stage [%]
@@ -134,6 +148,8 @@ typedef struct {
     float TRKILL_STF_OFFSET_LOWER;  // lower offset limit for trace killing [m]
     float TRKILL_STF_OFFSET_UPPER;  // upper offset limit for trace killing [m]
     int STF_FULL;               //         !!! NOT IN MANUAL - needed ???
+    int KILLED_TRACES;          //
+    int KILLED_TRACES_TESTSHOTS;//
 
     /* Gradient smoothing */
     int GRAD_FILTER;            // switch to apply gradient smoothing
@@ -154,8 +170,9 @@ typedef struct {
     float SRTRADIUS;            // radius of taper [m]
     int FILTSIZE;               // size where taper is zero around source [grid cells]
     int SWS_TAPER_FILE;         // switch to use externally defined taper from file
-    int SWS_TAPER_FILE_PER_SHOT;    // switch to use externally defined taper for each shot from file
+    int SWS_TAPER_FILE_PER_SHOT;// switch to use externally defined taper for each shot from file
     char TAPER_FILE_NAME[STRING_SIZE];  // externally defined taper file
+    int SWS_TESTSHOT;           //
 
     /* Spatial filter of gradients */
     int SPATFILTER;             // switch to apply spatial Gaussian filter
@@ -204,6 +221,12 @@ typedef struct {
     float S_VP;                 // maximum deviation from starting model [%]
     float S_VS;                 // maximum deviation from starting model [%]
     float S_RHO;                // maximum deviation from starting model [%]
+    float VP_AVG;               // average velocity (P-wave)
+    float VS_AVG;               // average velocity (S-wave)
+    float RHO_AVG;              // average density
+    float C_VP;                 // squared average velocity (P-wave)
+    float C_VS;                 // squared average velocity (S-wave)
+    float C_RHO;                // squared average density
 
     float VP_VS_RATIO;          // minimum vp/vs-ratio
 

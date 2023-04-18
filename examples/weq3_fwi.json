@@ -77,7 +77,7 @@
 			"FPML" : "5.0",
 
 			"Parameter for ABS_TYPE=2" : "comment",
-                        "DAMPING" : "8.0",
+            "DAMPING" : "8.0",
 
 "Snapshots" : "comment",
 			"SNAP" : "4",
@@ -134,7 +134,7 @@
             "MIN_ITER" : "10",
             
 "Workflow" : "comment",
-            "USE_WORKFLOW" : "1",
+            "USE_WORKFLOW" : "0",
             "FILE_WORKFLOW" : "workflow/workflow.txt",
             
             "SWS_TAPER_GRAD_SOURCES" : "0",
@@ -153,7 +153,7 @@
 			"NF_JAC" : "1",
 
 "Hessian and Gradient-Method" : "comment",
-			"GRAD_METHOD" : "1",
+			"GRAD_METHOD" : "2",
 
 "Gradient calculation" : "comment",
 			"LNORM" : "2",

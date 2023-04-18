@@ -29,7 +29,7 @@
 #include <stdbool.h>
 #include <float.h>
 
-void readmod_visco_tti(MemModel *mpm, GlobVar *gv)
+void readmod_visco_tti(MemModel *mpm, MemInv *minv, GlobVar *gv)
 {
     float c11, c33, c13, c55, tau11, tau33, tau13, tau55, tau15, tau35;
     float *pts, sumc13, ts, tp, sumu, sumpi;
@@ -174,6 +174,11 @@ void readmod_visco_tti(MemModel *mpm, GlobVar *gv)
             if ((gv->POS[1] == ((i - 1) / gv->NX)) && (gv->POS[2] == ((j - 1) / gv->NY))) {
                 ii = i - gv->POS[1] * gv->NX;
                 jj = j - gv->POS[2] * gv->NY;
+                if (gv->MODE == FWI) {
+                    minv->Vp0[jj][ii] = vp;
+                    minv->Vs0[jj][ii] = vs;
+                    minv->Rho0[jj][ii] = para[P_RHO][j - 1];
+                }
                 c33 = para[P_RHO][j - 1] * vp * vp;
                 c55 = para[P_RHO][j - 1] * vs * vs;
                 c11 = c33 * (2.0 * para[P_EPS][j - 1] + 1.0);

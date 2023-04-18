@@ -29,7 +29,7 @@
 #include <stdbool.h>
 #include <float.h>
 
-void readmod_elastic(MemModel *mpm, GlobVar *gv)
+void readmod_elastic(MemModel *mpm, MemInv *minv, GlobVar *gv)
 {
     int ii, jj;
     size_t ny;
@@ -122,6 +122,11 @@ void readmod_elastic(MemModel *mpm, GlobVar *gv)
             if ((gv->POS[1] == ((i - 1) / gv->NX)) && (gv->POS[2] == ((j - 1) / gv->NY))) {
                 ii = i - gv->POS[1] * gv->NX;
                 jj = j - gv->POS[2] * gv->NY;
+                if (gv->MODE == FWI) {
+                    minv->Vp0[jj][ii] = vp;
+                    minv->Vs0[jj][ii] = vs;
+                    minv->Rho0[jj][ii] = para[P_RHO][j - 1];
+                }
                 mpm->pu[jj][ii] = vs * vs * para[P_RHO][j - 1];
                 mpm->prho[jj][ii] = para[P_RHO][j - 1];
                 mpm->ppi[jj][ii] = vp * vp * para[P_RHO][j - 1];

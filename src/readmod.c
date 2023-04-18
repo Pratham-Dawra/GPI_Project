@@ -25,7 +25,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void readmod(MemModel *mpm, GlobVar *gv)
+void readmod(MemModel *mpm, MemInv *minv, GlobVar *gv, GlobVarInv *vinv)
 {
     /* create model grids */
     if (gv->READMOD) {
@@ -40,22 +40,22 @@ void readmod(MemModel *mpm, GlobVar *gv)
               log_fatal("not yet implemented\n");
               break;
           case EL_ISO:         /* elastic */
-              readmod_elastic(mpm, gv);
+              readmod_elastic(mpm, minv, gv);
               break;
           case VEL_ISO:        /* viscoelastic */
-              readmod_visco(mpm, gv);
+              readmod_visco(mpm, minv, gv);
               break;
           case EL_VTI:         /* elastic VTI */
-              readmod_elastic_vti(mpm, gv);
+              readmod_elastic_vti(mpm, minv, gv);
               break;
           case VEL_VTI:        /* viscoelastic VTI */
-              readmod_visco_vti(mpm, gv);
+              readmod_visco_vti(mpm, minv, gv);
               break;
           case EL_TTI:         /* elastic TTI */
-              readmod_elastic_tti(mpm, gv);
+              readmod_elastic_tti(mpm, minv, gv);
               break;
           case VEL_TTI:        /* viscoelastic TTI */
-              readmod_visco_tti(mpm, gv);
+              readmod_visco_tti(mpm, minv, gv);
               break;
           case VAC_ISO:        /* viscoacoustic */
               log_fatal("not yet implemented\n");
@@ -93,5 +93,19 @@ void readmod(MemModel *mpm, GlobVar *gv)
               log_fatal("Internal model for your chosen WEQ not implemented.\n");
               break;
         }
+    }
+    
+    /* Some initial calculations for FWI */
+    if (gv->MODE == FWI) {
+        /* Get average values from material parameters */
+        vinv->VP_AVG = average_matrix(minv->Vp0, gv);
+        vinv->VS_AVG = average_matrix(minv->Vs0, gv);
+        vinv->RHO_AVG = average_matrix(minv->Rho0, gv);
+
+        //log_info("MYID = %d \t VP_AVG = %e \t VS_AVG = %e \t RHO_AVG = %e\n", gv->MPID, vinv->VP_AVG, vinv->VS_AVG, vinv->RHO_AVG);
+
+        vinv->C_VP = vinv->VP_AVG * vinv->VP_AVG;
+        vinv->C_VS = vinv->VS_AVG * vinv->VS_AVG;
+        vinv->C_RHO = vinv->RHO_AVG * vinv->RHO_AVG;
     }
 }

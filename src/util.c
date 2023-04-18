@@ -58,6 +58,34 @@ double maximum(float **a, int nx, int ny)
     return maxi;
 }
 
+
+float average_matrix(float ** matrix, GlobVar *gv)
+{
+    /* Return average  of Matrix */
+    int i,j;
+    float local_sum=0;
+    float global_sum;
+    float buf1=0, buf2=0;
+    float average;
+    
+    for (j=1;j<=gv->NY;j++){
+        for (i=1;i<=gv->NX;i++){
+            local_sum+=matrix[j][i];
+        }
+    }
+    
+    buf1=local_sum;
+    buf2=0;
+    MPI_Allreduce(&buf1,&buf2, 1,MPI_FLOAT,MPI_SUM,MPI_COMM_WORLD);
+    global_sum=buf2;
+    
+    average=global_sum/(gv->NXG*gv->NYG);
+    
+    MPI_Bcast(&average,1,MPI_FLOAT,0,MPI_COMM_WORLD);
+    
+    return average;
+}
+
 void shift_var2(float ***var1, float ***var2, float ***var3, float ***var4)
 {
     /* Adam Bashforth time shift */

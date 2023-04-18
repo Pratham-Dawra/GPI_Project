@@ -25,6 +25,7 @@ usage()
     echo "  4_fdt4 :: visco-elastic wave equation with 4th order in time"
     echo "  3_fwi  :: FWI of elastic wave equation"
     echo "  4_fwi  :: FWI of visco-elastic wave equation"
+    echo "  8_fwi  :: FWI of visco-elastic TTI wave equation"
     echo
 }
 
@@ -40,10 +41,10 @@ fi
 
 weq="$1"
 
-if [[ "${weq}" =~ ^("1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"3_fy"|"8_fy"|"4_fdt4"|"3_fwi"|"4_fwi")$ ]]; then
+if [[ "${weq}" =~ ^("1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"3_fy"|"8_fy"|"4_fdt4"|"3_fwi"|"4_fwi"|"8_fwi")$ ]]; then
     echo "Running test for weq${weq}..."
 else
-    echo "Error: argument not in allowed list of 1, 2, 3, 4, 5, 6, 7, 8, 3_fy, 8_fy, 4_fdt4, 3_fwi or 4_fwi."
+    echo "Error: argument not in allowed list of 1, 2, 3, 4, 5, 6, 7, 8, 3_fy, 8_fy, 4_fdt4, 3_fwi, 4_fwi or 8_fwi."
     exit 1
 fi
 

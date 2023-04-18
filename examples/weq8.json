@@ -74,7 +74,7 @@
 			"FPML" : "5.0",
 
 			"Parameter for ABS_TYPE=2" : "comment",
-                        "DAMPING" : "8.0",
+            "DAMPING" : "8.0",
 
 "Snapshots" : "comment",
 			"SNAP" : "4",

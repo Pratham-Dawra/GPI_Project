@@ -116,6 +116,7 @@ int read_par_json_fwi(int number_readobjects, char **varname_list, char **value_
             ("EPSILON_WE", number_readobjects, &(vinv->EPSILON_WE), varname_list, value_list, used_list))
             log_fatal("Variable EPSILON_WE could not be retrieved from the json input file!");
     }
+    vinv->EPRECOND_MAX = vinv->EPRECOND;
 
     if (get_int_from_objectlist
         ("TESTSHOT_START", number_readobjects, &(vinv->TESTSHOT_START), varname_list, value_list, used_list))
