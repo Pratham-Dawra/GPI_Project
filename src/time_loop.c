@@ -30,6 +30,7 @@ void time_loop(int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm,
     int nt, lsnap, isnap, esnap;
     double time3 = 0.0, time4 = 0.0, time5 = 0.0, time6 = 0.0, time7 = 0.0, time8 = 0.0;
     int lsamp = gv->NDT;
+    //int  hi = 1, hin = 1, hin1 = 1, imat = 1, imat1 = 1, imat2 = 1;
 
     static int nsnap = 0;
 
@@ -53,7 +54,7 @@ void time_loop(int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm,
          * update of particle velocities --------------------------------
          *---------------------------------------------------------------*/
         if (gv->FDORDER_TIME == 2) {
-            update_v_interior(nt, acq->srcpos_loc, acq->signals, acq->nsrc_loc, hc, mpm, mpw, gv);
+            update_v_interior(nt, acq->srcpos_loc, acq->signals, acq->nsrc_loc, mpm, mpw, gv);
 #ifdef EBUG
             debug_check_matrix(mpw->pvx, nt, gv->NX, gv->NY, 121, 0, "pvx");
             debug_check_matrix(mpw->pvy, nt, gv->NX, gv->NY, 121, 0, "pvy");

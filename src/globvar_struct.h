@@ -79,6 +79,7 @@ typedef struct {
     // Source
     int SOURCE_TYPE;            // type of source
     int SOURCE_SHAPE;           // shape of source-signal
+    int SOURCE_SHAPE_OLD;       // old SOURCE_SHAPE needed for STF (FWI)
     char SIGNAL_FILE[STRING_SIZE];  // name of external signal file
     int SRCREC;                 // switch to read source parameters from external source file
     char SOURCE_FILE[STRING_SIZE];  // name of source parameter file

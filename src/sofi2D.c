@@ -283,14 +283,12 @@ int main(int argc, char **argv)
         if(gv.MPID==0) log_info("OUT2: FWI_RUN: %d, STEPLENGTH_SEARCH: %d, GRADIENT_OPTIMIZATION: %d\n", vinv.FWI_RUN, vinv.STEPLENGTH_SEARCH, vinv.GRADIENT_OPTIMIZATION);
         /*-----------------------------------------------------*/
         /*  While loop for Wolfe step length search            */
-
         /*-----------------------------------------------------*/
         while (vinv.FWI_RUN || vinv.STEPLENGTH_SEARCH || vinv.GRADIENT_OPTIMIZATION) {
 
             if(gv.MPID==0) log_info("FWI_RUN: %d\n", vinv.FWI_RUN);
             /*-----------------------------------------------------*/
             /*              Calculate Misfit and gradient          */
-
             /*-----------------------------------------------------*/
             if (vinv.FWI_RUN) {
                 /* For the calculation of the material parameters between gridpoints
@@ -305,24 +303,47 @@ int main(int argc, char **argv)
 
                 /*----------------------  loop over multiple shots  ------------------*/
                 for (ishot = 1; ishot <= nshots; ishot++) {
+                    
+                    gv.SOURCE_SHAPE = gv.SOURCE_SHAPE_OLD;
+                    
+                    
+                    /*------------------------------------------------------------------------------*/
+                    /*----------- Start of inversion of source time function -----------------------*/                       /* Do not Excute STF if this is a step length search run for Wolfe condition
+                     * Therefore (gradient_optimization==1) is added. */
+                    /*if (((INV_STF == 1) && ((iter == 1) || (do_stf == 1))) && (gradient_optimization == 1)) {
+                        stf_inv();
+                    }*/                        /*------------------------------------------------------------------------------*/ 
 
                     snapcheck = initsrc(ishot, nshots, &acq, &gv);
+                    
+                    /*------------------------------------------------------------------------------*/
+                    /*---------- Start of Time Domain Filtering ------------------------------------*/
+                    /*time domain filtering of the source signal */
+                    /*if (((TIME_FILT == 1) || (TIME_FILT == 2)) && (SOURCE_SHAPE != 6) && (INV_STF == 0))
+                    {
+                        log_info("Time Domain Filter applied: Lowpass with corner frequency of %.2f Hz, order %d\n",F_LOW_PASS, ORDER);
+                        timedomain_filt(signals, F_LOW_PASS, ORDER, nsrc_loc, ns, 1);
+                    }
+
+                    MPI_Barrier(MPI_COMM_WORLD);*/
+                    /*------------------------------------------------------------------------------*/
 
                     /* initialize wavefield with zero */
-                    zero_wavefield(&mpw, &gv);
+                    zero_wavefield(iter, &mpw, &minv, &gv, &vinv);
 
                     /* determine block index boundaries for inner area and frame */
                     subgrid_bounds(1, gv.NX, 1, gv.NY, &gv);
 
-                    /* look over all time steps */
+                    /*------------------------------------------------------------------------------*/
+                    /*---------- Start loop over timesteps (forward model) -------------------------*/
                     time_loop(ishot, snapcheck, hc, &acq, &mpm, &mpw, &gv, &perf);
 
                     /* gather and output seismograms if applicable */
                     saveseis(ishot, &acq, &gv);
 
                 }
-
                 /*----------------  end of loop over multiple shots  -----------------*/
+                
                 vinv.FWI_RUN = 0;
                 vinv.STEPLENGTH_SEARCH = 0;
                 vinv.GRADIENT_OPTIMIZATION = 0;

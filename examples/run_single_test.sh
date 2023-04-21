@@ -83,3 +83,5 @@ fi
 outdir=$(echo ${weq} | sed 's/_fy//g' | sed 's/_fdt4//g' | sed 's/_fwi//g')
 
 ${mpiexe} -np 4 ${sofiexe} ${json} && ${snapexe} ${json} && rm -f weq${outdir}/*.bin.{vx,vy,p,curl,div}.*.*
+
+#${mpiexe} -np 4 valgrind --tool=memcheck ${sofiexe} ${json} && ${snapexe} ${json} && rm -f weq${outdir}/*.bin.{vx,vy,p,curl,div}.*.*

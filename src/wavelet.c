@@ -38,6 +38,10 @@ void wavelet(AcqVar *acq, GlobVar *gv)
 
     if (gv->SOURCE_SHAPE == 3)
         psource = read_srcsig(&nts, gv);
+    if (gv->SOURCE_SHAPE == 7) { /* STF_INV */
+        psource=vector(1,gv->NT);
+        //inseis_source_wavelet(psource,NT,ishot,SH,STF);
+    }
 
     acq->signals = matrix(1, acq->nsrc_loc, 1, gv->NT);
 

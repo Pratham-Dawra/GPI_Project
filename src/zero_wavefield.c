@@ -24,60 +24,100 @@
 
 #include "fd.h"
 
-void zero_wavefield(MemWavefield *mpw, GlobVar *gv)
+void zero_wavefield(int iter, MemWavefield *mpw, MemInv * minv, GlobVar *gv, GlobVarInv *vinv)
 {
+    size_t nbyte_2 = (gv->NY + 2 * gv->ND) * (gv->NX + 2 * gv->ND) * sizeof(float);
+    size_t nbyte_3 = nbyte_2 * gv->L;
+    size_t nbyte_pml_x = gv->NY * 2 * gv->FW * sizeof(float);
+    size_t nbyte_pml_y = gv->NX * 2 * gv->FW * sizeof(float);
+    size_t nbyte_grad = gv->NY * gv->NX * sizeof(float);
 
-    if (gv->L) {
-        /* viscoelastic */
-        for (int j = (-gv->ND + 1); j <= (gv->NY + gv->ND); j++) {
-            for (int i = (-gv->ND + 1); i <= (gv->NX + gv->ND); i++) {
-                zero_elastic(j, i, mpw);
-                for (int l = 1; l <= gv->L; l++) {
-                    zero_visco(j, i, l, mpw);
-                }
-            }
-        }
-    } else {
-        /* elastic */
-        for (int j = (-gv->ND + 1); j <= (gv->NY + gv->ND); j++) {
-            for (int i = (-gv->ND + 1); i <= (gv->NX + gv->ND); i++) {
-                zero_elastic(j, i, mpw);
-            }
-        }
-    }
+    bzero(&(mpw->pvx[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+    bzero(&(mpw->pvy[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+    bzero(&(mpw->psxx[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+    bzero(&(mpw->psyy[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+    bzero(&(mpw->psxy[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
 
-    if (gv->ABS_TYPE == 1) {
-        /* PML Boundary */
-        for (int j = 1; j <= gv->NY; j++) {
-            for (int i = 1; i <= 2 * gv->FW; i++) {
-                zero_PML_x(j, i, mpw);
-            }
-        }
-        for (int j = 1; j <= 2 * gv->FW; j++) {
-            for (int i = 1; i <= gv->NX; i++) {
-                zero_PML_y(j, i, mpw);
-            }
-        }
-    }
+    if (gv->MODE == FWI) {
+        bzero(&(minv->uxy[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(minv->pvxp1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(minv->pvyp1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(minv->pvxm1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(minv->pvym1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
         
+        /* initialize gradient matrices for each shot with zeros */
+        bzero(&(minv->waveconv_shot[1][1]), nbyte_grad);
+        bzero(&(minv->waveconv_rho_shot[1][1]), nbyte_grad);
+        bzero(&(minv->waveconv_u_shot[1][1]), nbyte_grad);
+        
+        if ((vinv->EPRECOND == 1) || (vinv->EPRECOND == 3) && (vinv->EPRECOND_ITER == iter || (vinv->EPRECOND_ITER == 0))) {
+            bzero(&(minv->Ws[1][1]), nbyte_grad);
+            bzero(&(minv->Wr[1][1]), nbyte_grad);
+            bzero(&(minv->We[1][1]), nbyte_grad);
+        }
+    }
+
+    /* viscoelastic */
+    if (gv->L) {
+        bzero(&(mpw->pr[-gv->ND + 1][-gv->ND + 1][1]), nbyte_3);
+        bzero(&(mpw->pp[-gv->ND + 1][-gv->ND + 1][1]), nbyte_3);
+        bzero(&(mpw->pq[-gv->ND + 1][-gv->ND + 1][1]), nbyte_3);
+    }
+
+    /* PML Boundary */
+    if (gv->ABS_TYPE == 1) {
+        bzero(&(mpw->psi_sxx_x[1][1]), nbyte_pml_x);
+        bzero(&(mpw->psi_sxy_x[1][1]), nbyte_pml_x);
+        bzero(&(mpw->psi_vxx[1][1]), nbyte_pml_x);
+        bzero(&(mpw->psi_vyx[1][1]), nbyte_pml_x);
+        bzero(&(mpw->psi_vxxs[1][1]), nbyte_pml_x);
+
+        bzero(&(mpw->psi_syy_y[1][1]), nbyte_pml_y);
+        bzero(&(mpw->psi_sxy_y[1][1]), nbyte_pml_y);
+        bzero(&(mpw->psi_vyy[1][1]), nbyte_pml_y);
+        bzero(&(mpw->psi_vxy[1][1]), nbyte_pml_y);
+    }
+
+    /* 4th order */
     if (gv->FDORDER_TIME == 4) {
-        if (gv->L) {
+        bzero(&(mpw->vxx_1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->vxx_2[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->vxx_3[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->vxx_4[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->vyy_1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->vyy_2[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->vyy_3[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->vyy_4[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->vxy_1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->vxy_2[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->vxy_3[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->vxy_4[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->vyx_1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->vyx_2[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->vyx_3[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->vyx_4[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->svx_1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->svx_2[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->svx_3[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->svx_4[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->svy_1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->svy_2[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->svy_3[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(mpw->svy_4[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+
         /* viscoelastic, FDORDER_TIME = 4 */
-        for (int j = (-gv->ND + 1); j <= (gv->NY + gv->ND); j++) {
-                for (int i = (-gv->ND + 1); i <= (gv->NX + gv->ND); i++) {
-                    zero_elastic_4(j, i, mpw);
-                    for (int l = 1; l <= gv->L; l++) {
-                        zero_visco_4(j, i, l, mpw);
-                    }
-                }
-            }
-        } else {
-            /* elastic, FDORDER_TIME = 4 */
-            for (int j = (-gv->ND + 1); j <= (gv->NY + gv->ND); j++) {
-                for (int i = (-gv->ND + 1); i <= (gv->NX + gv->ND); i++) {
-                    zero_elastic_4(j, i, mpw);
-                }
-            }
+        if (gv->L) {
+            bzero(&(mpw->pr_2[-gv->ND + 1][-gv->ND + 1][1]), nbyte_3);
+            bzero(&(mpw->pr_3[-gv->ND + 1][-gv->ND + 1][1]), nbyte_3);
+            bzero(&(mpw->pr_4[-gv->ND + 1][-gv->ND + 1][1]), nbyte_3);
+
+            bzero(&(mpw->pp_2[-gv->ND + 1][-gv->ND + 1][1]), nbyte_3);
+            bzero(&(mpw->pp_3[-gv->ND + 1][-gv->ND + 1][1]), nbyte_3);
+            bzero(&(mpw->pp_4[-gv->ND + 1][-gv->ND + 1][1]), nbyte_3);
+
+            bzero(&(mpw->pq_2[-gv->ND + 1][-gv->ND + 1][1]), nbyte_3);
+            bzero(&(mpw->pq_3[-gv->ND + 1][-gv->ND + 1][1]), nbyte_3);
+            bzero(&(mpw->pq_4[-gv->ND + 1][-gv->ND + 1][1]), nbyte_3);
         }
     }
 }

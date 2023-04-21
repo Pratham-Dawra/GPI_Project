@@ -255,12 +255,6 @@ FDMOD_FILES := sofi2D.c \
                write_su.c \
                writedsk.c \
                writemod.c \
-               zero_elastic.c \
-               zero_elastic_4.c \
-               zero_visco.c \
-               zero_visco_4.c \
-               zero_PML_x.c \
-               zero_PML_y.c \
                zero_wavefield.c
 
 MERGE_OBJ := $(addprefix $(MERGE_O)/, $(patsubst %.c, %.o, $(MERGE_FILES)))

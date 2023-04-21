@@ -353,7 +353,7 @@ void update_v_abs(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void update_v_abs_4(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void update_v_interior(int nt, float **srcpos_loc, float **signals, int nsrc, float *hc,
+void update_v_interior(int nt, float **srcpos_loc, float **signals, int nsrc,
                        MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void update_v_interior_4(int nt, float **srcpos_loc, float **signals, int nsrc, float *hc,
@@ -419,7 +419,7 @@ void writedsk(FILE *fp_out, float amp, int format);
 
 void writemod(const char *modfile, float **array, int format, const GlobVar *gv);
 
-void zero_elastic(int j, int i, MemWavefield *mpw);
+/*void zero_elastic(int j, int i, MemWavefield *mpw);
 
 void zero_elastic_4(int j, int i, MemWavefield *mpw);
 
@@ -429,9 +429,9 @@ void zero_visco(int j, int i, int l, MemWavefield *mpw);
 
 void zero_PML_x(int j, int i, MemWavefield *mpw);
 
-void zero_PML_y(int j, int i, MemWavefield *mpw);
+void zero_PML_y(int j, int i, MemWavefield *mpw);*/
 
-void zero_wavefield(MemWavefield *mpw, GlobVar *gv);
+void zero_wavefield(int iter, MemWavefield *mpw, MemInv * minv, GlobVar *gv, GlobVarInv *vinv);
 
 /* declaration of functions for parser*/
 

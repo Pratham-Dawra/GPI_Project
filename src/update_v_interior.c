@@ -30,14 +30,12 @@
 #include "fd.h"
 #include "logging.h"
 
-void update_v_interior(int nt, float **srcpos_loc, float **signals, int nsrc, float *hc,
-                       MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
+void update_v_interior(int nt, float **srcpos_loc, float **signals, int nsrc,
+                       MemModel *mpm, MemWavefield *mpw, GlobVar *gv)
 {
     float amp;
     float sxx_x, sxy_x, sxy_y, syy_y;
     double time1 = 0.0, time2 = 0.0;
-
-    float dtdh = gv->DT / gv->DH;
 
     if ((gv->MPID == 0) && ((nt + (gv->OUTNTIMESTEPINFO - 1)) % gv->OUTNTIMESTEPINFO) == 0) {
         time1 = MPI_Wtime();
@@ -50,203 +48,59 @@ void update_v_interior(int nt, float **srcpos_loc, float **signals, int nsrc, fl
      * ------------------------------------------------------------ */
 
     for (int l = 1; l <= nsrc; l++) {
-	int i = (int)srcpos_loc[1][l];
-	int j = (int)srcpos_loc[2][l];
-	float azi_rad = srcpos_loc[7][l] * PI / 180;
-	
-	//amp=signals[l][nt]; // unscaled force amplitude
-	amp = (gv->DT * signals[l][nt]) / (gv->DH * gv->DH);    // scaled force amplitude with F= 1N
+        int i = (int)srcpos_loc[1][l];
+        int j = (int)srcpos_loc[2][l];
+        float azi_rad = srcpos_loc[7][l] * PI / 180;
 
-	gv->SOURCE_TYPE = (int)srcpos_loc[8][l];
+        //amp=signals[l][nt]; // unscaled force amplitude
+        amp = (gv->DT * signals[l][nt]) / (gv->DH * gv->DH);    // scaled force amplitude with F= 1N
 
-	switch (gv->SOURCE_TYPE) {
-	case 2:          /* single force in x */
-	    mpw->pvx[j][i] += mpm->prip[j][i] * amp;
-	    /* previous implementation of body forces as seismic sources.
-	     * Implementation according to Coutant et al., BSSA, Vol. 85, No 5, 1507-1512.
-	     * The stress tensor components sxx and syy are incremented prior to
-	     * particle velocity update. Thereby the body force (both directions)
-	     * are located at full grid point (i,j) (same position as pressure source).
-	     * as a consequence, source signals are added [and weighted] at multiple grid points.
-	     * This implementation works but not quite physical when considering e.g. a force of 1 N
-	     * and aiming to gain the particle velocity strictly according to that force.
-	     * Therefore it has been commented */
-	    
-	    /*for (m=1; m<=fdoh; m++) {
-	     * vx[j][i+m-1]  +=  hc[m]*rip[j][i]*amp;
-	     * vx[j][i-m]    +=  hc[m]*rip[j][i-1]*amp;
-	     * } */
-	    break;
-	case 3:          /* single force in y */
-	    mpw->pvy[j][i] += mpm->prjp[j][i] * amp;
-	    /*for (m=1; m<=fdoh; m++) {
-	     * vy[j+m-1][i]  +=  hc[m]*rjp[j][i]*amp;
-	     * vy[j-m][i]    +=  hc[m]*rjp[j][i-1]*amp;
-	     * } */
-	    break;
-	case 4:          /* custom force */
-	    mpw->pvx[j][i] += sin(azi_rad) * (mpm->prip[j][i] * amp);
-	    mpw->pvy[j][i] += cos(azi_rad) * (mpm->prjp[j][i] * amp);
-	    /*for (m=1; m<=fdoh; m++) {
-	     * vx[j][i+m-1]  +=  sin(azi_rad)*(hc[m]*rip[j][i]*amp);
-	     * vx[j][i-m]    +=  sin(azi_rad)*(hc[m]*rip[j][i-1]*amp);
-	     * vy[j+m-1][i]  +=  cos(azi_rad)*(hc[m]*rjp[j][i]*amp);
-	     * vy[j-m][i]    +=  cos(azi_rad)*(hc[m]*rjp[j][i-1]*amp);
-	     * } */
-	    break;
-	}
+        gv->SOURCE_TYPE = (int)srcpos_loc[8][l];
+
+        switch (gv->SOURCE_TYPE) {
+          case 2:              /* single force in x */
+              mpw->pvx[j][i] += mpm->prip[j][i] * amp;
+              /* previous implementation of body forces as seismic sources.
+               * Implementation according to Coutant et al., BSSA, Vol. 85, No 5, 1507-1512.
+               * The stress tensor components sxx and syy are incremented prior to
+               * particle velocity update. Thereby the body force (both directions)
+               * are located at full grid point (i,j) (same position as pressure source).
+               * as a consequence, source signals are added [and weighted] at multiple grid points.
+               * This implementation works but not quite physical when considering e.g. a force of 1 N
+               * and aiming to gain the particle velocity strictly according to that force.
+               * Therefore it has been commented */
+
+              /*for (m=1; m<=fdoh; m++) {
+               * vx[j][i+m-1]  +=  hc[m]*rip[j][i]*amp;
+               * vx[j][i-m]    +=  hc[m]*rip[j][i-1]*amp;
+               * } */
+              break;
+          case 3:              /* single force in y */
+              mpw->pvy[j][i] += mpm->prjp[j][i] * amp;
+              /*for (m=1; m<=fdoh; m++) {
+               * vy[j+m-1][i]  +=  hc[m]*rjp[j][i]*amp;
+               * vy[j-m][i]    +=  hc[m]*rjp[j][i-1]*amp;
+               * } */
+              break;
+          case 4:              /* custom force */
+              mpw->pvx[j][i] += sin(azi_rad) * (mpm->prip[j][i] * amp);
+              mpw->pvy[j][i] += cos(azi_rad) * (mpm->prjp[j][i] * amp);
+              /*for (m=1; m<=fdoh; m++) {
+               * vx[j][i+m-1]  +=  sin(azi_rad)*(hc[m]*rip[j][i]*amp);
+               * vx[j][i-m]    +=  sin(azi_rad)*(hc[m]*rip[j][i-1]*amp);
+               * vy[j+m-1][i]  +=  cos(azi_rad)*(hc[m]*rjp[j][i]*amp);
+               * vy[j-m][i]    +=  cos(azi_rad)*(hc[m]*rjp[j][i-1]*amp);
+               * } */
+              break;
+        }
     }
 
-    switch (gv->FDORDER) {
-      case 2:
-          for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
-              for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-                  sxx_x = hc[1] * (mpw->psxx[j][i + 1] - mpw->psxx[j][i]);
-                  sxy_x = hc[1] * (mpw->psxy[j][i] - mpw->psxy[j][i - 1]);
-                  sxy_y = hc[1] * (mpw->psxy[j][i] - mpw->psxy[j - 1][i]);
-                  syy_y = hc[1] * (mpw->psyy[j + 1][i] - mpw->psyy[j][i]);
-                  mpw->pvx[j][i] += (sxx_x + sxy_y) * dtdh * mpm->prip[j][i];
-                  mpw->pvy[j][i] += (sxy_x + syy_y) * dtdh * mpm->prjp[j][i];
-              }
-          }
-          break;
-      case 4:
-          for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
-              for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-                  sxx_x =
-                      hc[1] * (mpw->psxx[j][i + 1] - mpw->psxx[j][i]) + hc[2] * (mpw->psxx[j][i + 2] -
-                                                                                 mpw->psxx[j][i - 1]);
-                  sxy_x =
-                      hc[1] * (mpw->psxy[j][i] - mpw->psxy[j][i - 1]) + hc[2] * (mpw->psxy[j][i + 1] -
-                                                                                 mpw->psxy[j][i - 2]);
-                  sxy_y =
-                      hc[1] * (mpw->psxy[j][i] - mpw->psxy[j - 1][i]) + hc[2] * (mpw->psxy[j + 1][i] -
-                                                                                 mpw->psxy[j - 2][i]);
-                  syy_y =
-                      hc[1] * (mpw->psyy[j + 1][i] - mpw->psyy[j][i]) + hc[2] * (mpw->psyy[j + 2][i] -
-                                                                                 mpw->psyy[j - 1][i]);
-                  mpw->pvx[j][i] += (sxx_x + sxy_y) * dtdh * mpm->prip[j][i];
-                  mpw->pvy[j][i] += (sxy_x + syy_y) * dtdh * mpm->prjp[j][i];
-              }
-          }
-          break;
-      case 6:
-          for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
-              for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-                  sxx_x = hc[1] * (mpw->psxx[j][i + 1] - mpw->psxx[j][i])
-                      + hc[2] * (mpw->psxx[j][i + 2] - mpw->psxx[j][i - 1])
-                      + hc[3] * (mpw->psxx[j][i + 3] - mpw->psxx[j][i - 2]);
-                  sxy_x = hc[1] * (mpw->psxy[j][i] - mpw->psxy[j][i - 1])
-                      + hc[2] * (mpw->psxy[j][i + 1] - mpw->psxy[j][i - 2])
-                      + hc[3] * (mpw->psxy[j][i + 2] - mpw->psxy[j][i - 3]);
-                  sxy_y = hc[1] * (mpw->psxy[j][i] - mpw->psxy[j - 1][i])
-                      + hc[2] * (mpw->psxy[j + 1][i] - mpw->psxy[j - 2][i])
-                      + hc[3] * (mpw->psxy[j + 2][i] - mpw->psxy[j - 3][i]);
-                  syy_y = hc[1] * (mpw->psyy[j + 1][i] - mpw->psyy[j][i])
-                      + hc[2] * (mpw->psyy[j + 2][i] - mpw->psyy[j - 1][i])
-                      + hc[3] * (mpw->psyy[j + 3][i] - mpw->psyy[j - 2][i]);
-                  mpw->pvx[j][i] += (sxx_x + sxy_y) * dtdh * mpm->prip[j][i];
-                  mpw->pvy[j][i] += (sxy_x + syy_y) * dtdh * mpm->prjp[j][i];
-              }
-          }
-          break;
-      case 8:
-          for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
-              for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-                  sxx_x = hc[1] * (mpw->psxx[j][i + 1] - mpw->psxx[j][i])
-                      + hc[2] * (mpw->psxx[j][i + 2] - mpw->psxx[j][i - 1])
-                      + hc[3] * (mpw->psxx[j][i + 3] - mpw->psxx[j][i - 2])
-                      + hc[4] * (mpw->psxx[j][i + 4] - mpw->psxx[j][i - 3]);
-                  sxy_x = hc[1] * (mpw->psxy[j][i] - mpw->psxy[j][i - 1])
-                      + hc[2] * (mpw->psxy[j][i + 1] - mpw->psxy[j][i - 2])
-                      + hc[3] * (mpw->psxy[j][i + 2] - mpw->psxy[j][i - 3])
-                      + hc[4] * (mpw->psxy[j][i + 3] - mpw->psxy[j][i - 4]);
-                  sxy_y = hc[1] * (mpw->psxy[j][i] - mpw->psxy[j - 1][i])
-                      + hc[2] * (mpw->psxy[j + 1][i] - mpw->psxy[j - 2][i])
-                      + hc[3] * (mpw->psxy[j + 2][i] - mpw->psxy[j - 3][i])
-                      + hc[4] * (mpw->psxy[j + 3][i] - mpw->psxy[j - 4][i]);
-                  syy_y = hc[1] * (mpw->psyy[j + 1][i] - mpw->psyy[j][i])
-                      + hc[2] * (mpw->psyy[j + 2][i] - mpw->psyy[j - 1][i])
-                      + hc[3] * (mpw->psyy[j + 3][i] - mpw->psyy[j - 2][i])
-                      + hc[4] * (mpw->psyy[j + 4][i] - mpw->psyy[j - 3][i]);
-                  mpw->pvx[j][i] += (sxx_x + sxy_y) * dtdh * mpm->prip[j][i];
-                  mpw->pvy[j][i] += (sxy_x + syy_y) * dtdh * mpm->prjp[j][i];
-              }
-          }
-          break;
-      case 10:
-          for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
-              for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-                  sxx_x = hc[1] * (mpw->psxx[j][i + 1] - mpw->psxx[j][i])
-                      + hc[2] * (mpw->psxx[j][i + 2] - mpw->psxx[j][i - 1])
-                      + hc[3] * (mpw->psxx[j][i + 3] - mpw->psxx[j][i - 2])
-                      + hc[4] * (mpw->psxx[j][i + 4] - mpw->psxx[j][i - 3])
-                      + hc[5] * (mpw->psxx[j][i + 5] - mpw->psxx[j][i - 4]);
-                  sxy_x = hc[1] * (mpw->psxy[j][i] - mpw->psxy[j][i - 1])
-                      + hc[2] * (mpw->psxy[j][i + 1] - mpw->psxy[j][i - 2])
-                      + hc[3] * (mpw->psxy[j][i + 2] - mpw->psxy[j][i - 3])
-                      + hc[4] * (mpw->psxy[j][i + 3] - mpw->psxy[j][i - 4])
-                      + hc[5] * (mpw->psxy[j][i + 4] - mpw->psxy[j][i - 5]);
-                  sxy_y = hc[1] * (mpw->psxy[j][i] - mpw->psxy[j - 1][i])
-                      + hc[2] * (mpw->psxy[j + 1][i] - mpw->psxy[j - 2][i])
-                      + hc[3] * (mpw->psxy[j + 2][i] - mpw->psxy[j - 3][i])
-                      + hc[4] * (mpw->psxy[j + 3][i] - mpw->psxy[j - 4][i])
-                      + hc[5] * (mpw->psxy[j + 4][i] - mpw->psxy[j - 5][i]);
-                  syy_y = hc[1] * (mpw->psyy[j + 1][i] - mpw->psyy[j][i])
-                      + hc[2] * (mpw->psyy[j + 2][i] - mpw->psyy[j - 1][i])
-                      + hc[3] * (mpw->psyy[j + 3][i] - mpw->psyy[j - 2][i])
-                      + hc[4] * (mpw->psyy[j + 4][i] - mpw->psyy[j - 3][i])
-                      + hc[5] * (mpw->psyy[j + 5][i] - mpw->psyy[j - 4][i]);
-                  mpw->pvx[j][i] += (sxx_x + sxy_y) * dtdh * mpm->prip[j][i];
-                  mpw->pvy[j][i] += (sxy_x + syy_y) * dtdh * mpm->prjp[j][i];
-              }
-          }
-          break;
-      case 12:
-          for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
-              for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-                  sxx_x = hc[1] * (mpw->psxx[j][i + 1] - mpw->psxx[j][i])
-                      + hc[2] * (mpw->psxx[j][i + 2] - mpw->psxx[j][i - 1])
-                      + hc[3] * (mpw->psxx[j][i + 3] - mpw->psxx[j][i - 2])
-                      + hc[4] * (mpw->psxx[j][i + 4] - mpw->psxx[j][i - 3])
-                      + hc[5] * (mpw->psxx[j][i + 5] - mpw->psxx[j][i - 4])
-                      + hc[6] * (mpw->psxx[j][i + 6] - mpw->psxx[j][i - 5]);
-                  sxy_x = hc[1] * (mpw->psxy[j][i] - mpw->psxy[j][i - 1])
-                      + hc[2] * (mpw->psxy[j][i + 1] - mpw->psxy[j][i - 2])
-                      + hc[3] * (mpw->psxy[j][i + 2] - mpw->psxy[j][i - 3])
-                      + hc[4] * (mpw->psxy[j][i + 3] - mpw->psxy[j][i - 4])
-                      + hc[5] * (mpw->psxy[j][i + 4] - mpw->psxy[j][i - 5])
-                      + hc[6] * (mpw->psxy[j][i + 5] - mpw->psxy[j][i - 6]);
-                  sxy_y = hc[1] * (mpw->psxy[j][i] - mpw->psxy[j - 1][i])
-                      + hc[2] * (mpw->psxy[j + 1][i] - mpw->psxy[j - 2][i])
-                      + hc[3] * (mpw->psxy[j + 2][i] - mpw->psxy[j - 3][i])
-                      + hc[4] * (mpw->psxy[j + 3][i] - mpw->psxy[j - 4][i])
-                      + hc[5] * (mpw->psxy[j + 4][i] - mpw->psxy[j - 5][i])
-                      + hc[6] * (mpw->psxy[j + 5][i] - mpw->psxy[j - 6][i]);
-                  syy_y = hc[1] * (mpw->psyy[j + 1][i] - mpw->psyy[j][i])
-                      + hc[2] * (mpw->psyy[j + 2][i] - mpw->psyy[j - 1][i])
-                      + hc[3] * (mpw->psyy[j + 3][i] - mpw->psyy[j - 2][i])
-                      + hc[4] * (mpw->psyy[j + 4][i] - mpw->psyy[j - 3][i])
-                      + hc[5] * (mpw->psyy[j + 5][i] - mpw->psyy[j - 4][i])
-                      + hc[6] * (mpw->psyy[j + 6][i] - mpw->psyy[j - 5][i]);
-                  mpw->pvx[j][i] += (sxx_x + sxy_y) * dtdh * mpm->prip[j][i];
-                  mpw->pvy[j][i] += (sxy_x + syy_y) * dtdh * mpm->prjp[j][i];
-              }
-          }
-          break;
-      default:                 // 2nd order
-          for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
-              for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-                  sxx_x = hc[1] * (mpw->psxx[j][i + 1] - mpw->psxx[j][i]);
-                  sxy_x = hc[1] * (mpw->psxy[j][i] - mpw->psxy[j][i - 1]);
-                  sxy_y = hc[1] * (mpw->psxy[j][i] - mpw->psxy[j - 1][i]);
-                  syy_y = hc[1] * (mpw->psyy[j + 1][i] - mpw->psyy[j][i]);
-                  mpw->pvx[j][i] += (sxx_x + sxy_y) * dtdh * mpm->prip[j][i];
-                  mpw->pvy[j][i] += (sxy_x + syy_y) * dtdh * mpm->prjp[j][i];
-              }
-          }
-          break;
-    }                           /* end of switch(gv->FDORDER) */
+    for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
+        for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
+            gv->FDOP_V(i, j, &sxx_x, &sxy_x, &sxy_y, &syy_y, mpw);
+            wavefield_update_v(i, j, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, gv);
+        }
+    }
 
     if ((gv->MPID == 0) && ((nt + (gv->OUTNTIMESTEPINFO - 1)) % gv->OUTNTIMESTEPINFO) == 0) {
         time2 = MPI_Wtime();

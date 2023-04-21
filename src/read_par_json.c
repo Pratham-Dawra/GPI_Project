@@ -228,6 +228,8 @@ void read_par_json(const char *fileinp, GlobVar * gv, GlobVarInv *vinv)
                 log_fatal("Variable SIGNAL_FILE could not be retrieved from the json input file!");
         }
     }
+    /* Save old SOURCE_SHAPE, which is needed for STF */
+    gv->SOURCE_SHAPE_OLD = gv->SOURCE_SHAPE;
     if (get_int_from_objectlist("SRCREC", number_readobjects, &(gv->SRCREC), varname_list, value_list, used_list))
         log_fatal("Variable SRCREC could not be retrieved from the json input file!");
     else {
