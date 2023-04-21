@@ -53,7 +53,7 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
          * update of particle velocities --------------------------------
          *---------------------------------------------------------------*/
         if (gv->FDORDER_TIME == 2) {
-            update_v_interior(nt, acq->srcpos_loc, acq->signals, acq->nsrc_loc, hc, mpm, mpw, gv);
+            update_v_interior(nt, acq->srcpos_loc, acq->signals, acq->nsrc_loc, mpm, mpw, gv);
 #ifdef EBUG
             debug_check_matrix(mpw->pvx, nt, gv->NX, gv->NY, 121, 0, "pvx");
             debug_check_matrix(mpw->pvy, nt, gv->NX, gv->NY, 121, 0, "pvy");

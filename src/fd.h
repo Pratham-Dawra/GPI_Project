@@ -327,7 +327,7 @@ void update_v_abs(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void update_v_abs_4(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void update_v_interior(int nt, float **srcpos_loc, float **signals, int nsrc, float *hc,
+void update_v_interior(int nt, float **srcpos_loc, float **signals, int nsrc,
                        MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void update_v_interior_4(int nt, float **srcpos_loc, float **signals, int nsrc, float *hc,
