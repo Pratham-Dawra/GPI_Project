@@ -24,10 +24,27 @@
 
 #include "fd.h"
 
-void wavefield_update_v(int i, int j, float sxx_x, float sxy_x, float sxy_y, float syy_y, MemModel * mpm,
-                        MemWavefield * mpw, GlobVar * gv)
+void wavefield_update_v(int i, int j, int sw, float sxx_x, float sxy_x, float sxy_y, float syy_y, MemModel *mpm,
+                        MemWavefield *mpw, MemInv * minv, GlobVar *gv, GlobVarInv *vinv)
 {
     float dtdh = gv->DT / gv->DH;
+
+    if (gv->MODE == FWI) {
+        if (sw == 1) {  /* Backpropagation (sw==1) */
+            if (vinv->VELOCITY == 0) {
+                minv->pvxp1[j][i] += mpw->pvx[j][i] * gv->DT;
+                minv->pvyp1[j][i] += mpw->pvy[j][i] * gv->DT;
+            } else {
+                minv->pvxp1[j][i] = mpw->pvx[j][i];
+                minv->pvyp1[j][i] = mpw->pvy[j][i];
+            }
+        } else {    /* Forward Modelling (sw==0) */
+            minv->pvxp1[j][i] = mpm->prip[j][i] * (sxx_x + sxy_y) / gv->DH;
+            minv->pvyp1[j][i] = mpm->prjp[j][i] * (sxy_x + syy_y) / gv->DH;
+        }
+    }
+
     mpw->pvx[j][i] += (sxx_x + sxy_y) * dtdh * mpm->prip[j][i];
     mpw->pvy[j][i] += (sxy_x + syy_y) * dtdh * mpm->prjp[j][i];
+
 }

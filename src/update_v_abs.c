@@ -29,7 +29,7 @@
 
 #include "fd.h"
 
-void update_v_abs(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
+void update_v_abs(int sw, MemModel *mpm, MemWavefield *mpw, MemInv * minv, GlobVar *gv, GlobVarInv *vinv)
 {
     float sxx_x, syy_y, sxy_y, sxy_x;
 
@@ -42,7 +42,7 @@ void update_v_abs(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
             gv->FDOP_V(i, j, &sxx_x, &sxy_x, &sxy_y, &syy_y, mpw);
-            wavefield_update_v(i, j, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, gv);
+            wavefield_update_v(i, j, sw, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, minv, gv, vinv);
             /* Damping the wavfield */
             abs_update_v(i, j, mpm, mpw);
         }
@@ -52,7 +52,7 @@ void update_v_abs(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
             gv->FDOP_V(i, j, &sxx_x, &sxy_x, &sxy_y, &syy_y, mpw);
-            wavefield_update_v(i, j, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, gv);
+            wavefield_update_v(i, j, sw, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, minv, gv, vinv);
             abs_update_v(i, j, mpm, mpw);
         }
     }
@@ -61,7 +61,7 @@ void update_v_abs(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
             gv->FDOP_V(i, j, &sxx_x, &sxy_x, &sxy_y, &syy_y, mpw);
-            wavefield_update_v(i, j, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, gv);
+            wavefield_update_v(i, j, sw, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, minv, gv, vinv);
             abs_update_v(i, j, mpm, mpw);
         }
     }
@@ -70,7 +70,7 @@ void update_v_abs(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
             gv->FDOP_V(i, j, &sxx_x, &sxy_x, &sxy_y, &syy_y, mpw);
-            wavefield_update_v(i, j, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, gv);
+            wavefield_update_v(i, j, sw, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, minv, gv, vinv);
             abs_update_v(i, j, mpm, mpw);
         }
     }
@@ -81,7 +81,7 @@ void update_v_abs(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
             gv->FDOP_V(i, j, &sxx_x, &sxy_x, &sxy_y, &syy_y, mpw);
-            wavefield_update_v(i, j, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, gv);
+            wavefield_update_v(i, j, sw, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, minv, gv, vinv);
             abs_update_v(i, j, mpm, mpw);
         }
     }
@@ -90,7 +90,7 @@ void update_v_abs(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
             gv->FDOP_V(i, j, &sxx_x, &sxy_x, &sxy_y, &syy_y, mpw);
-            wavefield_update_v(i, j, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, gv);
+            wavefield_update_v(i, j, sw, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, minv, gv, vinv);
             abs_update_v(i, j, mpm, mpw);
         }
     }
@@ -99,7 +99,7 @@ void update_v_abs(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
             gv->FDOP_V(i, j, &sxx_x, &sxy_x, &sxy_y, &syy_y, mpw);
-            wavefield_update_v(i, j, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, gv);
+            wavefield_update_v(i, j, sw, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, minv, gv, vinv);
             abs_update_v(i, j, mpm, mpw);
         }
     }
@@ -108,7 +108,7 @@ void update_v_abs(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
             gv->FDOP_V(i, j, &sxx_x, &sxy_x, &sxy_y, &syy_y, mpw);
-            wavefield_update_v(i, j, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, gv);
+            wavefield_update_v(i, j, sw, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, minv, gv, vinv);
             abs_update_v(i, j, mpm, mpw);
         }
     }

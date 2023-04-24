@@ -50,7 +50,7 @@ void zero_wavefield(int iter, MemWavefield *mpw, MemInv * minv, GlobVar *gv, Glo
         bzero(&(minv->waveconv_rho_shot[1][1]), nbyte_grad);
         bzero(&(minv->waveconv_u_shot[1][1]), nbyte_grad);
         
-        if ((vinv->EPRECOND == 1) || (vinv->EPRECOND == 3) && (vinv->EPRECOND_ITER == iter || (vinv->EPRECOND_ITER == 0))) {
+        if ((vinv->EPRECOND == 1) || ((vinv->EPRECOND == 3) && (vinv->EPRECOND_ITER == iter || (vinv->EPRECOND_ITER == 0)))) {
             bzero(&(minv->Ws[1][1]), nbyte_grad);
             bzero(&(minv->Wr[1][1]), nbyte_grad);
             bzero(&(minv->We[1][1]), nbyte_grad);

@@ -30,7 +30,8 @@
 #include "fd.h"
 #include "logging.h"
 
-void update_v_PML(int nx2, int ny2, int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
+void update_v_PML(int nx2, int ny2, int nt, int sw, MemModel *mpm, MemWavefield *mpw, MemInv * minv,
+                  GlobVar *gv, GlobVarInv *vinv)
 {
     int h1;
     float sxx_x, syy_y, sxy_y, sxy_x;
@@ -53,7 +54,7 @@ void update_v_PML(int nx2, int ny2, int nt, MemModel * mpm, MemWavefield * mpw, 
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
             gv->FDOP_V(i, j, &sxx_x, &sxy_x, &sxy_y, &syy_y, mpw);
             cpml_update_v_x(i, j, &sxx_x, &sxy_x, mpm, mpw);
-            wavefield_update_v(i, j, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, gv);
+            wavefield_update_v(i, j, sw, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, minv, gv, vinv);
         }
     }
 
@@ -63,7 +64,7 @@ void update_v_PML(int nx2, int ny2, int nt, MemModel * mpm, MemWavefield * mpw, 
             gv->FDOP_V(i, j, &sxx_x, &sxy_x, &sxy_y, &syy_y, mpw);
             h1 = (i - nx2 + 2 * gv->FW);
             cpml_update_v_x(h1, j, &sxx_x, &sxy_x, mpm, mpw);
-            wavefield_update_v(i, j, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, gv);
+            wavefield_update_v(i, j, sw, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, minv, gv, vinv);
         }
     }
 
@@ -72,7 +73,7 @@ void update_v_PML(int nx2, int ny2, int nt, MemModel * mpm, MemWavefield * mpw, 
         for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
             gv->FDOP_V(i, j, &sxx_x, &sxy_x, &sxy_y, &syy_y, mpw);
             cpml_update_v_y(i, j, &sxy_y, &syy_y, mpm, mpw);
-            wavefield_update_v(i, j, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, gv);
+            wavefield_update_v(i, j, sw, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, minv, gv, vinv);
         }
     }
 
@@ -82,7 +83,7 @@ void update_v_PML(int nx2, int ny2, int nt, MemModel * mpm, MemWavefield * mpw, 
             gv->FDOP_V(i, j, &sxx_x, &sxy_x, &sxy_y, &syy_y, mpw);
             h1 = (j - ny2 + 2 * gv->FW);
             cpml_update_v_y(i, h1, &sxy_y, &syy_y, mpm, mpw);
-            wavefield_update_v(i, j, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, gv);
+            wavefield_update_v(i, j, sw, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, minv, gv, vinv);
         }
     }
 
@@ -94,7 +95,7 @@ void update_v_PML(int nx2, int ny2, int nt, MemModel * mpm, MemWavefield * mpw, 
             gv->FDOP_V(i, j, &sxx_x, &sxy_x, &sxy_y, &syy_y, mpw);
             cpml_update_v_x(i, j, &sxx_x, &sxy_x, mpm, mpw);
             cpml_update_v_y(i, j, &sxy_y, &syy_y, mpm, mpw);
-            wavefield_update_v(i, j, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, gv);
+            wavefield_update_v(i, j, sw, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, minv, gv, vinv);
         }
     }
 
@@ -105,7 +106,7 @@ void update_v_PML(int nx2, int ny2, int nt, MemModel * mpm, MemWavefield * mpw, 
             cpml_update_v_x(i, j, &sxx_x, &sxy_x, mpm, mpw);
             h1 = (j - ny2 + 2 * gv->FW);
             cpml_update_v_y(i, h1, &sxy_y, &syy_y, mpm, mpw);
-            wavefield_update_v(i, j, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, gv);
+            wavefield_update_v(i, j, sw, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, minv, gv, vinv);
         }
     }
 
@@ -116,7 +117,7 @@ void update_v_PML(int nx2, int ny2, int nt, MemModel * mpm, MemWavefield * mpw, 
             h1 = (i - nx2 + 2 * gv->FW);
             cpml_update_v_x(h1, j, &sxx_x, &sxy_x, mpm, mpw);
             cpml_update_v_y(i, j, &sxy_y, &syy_y, mpm, mpw);
-            wavefield_update_v(i, j, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, gv);
+            wavefield_update_v(i, j, sw, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, minv, gv, vinv);
         }
     }
 
@@ -128,7 +129,7 @@ void update_v_PML(int nx2, int ny2, int nt, MemModel * mpm, MemWavefield * mpw, 
             cpml_update_v_x(h1, j, &sxx_x, &sxy_x, mpm, mpw);
             h1 = (j - ny2 + 2 * gv->FW);
             cpml_update_v_y(i, h1, &sxy_y, &syy_y, mpm, mpw);
-            wavefield_update_v(i, j, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, gv);
+            wavefield_update_v(i, j, sw, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, minv, gv, vinv);
         }
     }
 

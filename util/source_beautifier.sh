@@ -67,7 +67,7 @@ options="-nbad -bap -bbb -sob -sc -br -ce -cdw -cli2 -ss -npcs \
 -cp33 -nlps -nprs -npsl -ts4"
 
 typedef="-T AcqVar -T WEQTYPE -T GlobVar -T GlobVarInv -T log_Level \
--T log_Program -T MemModel -T MemWavefield -T SUgather -T SUhead -T FILE \
+-T log_Program -T MemModel -T MemWavefield -T MemInv -T SUgather -T SUhead -T FILE \
 -T Perform"
 
 # the following options are only available for indent version >=2.2.12

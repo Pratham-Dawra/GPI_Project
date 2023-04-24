@@ -336,7 +336,7 @@ int main(int argc, char **argv)
 
                     /*------------------------------------------------------------------------------*/
                     /*---------- Start loop over timesteps (forward model) -------------------------*/
-                    time_loop(ishot, snapcheck, hc, &acq, &mpm, &mpw, &gv, &perf);
+                    time_loop(ishot, snapcheck, hc, &acq, &mpm, &mpw, &minv, &gv, &vinv, &perf);
 
                     /* gather and output seismograms if applicable */
                     saveseis(ishot, &acq, &gv);

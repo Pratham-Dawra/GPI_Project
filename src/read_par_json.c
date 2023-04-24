@@ -183,6 +183,10 @@ void read_par_json(const char *fileinp, GlobVar * gv, GlobVarInv *vinv)
     } else {
         parse_runmode(runmode, gv);
     }
+    if (gv->MODE == FWI && gv->FDORDER_TIME == 4) {
+        log_warn("FDORDER_TIME = 4 not implemented for FWI, set to '2' (default)!\n");
+        gv->FDORDER_TIME = 2;
+    }
 
     /* =================================
      * wave equation

@@ -25,9 +25,9 @@
 #include "logging.h"
 
 void time_loop(int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm,
-               MemWavefield *mpw, GlobVar *gv, Perform *perf)
+               MemWavefield *mpw, MemInv *minv, GlobVar *gv, GlobVarInv *vinv, Perform *perf)
 {
-    int nt, lsnap, isnap, esnap;
+    int nt, lsnap, isnap, esnap, sw = 0;
     double time3 = 0.0, time4 = 0.0, time5 = 0.0, time6 = 0.0, time7 = 0.0, time8 = 0.0;
     int lsamp = gv->NDT;
     //int  hi = 1, hin = 1, hin1 = 1, imat = 1, imat1 = 1, imat2 = 1;
@@ -54,7 +54,7 @@ void time_loop(int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm,
          * update of particle velocities --------------------------------
          *---------------------------------------------------------------*/
         if (gv->FDORDER_TIME == 2) {
-            update_v_interior(nt, acq->srcpos_loc, acq->signals, acq->nsrc_loc, mpm, mpw, gv);
+            update_v_interior(nt, acq->srcpos_loc, acq->signals, acq->signals, acq->nsrc_loc, sw, mpm, mpw, minv, gv, vinv);
 #ifdef EBUG
             debug_check_matrix(mpw->pvx, nt, gv->NX, gv->NY, 121, 0, "pvx");
             debug_check_matrix(mpw->pvy, nt, gv->NX, gv->NY, 121, 0, "pvy");
@@ -62,11 +62,11 @@ void time_loop(int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm,
 
             if (gv->FW) {
                 if (gv->ABS_TYPE == 1) {
-                    update_v_PML(gv->NX, gv->NY, nt, mpm, mpw, gv);
+                    update_v_PML(gv->NX, gv->NY, nt, sw, mpm, mpw, minv, gv, vinv);
                 }
 
                 if (gv->ABS_TYPE == 2) {
-                    update_v_abs(mpm, mpw, gv);
+                    update_v_abs(sw, mpm, mpw, minv, gv, vinv);
                 }
 #ifdef EBUG
                 debug_check_matrix(mpw->pvx, nt, gv->NX, gv->NY, 122, 0, "pvx");

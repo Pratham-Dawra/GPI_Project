@@ -276,7 +276,8 @@ void surface(int ndepth, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *g
 
 void surface_elastic(int ndepth, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void time_loop(int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm, MemWavefield *mpw, GlobVar *gv, Perform *perf);
+void time_loop(int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm, MemWavefield *mpw,
+               MemInv *minv, GlobVar *gv, GlobVarInv *vinv, Perform *perf);
 
 /* void update_s_elastic(int nx1, int nx2, int ny1, int ny2, int nt,
                       float **vx, float **vy, float **sxx, float **syy,
@@ -349,19 +350,20 @@ void update_s_visc_TTI_PML(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
               float **psxy, float **prho, float **prip, float **prjp,
               float **srcpos_loc, float **signals, int nsrc, float **absorb_coeff, float *hc); */
 
-void update_v_abs(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+void update_v_abs(int sw, MemModel * mpm, MemWavefield * mpw, MemInv *minv, GlobVar * gv, GlobVarInv *vinv);
 
-void update_v_abs_4(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+void update_v_abs_4(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * gv);
 
-void update_v_interior(int nt, float **srcpos_loc, float **signals, int nsrc,
-                       MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+void update_v_interior(int nt, float **srcpos_loc, float **signals, float **signals1, int nsrc, int sw,
+                       MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
 
 void update_v_interior_4(int nt, float **srcpos_loc, float **signals, int nsrc, float *hc,
-                         MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+                       MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void update_v_PML(int nx2, int ny2, int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+void update_v_PML(int nx2, int ny2, int nt, int sw, MemModel * mpm, MemWavefield * mpw, MemInv *minv,
+                  GlobVar * gv, GlobVarInv *vinv);
 
-void update_v_PML_4(int nx2, int ny2, int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+void update_v_PML_4(int nx2, int ny2, int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * gv);
 
 void v_derivatives(MemWavefield *mpw, GlobVar *gv);
 
@@ -396,11 +398,11 @@ void wavefield_update_s_visc_VTI(int i, int j, float vxx, float vyx, float vxy, 
 
 void wavefield_update_s_visc_TTI(int i, int j, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void wavefield_update_v(int i, int j, float sxx_x, float sxy_x, float sxy_y, float syy_y, MemModel *mpm,
-                        MemWavefield *mpw, GlobVar *gv);
+void wavefield_update_v(int i, int j, int sw, float sxx_x, float sxy_x, float sxy_y, float syy_y, MemModel *mpm,
+                        MemWavefield *mpw, MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
 
 void wavefield_update_v_4(int i, int j, float sxx_x, float sxy_x, float sxy_y, float syy_y, MemModel *mpm,
-                          MemWavefield *mpw, GlobVar *gv);
+                        MemWavefield *mpw, GlobVar *gv);
 
 void wavelet(AcqVar *acq, GlobVar *gv);
 
