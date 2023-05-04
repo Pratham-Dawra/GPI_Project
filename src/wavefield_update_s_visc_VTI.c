@@ -31,7 +31,7 @@
                                  float *bip, float *cip, GlobVar *gv) */
 
 void wavefield_update_s_visc_VTI(int i, int j, float vxx, float vyx, float vxy, float vyy, MemModel * mpm,
-                                 MemWavefield * mpw, GlobVar * gv)
+                                 MemWavefield * mpw, MemInv *minv, GlobVar * gv)
 {
     /* computing sums of the old memory variables */
     float dthalbe = gv->DT / 2.0;
@@ -67,4 +67,9 @@ void wavefield_update_s_visc_VTI(int i, int j, float vxx, float vyx, float vxy, 
     mpw->psxx[j][i] += (dthalbe * sump);
     mpw->psyy[j][i] += (dthalbe * sumq);
 
+    if (gv->MODE == FWI) {
+        minv->uxy[j][i] = mpw->psxy[j][i] / gv->DT;;
+        minv->ux[j][i] = mpw->psxx[j][i] / gv->DT;
+        minv->uy[j][i] = mpw->psyy[j][i] / gv->DT;
+    }
 }

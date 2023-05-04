@@ -30,7 +30,7 @@
                              float *bjm, float *cip, float *cjm, float ***d, float ***e, float ***dip, GlobVar * gv) */
 
 void wavefield_update_s_visc(int i, int j, float vxx, float vyx, float vxy, float vyy, MemModel * mpm,
-                             MemWavefield * mpw, GlobVar * gv)
+                             MemWavefield * mpw, MemInv *minv, GlobVar * gv)
 {
     /* computing sums of the old memory variables */
     float dthalbe = gv->DT / 2.0;
@@ -45,6 +45,12 @@ void wavefield_update_s_visc(int i, int j, float vxx, float vyx, float vxy, floa
     mpw->psxy[j][i] += (mpm->fipjp[j][i] * (vxy + vyx)) + (dthalbe * sumr);
     mpw->psxx[j][i] += (mpm->g[j][i] * (vxx + vyy)) - (2.0 * mpm->f[j][i] * vyy) + (dthalbe * sump);
     mpw->psyy[j][i] += (mpm->g[j][i] * (vxx + vyy)) - (2.0 * mpm->f[j][i] * vxx) + (dthalbe * sumq);
+
+    /*if (gv->MODE == FWI) {
+        minv->uxy[j][i] = mpw->psxy[j][i] / gv->DT;
+        minv->ux[j][i] = mpw->psxx[j][i] / gv->DT;
+        minv->uy[j][i] = mpw->psyy[j][i] / gv->DT;
+    }*/
 
     /* now updating the memory-variables and sum them up */
     sumr = sump = sumq = 0.0f;
@@ -65,4 +71,13 @@ void wavefield_update_s_visc(int i, int j, float vxx, float vyx, float vxy, floa
     mpw->psxy[j][i] += (dthalbe * sumr);
     mpw->psxx[j][i] += (dthalbe * sump);
     mpw->psyy[j][i] += (dthalbe * sumq);
+
+    if (gv->MODE == FWI) {
+        minv->uxy[j][i] = mpw->psxy[j][i] / gv->DT;
+        minv->ux[j][i] = mpw->psxx[j][i] / gv->DT;
+        minv->uy[j][i] = mpw->psyy[j][i] / gv->DT;
+/*        minv->uxy[j][i] += (0.5 * sumr);
+        minv->ux[j][i] += (0.5 * sump);
+        minv->uy[j][i] += (0.5 * sumq); */
+    }
 }

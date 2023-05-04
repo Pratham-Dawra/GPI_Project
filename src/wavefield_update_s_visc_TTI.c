@@ -24,7 +24,7 @@
 
 #include "fd.h"
 
-void wavefield_update_s_visc_TTI(int i, int j, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
+void wavefield_update_s_visc_TTI(int i, int j, MemModel * mpm, MemWavefield * mpw, MemInv *minv, GlobVar * gv)
 {
 
     float vxxipjp, vyyipjp, vyxij, vxyij, vij, v;
@@ -80,4 +80,9 @@ void wavefield_update_s_visc_TTI(int i, int j, MemModel * mpm, MemWavefield * mp
     mpw->psxx[j][i] += (dthalbe * sump);
     mpw->psyy[j][i] += (dthalbe * sumq);
 
+    if (gv->MODE == FWI) {
+        minv->uxy[j][i] = mpw->psxy[j][i] / gv->DT;;
+        minv->ux[j][i] = mpw->psxx[j][i] / gv->DT;
+        minv->uy[j][i] = mpw->psyy[j][i] / gv->DT;
+    }
 }
