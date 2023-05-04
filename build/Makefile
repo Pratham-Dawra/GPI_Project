@@ -167,6 +167,7 @@ FDMOD_FILES := sofi2D.c \
                outseis_glob.c \
                PML_pro.c \
                prepare_update_s.c \
+               prepare_update_s_visc.c \
                prepare_update_s_vti.c \
                prepare_update_s_tti.c \
                prepare_update_s_4.c \

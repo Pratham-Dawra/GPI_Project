@@ -39,12 +39,12 @@ void update_s_elastic_abs(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * 
         time1 = MPI_Wtime();
         log_debug("Updating stress components...\n");
     }
-
+    
     /* left boundary */
     for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
             gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
-            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -53,7 +53,7 @@ void update_s_elastic_abs(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * 
     for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
             gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
-            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -62,7 +62,7 @@ void update_s_elastic_abs(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * 
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
             gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
-            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -71,7 +71,7 @@ void update_s_elastic_abs(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * 
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
             gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
-            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -82,7 +82,7 @@ void update_s_elastic_abs(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * 
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
             gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
-            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -91,7 +91,7 @@ void update_s_elastic_abs(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * 
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
             gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
-            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -100,7 +100,7 @@ void update_s_elastic_abs(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * 
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
             gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
-            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -109,7 +109,7 @@ void update_s_elastic_abs(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * 
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
             gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
-            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw);
             abs_update_s(i, j, mpm, mpw);
         }
     }
