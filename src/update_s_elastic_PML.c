@@ -46,7 +46,7 @@ void update_s_elastic_PML(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * 
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
             gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
             cpml_update_s_x(i, j, &vxx, &vyx, mpm, mpw);
-            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw);
         }
     }
 
@@ -56,7 +56,7 @@ void update_s_elastic_PML(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * 
             gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
             h1 = (i - gv->NX + 2 * gv->FW);
             cpml_update_s_x(h1, j, &vxx, &vyx, mpm, mpw);
-            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw);
         }
     }
 
@@ -65,7 +65,7 @@ void update_s_elastic_PML(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * 
         for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
             gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
             cpml_update_s_y(i, j, &vxy, &vyy, mpm, mpw);
-            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw);
         }
     }
 
@@ -75,7 +75,7 @@ void update_s_elastic_PML(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * 
             gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
             h1 = (j - gv->NY + 2 * gv->FW);
             cpml_update_s_y(i, h1, &vxy, &vyy, mpm, mpw);
-            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw);
         }
     }
 
@@ -87,7 +87,7 @@ void update_s_elastic_PML(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * 
             gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
             cpml_update_s_x(i, j, &vxx, &vyx, mpm, mpw);
             cpml_update_s_y(i, j, &vxy, &vyy, mpm, mpw);
-            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw);
         }
     }
 
@@ -98,7 +98,7 @@ void update_s_elastic_PML(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * 
             cpml_update_s_x(i, j, &vxx, &vyx, mpm, mpw);
             h1 = (j - gv->NY + 2 * gv->FW);
             cpml_update_s_y(i, h1, &vxy, &vyy, mpm, mpw);
-            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw);
         }
     }
 
@@ -109,7 +109,7 @@ void update_s_elastic_PML(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * 
             h1 = (i - gv->NX + 2 * gv->FW);
             cpml_update_s_x(h1, j, &vxx, &vyx, mpm, mpw);
             cpml_update_s_y(i, j, &vxy, &vyy, mpm, mpw);
-            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw);
         }
     }
 
@@ -121,7 +121,7 @@ void update_s_elastic_PML(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * 
             cpml_update_s_x(h1, j, &vxx, &vyx, mpm, mpw);
             h1 = (j - gv->NY + 2 * gv->FW);
             cpml_update_s_y(i, h1, &vxy, &vyy, mpm, mpw);
-            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_el(i, j, vxx, vyx, vxy, vyy, mpm, mpw);
         }
     }
 

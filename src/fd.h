@@ -200,6 +200,8 @@ void prepare_update_s(MemModel *mpm, GlobVar *gv);
 
 void prepare_update_s_4(MemModel *mpm, GlobVar *gv);
 
+void prepare_update_s_visc(MemModel *mpm, GlobVar *gv);
+
 void prepare_update_s_vti(MemModel *mpm, GlobVar *gv);
 
 void prepare_update_s_tti(MemModel *mpm, GlobVar *gv);
@@ -367,8 +369,7 @@ void update_v_PML_4(int nx2, int ny2, int nt, MemModel * mpm, MemWavefield * mpw
 
 void v_derivatives(MemWavefield *mpw, GlobVar *gv);
 
-void wavefield_update_s_el(int i, int j, float vxx, float vyx, float vxy, float vyy, MemModel *mpm, MemWavefield *mpw,
-                           GlobVar *gv);
+void wavefield_update_s_el(int i, int j, float vxx, float vyx, float vxy, float vyy, MemModel *mpm, MemWavefield *mpw);
 
 void wavefield_update_s_el_4(int i, int j, float vxx, float vyx, float vxy, float vyy, MemModel *mpm,
                              MemWavefield *mpw, GlobVar *gv);

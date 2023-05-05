@@ -40,6 +40,12 @@ void initmem_model(MemModel *mpm, GlobVar *gv)
         mpm->puipjp = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
     }
 
+    if (gv->WEQ >= EL_ISO) {
+        mpm->fipjp = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+        mpm->f = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+        mpm->g = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+    }
+        
     /* static (model) arrays (viscoelastic) */
     if (gv->WEQ == VEL_ISO) {   /*viscoelastic  isotropic wave equation */
         mpm->dip = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);

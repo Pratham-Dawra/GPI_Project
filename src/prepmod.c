@@ -138,9 +138,10 @@ void prepmod(MemModel *mpm, GlobVar *gv)
           case AC_TTI:         /* acoustic TTI */
               break;
           case EL_ISO:         /* elastic */
+              prepare_update_s(mpm, gv);
               break;
           case VEL_ISO:        /* viscoelastic */
-              prepare_update_s(mpm, gv);
+              prepare_update_s_visc(mpm, gv);
               break;
           case EL_VTI:
               dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc11);

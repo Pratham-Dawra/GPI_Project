@@ -24,13 +24,24 @@
 
 #include "fd.h"
 
-void prepare_update_s(MemModel *mpm, GlobVar *gv)
+void prepare_update_s_visc(MemModel *mpm, GlobVar *gv)
 {
     for (int j = 1; j <= gv->NY; j++) {
         for (int i = 1; i <= gv->NX; i++) {
-            mpm->fipjp[j][i] = mpm->puipjp[j][i] * gv->DT;
-            mpm->f[j][i] = mpm->pu[j][i] * gv->DT;
-            mpm->g[j][i] = mpm->ppi[j][i] * gv->DT;
+            mpm->fipjp[j][i] = mpm->puipjp[j][i] * gv->DT * (1.0 + gv->L * mpm->ptausipjp[j][i]);
+            mpm->f[j][i] = mpm->pu[j][i] * gv->DT * (1.0 + gv->L * mpm->ptaus[j][i]);
+            mpm->g[j][i] = mpm->ppi[j][i] * gv->DT * (1.0 + gv->L * mpm->ptaup[j][i]);
+            for (int l = 1; l <= gv->L; l++) {
+                mpm->bip[l] = 1.0 / (1.0 + (mpm->peta[l] * 0.5));
+                // mpm->bjm[l] = 1.0 / (1.0 + (mpm->peta[l] * 0.5));
+                mpm->bjm[l] = mpm->bip[l];
+                mpm->cip[l] = 1.0 - (mpm->peta[l] * 0.5);
+                // mpm->cjm[l] = 1.0 - (mpm->peta[l] * 0.5);
+                mpm->cjm[l] = mpm->cip[l];
+                mpm->dip[j][i][l] = mpm->puipjp[j][i] * mpm->peta[l] * mpm->ptausipjp[j][i];
+                mpm->d[j][i][l] = mpm->pu[j][i] * mpm->peta[l] * mpm->ptaus[j][i];
+                mpm->e[j][i][l] = mpm->ppi[j][i] * mpm->peta[l] * mpm->ptaup[j][i];
+            }
         }
     }
 }
