@@ -76,6 +76,8 @@ void cpml_update_v_x(int i, int j, float *sxx_x, float *sxy_x, MemModel *mpm, Me
 
 void cpml_update_v_y(int i, int j, float *sxy_y, float *syy_y, MemModel *mpm, MemWavefield *mpw);
 
+void eqsource(int nt, AcqVar *acq, MemWavefield *mpw, GlobVar *gv);
+
 void exchange_v(float **vx, float **vy, MemWavefield *mpw, GlobVar *gv);
 
 void exchange_s(MemWavefield *mpw, GlobVar *gv);
@@ -198,9 +200,11 @@ void PML_pro(MemModel *mpm, GlobVar *gv);
 
 void prepare_update_s(MemModel *mpm, GlobVar *gv);
 
-void prepare_update_s_4(MemModel *mpm, GlobVar *gv);
+//void prepare_update_s_4(MemModel *mpm, GlobVar *gv);
 
 void prepare_update_s_visc(MemModel *mpm, GlobVar *gv);
+
+void prepare_update_s_visc_4(MemModel *mpm, GlobVar *gv);
 
 void prepare_update_s_vti(MemModel *mpm, GlobVar *gv);
 

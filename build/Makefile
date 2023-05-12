@@ -145,6 +145,7 @@ FDMOD_FILES := sofi2D.c \
                exchange_par.c \
                exchange_s.c \
                exchange_v.c \
+               eqsource.c \
                filter_frequencies.c \
                freemem.c \
                freemem_model.c \
@@ -175,9 +176,9 @@ FDMOD_FILES := sofi2D.c \
                PML_pro.c \
                prepare_update_s.c \
                prepare_update_s_visc.c \
+               prepare_update_s_visc_4.c \
                prepare_update_s_vti.c \
                prepare_update_s_tti.c \
-               prepare_update_s_visc_4.c \
                prepmod.c \
                psource.c \
                read_par_json.c \

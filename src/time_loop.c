@@ -103,11 +103,10 @@ void time_loop(int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm,
          *---------------------------------------------------------------*/
         exchange_v(mpw->pvx, mpw->pvy, mpw, gv);
 
-        //if ((gv->WEQ == EL_TTI) || (gv->WEQ == VEL_TTI)) {  /* TTI */
-            v_derivatives(mpw, gv);
-            exchange_v(mpw->pvxx, mpw->pvyy, mpw, gv);
-            exchange_v(mpw->pvyx, mpw->pvxy, mpw, gv);
-        //}
+        /* calculation and exchange of spatial derivation of particle velocities */
+        v_derivatives(mpw, gv);
+        exchange_v(mpw->pvxx, mpw->pvyy, mpw, gv);
+        exchange_v(mpw->pvyx, mpw->pvxy, mpw, gv);
 
         if ((gv->MPID == 0) && ((nt - 1) % gv->OUTNTIMESTEPINFO == 0)) {
             time5 = MPI_Wtime();
@@ -255,6 +254,10 @@ void time_loop(int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm,
         /* explosive source */
         if (gv->SOURCE_TYPE == 1)
             psource(nt, acq, mpw, gv);
+        
+        /* earthquake source */
+        if ((gv->SOURCE_TYPE == 5))
+            eqsource(nt, acq, mpw, gv);
 
         /* Applying free surface condition */
         if ((gv->FREE_SURF) && (gv->POS[2] == 0)) {
