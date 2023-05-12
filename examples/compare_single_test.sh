@@ -22,6 +22,7 @@ usage()
     echo "  8      :: visco-elastic TTI wave equation"
     echo "  3_fy   :: elastic wave equation with y-force source"
     echo "  8_fy   :: visco-elastic TTI wave equation with y-force source"
+    echo "  3_fdt4 :: elastic wave equation with 4th order in time"
     echo "  4_fdt4 :: visco-elastic wave equation with 4th order in time"
     echo
 }
@@ -38,10 +39,10 @@ fi
 
 weq="$1"
 
-if [[ "${weq}" =~ ^("1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"3_fy"|"8_fy"|"4_fdt4")$ ]]; then
+if [[ "${weq}" =~ ^("1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"3_fy"|"8_fy"|"3_fdt4"|"4_fdt4")$ ]]; then
     echo "Running comparison weq${weq}."
 else
-    echo "Error: argument not in allowed list of 1, 2, 3, 4, 5, 6, 7, 8, 3_fy, 8_fy or 4_fdt4."
+    echo "Error: argument not in allowed list of 1, 2, 3, 4, 5, 6, 7, 8, 3_fy, 8_fy, 3_fdt4 or 4_fdt4."
     exit 1
 fi
 
