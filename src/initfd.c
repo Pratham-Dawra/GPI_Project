@@ -6,89 +6,89 @@ static float *hc = NULL;
 
 static float dhi = 0.f;
 
-void op_s_fd2(int i, int j, float *vxx, float *vyx, float *vxy, float *vyy, MemWavefield * mpw)
+void op_s_fd2(int i, int j, MemWavefield * mpw)
 {
-    *vxx = hc[1] * (mpw->pvx[j][i] - mpw->pvx[j][i - 1]) * dhi;
-    *vyx = hc[1] * (mpw->pvy[j][i + 1] - mpw->pvy[j][i]) * dhi;
-    *vxy = hc[1] * (mpw->pvx[j + 1][i] - mpw->pvx[j][i]) * dhi;
-    *vyy = hc[1] * (mpw->pvy[j][i] - mpw->pvy[j - 1][i]) * dhi;
+    mpw->pvxx[j][i] = hc[1] * (mpw->pvx[j][i] - mpw->pvx[j][i - 1]) * dhi;
+    mpw->pvyx[j][i] = hc[1] * (mpw->pvy[j][i + 1] - mpw->pvy[j][i]) * dhi;
+    mpw->pvxy[j][i] = hc[1] * (mpw->pvx[j + 1][i] - mpw->pvx[j][i]) * dhi;
+    mpw->pvyy[j][i] = hc[1] * (mpw->pvy[j][i] - mpw->pvy[j - 1][i]) * dhi;
 }
 
-void op_s_fd4(int i, int j, float *vxx, float *vyx, float *vxy, float *vyy, MemWavefield * mpw)
+void op_s_fd4(int i, int j, MemWavefield * mpw)
 {
-    *vxx = (hc[1] * (mpw->pvx[j][i] - mpw->pvx[j][i - 1]) + hc[2] * (mpw->pvx[j][i + 1] - mpw->pvx[j][i - 2])) * dhi;
-    *vyx = (hc[1] * (mpw->pvy[j][i + 1] - mpw->pvy[j][i]) + hc[2] * (mpw->pvy[j][i + 2] - mpw->pvy[j][i - 1])) * dhi;
-    *vxy = (hc[1] * (mpw->pvx[j + 1][i] - mpw->pvx[j][i]) + hc[2] * (mpw->pvx[j + 2][i] - mpw->pvx[j - 1][i])) * dhi;
-    *vyy = (hc[1] * (mpw->pvy[j][i] - mpw->pvy[j - 1][i]) + hc[2] * (mpw->pvy[j + 1][i] - mpw->pvy[j - 2][i])) * dhi;
+    mpw->pvxx[j][i] = (hc[1] * (mpw->pvx[j][i] - mpw->pvx[j][i - 1]) + hc[2] * (mpw->pvx[j][i + 1] - mpw->pvx[j][i - 2])) * dhi;
+    mpw->pvyx[j][i] = (hc[1] * (mpw->pvy[j][i + 1] - mpw->pvy[j][i]) + hc[2] * (mpw->pvy[j][i + 2] - mpw->pvy[j][i - 1])) * dhi;
+    mpw->pvxy[j][i] = (hc[1] * (mpw->pvx[j + 1][i] - mpw->pvx[j][i]) + hc[2] * (mpw->pvx[j + 2][i] - mpw->pvx[j - 1][i])) * dhi;
+    mpw->pvyy[j][i] = (hc[1] * (mpw->pvy[j][i] - mpw->pvy[j - 1][i]) + hc[2] * (mpw->pvy[j + 1][i] - mpw->pvy[j - 2][i])) * dhi;
 }
 
-void op_s_fd6(int i, int j, float *vxx, float *vyx, float *vxy, float *vyy, MemWavefield * mpw)
+void op_s_fd6(int i, int j, MemWavefield * mpw)
 {
-    *vxx =
+    mpw->pvxx[j][i] =
         (hc[1] * (mpw->pvx[j][i] - mpw->pvx[j][i - 1]) + hc[2] * (mpw->pvx[j][i + 1] - mpw->pvx[j][i - 2]) +
          hc[3] * (mpw->pvx[j][i + 2] - mpw->pvx[j][i - 3])) * dhi;
-    *vyx =
+    mpw->pvyx[j][i] =
         (hc[1] * (mpw->pvy[j][i + 1] - mpw->pvy[j][i]) + hc[2] * (mpw->pvy[j][i + 2] - mpw->pvy[j][i - 1]) +
          hc[3] * (mpw->pvy[j][i + 3] - mpw->pvy[j][i - 2])) * dhi;
-    *vxy =
+    mpw->pvxy[j][i] =
         (hc[1] * (mpw->pvx[j + 1][i] - mpw->pvx[j][i]) + hc[2] * (mpw->pvx[j + 2][i] - mpw->pvx[j - 1][i]) +
          hc[3] * (mpw->pvx[j + 3][i] - mpw->pvx[j - 2][i])) * dhi;
-    *vyy =
+    mpw->pvyy[j][i] =
         (hc[1] * (mpw->pvy[j][i] - mpw->pvy[j - 1][i]) + hc[2] * (mpw->pvy[j + 1][i] - mpw->pvy[j - 2][i]) +
          hc[3] * (mpw->pvy[j + 2][i] - mpw->pvy[j - 3][i])) * dhi;
 }
 
-void op_s_fd8(int i, int j, float *vxx, float *vyx, float *vxy, float *vyy, MemWavefield * mpw)
+void op_s_fd8(int i, int j, MemWavefield * mpw)
 {
-    *vxx =
+    mpw->pvxx[j][i] =
         (hc[1] * (mpw->pvx[j][i] - mpw->pvx[j][i - 1]) + hc[2] * (mpw->pvx[j][i + 1] - mpw->pvx[j][i - 2]) +
          hc[3] * (mpw->pvx[j][i + 2] - mpw->pvx[j][i - 3]) + hc[4] * (mpw->pvx[j][i + 3] - mpw->pvx[j][i - 4])) * dhi;
-    *vyx =
+    mpw->pvyx[j][i] =
         (hc[1] * (mpw->pvy[j][i + 1] - mpw->pvy[j][i]) + hc[2] * (mpw->pvy[j][i + 2] - mpw->pvy[j][i - 1]) +
          hc[3] * (mpw->pvy[j][i + 3] - mpw->pvy[j][i - 2]) + hc[4] * (mpw->pvy[j][i + 4] - mpw->pvy[j][i - 3])) * dhi;
-    *vxy =
+    mpw->pvxy[j][i] =
         (hc[1] * (mpw->pvx[j + 1][i] - mpw->pvx[j][i]) + hc[2] * (mpw->pvx[j + 2][i] - mpw->pvx[j - 1][i]) +
          hc[3] * (mpw->pvx[j + 3][i] - mpw->pvx[j - 2][i]) + hc[4] * (mpw->pvx[j + 4][i] - mpw->pvx[j - 3][i])) * dhi;
-    *vyy =
+    mpw->pvyy[j][i] =
         (hc[1] * (mpw->pvy[j][i] - mpw->pvy[j - 1][i]) + hc[2] * (mpw->pvy[j + 1][i] - mpw->pvy[j - 2][i]) +
          hc[3] * (mpw->pvy[j + 2][i] - mpw->pvy[j - 3][i]) + hc[4] * (mpw->pvy[j + 3][i] - mpw->pvy[j - 4][i])) * dhi;
 }
 
-void op_s_fd10(int i, int j, float *vxx, float *vyx, float *vxy, float *vyy, MemWavefield * mpw)
+void op_s_fd10(int i, int j, MemWavefield * mpw)
 {
-    *vxx =
+    mpw->pvxx[j][i] =
         (hc[1] * (mpw->pvx[j][i] - mpw->pvx[j][i - 1]) + hc[2] * (mpw->pvx[j][i + 1] - mpw->pvx[j][i - 2]) +
          hc[3] * (mpw->pvx[j][i + 2] - mpw->pvx[j][i - 3]) + hc[4] * (mpw->pvx[j][i + 3] - mpw->pvx[j][i - 4]) +
          hc[5] * (mpw->pvx[j][i + 4] - mpw->pvx[j][i - 5])) * dhi;
-    *vyy =
+    mpw->pvyy[j][i] =
         (hc[1] * (mpw->pvy[j][i] - mpw->pvy[j - 1][i]) + hc[2] * (mpw->pvy[j + 1][i] - mpw->pvy[j - 2][i]) +
          hc[3] * (mpw->pvy[j + 2][i] - mpw->pvy[j - 3][i]) + hc[4] * (mpw->pvy[j + 3][i] - mpw->pvy[j - 4][i]) +
          hc[5] * (mpw->pvy[j + 4][i] - mpw->pvy[j - 5][i])) * dhi;
-    *vyx =
+    mpw->pvyx[j][i] =
         (hc[1] * (mpw->pvy[j][i + 1] - mpw->pvy[j][i]) + hc[2] * (mpw->pvy[j][i + 2] - mpw->pvy[j][i - 1]) +
          hc[3] * (mpw->pvy[j][i + 3] - mpw->pvy[j][i - 2]) + hc[4] * (mpw->pvy[j][i + 4] - mpw->pvy[j][i - 3]) +
          hc[5] * (mpw->pvy[j][i + 5] - mpw->pvy[j][i - 4])) * dhi;
-    *vxy =
+    mpw->pvxy[j][i] =
         (hc[1] * (mpw->pvx[j + 1][i] - mpw->pvx[j][i]) + hc[2] * (mpw->pvx[j + 2][i] - mpw->pvx[j - 1][i]) +
          hc[3] * (mpw->pvx[j + 3][i] - mpw->pvx[j - 2][i]) + hc[4] * (mpw->pvx[j + 4][i] - mpw->pvx[j - 3][i]) +
          hc[5] * (mpw->pvx[j + 5][i] - mpw->pvx[j - 4][i])) * dhi;
 }
 
-void op_s_fd12(int i, int j, float *vxx, float *vyx, float *vxy, float *vyy, MemWavefield * mpw)
+void op_s_fd12(int i, int j, MemWavefield * mpw)
 {
-    *vxx =
+    mpw->pvxx[j][i] =
         (hc[1] * (mpw->pvx[j][i] - mpw->pvx[j][i - 1]) + hc[2] * (mpw->pvx[j][i + 1] - mpw->pvx[j][i - 2]) +
          hc[3] * (mpw->pvx[j][i + 2] - mpw->pvx[j][i - 3]) + hc[4] * (mpw->pvx[j][i + 3] - mpw->pvx[j][i - 4]) +
          hc[5] * (mpw->pvx[j][i + 4] - mpw->pvx[j][i - 5]) + hc[6] * (mpw->pvx[j][i + 5] - mpw->pvx[j][i - 6])) * dhi;
-    *vyy =
+    mpw->pvyy[j][i] =
         (hc[1] * (mpw->pvy[j][i] - mpw->pvy[j - 1][i]) + hc[2] * (mpw->pvy[j + 1][i] - mpw->pvy[j - 2][i]) +
          hc[3] * (mpw->pvy[j + 2][i] - mpw->pvy[j - 3][i]) + hc[4] * (mpw->pvy[j + 3][i] - mpw->pvy[j - 4][i]) +
          hc[5] * (mpw->pvy[j + 4][i] - mpw->pvy[j - 5][i]) + hc[6] * (mpw->pvy[j + 5][i] - mpw->pvy[j - 6][i])) * dhi;
-    *vyx =
+    mpw->pvyx[j][i] =
         (hc[1] * (mpw->pvy[j][i + 1] - mpw->pvy[j][i]) + hc[2] * (mpw->pvy[j][i + 2] - mpw->pvy[j][i - 1]) +
          hc[3] * (mpw->pvy[j][i + 3] - mpw->pvy[j][i - 2]) + hc[4] * (mpw->pvy[j][i + 4] - mpw->pvy[j][i - 3]) +
          hc[5] * (mpw->pvy[j][i + 5] - mpw->pvy[j][i - 4]) + hc[6] * (mpw->pvy[j][i + 6] - mpw->pvy[j][i - 5])) * dhi;
-    *vxy =
+    mpw->pvxy[j][i] =
         (hc[1] * (mpw->pvx[j + 1][i] - mpw->pvx[j][i]) + hc[2] * (mpw->pvx[j + 2][i] - mpw->pvx[j - 1][i]) +
          hc[3] * (mpw->pvx[j + 3][i] - mpw->pvx[j - 2][i]) + hc[4] * (mpw->pvx[j + 4][i] - mpw->pvx[j - 3][i]) +
          hc[5] * (mpw->pvx[j + 5][i] - mpw->pvx[j - 4][i]) + hc[6] * (mpw->pvx[j + 6][i] - mpw->pvx[j - 5][i])) * dhi;

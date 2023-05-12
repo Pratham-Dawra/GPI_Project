@@ -27,16 +27,11 @@
 void wavefield_update_s_visc_TTI(int i, int j, MemModel * mpm, MemWavefield * mpw, MemInv *minv, GlobVar * gv)
 {
 
-    float vxxipjp, vyyipjp, vyxij, vxyij, vij, v;
-
-    /* computing sums of the old memory variables */
     float dthalbe = gv->DT / 2.0;
+    float sumr_old = 0.0f, sump_old = 0.0f, sumq_old = 0.0f;
     float sumr = 0.0f, sump = 0.0f, sumq = 0.0f;
-    for (int l = 1; l <= gv->L; l++) {
-        sumr += mpw->pr[j][i][l];
-        sump += mpw->pp[j][i][l];
-        sumq += mpw->pq[j][i][l];
-    }
+    float vxxipjp, vyyipjp, vyxij, vxyij, vij, v;
+    float u1 = 0.0f, u2 = 0.0f, u3 = 0.0f;
 
     vxxipjp = 0.25 * (mpw->pvxx[j][i] + mpw->pvxx[j + 1][i] + mpw->pvxx[j][i + 1] + mpw->pvxx[j + 1][i + 1]);
     vyyipjp = 0.25 * (mpw->pvyy[j][i] + mpw->pvyy[j + 1][i] + mpw->pvyy[j][i + 1] + mpw->pvyy[j + 1][i + 1]);
@@ -47,20 +42,12 @@ void wavefield_update_s_visc_TTI(int i, int j, MemModel * mpm, MemWavefield * mp
 
     v = mpw->pvxy[j][i] + mpw->pvyx[j][i];
 
-    /* updating components of the stress tensor, partially */
-    mpw->psxy[j][i] +=
-        (mpm->pc55ipjpu[j][i] * v) + (mpm->pc15ipjpu[j][i] * vxxipjp) + (mpm->pc35ipjpu[j][i] * vyyipjp) +
-        (dthalbe * sumr);
-    mpw->psxx[j][i] +=
-        (mpm->pc11u[j][i] * mpw->pvxx[j][i]) + (mpm->pc13u[j][i] * mpw->pvyy[j][i]) + +(mpm->pc15u[j][i] * vij) +
-        (dthalbe * sump);
-    mpw->psyy[j][i] +=
-        (mpm->pc13u[j][i] * mpw->pvxx[j][i]) + (mpm->pc33u[j][i] * mpw->pvyy[j][i]) + (mpm->pc35u[j][i] * vij) +
-        (dthalbe * sumq);
-
-    /* now updating the memory-variables and sum them up */
-    sumr = sump = sumq = 0.0f;
     for (int l = 1; l <= gv->L; l++) {
+        /* computing sums of the old memory variables */
+        sumr_old += mpw->pr[j][i][l];
+        sump_old += mpw->pp[j][i][l];
+        sumq_old += mpw->pq[j][i][l];
+        /* now updating the memory-variables and sum them up */
         mpw->pr[j][i][l] =
             mpm->bip[l] * (mpw->pr[j][i][l] * mpm->cip[l] - (mpm->pc55ipjpd[j][i][l] * v) -
                            (mpm->pc15ipjpd[j][i][l] * vxxipjp) - (mpm->pc35ipjpd[j][i][l] * vyyipjp));
@@ -75,14 +62,23 @@ void wavefield_update_s_visc_TTI(int i, int j, MemModel * mpm, MemWavefield * mp
         sumq += mpw->pq[j][i][l];
     }
 
-    /* and now the components of the stress tensor are completely updated */
-    mpw->psxy[j][i] += (dthalbe * sumr);
-    mpw->psxx[j][i] += (dthalbe * sump);
-    mpw->psyy[j][i] += (dthalbe * sumq);
+    /* calculate stress component update */
+    u1 = (mpm->pc55ipjpu[j][i] * v) + (mpm->pc15ipjpu[j][i] * vxxipjp) + (mpm->pc35ipjpu[j][i] * vyyipjp) +
+    (dthalbe * (sumr_old + sumr));
+    u2 = (mpm->pc11u[j][i] * mpw->pvxx[j][i]) + (mpm->pc13u[j][i] * mpw->pvyy[j][i]) + +(mpm->pc15u[j][i] * vij) +
+    (dthalbe * (sump_old + sump));
+    u3 = (mpm->pc13u[j][i] * mpw->pvxx[j][i]) + (mpm->pc33u[j][i] * mpw->pvyy[j][i]) + (mpm->pc35u[j][i] * vij) +
+    (dthalbe * (sumq_old + sumq));
 
+    /* updating components of the stress tensor */
+    mpw->psxy[j][i] += u1;
+    mpw->psxx[j][i] += u2;
+    mpw->psyy[j][i] += u3;
+
+    /* updating components of the gradient */
     if (gv->MODE == FWI) {
-        minv->uxy[j][i] = mpw->psxy[j][i] / gv->DT;;
-        minv->ux[j][i] = mpw->psxx[j][i] / gv->DT;
-        minv->uy[j][i] = mpw->psyy[j][i] / gv->DT;
+        minv->uxy[j][i] = u1 / gv->DT;
+        minv->ux[j][i] = u2 / gv->DT;
+        minv->uy[j][i] = u3 / gv->DT;
     }
 }

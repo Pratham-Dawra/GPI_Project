@@ -31,7 +31,7 @@
 #include "enums.h"
 #include "memw_struct.h"
 
-typedef void (*FDop_s_fct) (int i, int j, float *vxx, float *vyx, float *vxy, float *vyy, MemWavefield *mpw);
+typedef void (*FDop_s_fct) (int i, int j, MemWavefield *mpw);
 typedef void (*FDop_v_fct) (int i, int j, float *sxx_x, float *sxy_x, float *sxy_y, float *syy_y, MemWavefield *mpw);
 
 typedef struct {

@@ -26,15 +26,15 @@
 
 void v_derivatives(MemWavefield * mpw, GlobVar * gv)
 {
-    float vxx, vyy, vxy, vyx;
+    //float vxx, vyy, vxy, vyx;
 
     for (int j = 1; j <= gv->NY; j++) {
         for (int i = 1; i <= gv->NX; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
-            mpw->pvxx[j][i] = vxx;
+            gv->FDOP_S(i, j, mpw);
+            /*mpw->pvxx[j][i] = vxx;
             mpw->pvyy[j][i] = vyy;
             mpw->pvyx[j][i] = vyx;
-            mpw->pvxy[j][i] = vxy;
+            mpw->pvxy[j][i] = vxy;*/
         }
     }
 }

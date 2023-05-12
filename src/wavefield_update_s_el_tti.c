@@ -24,8 +24,9 @@
 
 #include "fd.h"
 
-void wavefield_update_s_el_tti(int i, int j, MemModel * mpm, MemWavefield * mpw)
+void wavefield_update_s_el_tti(int i, int j, MemModel * mpm, MemWavefield * mpw, MemInv *minv, GlobVar * gv)
 {
+    float u1 = 0.0f, u2 = 0.0f, u3 = 0.0f;
     float vxxipjp = 0.25 * (mpw->pvxx[j][i] + mpw->pvxx[j + 1][i] + mpw->pvxx[j][i + 1] + mpw->pvxx[j + 1][i + 1]);
     float vyyipjp = 0.25 * (mpw->pvyy[j][i] + mpw->pvyy[j + 1][i] + mpw->pvyy[j][i + 1] + mpw->pvyy[j + 1][i + 1]);
     float vij = (0.25 * (mpw->pvyx[j][i] + mpw->pvyx[j - 1][i] + mpw->pvyx[j][i - 1] + mpw->pvyx[j - 1][i - 1])) +
@@ -33,10 +34,20 @@ void wavefield_update_s_el_tti(int i, int j, MemModel * mpm, MemWavefield * mpw)
     float v = mpw->pvxy[j][i] + mpw->pvyx[j][i];
 
     /* Update  */
-    mpw->psxx[j][i] +=
-        ((mpm->pc11[j][i] * mpw->pvxx[j][i]) + (mpm->pc13[j][i] * mpw->pvyy[j][i]) + (mpm->pc15[j][i] * vij));
-    mpw->psyy[j][i] +=
-        ((mpm->pc13[j][i] * mpw->pvxx[j][i]) + (mpm->pc33[j][i] * mpw->pvyy[j][i]) + (mpm->pc35[j][i] * vij));
-    mpw->psxy[j][i] += 
-        ((mpm->pc55ipjp[j][i] * v) + (mpm->pc15ipjp[j][i] * vxxipjp) + (mpm->pc35ipjp[j][i] * vyyipjp));
+    u1 = ((mpm->pc55ipjp[j][i] * v) + (mpm->pc15ipjp[j][i] * vxxipjp) + (mpm->pc35ipjp[j][i] * vyyipjp));
+    u2 = ((mpm->pc11[j][i] * mpw->pvxx[j][i]) + (mpm->pc13[j][i] * mpw->pvyy[j][i]) + (mpm->pc15[j][i] * vij));
+    u3 = ((mpm->pc13[j][i] * mpw->pvxx[j][i]) + (mpm->pc33[j][i] * mpw->pvyy[j][i]) + (mpm->pc35[j][i] * vij));
+
+
+    /* updating components of the stress tensor */
+    mpw->psxy[j][i] += u1;
+    mpw->psxx[j][i] += u2;
+    mpw->psyy[j][i] += u3;
+
+    /* updating components of the gradient */
+    if (gv->MODE == FWI) {
+        minv->uxy[j][i] = u1 / gv->DT;
+        minv->ux[j][i] = u2 / gv->DT;
+        minv->uy[j][i] = u3 / gv->DT;
+    }
 }

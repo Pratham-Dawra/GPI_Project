@@ -25,11 +25,24 @@
 #include "fd.h"
 #include "logging.h"
 
-void wavefield_update_s_el(int i, int j, float vxx, float vyx, float vxy, float vyy, MemModel * mpm, MemWavefield * mpw)
+void wavefield_update_s_el(int i, int j, MemModel * mpm, MemWavefield * mpw, MemInv *minv, GlobVar * gv)
 {
+    float u1 = 0.0f, u2 = 0.0f, u3 = 0.0f;
+    
+    /* calculate stress component update */
+    u1 = mpm->fipjp[j][i] * (mpw->pvyx[j][i] + mpw->pvxy[j][i]);
+    u2 = (mpm->g[j][i] * (mpw->pvxx[j][i] + mpw->pvyy[j][i])) - (2.0 * mpm->f[j][i] * mpw->pvyy[j][i]);
+    u3 = (mpm->g[j][i] * (mpw->pvxx[j][i] + mpw->pvyy[j][i])) - (2.0 * mpm->f[j][i] * mpw->pvxx[j][i]);
 
-    /* Update  */
-    mpw->psxy[j][i] += mpm->fipjp[j][i] * (vyx + vxy);
-    mpw->psxx[j][i] += (mpm->g[j][i] * (vxx + vyy)) - (2.0 * mpm->f[j][i] * vyy);
-    mpw->psyy[j][i] += (mpm->g[j][i] * (vxx + vyy)) - (2.0 * mpm->f[j][i] * vxx);
+    /* updating components of the stress tensor */
+    mpw->psxy[j][i] += u1;
+    mpw->psxx[j][i] += u2;
+    mpw->psyy[j][i] += u3;
+    
+    /* updating components of the gradient */
+    if (gv->MODE == FWI) {
+        minv->uxy[j][i] = u1 / gv->DT;
+        minv->ux[j][i] = u2 / gv->DT;
+        minv->uy[j][i] = u3 / gv->DT;
+    }
 }

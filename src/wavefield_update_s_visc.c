@@ -24,60 +24,45 @@
 
 #include "fd.h"
 
-/* (int i, int j, float vxx, float vyx, float vxy, float vyy, float **sxy,
-                             float **sxx, float **syy, float ***r, float ***p,
-                             float ***q, float **fipjp, float **f, float **g, float *bip,
-                             float *bjm, float *cip, float *cjm, float ***d, float ***e, float ***dip, GlobVar * gv) */
-
-void wavefield_update_s_visc(int i, int j, float vxx, float vyx, float vxy, float vyy, MemModel * mpm,
-                             MemWavefield * mpw, MemInv *minv, GlobVar * gv)
+void wavefield_update_s_visc(int i, int j, MemModel * mpm, MemWavefield * mpw, MemInv *minv, GlobVar * gv)
 {
-    /* computing sums of the old memory variables */
     float dthalbe = gv->DT / 2.0;
+    float sumr_old = 0.0f, sump_old = 0.0f, sumq_old = 0.0f;
     float sumr = 0.0f, sump = 0.0f, sumq = 0.0f;
+    float u1 = 0.0f, u2 = 0.0f, u3 = 0.0f;
+
     for (int l = 1; l <= gv->L; l++) {
-        sumr += mpw->pr[j][i][l];
-        sump += mpw->pp[j][i][l];
-        sumq += mpw->pq[j][i][l];
-    }
-
-    /* updating components of the stress tensor, partially */
-    mpw->psxy[j][i] += (mpm->fipjp[j][i] * (vxy + vyx)) + (dthalbe * sumr);
-    mpw->psxx[j][i] += (mpm->g[j][i] * (vxx + vyy)) - (2.0 * mpm->f[j][i] * vyy) + (dthalbe * sump);
-    mpw->psyy[j][i] += (mpm->g[j][i] * (vxx + vyy)) - (2.0 * mpm->f[j][i] * vxx) + (dthalbe * sumq);
-
-    /*if (gv->MODE == FWI) {
-        minv->uxy[j][i] = mpw->psxy[j][i] / gv->DT;
-        minv->ux[j][i] = mpw->psxx[j][i] / gv->DT;
-        minv->uy[j][i] = mpw->psyy[j][i] / gv->DT;
-    }*/
-
-    /* now updating the memory-variables and sum them up */
-    sumr = sump = sumq = 0.0f;
-    for (int l = 1; l <= gv->L; l++) {
-        mpw->pr[j][i][l] = mpm->bip[l] * (mpw->pr[j][i][l] * mpm->cip[l] - (mpm->dip[j][i][l] * (vxy + vyx)));
+        /* computing sums of the old memory variables */
+        sumr_old += mpw->pr[j][i][l];
+        sump_old += mpw->pp[j][i][l];
+        sumq_old += mpw->pq[j][i][l];
+        /* now updating the memory-variables and sum them up */
+        mpw->pr[j][i][l] = mpm->bip[l] * (mpw->pr[j][i][l] * mpm->cip[l] - (mpm->dip[j][i][l] * (mpw->pvxy[j][i] + mpw->pvyx[j][i])));
         mpw->pp[j][i][l] =
-            mpm->bjm[l] * (mpw->pp[j][i][l] * mpm->cjm[l] - (mpm->e[j][i][l] * (vxx + vyy)) +
-                           (2.0 * mpm->d[j][i][l] * vyy));
+            mpm->bjm[l] * (mpw->pp[j][i][l] * mpm->cjm[l] - (mpm->e[j][i][l] * (mpw->pvxx[j][i] + mpw->pvyy[j][i])) +
+                           (2.0 * mpm->d[j][i][l] * mpw->pvyy[j][i]));
         mpw->pq[j][i][l] =
-            mpm->bjm[l] * (mpw->pq[j][i][l] * mpm->cjm[l] - (mpm->e[j][i][l] * (vxx + vyy)) +
-                           (2.0 * mpm->d[j][i][l] * vxx));
+            mpm->bjm[l] * (mpw->pq[j][i][l] * mpm->cjm[l] - (mpm->e[j][i][l] * (mpw->pvxx[j][i] + mpw->pvyy[j][i])) +
+                           (2.0 * mpm->d[j][i][l] * mpw->pvxx[j][i]));
         sumr += mpw->pr[j][i][l];
         sump += mpw->pp[j][i][l];
         sumq += mpw->pq[j][i][l];
     }
 
-    /* and now the components of the stress tensor are completely updated */
-    mpw->psxy[j][i] += (dthalbe * sumr);
-    mpw->psxx[j][i] += (dthalbe * sump);
-    mpw->psyy[j][i] += (dthalbe * sumq);
+    /* calculate stress component update */
+    u1 = (mpm->fipjp[j][i] * (mpw->pvxy[j][i] + mpw->pvyx[j][i])) + (dthalbe * (sumr_old + sumr));
+    u2 = (mpm->g[j][i] * (mpw->pvxx[j][i] + mpw->pvyy[j][i])) - (2.0 * mpm->f[j][i] * mpw->pvyy[j][i]) + (dthalbe * (sump_old + sump));
+    u3 = (mpm->g[j][i] * (mpw->pvxx[j][i] + mpw->pvyy[j][i])) - (2.0 * mpm->f[j][i] * mpw->pvxx[j][i]) + (dthalbe * (sumq_old + sumq));
 
+    /* updating components of the stress tensor */
+    mpw->psxy[j][i] += u1;
+    mpw->psxx[j][i] += u2;
+    mpw->psyy[j][i] += u3;
+
+    /* updating components of the gradient */
     if (gv->MODE == FWI) {
-        minv->uxy[j][i] = mpw->psxy[j][i] / gv->DT;
-        minv->ux[j][i] = mpw->psxx[j][i] / gv->DT;
-        minv->uy[j][i] = mpw->psyy[j][i] / gv->DT;
-/*        minv->uxy[j][i] += (0.5 * sumr);
-        minv->ux[j][i] += (0.5 * sump);
-        minv->uy[j][i] += (0.5 * sumq); */
+        minv->uxy[j][i] = u1 / gv->DT;
+        minv->ux[j][i] = u2 / gv->DT;
+        minv->uy[j][i] = u3 / gv->DT;
     }
 }

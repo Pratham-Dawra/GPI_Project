@@ -27,22 +27,22 @@
 
 /* CPML Functions for update_s ---------------------------------------------------*/
 
-void cpml_update_s_x(int i, int j, float *vxx, float *vyx, MemModel * mpm, MemWavefield * mpw)
+void cpml_update_s_x(int i, int j, MemModel * mpm, MemWavefield * mpw)
 {
-    mpw->psi_vxx[j][i] = mpm->b_x[i] * mpw->psi_vxx[j][i] + mpm->a_x[i] * (*vxx);
-    *vxx = (*vxx) / mpm->K_x[i] + mpw->psi_vxx[j][i];
+    mpw->psi_vxx[j][i] = mpm->b_x[i] * mpw->psi_vxx[j][i] + mpm->a_x[i] * mpw->pvxx[j][i];
+    mpw->pvxx[j][i] = mpw->pvxx[j][i] / mpm->K_x[i] + mpw->psi_vxx[j][i];
 
-    mpw->psi_vyx[j][i] = mpm->b_x_half[i] * mpw->psi_vyx[j][i] + mpm->a_x_half[i] * (*vyx);
-    *vyx = (*vyx) / mpm->K_x_half[i] + mpw->psi_vyx[j][i];
+    mpw->psi_vyx[j][i] = mpm->b_x_half[i] * mpw->psi_vyx[j][i] + mpm->a_x_half[i] * mpw->pvyx[j][i];
+    mpw->pvyx[j][i] = mpw->pvyx[j][i] / mpm->K_x_half[i] + mpw->psi_vyx[j][i];
 }
 
-void cpml_update_s_y(int i, int j, float *vxy, float *vyy, MemModel * mpm, MemWavefield * mpw)
+void cpml_update_s_y(int i, int j, MemModel * mpm, MemWavefield * mpw)
 {
-    mpw->psi_vyy[j][i] = mpm->b_y[j] * mpw->psi_vyy[j][i] + mpm->a_y[j] * (*vyy);
-    *vyy = (*vyy) / mpm->K_y[j] + mpw->psi_vyy[j][i];
+    mpw->psi_vyy[j][i] = mpm->b_y[j] * mpw->psi_vyy[j][i] + mpm->a_y[j] * mpw->pvyy[j][i];
+    mpw->pvyy[j][i] = mpw->pvyy[j][i] / mpm->K_y[j] + mpw->psi_vyy[j][i];
 
-    mpw->psi_vxy[j][i] = mpm->b_y_half[j] * mpw->psi_vxy[j][i] + mpm->a_y_half[j] * (*vxy);
-    *vxy = (*vxy) / mpm->K_y_half[j] + mpw->psi_vxy[j][i];
+    mpw->psi_vxy[j][i] = mpm->b_y_half[j] * mpw->psi_vxy[j][i] + mpm->a_y_half[j] * mpw->pvxy[j][i];
+    mpw->pvxy[j][i] = mpw->pvxy[j][i] / mpm->K_y_half[j] + mpw->psi_vxy[j][i];
 }
 
 /* CPML Functions for update_v ---------------------------------------------------*/

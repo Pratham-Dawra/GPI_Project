@@ -30,7 +30,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void update_s_elastic_TTI_interior(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
+void update_s_elastic_tti_interior(int nt, MemModel * mpm, MemWavefield * mpw, MemInv *minv, GlobVar * gv)
 {
     double time1 = 0.0, time2 = 0.0;
 
@@ -41,7 +41,7 @@ void update_s_elastic_TTI_interior(int nt, MemModel * mpm, MemWavefield * mpw, G
 
     for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
         for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-            wavefield_update_s_el_tti(i, j, mpm, mpw);
+            wavefield_update_s_el_tti(i, j, mpm, mpw, minv, gv);
         }
     }
 

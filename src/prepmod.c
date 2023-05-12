@@ -36,13 +36,13 @@ void prepmod(MemModel *mpm, GlobVar *gv)
 
     switch (gv->WEQ) {
       case AC_ISO:             /* acoustic */
-          log_fatal("not yet implemented\n");
+          log_fatal("WEQ not yet implemented\n");
           break;
       case AC_VTI:             /* acoustic VTI */
-          log_fatal("not yet implemented\n");
+          log_fatal("WEQ not yet implemented\n");
           break;
       case AC_TTI:             /* acoustic TTI */
-          log_fatal("not yet implemented\n");
+          log_fatal("WEQ not yet implemented\n");
           break;
       case EL_ISO:             /* elastic */
           matcopy_elastic(mpm->prho, mpm->ppi, mpm->pu, gv);
@@ -115,13 +115,13 @@ void prepmod(MemModel *mpm, GlobVar *gv)
 #endif
           break;
       case VAC_ISO:            /* viscoacoustic */
-          log_fatal("not yet implemented\n");
+          log_fatal("WEQ not yet implemented\n");
           break;
       case VAC_VTI:            /* viscoacoustic VTI */
-          log_fatal("not yet implemented\n");
+          log_fatal("WEQ not yet implemented\n");
           break;
       case VAC_TTI:            /* viscoacoustic TTI */
-          log_fatal("not yet implemented\n");
+          log_fatal("WEQ not yet implemented\n");
           break;
       default:
           log_fatal("Unknown WEQ.\n");
@@ -143,7 +143,7 @@ void prepmod(MemModel *mpm, GlobVar *gv)
           case VEL_ISO:        /* viscoelastic */
               prepare_update_s_visc(mpm, gv);
               break;
-          case EL_VTI:
+          case EL_VTI:         /* elastic VTI */
               dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc11);
               dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc33);
               dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc13);
@@ -153,7 +153,7 @@ void prepmod(MemModel *mpm, GlobVar *gv)
               prepare_update_s_vti(mpm, gv);
 
               break;
-          case EL_TTI:
+          case EL_TTI:         /* elastic TTI */
               dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc11);
               dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc33);
               dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc13);
@@ -167,20 +167,59 @@ void prepmod(MemModel *mpm, GlobVar *gv)
               prepare_update_s_tti(mpm, gv);
               break;
           case VAC_ISO:        /* viscoacoustic */
-              log_fatal("not yet implemented\n");
+              log_fatal("WEQ not yet implemented\n");
               break;
           case VAC_VTI:        /* viscoacoustic VTI */
-              log_fatal("not yet implemented\n");
+              log_fatal("WEQ not yet implemented\n");
               break;
           case VAC_TTI:        /* viscoacoustic TTI */
-              log_fatal("not yet implemented\n");
+              log_fatal("WEQ not yet implemented\n");
               break;
           default:
               log_fatal("Unknown WEQ.\n");
         }
-    }
-
-    if ((gv->WEQ == VEL_ISO) && gv->FDORDER_TIME == 4) {
-        prepare_update_s_4(mpm, gv);
+    } else if (gv->FDORDER_TIME == 4) {
+        switch (gv->WEQ) {
+          case AC_ISO:         /* acoustic */
+              log_fatal("WEQ not yet implemented for 4th order in time.\n");
+              break;
+          case AC_VTI:         /* acoustic VTI */
+              log_fatal("WEQ not yet implemented for 4th order in time.\n");
+              break;
+          case AC_TTI:         /* acoustic TTI */
+              log_fatal("WEQ not yet implemented for 4th order in time.\n");
+              break;
+          case EL_ISO:         /* elastic */
+              prepare_update_s(mpm, gv);
+              break;
+          case VEL_ISO:        /* viscoelastic */
+              prepare_update_s_visc_4(mpm, gv);
+              break;
+          case EL_VTI:         /* elastic VTI */
+              log_fatal("WEQ not yet implemented for 4th order in time.\n");
+              break;
+          case VEL_VTI:        /* viscoelastic VTI */
+              log_fatal("WEQ not yet implemented for 4th order in time.\n");
+              break;
+          case EL_TTI:         /* elastic TTI */
+              log_fatal("WEQ not yet implemented for 4th order in time.\n");
+              break;
+          case VEL_TTI:        /* viscoelastic TTI */
+              log_fatal("WEQ not yet implemented for 4th order in time.\n");
+              break;
+          case VAC_ISO:        /* viscoacoustic */
+              log_fatal("WEQ not yet implemented for 4th order in time.\n");
+              break;
+          case VAC_VTI:        /* viscoacoustic VTI */
+              log_fatal("WEQ not yet implemented for 4th order in time.\n");
+              break;
+          case VAC_TTI:        /* viscoacoustic TTI */
+              log_fatal("WEQ not yet implemented for 4th order in time.\n");
+              break;
+          default:
+              log_fatal("Unknown WEQ.\n");
+        }
+    } else {
+        log_fatal("Unknown FDORDER.\n");
     }
 }

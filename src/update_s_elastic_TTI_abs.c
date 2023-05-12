@@ -29,12 +29,12 @@
 
 #include "fd.h"
 
-void update_s_elastic_tti_abs(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
+void update_s_elastic_tti_abs(MemModel * mpm, MemWavefield * mpw, MemInv *minv, GlobVar * gv)
 {
     /* left boundary */
     for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
-            wavefield_update_s_el_tti(i, j, mpm, mpw);
+            wavefield_update_s_el_tti(i, j, mpm, mpw, minv, gv);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -42,7 +42,7 @@ void update_s_elastic_tti_abs(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     /* right boundary */
     for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
-            wavefield_update_s_el_tti(i, j, mpm, mpw);
+            wavefield_update_s_el_tti(i, j, mpm, mpw, minv, gv);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -50,7 +50,7 @@ void update_s_elastic_tti_abs(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     /* top boundary */
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-            wavefield_update_s_el_tti(i, j, mpm, mpw);
+            wavefield_update_s_el_tti(i, j, mpm, mpw, minv, gv);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -58,7 +58,7 @@ void update_s_elastic_tti_abs(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     /* bottom boundary */
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-            wavefield_update_s_el_tti(i, j, mpm, mpw);
+            wavefield_update_s_el_tti(i, j, mpm, mpw, minv, gv);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -68,7 +68,7 @@ void update_s_elastic_tti_abs(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     /*left-top */
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
-            wavefield_update_s_el_tti(i, j, mpm, mpw);
+            wavefield_update_s_el_tti(i, j, mpm, mpw, minv, gv);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -76,7 +76,7 @@ void update_s_elastic_tti_abs(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     /*left-bottom */
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
-            wavefield_update_s_el_tti(i, j, mpm, mpw);
+            wavefield_update_s_el_tti(i, j, mpm, mpw, minv, gv);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -84,7 +84,7 @@ void update_s_elastic_tti_abs(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     /* right-top */
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
-            wavefield_update_s_el_tti(i, j, mpm, mpw);
+            wavefield_update_s_el_tti(i, j, mpm, mpw, minv, gv);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -92,7 +92,7 @@ void update_s_elastic_tti_abs(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     /* right-bottom */
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
-            wavefield_update_s_el_tti(i, j, mpm, mpw);
+            wavefield_update_s_el_tti(i, j, mpm, mpw, minv, gv);
             abs_update_s(i, j, mpm, mpw);
         }
     }

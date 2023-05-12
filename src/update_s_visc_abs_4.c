@@ -32,9 +32,8 @@
 #include "fd.h"
 #include "logging.h"
 
-void update_s_visc_abs_4(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
+void update_s_visc_abs_4(int nt, MemModel * mpm, MemWavefield * mpw, MemInv *minv, GlobVar * gv)
 {
-    float vxx, vyy, vxy, vyx;
     double time1 = 0.0, time2 = 0.0;
 
     if ((gv->MPID == 0) && ((nt + (gv->OUTNTIMESTEPINFO - 1)) % gv->OUTNTIMESTEPINFO) == 0) {
@@ -44,8 +43,7 @@ void update_s_visc_abs_4(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * g
 
     for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
-            wavefield_update_s_visc_4(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_visc_4(i, j, mpm, mpw, minv, gv);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -53,8 +51,7 @@ void update_s_visc_abs_4(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * g
     /* right boundary */
     for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
-            wavefield_update_s_visc_4(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_visc_4(i, j, mpm, mpw, minv, gv);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -62,8 +59,7 @@ void update_s_visc_abs_4(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * g
     /* top boundary */
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
-            wavefield_update_s_visc_4(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_visc_4(i, j, mpm, mpw, minv, gv);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -71,8 +67,7 @@ void update_s_visc_abs_4(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * g
     /* bottom boundary */
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
-            wavefield_update_s_visc_4(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_visc_4(i, j, mpm, mpw, minv, gv);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -82,8 +77,7 @@ void update_s_visc_abs_4(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * g
     /*left-top */
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
-            wavefield_update_s_visc_4(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_visc_4(i, j, mpm, mpw, minv, gv);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -91,8 +85,7 @@ void update_s_visc_abs_4(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * g
     /*left-bottom */
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
-            wavefield_update_s_visc_4(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_visc_4(i, j, mpm, mpw, minv, gv);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -100,8 +93,7 @@ void update_s_visc_abs_4(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * g
     /* right-top */
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
-            wavefield_update_s_visc_4(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_visc_4(i, j, mpm, mpw, minv, gv);
             abs_update_s(i, j, mpm, mpw);
         }
     }
@@ -109,8 +101,7 @@ void update_s_visc_abs_4(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * g
     /* right-bottom */
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
-            wavefield_update_s_visc_4(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_visc_4(i, j, mpm, mpw, minv, gv);
             abs_update_s(i, j, mpm, mpw);
         }
     }

@@ -177,7 +177,7 @@ FDMOD_FILES := sofi2D.c \
                prepare_update_s_visc.c \
                prepare_update_s_vti.c \
                prepare_update_s_tti.c \
-               prepare_update_s_4.c \
+               prepare_update_s_visc_4.c \
                prepmod.c \
                psource.c \
                read_par_json.c \
