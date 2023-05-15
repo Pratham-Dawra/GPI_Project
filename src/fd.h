@@ -76,6 +76,8 @@ void cpml_update_v_x(int i, int j, float *sxx_x, float *sxy_x, MemModel *mpm, Me
 
 void cpml_update_v_y(int i, int j, float *sxy_y, float *syy_y, MemModel *mpm, MemWavefield *mpw);
 
+void eprecond(MemWavefield *mpw, MemInv *minv, GlobVar *gv);
+
 void eqsource(int nt, AcqVar *acq, MemWavefield *mpw, GlobVar *gv);
 
 void exchange_v(float **vx, float **vy, MemWavefield *mpw, GlobVar *gv);
@@ -284,7 +286,7 @@ void surface(int ndepth, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *g
 
 void surface_elastic(int ndepth, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void time_loop(int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm, MemWavefield *mpw,
+void time_loop(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm, MemWavefield *mpw,
                MemInv *minv, GlobVar *gv, GlobVarInv *vinv, Perform *perf);
 
 /* void update_s_elastic(int nx1, int nx2, int ny1, int ny2, int nt,

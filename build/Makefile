@@ -142,10 +142,11 @@ FDMOD_FILES := sofi2D.c \
                checkfd.c \
                cpml_update.c \
                debug_buffers.c \
+               eprecond.c \
+               eqsource.c \
                exchange_par.c \
                exchange_s.c \
                exchange_v.c \
-               eqsource.c \
                filter_frequencies.c \
                freemem.c \
                freemem_model.c \

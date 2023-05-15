@@ -24,7 +24,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void time_loop(int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm,
+void time_loop(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm,
                MemWavefield *mpw, MemInv *minv, GlobVar *gv, GlobVarInv *vinv, Perform *perf)
 {
     int nt, lsnap, isnap, esnap, sw = 0;
@@ -293,10 +293,15 @@ void time_loop(int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm,
         }
 
         /* save snapshots from forward model for gradient calculation */
-        if ((gv->MODE == FWI) && (nt == hin1)) {
-            snap_store(nt, hin, mpw, minv, gv, vinv);
-            hin++;
-            hin1 += vinv->DTINV;
+        if (gv->MODE == FWI) {
+            if(nt == hin1) {
+                snap_store(nt, hin, mpw, minv, gv, vinv);
+                hin++;
+                hin1 += vinv->DTINV;
+            }
+            if ((vinv->EPRECOND == 1) || ((vinv->EPRECOND == 3) && (vinv->EPRECOND_ITER == iter || (vinv->EPRECOND_ITER == 0)))) {
+                eprecond(mpw, minv, gv);
+            }
         }
 
         /* write snapshot to disk */
