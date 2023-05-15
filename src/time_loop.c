@@ -29,14 +29,14 @@ void time_loop(int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm,
 {
     int nt, lsnap, isnap, esnap, sw = 0;
     double time3 = 0.0, time4 = 0.0, time5 = 0.0, time6 = 0.0, time7 = 0.0, time8 = 0.0;
-    int lsamp = gv->NDT;
-    //int  hi = 1, hin = 1, hin1 = 1, imat = 1, imat1 = 1, imat2 = 1;
+    int lsamp = gv->NDT, hin = 1, hin1 = 1;
+    //int  hi = 1, imat = 1, imat1 = 1, imat2 = 1;
 
     static int nsnap = 0;
 
-    lsnap = iround(gv->TSNAP1 / gv->DT);      /* first snapshot at this time step */
-    isnap = iround(gv->TSNAPINC / gv->DT);    /* snapshot increment in number of timesteps */
-    esnap = iround(gv->TSNAP2 / gv->DT);      /* last snapshot no later than this time step */
+    lsnap = iround(gv->TSNAP1 / gv->DT);    /* first snapshot at this time step */
+    isnap = iround(gv->TSNAPINC / gv->DT);  /* snapshot increment in number of timesteps */
+    esnap = iround(gv->TSNAP2 / gv->DT);    /* last snapshot no later than this time step */
 
     for (nt = 1; nt <= gv->NT; nt++) {
 
@@ -54,7 +54,8 @@ void time_loop(int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm,
          * update of particle velocities --------------------------------
          *---------------------------------------------------------------*/
         if (gv->FDORDER_TIME == 2) {
-            update_v_interior(nt, acq->srcpos_loc, acq->signals, acq->signals, acq->nsrc_loc, sw, mpm, mpw, minv, gv, vinv);
+            update_v_interior(nt, acq->srcpos_loc, acq->signals, acq->signals, acq->nsrc_loc, sw, mpm, mpw, minv, gv,
+                              vinv);
 #ifdef EBUG
             debug_check_matrix(mpw->pvx, nt, gv->NX, gv->NY, 121, 0, "pvx");
             debug_check_matrix(mpw->pvy, nt, gv->NX, gv->NY, 121, 0, "pvy");
@@ -254,7 +255,7 @@ void time_loop(int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm,
         /* explosive source */
         if (gv->SOURCE_TYPE == 1)
             psource(nt, acq, mpw, gv);
-        
+
         /* earthquake source */
         if ((gv->SOURCE_TYPE == 5))
             eqsource(nt, acq, mpw, gv);
@@ -287,9 +288,15 @@ void time_loop(int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm,
 
         /* store amplitudes at receivers in section-arrays */
         if ((gv->SEISMO) && (nt == lsamp) && (nt < gv->NT)) {
-
             seismo_ssg(lsamp, acq->recpos_loc, hc, mpm, mpw, gv);
             lsamp += gv->NDT;
+        }
+
+        /* save snapshots from forward model for gradient calculation */
+        if ((gv->MODE == FWI) && (nt == hin1)) {
+            snap_store(nt, hin, mpw, minv, gv, vinv);
+            hin++;
+            hin1 += vinv->DTINV;
         }
 
         /* write snapshot to disk */
@@ -310,7 +317,7 @@ void time_loop(int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm,
                      ishot, (gv->NT - nt) * perf->time_av_timestep / (double)perf->infocounter);
         }
     }
-
     log_infoc(0, "Finished time stepping.\n");
-    if (gv->SNAP) log_infoc(0,"Number of snapshots for this shot: %d\n", nsnap);
+    if (gv->SNAP)
+        log_infoc(0, "Number of snapshots for this shot: %d\n", nsnap);
 }

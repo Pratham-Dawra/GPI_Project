@@ -268,6 +268,8 @@ void seismo_ssg(int lsamp, int **recpos, float *hc, MemModel *mpm, MemWavefield 
 
 void snap(int nt, int nsnap, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
+void snap_store(int nt, int hin, MemWavefield *mpw, MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
+
 void snapmerge(int nsnap);
 
 void sources(AcqVar *acq, GlobVar *gv);

@@ -199,6 +199,7 @@ FDMOD_FILES := sofi2D.c \
                saveseis_glob.c \
                seismo_ssg.c \
                snap_ssg.c \
+               snap_store.c \
                sources.c \
                splitrec.c \
                splitsrc.c \
