@@ -58,7 +58,7 @@ CFLAGS          = -O3 -Wall -Wextra -g -fstack-protector -std=c99 -ftree-vectori
 CDEPEND         = -MMD -MP -MF .dep-$(subst /,-,$@)
 LD             := $(CC)
 LDFLAGS         = -lm
-EXTRA_LDFLAGS  := -lmpi
+EXTRA_LDFLAGS  := -lmpi -lfftw3
 
 ###############################################################################
 ### Intel compiler (OneAPI) with Intel MPI
@@ -137,6 +137,7 @@ FDMOD_FILES := sofi2D.c \
                av_mue.c \
                av_rho.c \
                av_tau.c \
+               calc_envelope.c \
                catseis.c \
                check_fs.c \
                checkfd.c \

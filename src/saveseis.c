@@ -24,7 +24,7 @@
 
 #include "fd.h"
 
-void saveseis(int ishot, AcqVar *acq, GlobVar *gv)
+void saveseis(int ishot, AcqVar *acq, GlobVar *gv, GlobVarInv *vinv)
 {
 
     /* write seismograms to file(s) */
@@ -37,11 +37,19 @@ void saveseis(int ishot, AcqVar *acq, GlobVar *gv)
         switch (gv->SEISMO) {
           case 1:              /* particle velocities only */
               catseis(gv->SECTIONVX, gv->SEISMO_FULLDATA, acq->recswitch, gv->NTRG, gv->NS);
-              if (gv->MPID == 0)
+              if (gv->MPID == 0) {
+                  if ((gv->MODE == FWI) && (vinv->LNORM == 8)) { /* Why only for SEISMO==1 ??? */
+                      calc_envelope(gv->SEISMO_FULLDATA, gv->SEISMO_FULLDATA, gv->NTRG, gv->NS);
+                  }
                   saveseis_glob(gv->SEISMO_FULLDATA, acq->recpos, acq->srcpos, ishot, gv->NS, 1, gv);
+              }
               catseis(gv->SECTIONVY, gv->SEISMO_FULLDATA, acq->recswitch, gv->NTRG, gv->NS);
-              if (gv->MPID == 0)
+              if (gv->MPID == 0) {
+                  if ((gv->MODE == FWI) && (vinv->LNORM == 8)) { /* Why only for SEISMO==1 ??? */
+                      calc_envelope(gv->SEISMO_FULLDATA, gv->SEISMO_FULLDATA, gv->NTRG, gv->NS);
+                  }
                   saveseis_glob(gv->SEISMO_FULLDATA, acq->recpos, acq->srcpos, ishot, gv->NS, 2, gv);
+              }
 
               break;
           case 2:              /* pressure only */

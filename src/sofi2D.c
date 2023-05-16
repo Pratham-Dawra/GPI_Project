@@ -339,8 +339,13 @@ int main(int argc, char **argv)
                     time_loop(iter, ishot, snapcheck, hc, &acq, &mpm, &mpw, &minv, &gv, &vinv, &perf);
 
                     /* gather and output seismograms if applicable */
-                    saveseis(ishot, &acq, &gv);
+                    saveseis(ishot, &acq, &gv, &vinv);
 
+                    /*------------------------------------------------------------------------------*/
+                    /*---------- Inversion: Start inversion process --------------------------------*/
+                    /*if (gv.mode == FWI) {
+                        inversion(&gv, &vinv);
+                    }*/
                 }
                 /*----------------  end of loop over multiple shots  -----------------*/
                 

@@ -62,11 +62,13 @@ void av_rho(float **rho, float **rip, float **rjp, GlobVar *gv);
 
 void av_tau(float **taus, float **tausipjp, GlobVar *gv);
 
+void calc_envelope(float **datatrace, float **envelope, int ntr, int ns);
+
+void catseis(float **data, float **fulldata, int *recswitch, int ntr_glob, int ns);
+
 void check_fs(GlobVar *gv, GlobVarInv *vinv);
 
 void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar *gv);
-
-void catseis(float **data, float **fulldata, int *recswitch, int ntr_glob, int ns);
 
 void cpml_update_s_x(int i, int j, MemModel *mpm, MemWavefield *mpw);
 
@@ -255,7 +257,7 @@ int **receiver(GlobVar *gv);
 void save_checkpoint(int nx1, int nx2, int ny1, int ny2,
                      float **vx, float **vy, float **sxx, float **syy, float **sxy, GlobVar *gv);
 
-void saveseis(int ishot, AcqVar *acq, GlobVar *gv);
+void saveseis(int ishot, AcqVar *acq, GlobVar *gv, GlobVarInv *vinv);
 
 void saveseis_glob(float **sectiondata, int **recpos, float **srcpos, int ishot, int ns, int sectiondatatype,
                    GlobVar *gv);

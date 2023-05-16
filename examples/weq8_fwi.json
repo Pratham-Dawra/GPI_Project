@@ -157,7 +157,9 @@
 
 "Gradient calculation" : "comment",
 			"LNORM" : "2",
-			"LNORM values: L1 norm=1, L2 norm=2, Cauchy=3, SECH=4, Global correlation=5, normalized L2 norm=7" : "comment",
+			"LNORM values: L1 norm=1, L2 norm=2, Cauchy=3, SECH=4, Global correlation=5," : "comment",
+			"normalized L2 norm=7, envelope-based=8" : "comment",
+			"WATERLEVEL_LNORM8" : "0.05",
 			"NORMALIZE" : "0",
 			"DTINV" : "2",
 
