@@ -130,7 +130,7 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
                   log_fatal("not yet implemented\n");
                   break;
               case EL_ISO:     /* elastic */
-                  update_s_elastic_interior(nt, hc, mpm, mpw, gv);
+                  update_s_elastic_interior(nt, mpm, mpw, gv);
                   if (gv->FW) {
                       if (gv->ABS_TYPE == 1)
                           update_s_elastic_PML(nt, mpm, mpw, gv);

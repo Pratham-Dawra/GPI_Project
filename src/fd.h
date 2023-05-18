@@ -262,7 +262,7 @@ void update_s_elastic_abs(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv)
 
 void update_s_elastic_abs_4(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void update_s_elastic_interior(int nt, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+void update_s_elastic_interior(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void update_s_elastic_interior_4(int nt, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 

@@ -36,7 +36,7 @@
 			"SIGOUT_FORMAT" : "1",
 			"Supported output formats for SIGOUT_FORMAT: SU=1, ASCII=2, BINARY=3" : "comment",
 
-			"SOURCE_TYPE" : "1",
+			"SOURCE_TYPE" : "3",
 			"SOURCE_TYPE values (point_source): explosive=1;force_in_x=2;force_in_y=3;custom_force=4" : "comment",
 
 			"SRCREC" : "1",
