@@ -29,11 +29,18 @@ void initmem_wavefield(MemWavefield *mpw, GlobVar *gv)
 {
 
     /* dynamic (wavefield) arrays (elastic + viscoelastic) */
+    /* derivatives of the stress fields */
     mpw->psxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
     mpw->psxy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
     mpw->psyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+    /* velocity fields */
     mpw->pvx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
     mpw->pvy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+    /* derivatives of velocity fields */
+    mpw->pvxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+    mpw->pvyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+    mpw->pvyx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+    mpw->pvxy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
 
     if (gv->FDORDER_TIME == 4) {
         mpw->vxx_1 = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
@@ -86,13 +93,6 @@ void initmem_wavefield(MemWavefield *mpw, GlobVar *gv)
         mpw->pq_2 = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
         mpw->pq_3 = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
         mpw->pq_4 = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
-    }
-
-    if (gv->WEQ == EL_TTI || gv->WEQ == VEL_TTI) {  /*elastic & viscoelastic TTI wave equation */
-        mpw->pvxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
-        mpw->pvyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
-        mpw->pvyx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
-        mpw->pvxy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
     }
 
     if (gv->ABS_TYPE == 1) {    /* PML */

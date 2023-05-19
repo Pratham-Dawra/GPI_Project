@@ -24,47 +24,37 @@
 
 #include "fd.h"
 
-/* void wavefield_update_s_visc_VTI(int i, int j, float vxx, float vyx, float vxy, float vyy,
-                                 float **sxy, float **sxx, float **syy, float ***p, float ***r, float ***q,
-                                 float **pc55ipjpu, float **pc13u, float **pc11u, float **pc33u,
-                                 float ***pc55ipjpd, float ***pc13d, float ***pc11d, float ***pc33d,
-                                 float *bip, float *cip, GlobVar *gv) */
-
-void wavefield_update_s_visc_VTI(int i, int j, float vxx, float vyx, float vxy, float vyy, MemModel * mpm,
-                                 MemWavefield * mpw, GlobVar * gv)
+void wavefield_update_s_visc_VTI(int i, int j, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
 {
-    /* computing sums of the old memory variables */
     float dthalbe = gv->DT / 2.0;
+    float sumr_old = 0.0f, sump_old = 0.0f, sumq_old = 0.0f;
     float sumr = 0.0f, sump = 0.0f, sumq = 0.0f;
+    float u1 = 0.0f, u2 = 0.0f, u3 = 0.0f;
 
     for (int l = 1; l <= gv->L; l++) {
-        sumr += mpw->pr[j][i][l];
-        sump += mpw->pp[j][i][l];
-        sumq += mpw->pq[j][i][l];
-    }
-
-    /* updating components of the stress tensor, partially */
-    mpw->psxy[j][i] += (mpm->pc55ipjpu[j][i] * (vxy + vyx)) + (dthalbe * sumr);
-    mpw->psxx[j][i] += (mpm->pc11u[j][i] * vxx) + (mpm->pc13u[j][i] * vyy) + (dthalbe * sump);
-    mpw->psyy[j][i] += (mpm->pc13u[j][i] * vxx) + (mpm->pc33u[j][i] * vyy) + (dthalbe * sumq);
-
-    /* now updating the memory-variables and sum them up */
-    sumr = sump = sumq = 0.0f;
-    for (int l = 1; l <= gv->L; l++) {
-        mpw->pr[j][i][l] = mpm->bip[l] * (mpw->pr[j][i][l] * mpm->cip[l] - (mpm->pc55ipjpd[j][i][l] * (vxy + vyx)));
+        /* computing sums of the old memory variables */
+        sumr_old += mpw->pr[j][i][l];
+        sump_old += mpw->pp[j][i][l];
+        sumq_old += mpw->pq[j][i][l];
+        /* now updating the memory-variables and sum them up */
+        mpw->pr[j][i][l] = mpm->bip[l] * (mpw->pr[j][i][l] * mpm->cip[l] - (mpm->pc55ipjpd[j][i][l] * (mpw->pvxy[j][i] + mpw->pvyx[j][i])));
         mpw->pp[j][i][l] =
-            mpm->bip[l] * (mpw->pp[j][i][l] * mpm->cip[l] - (mpm->pc11d[j][i][l] * vxx) - (mpm->pc13d[j][i][l] * vyy));
+            mpm->bip[l] * (mpw->pp[j][i][l] * mpm->cip[l] - (mpm->pc11d[j][i][l] * mpw->pvxx[j][i]) - (mpm->pc13d[j][i][l] * mpw->pvyy[j][i]));
         mpw->pq[j][i][l] =
-            mpm->bip[l] * (mpw->pq[j][i][l] * mpm->cip[l] - (mpm->pc13d[j][i][l] * vxx) - (mpm->pc33d[j][i][l] * vyy));
+            mpm->bip[l] * (mpw->pq[j][i][l] * mpm->cip[l] - (mpm->pc13d[j][i][l] * mpw->pvxx[j][i]) - (mpm->pc33d[j][i][l] * mpw->pvyy[j][i]));
         sumr += mpw->pr[j][i][l];
         sump += mpw->pp[j][i][l];
         sumq += mpw->pq[j][i][l];
     }
 
-    /* and now the components of the stress tensor are
-     * completely updated */
-    mpw->psxy[j][i] += (dthalbe * sumr);
-    mpw->psxx[j][i] += (dthalbe * sump);
-    mpw->psyy[j][i] += (dthalbe * sumq);
+    /* The stress updates are stored in internal variables due to extensions necessary for FWI */
+    /* calculate stress component update */
+    u1 = (mpm->pc55ipjpu[j][i] * (mpw->pvxy[j][i] + mpw->pvyx[j][i])) + (dthalbe * (sumr_old + sumr));
+    u2 = (mpm->pc11u[j][i] * mpw->pvxx[j][i]) + (mpm->pc13u[j][i] * mpw->pvyy[j][i]) + (dthalbe * (sump_old + sump));
+    u3 = (mpm->pc13u[j][i] * mpw->pvxx[j][i]) + (mpm->pc33u[j][i] * mpw->pvyy[j][i]) + (dthalbe * (sumq_old + sumq));
 
+    /* updating components of the stress tensor */
+    mpw->psxy[j][i] += u1;
+    mpw->psxx[j][i] += u2;
+    mpw->psyy[j][i] += u3;
 }

@@ -63,7 +63,6 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
                 if (gv->ABS_TYPE == 1) {
                     update_v_PML(gv->NX, gv->NY, nt, mpm, mpw, gv);
                 }
-
                 if (gv->ABS_TYPE == 2) {
                     update_v_abs(mpm, mpw, gv);
                 }
@@ -80,7 +79,6 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
                 if (gv->ABS_TYPE == 1) {
                     update_v_PML_4(gv->NX, gv->NY, nt, mpm, mpw, gv);
                 }
-
                 if (gv->ABS_TYPE == 2) {
                     update_v_abs_4(nt, mpm, mpw, gv);
                 }
@@ -102,11 +100,10 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
          *---------------------------------------------------------------*/
         exchange_v(mpw->pvx, mpw->pvy, mpw, gv);
 
-        if ((gv->WEQ == EL_TTI) || (gv->WEQ == VEL_TTI)) {  /* TTI */
-            v_derivatives(mpw, gv);
-            exchange_v(mpw->pvxx, mpw->pvyy, mpw, gv);
-            exchange_v(mpw->pvyx, mpw->pvxy, mpw, gv);
-        }
+        /* calculation and exchange of spatial derivation of particle velocities */
+        v_derivatives(mpw, gv);
+        exchange_v(mpw->pvxx, mpw->pvyy, mpw, gv);
+        exchange_v(mpw->pvyx, mpw->pvxy, mpw, gv);
 
         if ((gv->MPID == 0) && ((nt - 1) % gv->OUTNTIMESTEPINFO == 0)) {
             time5 = MPI_Wtime();
@@ -130,7 +127,7 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
                   log_fatal("not yet implemented\n");
                   break;
               case EL_ISO:     /* elastic */
-                  update_s_elastic_interior(nt, hc, mpm, mpw, gv);
+                  update_s_elastic_interior(nt, mpm, mpw, gv);
                   if (gv->FW) {
                       if (gv->ABS_TYPE == 1)
                           update_s_elastic_PML(nt, mpm, mpw, gv);
@@ -148,10 +145,10 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
                   }
                   break;
               case EL_VTI:     /* elastic VTI */
-                  update_s_elastic_VTI_interior(nt, mpm, mpw, gv);
+                  update_s_elastic_vti_interior(nt, mpm, mpw, gv);
                   if (gv->FW) {
                       if (gv->ABS_TYPE == 1)
-                          update_s_elastic_VTI_PML(mpm, mpw, gv);
+                          update_s_elastic_vti_PML(mpm, mpw, gv);
                       if (gv->ABS_TYPE == 2)
                           update_s_elastic_vti_abs(mpm, mpw, gv);
                   }
@@ -162,10 +159,10 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
 #endif
                   break;
               case VEL_VTI:    /* viscoelastic VTI */
-                  update_s_visc_VTI_interior(nt, mpm, mpw, gv);
+                  update_s_visc_vti_interior(nt, mpm, mpw, gv);
                   if (gv->FW) {
                       if (gv->ABS_TYPE == 1)
-                          update_s_visc_VTI_PML(mpm, mpw, gv);
+                          update_s_visc_vti_PML(mpm, mpw, gv);
                       if (gv->ABS_TYPE == 2)
                           update_s_visc_vti_abs(mpm, mpw, gv);
                   }
@@ -176,11 +173,10 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
 #endif
                   break;
               case EL_TTI:     /* elastic TTI */
-                  update_s_elastic_TTI_interior(nt, mpm, mpw, gv);
-
+                  update_s_elastic_tti_interior(nt, mpm, mpw, gv);
                   if (gv->FW) {
                       if (gv->ABS_TYPE == 1)
-                          update_s_elastic_TTI_PML(mpm, mpw, gv);
+                          update_s_elastic_tti_PML(mpm, mpw, gv);
                       if (gv->ABS_TYPE == 2)
                           update_s_elastic_tti_abs(mpm, mpw, gv);
                   }
@@ -191,10 +187,10 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
 #endif
                   break;
               case VEL_TTI:    /* viscoelastic TTI */
-                  update_s_visc_TTI_interior(nt, mpm, mpw, gv);
+                  update_s_visc_tti_interior(nt, mpm, mpw, gv);
                   if (gv->FW) {
                       if (gv->ABS_TYPE == 1)
-                          update_s_visc_TTI_PML(mpm, mpw, gv);
+                          update_s_visc_tti_PML(mpm, mpw, gv);
                       if (gv->ABS_TYPE == 2)
                           update_s_visc_tti_abs(mpm, mpw, gv);
                   }
@@ -221,7 +217,7 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
         if (gv->FDORDER_TIME == 4) {
             if (gv->L) {        /* viscoelastic */
                 /* Not supported right now */
-                update_s_visc_interior_4(nt, hc, mpm, mpw, gv);
+                update_s_visc_interior_4(nt, mpm, mpw, gv);
                 if (gv->FW) {
                     if (gv->ABS_TYPE == 1) {
                         update_s_visc_PML_4(nt, mpm, mpw, gv);
@@ -235,8 +231,7 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
                 shift_var3(&(mpw->pr), &(mpw->pr_2), &(mpw->pr_3), &(mpw->pr_4));
                 shift_var3(&(mpw->pq), &(mpw->pq_2), &(mpw->pq_3), &(mpw->pq_4));
             } else {            /* elastic */
-                update_s_elastic_interior_4(nt, hc, mpm, mpw, gv);
-
+                update_s_elastic_interior_4(nt, mpm, mpw, gv);
                 if (gv->FW) {
                     if (gv->ABS_TYPE == 1)
                         update_s_elastic_PML_4(nt, mpm, mpw, gv);

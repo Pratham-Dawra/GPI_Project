@@ -29,14 +29,14 @@
 
 #include "fd.h"
 
-void update_s_elastic_TTI_PML(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
+void update_s_elastic_tti_PML(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
 {
     int h1;
 
     /* left boundary */
     for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
-            cpml_update_s_x(i, j, &mpw->pvxx[j][i], &mpw->pvyx[j][i], mpm, mpw);
+            cpml_update_s_x(i, j, mpm, mpw);
         }
     }
 
@@ -50,7 +50,7 @@ void update_s_elastic_TTI_PML(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
             h1 = (i - gv->NX + 2 * gv->FW);
-            cpml_update_s_x(h1, j, &mpw->pvxx[j][i], &mpw->pvyx[j][i], mpm, mpw);
+            cpml_update_s_x(h1, j, mpm, mpw);
         }
     }
 
@@ -63,7 +63,7 @@ void update_s_elastic_TTI_PML(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     /* top boundary */
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-            cpml_update_s_y(i, j, &mpw->pvxy[j][i], &mpw->pvyy[j][i], mpm, mpw);
+            cpml_update_s_y(i, j, mpm, mpw);
         }
     }
     for (int j = gv->GY[1] + 2; j <= gv->GY[2]; j++) {
@@ -76,7 +76,7 @@ void update_s_elastic_TTI_PML(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
             h1 = (j - gv->NY + 2 * gv->FW);
-            cpml_update_s_y(i, h1, &mpw->pvxy[j][i], &mpw->pvyy[j][i], mpm, mpw);
+            cpml_update_s_y(i, h1, mpm, mpw);
         }
     }
     for (int j = gv->GY[3] + 1; j <= gv->GY[4] - 2; j++) {
@@ -90,8 +90,8 @@ void update_s_elastic_TTI_PML(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     /*left-top */
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
-            cpml_update_s_x(i, j, &mpw->pvxx[j][i], &mpw->pvyx[j][i], mpm, mpw);
-            cpml_update_s_y(i, j, &mpw->pvxy[j][i], &mpw->pvyy[j][i], mpm, mpw);
+            cpml_update_s_x(i, j, mpm, mpw);
+            cpml_update_s_y(i, j, mpm, mpw);
         }
     }
     for (int j = gv->GY[1] + 2; j <= gv->GY[2]; j++) {
@@ -103,9 +103,9 @@ void update_s_elastic_TTI_PML(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     /*left-bottom */
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
-            cpml_update_s_x(i, j, &mpw->pvxx[j][i], &mpw->pvyx[j][i], mpm, mpw);
+            cpml_update_s_x(i, j, mpm, mpw);
             h1 = (j - gv->NY + 2 * gv->FW);
-            cpml_update_s_y(i, h1, &mpw->pvxy[j][i], &mpw->pvyy[j][i], mpm, mpw);
+            cpml_update_s_y(i, h1, mpm, mpw);
         }
     }
     for (int j = gv->GY[3] + 1; j <= gv->GY[4] - 2; j++) {
@@ -118,8 +118,8 @@ void update_s_elastic_TTI_PML(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
             h1 = (i - gv->NX + 2 * gv->FW);
-            cpml_update_s_x(h1, j, &mpw->pvxx[j][i], &mpw->pvyx[j][i], mpm, mpw);
-            cpml_update_s_y(i, j, &mpw->pvxy[j][i], &mpw->pvyy[j][i], mpm, mpw);
+            cpml_update_s_x(h1, j, mpm, mpw);
+            cpml_update_s_y(i, j, mpm, mpw);
         }
     }
     for (int j = gv->GY[1] + 2; j <= gv->GY[2]; j++) {
@@ -132,9 +132,9 @@ void update_s_elastic_TTI_PML(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     for (int j = gv->GY[3] + 1; j <= gv->GY[4] - 1; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
             h1 = (i - gv->NX + 2 * gv->FW);
-            cpml_update_s_x(h1, j, &mpw->pvxx[j][i], &mpw->pvyx[j][i], mpm, mpw);
+            cpml_update_s_x(h1, j, mpm, mpw);
             h1 = (j - gv->NY + 2 * gv->FW);
-            cpml_update_s_y(i, h1, &mpw->pvxy[j][i], &mpw->pvyy[j][i], mpm, mpw);
+            cpml_update_s_y(i, h1, mpm, mpw);
         }
     }
     for (int j = gv->GY[3] + 1; j <= gv->GY[4] - 2; j++) {

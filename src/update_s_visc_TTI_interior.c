@@ -30,7 +30,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void update_s_visc_TTI_interior(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
+void update_s_visc_tti_interior(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
 {
     double time1 = 0.0, time2 = 0.0;
 

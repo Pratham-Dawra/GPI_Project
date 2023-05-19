@@ -30,9 +30,8 @@
 #include "fd.h"
 #include "logging.h"
 
-void update_s_visc_VTI_interior(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
+void update_s_visc_vti_interior(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
 {
-    float vxx, vyy, vxy, vyx;
     double time1 = 0.0, time2 = 0.0;
 
     if ((gv->MPID == 0) && ((nt + (gv->OUTNTIMESTEPINFO - 1)) % gv->OUTNTIMESTEPINFO) == 0) {
@@ -42,8 +41,7 @@ void update_s_visc_VTI_interior(int nt, MemModel * mpm, MemWavefield * mpw, Glob
 
     for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
         for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
-            wavefield_update_s_visc_VTI(i, j, vxx, vyx, vxy, vyy, mpm, mpw, gv);
+            wavefield_update_s_visc_VTI(i, j, mpm, mpw, gv);
         }
     }
 

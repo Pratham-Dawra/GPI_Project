@@ -64,9 +64,9 @@ void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar *gv);
 
 void catseis(float **data, float **fulldata, int *recswitch, int ntr_glob, int ns);
 
-void cpml_update_s_x(int i, int j, float *vxx, float *vyx, MemModel *mpm, MemWavefield *mpw);
+void cpml_update_s_x(int i, int j, MemModel *mpm, MemWavefield *mpw);
 
-void cpml_update_s_y(int i, int j, float *vxy, float *vyy, MemModel *mpm, MemWavefield *mpw);
+void cpml_update_s_y(int i, int j, MemModel *mpm, MemWavefield *mpw);
 
 void cpml_update_v_x(int i, int j, float *sxx_x, float *sxy_x, MemModel *mpm, MemWavefield *mpw);
 
@@ -262,9 +262,9 @@ void update_s_elastic_abs(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv)
 
 void update_s_elastic_abs_4(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void update_s_elastic_interior(int nt, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+void update_s_elastic_interior(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void update_s_elastic_interior_4(int nt, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+void update_s_elastic_interior_4(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void update_s_elastic_PML(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
@@ -272,20 +272,20 @@ void update_s_elastic_PML_4(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *g
 
 void update_s_elastic_vti_abs(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void update_s_elastic_VTI_interior(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+void update_s_elastic_vti_interior(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void update_s_elastic_VTI_PML(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+void update_s_elastic_vti_PML(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void update_s_elastic_tti_abs(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void update_s_elastic_TTI_interior(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+void update_s_elastic_tti_interior(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 /* void update_s_elastic_TTI_interior2(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
                                     float **vx, float **vy, float **sxx, float **syy,
                                     float **sxy, float **pc11, float **pc55ipjp, float **pc13, float **pc33,
                                     float **pc15, float **pc35, float **pc15ipjp, float **pc35ipjp, float *hc); */
 
-void update_s_elastic_TTI_PML(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+void update_s_elastic_tti_PML(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 /* void update_s_elastic_TTI_PML2(int nx1, int nx2, int ny1, int ny2, int *gx, int *gy, int nt,
                                float **vx, float **vy, float **sxx, float **syy,
@@ -302,7 +302,7 @@ void update_s_visc_abs_4(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void update_s_visc_interior(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void update_s_visc_interior_4(int nt, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+void update_s_visc_interior_4(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void update_s_visc_PML(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
@@ -310,15 +310,15 @@ void update_s_visc_PML_4(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void update_s_visc_vti_abs(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void update_s_visc_VTI_interior(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+void update_s_visc_vti_interior(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void update_s_visc_VTI_PML(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+void update_s_visc_vti_PML(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void update_s_visc_tti_abs(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void update_s_visc_TTI_interior(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+void update_s_visc_tti_interior(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void update_s_visc_TTI_PML(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+void update_s_visc_tti_PML(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 /* void update_v(int nx1, int nx2, int ny1, int ny2, int nt,
               float **pvx, float **pvy, float **psxx, float **psyy,
@@ -341,13 +341,11 @@ void update_v_PML_4(int nx2, int ny2, int nt, MemModel *mpm, MemWavefield *mpw, 
 
 void v_derivatives(MemWavefield *mpw, GlobVar *gv);
 
-void wavefield_update_s_el(int i, int j, float vxx, float vyx, float vxy, float vyy, MemModel *mpm, MemWavefield *mpw);
+void wavefield_update_s_el(int i, int j, MemModel *mpm, MemWavefield *mpw);
 
-void wavefield_update_s_el_4(int i, int j, float vxx, float vyx, float vxy, float vyy, MemModel *mpm,
-                             MemWavefield *mpw, GlobVar *gv);
+void wavefield_update_s_el_4(int i, int j, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void wavefield_update_s_el_vti(int i, int j, float vxx, float vyx, float vxy, float vyy, MemModel *mpm,
-                               MemWavefield *mpw);
+void wavefield_update_s_el_vti(int i, int j, MemModel *mpm, MemWavefield *mpw);
 
 void wavefield_update_s_el_tti(int i, int j, MemModel *mpm, MemWavefield *mpw);
 
@@ -360,14 +358,11 @@ void wavefield_update_s_el_tti(int i, int j, MemModel *mpm, MemWavefield *mpw);
                                 float **syy, float **pc11, float **pc55ipjp, float **pc13, float **pc33, float **pc15,
                                 float **pc35, float **pc15ipjp, float **pc35ipjp); */
 
-void wavefield_update_s_visc(int i, int j, float vxx, float vyx, float vxy, float vyy, MemModel *mpm,
-                             MemWavefield *mpw, GlobVar *gv);
+void wavefield_update_s_visc(int i, int j,MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void wavefield_update_s_visc_4(int i, int j, float vxx, float vyx, float vxy, float vyy, MemModel *mpm,
-                               MemWavefield *mpw, GlobVar *gv);
+void wavefield_update_s_visc_4(int i, int j, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
-void wavefield_update_s_visc_VTI(int i, int j, float vxx, float vyx, float vxy, float vyy, MemModel *mpm,
-                                 MemWavefield *mpw, GlobVar *gv);
+void wavefield_update_s_visc_VTI(int i, int j, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void wavefield_update_s_visc_TTI(int i, int j, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 

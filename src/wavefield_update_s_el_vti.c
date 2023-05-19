@@ -24,10 +24,18 @@
 
 #include "fd.h"
 
-void wavefield_update_s_el_vti(int i, int j, float vxx, float vyx, float vxy, float vyy, MemModel * mpm, MemWavefield * mpw)
+void wavefield_update_s_el_vti(int i, int j, MemModel * mpm, MemWavefield * mpw)
 {
-    /* Update */
-    mpw->psxy[j][i] += (mpm->pc55ipjp[j][i] * (vxy + vyx));
-    mpw->psxx[j][i] += ((mpm->pc11[j][i] * vxx) + (mpm->pc13[j][i] * vyy));
-    mpw->psyy[j][i] += ((mpm->pc13[j][i] * vxx) + (mpm->pc33[j][i] * vyy));
+    float u1 = 0.0f, u2 = 0.0f, u3 = 0.0f;
+
+    /* The stress updates are stored in internal variables due to extensions necessary for FWI */
+    /* calculate stress component update */
+    u1 = (mpm->pc55ipjp[j][i] * (mpw->pvxy[j][i] + mpw->pvyx[j][i]));
+    u2 = ((mpm->pc11[j][i] * mpw->pvxx[j][i]) + (mpm->pc13[j][i] * mpw->pvyy[j][i]));
+    u3 = ((mpm->pc13[j][i] * mpw->pvxx[j][i]) + (mpm->pc33[j][i] * mpw->pvyy[j][i]));
+
+    /* updating components of the stress tensor */
+    mpw->psxy[j][i] += u1;
+    mpw->psxx[j][i] += u2;
+    mpw->psyy[j][i] += u3;
 }
