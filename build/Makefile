@@ -101,6 +101,7 @@ dummy     := $(shell mkdir -p $(strip $(INSTDIR)))
 FDMOD_EXE := $(strip $(FDMOD))
 MERGE_EXE := $(strip $(MERGE))
 INSTALL   := install -D -p --backup=simple --suffix=.bck
+INSTALL   := install -D -p --backup=simple --suffix=.bck
 RM        := rm -f --preserve-root
 LATEX     := pdflatex
 BIBER     := biber
@@ -110,6 +111,11 @@ ifeq ($(COMMIT),)
   COMMIT  := unknown
 endif
 CPPFLAGS  += -DLOG_COMMIT="\"$(COMMIT)\""
+
+OS := $(shell uname)
+ifeq ($(OS),Darwin)
+      INSTALL   := install -p
+endif
 
 DOC_MAIN := main
 DOC_FILES := $(wildcard $(strip $(realpath $(BASEDIR)))/doc/guide_sofi2D/latex/*.tex) \
