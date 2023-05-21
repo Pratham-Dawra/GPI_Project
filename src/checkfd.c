@@ -113,13 +113,6 @@ void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar *gv)
      
         }
  
-        if (gv->SNAP) {
-            if (!(gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI)&&(gv->SNAP>2)) {
-                log_warn("Output of curl impossible in case of acoustic modelling \n");
-                log_warn("Setting output format of snapshots to SNAP=1 (particle velocities only) \n");
-                gv->SEISMO=1;
-            }
-        }
 
         if (gv->SEISMO) {
             

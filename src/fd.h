@@ -288,6 +288,8 @@ void update_s_elastic_interior_4(int nt, MemModel *mpm, MemWavefield *mpw, GlobV
 
 void update_s_elastic_PML(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
+void update_s_acoustic_PML(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+
 void update_s_elastic_PML_4(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void update_s_elastic_vti_abs(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);

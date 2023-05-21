@@ -272,6 +272,12 @@ void read_par_json(const char *fileinp, GlobVar * gv)
     if (get_int_from_objectlist("IDY", number_readobjects, &(gv->IDY), varname_list, value_list, used_list))
         log_fatal("Variable IDY could not be retrieved from the json input file!");
 
+    if (gv->SNAP) {
+        if (!(gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI)&&(gv->SNAP>2)) {
+            log_fatal("Output of curl impossible in case of acoustic modelling. Choose SNAP=1,2 \n");
+        }
+    }
+
     /* =================================
      * section seismogramm parameters
      * ================================= */
@@ -338,6 +344,12 @@ void read_par_json(const char *fileinp, GlobVar * gv)
             if (get_float_from_objectlist
                 ("NGEOPH", number_readobjects, &(gv->NGEOPH), varname_list, value_list, used_list))
                 log_fatal("Variable NGEOPH could not be retrieved from the json input file!");
+        }
+    }
+
+    if (gv->SEISMO) {
+        if (!(gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI)&&(gv->SEISMO>2)) {
+            log_fatal("Output of curl impossible in case of acoustic modelling. Choose SEISMO=1,2 \n");
         }
     }
 

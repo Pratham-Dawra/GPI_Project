@@ -59,6 +59,8 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
             debug_check_matrix(mpw->pvy, nt, gv->NX, gv->NY, 121, 0, "pvy");
 #endif
 
+ 
+            
             if (gv->FW) {
                 if (gv->ABS_TYPE == 1) {
                     update_v_PML(gv->NX, gv->NY, nt, mpm, mpw, gv);
@@ -98,12 +100,15 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
         /*---------------------------------------------------------------*
          * ------- exchange of particle velocities between PEs --------- *
          *---------------------------------------------------------------*/
+ 
+        
         exchange_v(mpw->pvx, mpw->pvy, mpw, gv);
-
+ 
         /* calculation and exchange of spatial derivation of particle velocities */
         v_derivatives(mpw, gv);
         exchange_v(mpw->pvxx, mpw->pvyy, mpw, gv);
-        if (gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI) exchange_v(mpw->pvyx, mpw->pvxy, mpw, gv); /* elastic cases*/
+        if (gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI) exchange_v(mpw->pvyx, mpw->pvxy, mpw, gv);
+   
 
         if ((gv->MPID == 0) && ((nt - 1) % gv->OUTNTIMESTEPINFO == 0)) {
             time5 = MPI_Wtime();
@@ -121,7 +126,7 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
                     update_s_acoustic_interior(nt, mpm, mpw, gv);
                     if (gv->FW) {
                         if (gv->ABS_TYPE == 1)
-                            update_s_elastic_PML(nt, mpm, mpw, gv);
+                            update_s_acoustic_PML(nt, mpm, mpw, gv);
                         if (gv->ABS_TYPE == 2)
                             update_s_acoustic_abs(nt, mpm, mpw, gv);
                     }

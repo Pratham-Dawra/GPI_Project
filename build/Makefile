@@ -217,6 +217,7 @@ FDMOD_FILES := sofi2D.c \
                update_s_elastic_TTI_interior.c \
                update_s_elastic_interior_4.c \
                update_s_elastic_PML.c \
+               update_s_acoustic_PML.c \
                update_s_elastic_VTI_PML.c \
                update_s_elastic_TTI_PML.c \
                update_s_elastic_TTI_abs.c \
