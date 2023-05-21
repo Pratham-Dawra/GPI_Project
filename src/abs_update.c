@@ -25,11 +25,23 @@
 
 #include "fd.h"
 
+void abs_update_s_ac2(int i, int j, MemModel * mpm, MemWavefield * mpw)
+{
+    mpw->psxx[j][i] *= mpm->absorb_coeff[j][i];
+}
+
+void abs_update_s_ac1(int i, int j, MemModel * mpm, MemWavefield * mpw)
+{
+    mpw->psxx[j][i] *= mpm->absorb_coeff[j][i];
+    mpw->psyy[j][i] *= mpm->absorb_coeff[j][i];
+
+}
+
 void abs_update_s(int i, int j, MemModel * mpm, MemWavefield * mpw)
 {
     mpw->psxy[j][i] *= mpm->absorb_coeff[j][i];
-    mpw->psxx[j][i] *= mpm->absorb_coeff[j][i];
     mpw->psyy[j][i] *= mpm->absorb_coeff[j][i];
+    mpw->psxx[j][i] *= mpm->absorb_coeff[j][i];
 }
 
 void abs_update_v(int i, int j, MemModel * mpm, MemWavefield * mpw)

@@ -83,6 +83,8 @@ typedef struct {
     float **pvyy;
     float **pvyx;
     float **pvxy;
+    float **dummy;
+
 
     /* buffer arrays in which the wavefield information to be exchanged between neighboring PEs is stored */
     float **bufferlef_to_rig;

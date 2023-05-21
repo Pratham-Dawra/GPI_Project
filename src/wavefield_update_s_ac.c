@@ -25,18 +25,10 @@
 #include "fd.h"
 #include "logging.h"
 
-void wavefield_update_s_el(int i, int j, MemModel * mpm, MemWavefield * mpw)
+void wavefield_update_s_ac(int i, int j, MemModel * mpm, MemWavefield * mpw)
 {
-    float u1 = 0.0f, u2 = 0.0f, u3 = 0.0f;
-    
-    /* The stress updates are stored in internal variables due to extensions necessary for FWI */
-    /* calculate stress component update */
-    u1 = mpm->fipjp[j][i] * (mpw->pvyx[j][i] + mpw->pvxy[j][i]);
-    u2 = (mpm->g[j][i] * (mpw->pvxx[j][i] + mpw->pvyy[j][i])) - (2.0 * mpm->f[j][i] * mpw->pvyy[j][i]);
-    u3 = (mpm->g[j][i] * (mpw->pvxx[j][i] + mpw->pvyy[j][i])) - (2.0 * mpm->f[j][i] * mpw->pvxx[j][i]);
-
     /* updating components of the stress tensor */
-    mpw->psxy[j][i] += u1;
-    mpw->psxx[j][i] += u2;
-    mpw->psyy[j][i] += u3;
+    mpw->psxx[j][i] += (mpm->g[j][i] * mpw->pvxx[j][i]);
+    mpw->psyy[j][i] += (mpm->g[j][i] * mpw->pvyy[j][i]);
+    
 }

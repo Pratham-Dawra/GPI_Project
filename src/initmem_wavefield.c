@@ -24,23 +24,146 @@
  * -------------------------------------------------------------*/
 
 #include "fd.h"
+#include "logging.h"
+
 
 void initmem_wavefield(MemWavefield *mpw, GlobVar *gv)
 {
 
-    /* dynamic (wavefield) arrays (elastic + viscoelastic) */
-    /* derivatives of the stress fields */
-    mpw->psxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
-    mpw->psxy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
-    mpw->psyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
-    /* velocity fields */
-    mpw->pvx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
-    mpw->pvy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
-    /* derivatives of velocity fields */
-    mpw->pvxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
-    mpw->pvyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
-    mpw->pvyx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
-    mpw->pvxy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+    switch (gv->WEQ) {
+      case AC_ISO:             /* acoustic */
+            mpw->psxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->psyy = mpw->psxx;
+            mpw->pvx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->dummy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+          break;
+      case AC_VTI:             /* acoustic VTI */
+            mpw->psxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->psyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+          break;
+      case AC_TTI:             /* acoustic TTI */
+            mpw->psxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->psyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            break;
+      case EL_ISO:             /* elastic */
+            mpw->psxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->psxy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->psyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvyx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvxy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+          break;
+      case VEL_ISO:            /* viscoelastic */
+            mpw->psxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->psxy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->psyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvyx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvxy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pr = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
+            mpw->pp = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
+            mpw->pq = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
+          break;
+        case EL_VTI:             /* elastic VTI */
+              mpw->psxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->psxy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->psyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvyx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvxy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              break;
+        case EL_TTI:             /* elastic TTI */
+              mpw->psxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->psxy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->psyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvyx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvxy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              break;
+        case VEL_VTI:             /* elastic VTI */
+              mpw->psxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->psxy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->psyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvyx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvxy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pr = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
+              mpw->pp = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
+              mpw->pq = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
+             break;
+        case VEL_TTI:             /* elastic VTI */
+              mpw->psxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->psxy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->psyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvyx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pvxy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+              mpw->pr = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
+              mpw->pp = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
+              mpw->pq = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
+             break;
+        case VAC_ISO:            /* viscoacoustic */
+            mpw->psxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pr = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
+            break;
+        case VAC_VTI:            /* viscoacoustic VTI */
+            mpw->psxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->psyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pr = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
+            mpw->pp = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
+            break;
+        case VAC_TTI:            /* viscoacoustic TTI */
+            mpw->psxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->psyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvxx = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pvyy = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpw->pr = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
+            mpw->pp = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
+            break;
+        default:
+            log_fatal("Unknown WEQ.\n");
+      }
+            
+            
 
     if (gv->FDORDER_TIME == 4) {
         mpw->vxx_1 = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
@@ -74,12 +197,7 @@ void initmem_wavefield(MemWavefield *mpw, GlobVar *gv)
         mpw->svy_4 = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
     }
 
-    /* dynamic (wavefield) arrays (viscoelastic) */
-    if (gv->L > 0) {
-        mpw->pr = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
-        mpw->pp = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
-        mpw->pq = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);
-    }
+ 
 
     if (gv->L > 0 && gv->FDORDER_TIME == 4) {
         mpw->pr_2 = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, gv->L);

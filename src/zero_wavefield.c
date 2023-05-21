@@ -27,39 +27,50 @@
 void zero_wavefield(MemWavefield *mpw, GlobVar *gv)
 {
 
-    if (gv->L) {
-        /* viscoelastic */
-        for (int j = (-gv->ND + 1); j <= (gv->NY + gv->ND); j++) {
-            for (int i = (-gv->ND + 1); i <= (gv->NX + gv->ND); i++) {
-                zero_elastic(j, i, mpw);
-                for (int l = 1; l <= gv->L; l++) {
-                    zero_visco(j, i, l, mpw);
+    if (gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI) { /*elastic cases */
+        if (gv->L) {
+            /* viscoelastic */
+            for (int j = (-gv->ND + 1); j <= (gv->NY + gv->ND); j++) {
+                for (int i = (-gv->ND + 1); i <= (gv->NX + gv->ND); i++) {
+                    zero_elastic(j, i, mpw);
+                    for (int l = 1; l <= gv->L; l++) {
+                        zero_visco(j, i, l, mpw);
+                    }
+                }
+            }
+        } else {
+            /* elastic */
+            for (int j = (-gv->ND + 1); j <= (gv->NY + gv->ND); j++) {
+                for (int i = (-gv->ND + 1); i <= (gv->NX + gv->ND); i++) {
+                    zero_elastic(j, i, mpw);
                 }
             }
         }
-    } else {
-        /* elastic */
+        
+        if (gv->ABS_TYPE == 1) {
+            /* PML Boundary */
+            for (int j = 1; j <= gv->NY; j++) {
+                for (int i = 1; i <= 2 * gv->FW; i++) {
+                    zero_PML_x(j, i, mpw);
+                }
+            }
+            for (int j = 1; j <= 2 * gv->FW; j++) {
+                for (int i = 1; i <= gv->NX; i++) {
+                    zero_PML_y(j, i, mpw);
+                }
+            }
+        }
+    }
+    else /* acoustic cases */
+    {
         for (int j = (-gv->ND + 1); j <= (gv->NY + gv->ND); j++) {
             for (int i = (-gv->ND + 1); i <= (gv->NX + gv->ND); i++) {
-                zero_elastic(j, i, mpw);
+                zero_acoustic(j, i, mpw);
             }
         }
     }
-
-    if (gv->ABS_TYPE == 1) {
-        /* PML Boundary */
-        for (int j = 1; j <= gv->NY; j++) {
-            for (int i = 1; i <= 2 * gv->FW; i++) {
-                zero_PML_x(j, i, mpw);
-            }
-        }
-        for (int j = 1; j <= 2 * gv->FW; j++) {
-            for (int i = 1; i <= gv->NX; i++) {
-                zero_PML_y(j, i, mpw);
-            }
-        }
-    }
-        
+  
+    
     if (gv->FDORDER_TIME == 4) {
         if (gv->L) {
         /* viscoelastic, FDORDER_TIME = 4 */

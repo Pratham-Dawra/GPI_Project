@@ -28,13 +28,26 @@ void v_derivatives(MemWavefield * mpw, GlobVar * gv)
 {
     float vxx, vyy, vxy, vyx;
 
-    for (int j = 1; j <= gv->NY; j++) {
-        for (int i = 1; i <= gv->NX; i++) {
-            gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
-            mpw->pvxx[j][i] = vxx;
-            mpw->pvyy[j][i] = vyy;
-            mpw->pvyx[j][i] = vyx;
-            mpw->pvxy[j][i] = vxy;
+    if (gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI) {  /* elastic cases */
+        for (int j = 1; j <= gv->NY; j++) {
+            for (int i = 1; i <= gv->NX; i++) {
+                gv->FDOP_S(i, j, &vxx, &vyx, &vxy, &vyy, mpw);
+                mpw->pvxx[j][i] = vxx;
+                mpw->pvyy[j][i] = vyy;
+                mpw->pvyx[j][i] = vyx;
+                mpw->pvxy[j][i] = vxy;
+            }
+        }
+    }
+    else /* acoustic cases */
+    {
+        
+        for (int j = 1; j <= gv->NY; j++) {
+            for (int i = 1; i <= gv->NX; i++) {
+                gv->FDOP_AC_S(i, j, &vxx, &vyy, mpw);
+                mpw->pvxx[j][i] = vxx;
+                mpw->pvyy[j][i] = vyy;
+            }
         }
     }
 }

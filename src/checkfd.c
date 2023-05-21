@@ -60,7 +60,7 @@ void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar *gv)
     if (gv->MPID == 0) {
         log_info("The following velocities take anisotropy and/or attenuation into account.\n");
         log_info("Min and max P-wave (phase) velocity: Vp_min=%.2fm/s, Vp_max=%.2fm/s\n", gv->VPMIN, gv->VPMAX);
-        if (gv->VSMIN <= gv->VSMAX) {
+        if ((gv->VSMAX>0.0)&&(gv->VSMIN <= gv->VSMAX)) {
             log_info("Min and max S-wave (phase) velocity: Vs_min=%.2fm/s, Vs_max=%.2fm/s\n", gv->VSMIN, gv->VSMAX);
         } else {
             log_info("Min and max S-wave (phase) velocity not set (all values ignored).\n");
@@ -105,6 +105,26 @@ void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar *gv)
         }
 
         if (gv->SEISMO) {
+            if (!(gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI)&&(gv->SEISMO>2)) {
+                log_warn("Output of curl impossible in case of acoustic modelling \n");
+                log_warn("Setting output format of seismograms to SEISMO=1 (particle velocities only) \n");
+                gv->SEISMO=1;
+            }
+     
+        }
+ 
+        if (gv->SNAP) {
+            if (!(gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI)&&(gv->SNAP>2)) {
+                log_warn("Output of curl impossible in case of acoustic modelling \n");
+                log_warn("Setting output format of snapshots to SNAP=1 (particle velocities only) \n");
+                gv->SEISMO=1;
+            }
+        }
+
+        if (gv->SEISMO) {
+            
+            
+             
             log_info("Number of modeling time steps: %d\n", gv->NT);
             log_info("Seismogram sampling interval in time steps: %d\n", gv->NDT);
             log_info("Number of seismogram output samples: %d\n", gv->NS);

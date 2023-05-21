@@ -36,8 +36,9 @@ void prepmod(MemModel *mpm, GlobVar *gv)
 
     switch (gv->WEQ) {
       case AC_ISO:             /* acoustic */
-          log_fatal("not yet implemented\n");
-          break;
+            matcopy_elastic(mpm->prho, mpm->ppi, mpm->ppi, gv);
+            av_rho(mpm->prho, mpm->prip, mpm->prjp, gv);
+            break;
       case AC_VTI:             /* acoustic VTI */
           log_fatal("not yet implemented\n");
           break;
@@ -132,13 +133,14 @@ void prepmod(MemModel *mpm, GlobVar *gv)
     if (gv->FDORDER_TIME == 2) {
         switch (gv->WEQ) {
           case AC_ISO:         /* acoustic */
-              break;
+                prepare_update_s_ac(mpm, gv);
+                break;
           case AC_VTI:         /* acoustic VTI */
               break;
           case AC_TTI:         /* acoustic TTI */
               break;
           case EL_ISO:         /* elastic */
-              prepare_update_s(mpm, gv);
+              prepare_update_s_el(mpm, gv);
               break;
           case VEL_ISO:        /* viscoelastic */
               prepare_update_s_visc(mpm, gv);
@@ -180,6 +182,9 @@ void prepmod(MemModel *mpm, GlobVar *gv)
         }
     }
 
+    gv->DTDH = gv->DT / gv->DH;
+    
+    
     if ((gv->WEQ == VEL_ISO) && gv->FDORDER_TIME == 4) {
         prepare_update_s_4(mpm, gv);
     }

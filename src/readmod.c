@@ -31,7 +31,7 @@ void readmod(MemModel *mpm, GlobVar *gv)
     if (gv->READMOD) {
         switch (gv->WEQ) {
           case AC_ISO:         /* acoustic */
-              log_fatal("not yet implemented\n");
+                readmod_acoustic(mpm, gv);
               break;
           case AC_VTI:         /* acoustic VTI */
               log_fatal("not yet implemented\n");

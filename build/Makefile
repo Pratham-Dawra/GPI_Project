@@ -115,6 +115,7 @@ CPPFLAGS  += -DLOG_COMMIT="\"$(COMMIT)\""
 OS := $(shell uname)
 ifeq ($(OS),Darwin)
       INSTALL   := install -p
+      RM        := rm -f 
 endif
 
 DOC_MAIN := main
@@ -172,7 +173,8 @@ FDMOD_FILES := sofi2D.c \
                mergemod.c \
                outseis_glob.c \
                PML_pro.c \
-               prepare_update_s.c \
+               prepare_update_s_ac.c \
+               prepare_update_s_el.c \
                prepare_update_s_visc.c \
                prepare_update_s_vti.c \
                prepare_update_s_tti.c \
@@ -184,6 +186,7 @@ FDMOD_FILES := sofi2D.c \
                read_su.c \
                readdsk.c \
                readmod.c \
+               readmod_acoustic.c \
                readmod_visco.c \
                readmod_elastic.c \
                readmod_elastic_vti.c \
@@ -205,9 +208,11 @@ FDMOD_FILES := sofi2D.c \
                surface_elastic.c \
                time_loop.c \
                update_s_elastic_abs.c \
+               update_s_acoustic_abs.c \
                update_s_elastic_VTI_abs.c \
                update_s_elastic_abs_4.c \
                update_s_elastic_interior.c \
+               update_s_acoustic_interior.c \
                update_s_elastic_VTI_interior.c \
                update_s_elastic_TTI_interior.c \
                update_s_elastic_interior_4.c \
@@ -237,6 +242,7 @@ FDMOD_FILES := sofi2D.c \
                util.c \
                v_derivatives.c \
                wavefield_update_s_el.c \
+               wavefield_update_s_ac.c \
                wavefield_update_s_el_vti.c \
                wavefield_update_s_el_tti.c \
                wavefield_update_s_el_4.c \
@@ -245,6 +251,7 @@ FDMOD_FILES := sofi2D.c \
                wavefield_update_s_visc_TTI.c \
                wavefield_update_s_visc_4.c \
                wavefield_update_v.c \
+               wavefield_update_v_ac.c \
                wavefield_update_v_4.c \
                wavelet.c \
                write_par.c \
@@ -253,6 +260,7 @@ FDMOD_FILES := sofi2D.c \
                writemod.c \
                zero_elastic.c \
                zero_elastic_4.c \
+               zero_acoustic.c \
                zero_visco.c \
                zero_visco_4.c \
                zero_PML_x.c \

@@ -27,7 +27,6 @@
 void wavefield_update_v(int i, int j, float sxx_x, float sxy_x, float sxy_y, float syy_y, MemModel * mpm,
                         MemWavefield * mpw, GlobVar * gv)
 {
-    float dtdh = gv->DT / gv->DH;
-    mpw->pvx[j][i] += (sxx_x + sxy_y) * dtdh * mpm->prip[j][i];
-    mpw->pvy[j][i] += (sxy_x + syy_y) * dtdh * mpm->prjp[j][i];
+    mpw->pvx[j][i] += (sxx_x + sxy_y) * gv->DTDH * mpm->prip[j][i];
+    mpw->pvy[j][i] += (sxy_x + syy_y) * gv->DTDH * mpm->prjp[j][i];
 }

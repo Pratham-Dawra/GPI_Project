@@ -33,6 +33,8 @@
 
 typedef void (*FDop_s_fct) (int i, int j, float *vxx, float *vyx, float *vxy, float *vyy, MemWavefield *mpw);
 typedef void (*FDop_v_fct) (int i, int j, float *sxx_x, float *sxy_x, float *sxy_y, float *syy_y, MemWavefield *mpw);
+typedef void (*FDop_ac_s_fct) (int i, int j, float *vxx, float *vyy, MemWavefield *mpw);
+typedef void (*FDop_ac_v_fct) (int i, int j, float *sxx_x, float *syy_y, MemWavefield *mpw);
 
 typedef struct {
 //struct ModelVar {
@@ -121,10 +123,13 @@ typedef struct {
     int ND;                     // gv->FDORDER / 2
     float TIME;                 // time (of modelling) [s]
     float DT;                   // time increment (of modelling) [s]
+    float DTDH;                  // DT/DH
     int FDORDER_TIME;           // temporal FD order
     int NT;                     //// number of timesteps (=iround(TIME/DT))
     FDop_s_fct FDOP_S;          // function pointer for FD operator
     FDop_v_fct FDOP_V;          // function pointer for FD operator
+    FDop_ac_s_fct FDOP_AC_S;       // function pointer for FD operator (acoustic cases)
+    FDop_ac_v_fct FDOP_AC_V;       // function pointer for FD operator (acoustic cases)
     int MAXRELERROR;            // switch of maximum relative group velocity error
     // MPI-variables
     int NPROCX;                 // number of processors in x-direction

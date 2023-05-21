@@ -172,6 +172,8 @@ int main(int argc, char **argv)
     /* memory allocation of buffers */
     initmem(&mpm, &mpw, &gv);
 
+
+
     /* initialize FD operators */
     initfd(&gv);
 
@@ -179,14 +181,16 @@ int main(int argc, char **argv)
     hc = holbergcoeff(&gv);
 
     MPI_Barrier(MPI_COMM_WORLD);
+    log_info("Before readmod....\n");
 
     /* create model grids */
     readmod(&mpm, &gv);
 
+
     MPI_Barrier(MPI_COMM_WORLD);
 
     /* check if the FD run will be stable and free of numerical dispersion */
-    checkfd(hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
+   checkfd(hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
 
     /* calculate damping coefficients for CPMLs */
     if (gv.ABS_TYPE == 1) {
@@ -228,7 +232,7 @@ int main(int argc, char **argv)
     }   /*----------------------  end of loop over multiple shots  ------------------*/
 
     /* deallocate memory */
-    freemem(&mpm, &mpw, &gv);
+    /*freemem(&mpm, &mpw, &gv);*/
 
     if (gv.SEISMO)
         free_imatrix(acq.recpos, 1, 3, 1, gv.NTRG);

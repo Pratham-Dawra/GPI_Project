@@ -44,6 +44,10 @@
 /* declaration of functions */
 void abs_update_s(int i, int j, MemModel *mpm, MemWavefield *mpw);
 
+void abs_update_s_ac1(int i, int j, MemModel *mpm, MemWavefield *mpw);
+
+void abs_update_s_ac2(int i, int j, MemModel *mpm, MemWavefield *mpw);
+
 void abs_update_v(int i, int j, MemModel *mpm, MemWavefield *mpw);
 
 void absorb(float **absorb_coeff, GlobVar *gv);
@@ -71,6 +75,14 @@ void cpml_update_s_y(int i, int j, MemModel *mpm, MemWavefield *mpw);
 void cpml_update_v_x(int i, int j, float *sxx_x, float *sxy_x, MemModel *mpm, MemWavefield *mpw);
 
 void cpml_update_v_y(int i, int j, float *sxy_y, float *syy_y, MemModel *mpm, MemWavefield *mpw);
+
+void cpml_update_s_x_ac(int i, int j, MemModel *mpm, MemWavefield *mpw);
+
+void cpml_update_s_y_ac(int i, int j, MemModel *mpm, MemWavefield *mpw);
+
+void cpml_update_v_x_ac(int i, int j, float *sxx_x, MemModel *mpm, MemWavefield *mpw);
+
+void cpml_update_v_y_ac(int i, int j,  float *syy_y, MemModel *mpm, MemWavefield *mpw);
 
 void exchange_v(float **vx, float **vy, MemWavefield *mpw, GlobVar *gv);
 
@@ -174,7 +186,9 @@ void par_mult_dt(float **pi, float **u, float **uipjp);
 
 void PML_pro(MemModel *mpm, GlobVar *gv);
 
-void prepare_update_s(MemModel *mpm, GlobVar *gv);
+void prepare_update_s_el(MemModel *mpm, GlobVar *gv);
+
+void prepare_update_s_ac(MemModel *mpm, GlobVar *gv);
 
 void prepare_update_s_4(MemModel *mpm, GlobVar *gv);
 
@@ -205,6 +219,8 @@ void read_checkpoint(int nx1, int nx2, int ny1, int ny2,
 void read_par_json(const char *fileinp, GlobVar *gv);
 
 void readmod(MemModel *mpm, GlobVar *gv);
+
+void readmod_acoustic(MemModel *mpm, GlobVar *gv);
 
 void readmod_elastic(MemModel *mpm, GlobVar *gv);
 
@@ -260,9 +276,13 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm, MemWavefield *m
 
 void update_s_elastic_abs(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
+void update_s_acoustic_abs(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+
 void update_s_elastic_abs_4(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void update_s_elastic_interior(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+
+void update_s_acoustic_interior(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void update_s_elastic_interior_4(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
@@ -343,6 +363,8 @@ void v_derivatives(MemWavefield *mpw, GlobVar *gv);
 
 void wavefield_update_s_el(int i, int j, MemModel *mpm, MemWavefield *mpw);
 
+void wavefield_update_s_ac(int i, int j, MemModel *mpm, MemWavefield *mpw);
+
 void wavefield_update_s_el_4(int i, int j, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void wavefield_update_s_el_vti(int i, int j, MemModel *mpm, MemWavefield *mpw);
@@ -369,6 +391,9 @@ void wavefield_update_s_visc_TTI(int i, int j, MemModel *mpm, MemWavefield *mpw,
 void wavefield_update_v(int i, int j, float sxx_x, float sxy_x, float sxy_y, float syy_y, MemModel *mpm,
                         MemWavefield *mpw, GlobVar *gv);
 
+void wavefield_update_v_ac(int i, int j, float sxx_x, float sxx_y, MemModel * mpm,
+                           MemWavefield * mpw, GlobVar * gv);
+
 void wavefield_update_v_4(int i, int j, float sxx_x, float sxy_x, float sxy_y, float syy_y, MemModel *mpm,
                           MemWavefield *mpw, GlobVar *gv);
 
@@ -388,6 +413,8 @@ void writedsk(FILE *fp_out, float amp, int format);
 void writemod(const char *modfile, float **array, int format, const GlobVar *gv);
 
 void zero_elastic(int j, int i, MemWavefield *mpw);
+
+void zero_acoustic(int j, int i, MemWavefield *mpw);
 
 void zero_elastic_4(int j, int i, MemWavefield *mpw);
 

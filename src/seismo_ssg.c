@@ -34,6 +34,7 @@ void seismo_ssg(int lsamp, int **recpos, float *hc, MemModel *mpm, MemWavefield 
     int fdoh = gv->FDORDER / 2;
 
     ins = lsamp / gv->NDT;
+    
     for (int itr = 1; itr <= gv->NTR; itr++) {
         nxrec = recpos[1][itr];
         nyrec = recpos[2][itr];
@@ -46,9 +47,9 @@ void seismo_ssg(int lsamp, int **recpos, float *hc, MemModel *mpm, MemWavefield 
           case 2:              /* pressure */
               i = nxrec;
               j = nyrec;
-              //gv->SECTIONP[itr][ins]=-sxx[nyrec][nxrec]-syy[nyrec][nxrec]; // unscaled amplitude
-              gv->SECTIONP[itr][ins] = ((3.0 * mpm->ppi[j][i] - 4.0 * mpm->pu[j][i]) / (2.0 * mpm->ppi[j][i] - 2.0 * mpm->pu[j][i]))
-                                       * (-mpw->psxx[nyrec][nxrec] - mpw->psyy[nyrec][nxrec]) / 3;    // true amplitude
+              gv->SECTIONP[itr][ins]=-mpw->psxx[nyrec][nxrec]-mpw->psyy[nyrec][nxrec]; // unscaled amplitude
+              /*gv->SECTIONP[itr][ins] = ((3.0 * mpm->ppi[j][i] - 4.0 * mpm->pu[j][i]) / (2.0 * mpm->ppi[j][i] - 2.0 * mpm->pu[j][i]))
+                                       * (-mpw->psxx[nyrec][nxrec] - mpw->psyy[nyrec][nxrec]) / 3;  */  // true amplitude
               break;
 
           case 3:              /* curl +div */

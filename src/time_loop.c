@@ -103,7 +103,7 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
         /* calculation and exchange of spatial derivation of particle velocities */
         v_derivatives(mpw, gv);
         exchange_v(mpw->pvxx, mpw->pvyy, mpw, gv);
-        exchange_v(mpw->pvyx, mpw->pvxy, mpw, gv);
+        if (gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI) exchange_v(mpw->pvyx, mpw->pvxy, mpw, gv); /* elastic cases*/
 
         if ((gv->MPID == 0) && ((nt - 1) % gv->OUTNTIMESTEPINFO == 0)) {
             time5 = MPI_Wtime();
@@ -118,8 +118,14 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
 
             switch (gv->WEQ) {
               case AC_ISO:     /* acoustic */
-                  log_fatal("not yet implemented\n");
-                  break;
+                    update_s_acoustic_interior(nt, mpm, mpw, gv);
+                    if (gv->FW) {
+                        if (gv->ABS_TYPE == 1)
+                            update_s_elastic_PML(nt, mpm, mpw, gv);
+                        if (gv->ABS_TYPE == 2)
+                            update_s_acoustic_abs(nt, mpm, mpw, gv);
+                    }
+                 break;
               case AC_VTI:     /* acoustic VTI */
                   log_fatal("not yet implemented\n");
                   break;
