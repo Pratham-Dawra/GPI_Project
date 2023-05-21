@@ -29,4 +29,5 @@ void zero_acoustic(int j, int i, MemWavefield * mpw)
     mpw->pvx[j][i] = 0.0f;
     mpw->pvy[j][i] = 0.0f;
     mpw->psxx[j][i] = 0.0f;
+    mpw->psyy[j][i] = 0.0f;
 }

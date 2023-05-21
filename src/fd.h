@@ -226,6 +226,10 @@ void readmod_elastic(MemModel *mpm, GlobVar *gv);
 
 void readmod_elastic_vti(MemModel *mpm, GlobVar *gv);
 
+void readmod_acoustic_vti(MemModel *mpm, GlobVar *gv);
+
+void readmod_acoustic_tti(MemModel *mpm, GlobVar *gv);
+
 void readmod_elastic_tti(MemModel *mpm, GlobVar *gv);
 
 void readmod_visco(MemModel *mpm, GlobVar *gv);
@@ -295,6 +299,8 @@ void update_s_elastic_PML_4(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *g
 void update_s_elastic_vti_abs(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void update_s_elastic_vti_interior(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+
+void update_s_acoustic_vti_interior(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void update_s_elastic_vti_PML(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
@@ -370,6 +376,8 @@ void wavefield_update_s_ac(int i, int j, MemModel *mpm, MemWavefield *mpw);
 void wavefield_update_s_el_4(int i, int j, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void wavefield_update_s_el_vti(int i, int j, MemModel *mpm, MemWavefield *mpw);
+
+void wavefield_update_s_ac_vti(int i, int j, MemModel *mpm, MemWavefield *mpw);
 
 void wavefield_update_s_el_tti(int i, int j, MemModel *mpm, MemWavefield *mpw);
 

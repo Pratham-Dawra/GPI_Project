@@ -190,6 +190,8 @@ FDMOD_FILES := sofi2D.c \
                readmod_visco.c \
                readmod_elastic.c \
                readmod_elastic_vti.c \
+               readmod_acoustic_vti.c \
+               readmod_acoustic_tti.c \
                readmod_elastic_tti.c \
                readmod_visco_vti.c \
                readmod_visco_tti.c \
@@ -214,6 +216,7 @@ FDMOD_FILES := sofi2D.c \
                update_s_elastic_interior.c \
                update_s_acoustic_interior.c \
                update_s_elastic_VTI_interior.c \
+               update_s_acoustic_VTI_interior.c \
                update_s_elastic_TTI_interior.c \
                update_s_elastic_interior_4.c \
                update_s_elastic_PML.c \
@@ -245,6 +248,7 @@ FDMOD_FILES := sofi2D.c \
                wavefield_update_s_el.c \
                wavefield_update_s_ac.c \
                wavefield_update_s_el_vti.c \
+               wavefield_update_s_ac_vti.c \
                wavefield_update_s_el_tti.c \
                wavefield_update_s_el_4.c \
                wavefield_update_s_visc.c \

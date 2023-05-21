@@ -181,7 +181,6 @@ int main(int argc, char **argv)
     hc = holbergcoeff(&gv);
 
     MPI_Barrier(MPI_COMM_WORLD);
-    log_info("Before readmod....\n");
 
     /* create model grids */
     readmod(&mpm, &gv);

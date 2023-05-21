@@ -36,7 +36,7 @@ void update_s_acoustic_abs(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar *
 
     if ((gv->MPID == 0) && ((nt + (gv->OUTNTIMESTEPINFO - 1)) % gv->OUTNTIMESTEPINFO) == 0) {
         time1 = MPI_Wtime();
-        log_debug("Updating stress components...\n");
+        log_debug("Updating stress components absorbing frame...\n");
     }
  
     if (gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI) {  /* elastic cases */
@@ -112,7 +112,7 @@ void update_s_acoustic_abs(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar *
         /* left boundary */
         for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
             for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
-                wavefield_update_s_ac(i, j, mpm, mpw);
+                wavefield_update_s_ac_vti(i, j, mpm, mpw);
                 abs_update_s_ac1(i, j, mpm, mpw);
             }
         }
@@ -120,7 +120,7 @@ void update_s_acoustic_abs(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar *
         /* right boundary */
         for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
             for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
-                wavefield_update_s_ac(i, j, mpm, mpw);
+                wavefield_update_s_ac_vti(i, j, mpm, mpw);
                 abs_update_s_ac1(i, j, mpm, mpw);
             }
         }
@@ -128,7 +128,7 @@ void update_s_acoustic_abs(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar *
         /* top boundary */
         for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
             for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-                wavefield_update_s_ac(i, j, mpm, mpw);
+                wavefield_update_s_ac_vti(i, j, mpm, mpw);
                 abs_update_s_ac1(i, j, mpm, mpw);
             }
         }
@@ -136,7 +136,7 @@ void update_s_acoustic_abs(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar *
         /* bottom boundary */
         for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
             for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-                wavefield_update_s_ac(i, j, mpm, mpw);
+                wavefield_update_s_ac_vti(i, j, mpm, mpw);
                 abs_update_s_ac1(i, j, mpm, mpw);
             }
         }
@@ -146,7 +146,7 @@ void update_s_acoustic_abs(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar *
         /*left-top */
         for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
             for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
-                wavefield_update_s_ac(i, j, mpm, mpw);
+                wavefield_update_s_ac_vti(i, j, mpm, mpw);
                 abs_update_s_ac1(i, j, mpm, mpw);
             }
         }
@@ -154,7 +154,7 @@ void update_s_acoustic_abs(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar *
         /*left-bottom */
         for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
             for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
-                wavefield_update_s_ac(i, j, mpm, mpw);
+                wavefield_update_s_ac_vti(i, j, mpm, mpw);
                 abs_update_s_ac1(i, j, mpm, mpw);
             }
         }
@@ -162,7 +162,7 @@ void update_s_acoustic_abs(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar *
         /* right-top */
         for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
             for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
-                wavefield_update_s_ac(i, j, mpm, mpw);
+                wavefield_update_s_ac_vti(i, j, mpm, mpw);
                 abs_update_s_ac1(i, j, mpm, mpw);
             }
         }
@@ -170,7 +170,7 @@ void update_s_acoustic_abs(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar *
         /* right-bottom */
         for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
             for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
-                wavefield_update_s_ac(i, j, mpm, mpw);
+                wavefield_update_s_ac_vti(i, j, mpm, mpw);
                 abs_update_s_ac1(i, j, mpm, mpw);
             }
         }

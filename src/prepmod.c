@@ -40,10 +40,12 @@ void prepmod(MemModel *mpm, GlobVar *gv)
             av_rho(mpm->prho, mpm->prip, mpm->prjp, gv);
             break;
       case AC_VTI:             /* acoustic VTI */
-          log_fatal("not yet implemented\n");
+            matcopy_elastic(mpm->prho, mpm->pc11, mpm->pc33, gv);
+            av_rho(mpm->prho, mpm->prip, mpm->prjp, gv);
           break;
       case AC_TTI:             /* acoustic TTI */
-          log_fatal("not yet implemented\n");
+            matcopy_elastic(mpm->prho, mpm->pc11, mpm->pc33, gv);
+            av_rho(mpm->prho, mpm->prip, mpm->prjp, gv);
           break;
       case EL_ISO:             /* elastic */
           matcopy_elastic(mpm->prho, mpm->ppi, mpm->pu, gv);
@@ -136,8 +138,14 @@ void prepmod(MemModel *mpm, GlobVar *gv)
                 prepare_update_s_ac(mpm, gv);
                 break;
           case AC_VTI:         /* acoustic VTI */
-              break;
+                dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc11);
+                dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc33);
+                dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc13);
+             break;
           case AC_TTI:         /* acoustic TTI */
+                dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc11);
+                dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc33);
+                dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc13);
               break;
           case EL_ISO:         /* elastic */
               prepare_update_s_el(mpm, gv);

@@ -104,20 +104,9 @@ void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar *gv)
             log_info("Skipping checks of snapshot parameters.\n");
         }
 
-        if (gv->SEISMO) {
-            if (!(gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI)&&(gv->SEISMO>2)) {
-                log_warn("Output of curl impossible in case of acoustic modelling \n");
-                log_warn("Setting output format of seismograms to SEISMO=1 (particle velocities only) \n");
-                gv->SEISMO=1;
-            }
-     
-        }
  
 
         if (gv->SEISMO) {
-            
-            
-             
             log_info("Number of modeling time steps: %d\n", gv->NT);
             log_info("Seismogram sampling interval in time steps: %d\n", gv->NDT);
             log_info("Number of seismogram output samples: %d\n", gv->NS);

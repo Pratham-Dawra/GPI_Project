@@ -39,8 +39,26 @@ void initmem_model(MemModel *mpm, GlobVar *gv)
             mpm->absorb_coeff = matrix(1, gv->NY, 1, gv->NX);
             break;
       case AC_VTI:             /* acoustic VTI */
-          break;
+            mpm->prho = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpm->prip = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpm->prjp = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpm->absorb_coeff = matrix(1, gv->NY, 1, gv->NX);
+            mpm->ppi = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+ 
+            mpm->pc11 = mpm->ppi;
+            mpm->pc33 = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpm->pc13 = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+         break;
       case AC_TTI:             /* acoustic TTI */
+            mpm->prho = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpm->prip = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpm->prjp = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpm->absorb_coeff = matrix(1, gv->NY, 1, gv->NX);
+            mpm->ppi = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+ 
+            mpm->pc11 = mpm->ppi;
+            mpm->pc33 = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+            mpm->pc13 = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
             break;
       case EL_ISO:             /* elastic */
             mpm->prho = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);

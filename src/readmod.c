@@ -34,10 +34,10 @@ void readmod(MemModel *mpm, GlobVar *gv)
                 readmod_acoustic(mpm, gv);
               break;
           case AC_VTI:         /* acoustic VTI */
-              log_fatal("not yet implemented\n");
+                readmod_acoustic_vti(mpm, gv);
               break;
           case AC_TTI:         /* acoustic TTI */
-              log_fatal("not yet implemented\n");
+                readmod_acoustic_tti(mpm, gv);
               break;
           case EL_ISO:         /* elastic */
               readmod_elastic(mpm, gv);

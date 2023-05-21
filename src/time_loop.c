@@ -132,11 +132,24 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
                     }
                  break;
               case AC_VTI:     /* acoustic VTI */
-                  log_fatal("not yet implemented\n");
-                  break;
+                    update_s_acoustic_vti_interior(nt, mpm, mpw, gv);
+                    if (gv->FW) {
+                        if (gv->ABS_TYPE == 1)
+                            update_s_acoustic_PML(nt, mpm, mpw, gv);
+                        if (gv->ABS_TYPE == 2)
+                            update_s_acoustic_abs(nt, mpm, mpw, gv);
+                    }
+ 
+              break;
               case AC_TTI:     /* acoustic TTI */
-                  log_fatal("not yet implemented\n");
-                  break;
+                    update_s_acoustic_vti_interior(nt, mpm, mpw, gv);
+                    if (gv->FW) {
+                        if (gv->ABS_TYPE == 1)
+                            update_s_acoustic_PML(nt, mpm, mpw, gv);
+                        if (gv->ABS_TYPE == 2)
+                            update_s_acoustic_abs(nt, mpm, mpw, gv);
+                    }
+                   break;
               case EL_ISO:     /* elastic */
                   update_s_elastic_interior(nt, mpm, mpw, gv);
                   if (gv->FW) {
