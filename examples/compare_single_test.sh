@@ -106,6 +106,12 @@ for file in ${sufiles} ; do
     fi
     echo "Comparing file ${file}..."
     sudiff ${tfile} ${rfile} > ${dfile}
+    echo -n "Min & max amplitude of reference seismic data: "
+    sumax < ${rfile} mode=maxmin
+    echo -n "Min & max amplitude of test seismic data:      "
+    sumax < ${tfile} mode=maxmin
+    echo -n "Min & max amplitude of seismic difference:     "
+    sumax < ${dfile} mode=maxmin
     cat ${tfile} ${rfile} ${dfile} | sushw key=tracl a=1 b=1 j=0 | \
         suxwigb perc=99.9 key=tracl title="${file} (test result, ref. result, diff. : 3x8 traces)"   
 done
@@ -124,8 +130,14 @@ for file in ${sigfiles} ; do
     fi
     echo "Comparing file ${file}..."
     sudiff ${tfile} ${rfile} > ${dfile}
+    echo -n "Min & max amplitude of reference signature:  "
+    sumax < ${rfile} mode=maxmin
+    echo -n "Min & max amplitude of test signature:       "
+    sumax < ${tfile} mode=maxmin
+    echo -n "Min & max amplitude of signature difference: "
+    sumax < ${dfile} mode=maxmin
     cat ${tfile} ${rfile} ${dfile} | sushw key=tracl a=1 b=1 j=0 | \
-        suxwigb perc=99.9 key=tracl title="${file} (test result, ref. result, diff. : 3x1 trace)"   
+        suxwigb perc=99.9 key=tracl title="${file} (test result, ref. result, diff. : 3x1 trace)"
 done
 
 for file in ${snapfiles} ; do
@@ -147,6 +159,18 @@ for file in ${snapfiles} ; do
     suaddhead ns=200 < ${rfile} > ${tmp2}
     tmp3=$(mktemp -p .)
     sudiff ${tmp1} ${tmp2} > ${tmp3}
+    echo -n "Min & max amplitude of reference snapshots:  "
+    sumax < ${tmp2} mode=maxmin
+    echo -n "Min & max amplitude of test snapshots:       "
+    sumax < ${tmp1} mode=maxmin
+    echo -n "Min & max amplitude of snapshots difference: "
+    sumax < ${tmp3} mode=maxmin
+    echo -n "RMS amplitude of reference snapshots:  "
+    sumax < ${tmp2} mode=rms
+    echo -n "RMS amplitude of test snapshots:       "
+    sumax < ${tmp1} mode=rms
+    echo -n "RMS amplitude of snapshots difference: "
+    sumax < ${tmp3} mode=rms
     cat ${tmp1} ${tmp2} ${tmp3} | sushw key=tracl,dt,d1 a=1,2,2 b=1,0,0 | \
         suximage perc=99.9 wbox=1800 hbox=200 title="${file} (test result, ref. result, diff. : 3x(3x200) traces)"
     rm -f ${tmp1} ${tmp2} ${tmp3} 
