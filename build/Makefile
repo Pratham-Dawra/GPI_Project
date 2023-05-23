@@ -101,7 +101,6 @@ dummy     := $(shell mkdir -p $(strip $(INSTDIR)))
 FDMOD_EXE := $(strip $(FDMOD))
 MERGE_EXE := $(strip $(MERGE))
 INSTALL   := install -D -p --backup=simple --suffix=.bck
-INSTALL   := install -D -p --backup=simple --suffix=.bck
 RM        := rm -f --preserve-root
 LATEX     := pdflatex
 BIBER     := biber
@@ -110,12 +109,16 @@ COMMIT    := $(strip $(shell cd $(BASEDIR) && git log --format="%h %as" 2>/dev/n
 ifeq ($(COMMIT),)
   COMMIT  := unknown
 endif
+LOCHANGE  := $(strip $(shell cd $(BASEDIR) ; git diff-index --quiet HEAD -- 2>/dev/null ; echo $$?))
+ifeq ($(LOCHANGE),1)
+  COMMIT  += + local
+endif
 CPPFLAGS  += -DLOG_COMMIT="\"$(COMMIT)\""
 
 OS := $(shell uname)
 ifeq ($(OS),Darwin)
-      INSTALL   := install -p
-      RM        := rm -f 
+  INSTALL := install -p
+  RM      := rm -f 
 endif
 
 DOC_MAIN := main
