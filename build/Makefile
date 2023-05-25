@@ -52,36 +52,42 @@ DOC := sofi2D_manual.pdf
 ###############################################################################
 ### GNU compiler with OpenMPI (standard)
 CC             := mpicc
+CXX            := mpicxx
 CPPFLAGS        = -D_GNU_SOURCE -DLOG_COLOR
 EXTRA_CPPFLAGS := -DUSE_MPI
 CFLAGS          = -O3 -Wall -Wextra -g -fstack-protector -std=c99 -ftree-vectorize
+CXXFLAGS        = -O3 -Wall -Wextra -g -fstack-protector -ftree-vectorize
 CDEPEND         = -MMD -MP -MF .dep-$(subst /,-,$@)
 LD             := $(CC)
 LDFLAGS         = -lm
-EXTRA_LDFLAGS  := -lmpi
+EXTRA_LDFLAGS  := -lmpi -lstdc++
 
 ###############################################################################
 ### Intel compiler (OneAPI) with Intel MPI
 ### => GPI: module load compiler/latest mpi/latest
 #CC             := mpicc -cc=icx
+#CXX            := 
 #CPPFLAGS        = -D_GNU_SOURCE -DLOG_COLOR
 #EXTRA_CPPFLAGS := -DLOG_MPI
 #CFLAGS          = -O3 -Wall -Wextra -g -fstack-protector -std=c99 --intel
+#CXXFLAGS        = -O3 -Wall -Wextra -g -fstack-protector --intel
 #CDEPEND         = -MMD -MP -MF .dep-$(subst /,-,$@)
 #LD             := $(CC)
 #LDFLAGS         = -static-intel -lm 
-#EXTRA_LDFLAGS  := -lmpi
+#EXTRA_LDFLAGS  := -lmpi -lstdc++
 
 ###############################################################################
 ### clang (LLVM) with OpenMPI
 #CC             := clang
-#CPPFLAGS        = -D_GNU_SOURCE -DLOG_COLOR
+#CXX            := clang++
+#CPPFLAGS        = -D_GNU_SOURCE -DLOG_COLOR -I/usr/lib64/mpi/gcc/openmpi3/include
 #EXTRA_CPPFLAGS := -DLOG_MPI
-#CFLAGS          = -O3 -Wall -Wextra -g -fstack-protector -std=c99 -I/usr/lib64/mpi/gcc/openmpi3/include
+#CFLAGS          = -O3 -Wall -Wextra -g -fstack-protector -std=c99
+#CXXFLAGS        = -O3 -Wall -Wextra -g -fstack-protector
 #CDEPEND         = -MMD -MP -MF .dep-$(subst /,-,$@)
 #LD             := $(CC)
 #LDFLAGS         = -lm 
-#EXTRA_LDFLAGS  := -L/usr/lib64/mpi/gcc/openmpi3/lib64 -lmpi
+#EXTRA_LDFLAGS  := -L/usr/lib64/mpi/gcc/openmpi3/lib64 -lmpi -lstdc++
 
 ###############################################################################
 ###############################################################################
@@ -91,16 +97,35 @@ EXTRA_LDFLAGS  := -lmpi
 
 CURRENT   := $(PWD)
 SRCTREE   := $(strip $(realpath $(BASEDIR)/src))
+CONTREE   := $(strip $(realpath $(BASEDIR)/contrib))
+AFFTREE   := $(strip $(realpath $(CONTREE)/Seitosh/libaff))
+SEITREE   := $(strip $(realpath $(CONTREE)/Seitosh/libseife))
+FOUTREE   := $(strip $(realpath $(CONTREE)/Seitosh/libfourier))
+INVTREE   := $(strip $(realpath $(CONTREE)/Seitosh/libstfinv))
 FDMOD_O   := $(strip ./fdmod_obj)
 MERGE_O   := $(strip ./merge_obj)
+AFF_O     := $(strip ./libaff_obj)
+FOU_O     := $(strip ./libfourier_obj)
+SEI_O     := $(strip ./libseife_obj)
+INV_O     := $(strip ./libstfinv_obj)
+LIBAFF    := libaff.a
+LIBFOU    := libfourierxx.a
+LIBSEI    := libcseife.a
+LIBINV    := libstfinv.a
 LATEX_O   := $(strip ./latex)
 dummy     := $(shell mkdir -p $(FDMOD_O))
 dummy     := $(shell mkdir -p $(MERGE_O))
+dummy     := $(shell mkdir -p $(AFF_O))
+dummy     := $(shell mkdir -p $(FOU_O))
+dummy     := $(shell mkdir -p $(SEI_O))
+dummy     := $(shell mkdir -p $(INV_O))
 dummy     := $(shell mkdir -p $(LATEX_O))
 dummy     := $(shell mkdir -p $(strip $(INSTDIR)))
 FDMOD_EXE := $(strip $(FDMOD))
 MERGE_EXE := $(strip $(MERGE))
 INSTALL   := install -D -p --backup=simple --suffix=.bck
+AR        := ar
+ARFLAGS   := cr
 RM        := rm -f --preserve-root
 LATEX     := pdflatex
 BIBER     := biber
@@ -109,7 +134,26 @@ COMMIT    := $(strip $(shell cd $(BASEDIR) && git log --format="%h %as" 2>/dev/n
 ifeq ($(COMMIT),)
   COMMIT  := unknown
 endif
+LOCHANGE  := $(strip $(shell cd $(BASEDIR) ; git diff-index --quiet HEAD -- 2>/dev/null ; echo $$?))
+ifeq ($(LOCHANGE),1)
+  COMMIT  += + local
+endif
 CPPFLAGS  += -DLOG_COMMIT="\"$(COMMIT)\""
+ifdef FFTW_INC
+   CPPFLAGS += -I$(FFTW_INC)
+endif
+LIBAFF    := libaff.a
+LIBFOU    := libfourierxx.a
+LIBSEI    := libcseife.a
+LIBINV    := libstfinv.a
+LOCALLIBS  = -L$(PWD) $(addprefix -l,$(subst lib,,$(basename $(LIBAFF) $(LIBSEI) $(LIBFOU) $(LIBINV)))) \
+             -lfftw3
+
+OS := $(shell uname)
+ifeq ($(OS),Darwin)
+  INSTALL := install -p
+  RM      := rm -f 
+endif
 
 DOC_MAIN := main
 DOC_FILES := $(wildcard $(strip $(realpath $(BASEDIR)))/doc/guide_sofi2D/latex/*.tex) \
@@ -261,8 +305,56 @@ FDMOD_FILES := sofi2D.c \
                writemod.c \
                zero_wavefield.c
 
+AFF_FILES := error.cc \
+             seriesstepper.cc \
+             strided.cc \
+             stridedstepper.cc
+
+SEI_FILES := cseife.c \
+             cseife_deriv.c \
+             cseife_gauss.c \
+             cseife_rekfl.c \
+             cseife_rfk.c \
+             cseife_tides.c
+
+FOU_FILES := error.cc \
+             fcommand.cc \
+             fftwaffar.cc \
+             fftwaff.cc \
+             filters.cc \
+             polesnzeroes.cc
+
+INV_FILES := error.cc \
+             fouriertools.cc \
+             parameterhandler.cc \
+             stfinvany.cc \
+             stfinvany_description_usage.cc \
+             stfinvbase.cc \
+             stfinvbase_description_usage.cc \
+             stfinvbase_summary_usage.cc \
+             stfinv.cc \
+             stfinv_description_usage.cc \
+             stfinvfdleastsquares.cc \
+             stfinvfdleastsquares_description_usage.cc \
+             stfinvfdleastsquares_summary_usage.cc \
+             stfinvfinitecausal.cc \
+             stfinvfixedstf.cc \
+             stfinvfourier.cc \
+             stfinvfourier_description_usage.cc \
+             stfinvfourier_summary_usage.cc \
+             stfinvidentity.cc \
+             stfinvidentity_description_usage.cc \
+             stfinvidentity_summary_usage.cc \
+             stfinvnormalize.cc \
+             stfinv_summary_usage.cc \
+             tools.cc
+
 MERGE_OBJ := $(addprefix $(MERGE_O)/, $(patsubst %.c, %.o, $(MERGE_FILES)))
 FDMOD_OBJ := $(addprefix $(FDMOD_O)/, $(patsubst %.c, %.o, $(FDMOD_FILES)))
+AFF_OBJ   := $(addprefix $(AFF_O)/, $(patsubst %.cc, %.o, $(AFF_FILES)))
+SEI_OBJ   := $(addprefix $(SEI_O)/, $(patsubst %.c, %.o, $(SEI_FILES)))
+FOU_OBJ   := $(addprefix $(FOU_O)/, $(patsubst %.cc, %.o, $(FOU_FILES)))
+INV_OBJ   := $(addprefix $(INV_O)/, $(patsubst %.cc, %.o, $(INV_FILES)))
 
 ifdef V
   ifeq ("$(origin V)", "command line")
@@ -303,9 +395,12 @@ help:
 	@echo "   $(strip $(INSTDIR))"
 	@echo -e "Compiler / linker and flags:"
 	@echo "   CC: $(CC)"
+	@echo "   CXX: $(CXX)"
 	@echo "   CPPFLAGS: $(CPPFLAGS) [$(EXTRA_CPPFLAGS)]"
 	@echo "   CFLAGS: $(CFLAGS)"
+	@echo "   CXXFLAGS: $(CXXFLAGS)"
 	@echo "   LD: $(LD)"
+	@echo "   LOCALLIB: $(LOCALLIB)"
 	@echo "   LDFLAGS: $(LDFLAGS) [$(EXTRA_LDFLAGS)]"
 	@echo 
 	@echo "Use V=1 to see full command being executed."
@@ -318,8 +413,14 @@ install: all
 clean: 
 	$(call cmd,rmdir,$(FDMOD_O))
 	$(call cmd,rmdir,$(MERGE_O))
+	$(call cmd,rmdir,$(AFF_O))
+	$(call cmd,rmdir,$(SEI_O))
+	$(call cmd,rmdir,$(FOU_O))
+	$(call cmd,rmdir,$(INV_O))
 	@echo -e "   \e[31m[RM]\e[0m    executables $(FDMOD_EXE) $(MERGE_EXE)"
 	-$(Q)$(RM) $(FDMOD_EXE) $(MERGE_EXE)
+	@echo -e "   \e[31m[RM]\e[0m    archives $(LIBAFF) $(LIBSEI) $(LIBFOU) $(LIBINV)"
+	-$(Q)$(RM) $(LIBAFF) $(LIBSEI) $(LIBFOU) $(LIBINV)
 	@$(RM) *~
 
 distclean: clean
@@ -357,19 +458,53 @@ $(MERGE_EXE): $(MERGE_OBJ)
 $(MERGE_O)/%.o: $(SRCTREE)/%.c
 	$(call cmd,compile_cc)
 
+$(LIBAFF): $(AFF_OBJ)
+	$(call cmd,ar)
+
+$(LIBSEI): $(SEI_OBJ)
+	$(call cmd,ar)
+
+$(LIBFOU): $(FOU_OBJ)
+	$(call cmd,ar)
+
+$(LIBINV): $(INV_OBJ)
+	$(call cmd,ar)
+
+LDFLAGS.$(FDMOD_EXE) = $(LOCALLIBS)
 $(FDMOD_EXE): LDFLAGS += $(EXTRA_LDFLAGS)
-$(FDMOD_EXE): $(FDMOD_OBJ)
+$(FDMOD_EXE): $(LIBAFF) $(LIBSEI) $(LIBFOU) $(LIBINV) $(FDMOD_OBJ)
 	$(call cmd,link)
 
-$(FDMOD_O)/%.o: CPPFLAGS += $(EXTRA_CPPFLAGS)
+$(FDMOD_O)/%.o: CPPFLAGS += $(EXTRA_CPPFLAGS) -I$(SEITREE) -I$(INVTREE)
 $(FDMOD_O)/%.o: $(SRCTREE)/%.c
 	$(call cmd,compile_cc)
+
+$(AFF_O)/%.o: $(AFFTREE)/%.cc
+	$(call cmd,compile_cxx)
+
+$(SEI_O)/%.o: $(SEITREE)/%.c
+	$(call cmd,compile_cc)
+
+$(FOU_O)/%.o: CPPFLAGS += -I$(AFFTREE)
+$(FOU_O)/%.o: $(FOUTREE)/%.cc
+	$(call cmd,compile_cxx)
+
+$(INV_O)/%.o: CPPFLAGS += -I$(AFFTREE) -I$(FOUTREE)
+$(INV_O)/%.o: $(INVTREE)/%.cc
+	$(call cmd,compile_cxx)
 
 quiet_cmd_compile_cc = \e[32m[CC]\e[0m    $@
       cmd_compile_cc = $(CC) -o$@ $(CDEPEND) $(CFLAGS.$@) $(CPPFLAGS) -I$(SRCTREE) $(CFLAGS) -c $<
 
+quiet_cmd_compile_cxx = \e[32m[CXX]\e[0m   $@
+      cmd_compile_cxx = $(CXX) -o$@ $(CDEPEND) $(CXXFLAGS.$@) $(CPPFLAGS) $(CXXFLAGS) -c $<
+
 quiet_cmd_link = \e[94m[LD]\e[0m    $@
-      cmd_link = $(LD) $(CFLAGS) -o$@ $^ $(LDFLAGS.$@) $(LDFLAGS)
+      cmd_link = $(LD) $(CFLAGS) -o$@ $(filter-out $(LIBAFF) $(LIBSEI) $(LIBFOU) $(LIBINV),$^) \
+                 $(LDFLAGS.$@) $(LDFLAGS)
+
+quiet_cmd_ar = \e[33m[AR]\e[0m    $@
+      cmd_ar = $(AR) $(ARFLAGS) $(abspath $@) $^ && ranlib $(abspath $@)
 
 quiet_cmd_rmdir = \e[31m[RM]\e[0m    directory $(1)
       cmd_rmdir = $(RM) -r $(1)

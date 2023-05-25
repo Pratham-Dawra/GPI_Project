@@ -1,0 +1,11 @@
+The source code found in this directory and its subdirectories is part
+of, and a subset of, "Seitosh", see https://git.scc.kit.edu/Seitosh/Seitosh 
+for the full source code, documentation and all accompanying supplements.
+
+The directories were restructured for easier inclusion in this project.
+
+Please check README.md and README.history for additinal details on Seitosh, 
+and visit above mentioned git repository.
+
+Seitosh is available under the GNU General Public License, a copy of which 
+is provided in file LICENSE.GPLv2.
