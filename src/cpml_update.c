@@ -27,22 +27,22 @@
 
 /* CPML Functions for update_s ---------------------------------------------------*/
 
-void cpml_update_s_x(int i, int j, MemModel * mpm, MemWavefield * mpw)
+void cpml_update_s_x(int i, int j, int h1, int h2, MemModel * mpm, MemWavefield * mpw)
 {
-    mpw->psi_vxx[j][i] = mpm->b_x[i] * mpw->psi_vxx[j][i] + mpm->a_x[i] * mpw->pvxx[j][i];
-    mpw->pvxx[j][i] = mpw->pvxx[j][i] / mpm->K_x[i] + mpw->psi_vxx[j][i];
+    mpw->psi_vxx[h2][h1] = mpm->b_x[h1] * mpw->psi_vxx[h2][h1] + mpm->a_x[h1] * (mpw->pvxx[j][i]);
+    mpw->pvxx[j][i] = (mpw->pvxx[j][i]) / mpm->K_x[h1] + mpw->psi_vxx[h2][h1];
 
-    mpw->psi_vyx[j][i] = mpm->b_x_half[i] * mpw->psi_vyx[j][i] + mpm->a_x_half[i] * mpw->pvyx[j][i];
-    mpw->pvyx[j][i] = mpw->pvyx[j][i] / mpm->K_x_half[i] + mpw->psi_vyx[j][i];
+    mpw->psi_vyx[h2][h1] = mpm->b_x_half[h1] * mpw->psi_vyx[h2][h1] + mpm->a_x_half[h1] * (mpw->pvyx[j][i]);
+    mpw->pvyx[j][i] = (mpw->pvyx[j][i]) / mpm->K_x_half[h1] + mpw->psi_vyx[h2][h1];
 }
 
-void cpml_update_s_y(int i, int j, MemModel * mpm, MemWavefield * mpw)
+void cpml_update_s_y(int i, int j, int h1, int h2, MemModel * mpm, MemWavefield * mpw)
 {
-    mpw->psi_vyy[j][i] = mpm->b_y[j] * mpw->psi_vyy[j][i] + mpm->a_y[j] * mpw->pvyy[j][i];
-    mpw->pvyy[j][i] = mpw->pvyy[j][i] / mpm->K_y[j] + mpw->psi_vyy[j][i];
+    mpw->psi_vyy[h2][h1] = mpm->b_y[h2] * mpw->psi_vyy[h2][h1] + mpm->a_y[h2] * (mpw->pvyy[j][i]);
+    mpw->pvyy[j][i] = (mpw->pvyy[j][i]) / mpm->K_y[h2] + mpw->psi_vyy[h2][h1];
 
-    mpw->psi_vxy[j][i] = mpm->b_y_half[j] * mpw->psi_vxy[j][i] + mpm->a_y_half[j] * mpw->pvxy[j][i];
-    mpw->pvxy[j][i] = mpw->pvxy[j][i] / mpm->K_y_half[j] + mpw->psi_vxy[j][i];
+    mpw->psi_vxy[h2][h1] = mpm->b_y_half[h2] * mpw->psi_vxy[h2][h1] + mpm->a_y_half[h2] * (mpw->pvxy[j][i]);
+    mpw->pvxy[j][i] = (mpw->pvxy[j][i]) / mpm->K_y_half[h2] + mpw->psi_vxy[h2][h1];
 }
 
 /* CPML Functions for update_v ---------------------------------------------------*/

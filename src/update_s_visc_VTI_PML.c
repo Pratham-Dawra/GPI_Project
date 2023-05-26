@@ -31,12 +31,12 @@
 
 void update_s_visc_vti_PML(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
 {
-    int h1;
+    int h;
 
     /* left boundary */
     for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
-            cpml_update_s_x(i, j, mpm, mpw);
+            cpml_update_s_x(i, j, i, j, mpm, mpw);
             wavefield_update_s_visc_VTI(i, j, mpm, mpw, gv);
         }
     }
@@ -44,8 +44,8 @@ void update_s_visc_vti_PML(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     /* right boundary */
     for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
-            h1 = (i - gv->NX + 2 * gv->FW);
-            cpml_update_s_x(h1, j, mpm, mpw);
+            h = (i - gv->NX + 2 * gv->FW);
+            cpml_update_s_x(i, j, h, j, mpm, mpw);
             wavefield_update_s_visc_VTI(i, j, mpm, mpw, gv);
         }
     }
@@ -53,7 +53,7 @@ void update_s_visc_vti_PML(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     /* top boundary */
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-            cpml_update_s_y(i, j, mpm, mpw);
+            cpml_update_s_y(i, j, i, j, mpm, mpw);
             wavefield_update_s_visc_VTI(i, j, mpm, mpw, gv);
         }
     }
@@ -61,8 +61,8 @@ void update_s_visc_vti_PML(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     /* bottom boundary */
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-            h1 = (j - gv->NY + 2 * gv->FW);
-            cpml_update_s_y(i, h1, mpm, mpw);
+            h = (j - gv->NY + 2 * gv->FW);
+            cpml_update_s_y(i, j, i, h, mpm, mpw);
             wavefield_update_s_visc_VTI(i, j, mpm, mpw, gv);
         }
     }
@@ -72,8 +72,8 @@ void update_s_visc_vti_PML(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     /*left-top */
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
-            cpml_update_s_x(i, j, mpm, mpw);
-            cpml_update_s_y(i, j, mpm, mpw);
+            cpml_update_s_x(i, j, i, j, mpm, mpw);
+            cpml_update_s_y(i, j, i, j, mpm, mpw);
             wavefield_update_s_visc_VTI(i, j, mpm, mpw, gv);
         }
     }
@@ -81,9 +81,9 @@ void update_s_visc_vti_PML(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     /*left-bottom */
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
-            cpml_update_s_x(i, j, mpm, mpw);
-            h1 = (j - gv->NY + 2 * gv->FW);
-            cpml_update_s_y(i, h1, mpm, mpw);
+            cpml_update_s_x(i, j, i, j, mpm, mpw);
+            h = (j - gv->NY + 2 * gv->FW);
+            cpml_update_s_y(i, j, i, h, mpm, mpw);
             wavefield_update_s_visc_VTI(i, j, mpm, mpw, gv);
         }
     }
@@ -91,9 +91,9 @@ void update_s_visc_vti_PML(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     /* right-top */
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
-            h1 = (i - gv->NX + 2 * gv->FW);
-            cpml_update_s_x(h1, j, mpm, mpw);
-            cpml_update_s_y(i, j, mpm, mpw);
+            h = (i - gv->NX + 2 * gv->FW);
+            cpml_update_s_x(i, j, h, j, mpm, mpw);
+            cpml_update_s_y(i, j, i, j, mpm, mpw);
             wavefield_update_s_visc_VTI(i, j, mpm, mpw, gv);
         }
     }
@@ -101,10 +101,10 @@ void update_s_visc_vti_PML(MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
     /* right-bottom */
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
-            h1 = (i - gv->NX + 2 * gv->FW);
-            cpml_update_s_x(h1, j, mpm, mpw);
-            h1 = (j - gv->NY + 2 * gv->FW);
-            cpml_update_s_y(i, h1, mpm, mpw);
+            h = (i - gv->NX + 2 * gv->FW);
+            cpml_update_s_x(i, j, h, j, mpm, mpw);
+            h = (j - gv->NY + 2 * gv->FW);
+            cpml_update_s_y(i, j, i, h, mpm, mpw);
             wavefield_update_s_visc_VTI(i, j, mpm, mpw, gv);
         }
     }

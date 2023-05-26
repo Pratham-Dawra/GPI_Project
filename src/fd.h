@@ -68,9 +68,9 @@ void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar *gv);
 
 void catseis(float **data, float **fulldata, int *recswitch, int ntr_glob, int ns);
 
-void cpml_update_s_x(int i, int j, MemModel *mpm, MemWavefield *mpw);
+void cpml_update_s_x(int i, int j, int h1, int h2, MemModel *mpm, MemWavefield *mpw);
 
-void cpml_update_s_y(int i, int j, MemModel *mpm, MemWavefield *mpw);
+void cpml_update_s_y(int i, int j, int h1, int h2, MemModel *mpm, MemWavefield *mpw);
 
 void cpml_update_v_x(int i, int j, float *sxx_x, float *sxy_x, MemModel *mpm, MemWavefield *mpw);
 
