@@ -70,9 +70,9 @@ void check_fs(GlobVar *gv, GlobVarInv *vinv);
 
 void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar *gv);
 
-void cpml_update_s_x(int i, int j, MemModel *mpm, MemWavefield *mpw);
+void cpml_update_s_x(int i, int j, int h1, int h2, MemModel *mpm, MemWavefield *mpw);
 
-void cpml_update_s_y(int i, int j, MemModel *mpm, MemWavefield *mpw);
+void cpml_update_s_y(int i, int j, int h1, int h2, MemModel *mpm, MemWavefield *mpw);
 
 void cpml_update_v_x(int i, int j, float *sxx_x, float *sxy_x, MemModel *mpm, MemWavefield *mpw);
 
@@ -121,6 +121,10 @@ void initmem_wavefield(MemWavefield *mpw, GlobVar *gv);
 void initproc(GlobVar *gv);
 
 int initsrc(int ishot, int nshots, AcqVar *acq, GlobVar *gv);
+
+void  inseis(int iter, int ishot, int sws, float **section, GlobVar *gv, GlobVarInv *vinv);
+
+void inversion(int iter, int ishot, GlobVar *gv, GlobVarInv *vinv);
 
 void lbfgs_reset(int iter, MemInv * minv, GlobVar *gv, GlobVarInv *vinv);
 
