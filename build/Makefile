@@ -168,6 +168,8 @@ FDMOD_FILES := sofi2D.c \
                initmem_wavefield.c \
                initproc.c \
                initsrc.c \
+               inseis.c \
+               inversion.c \
                json_parser.c \
                lbfgs.c \
                logging.c \

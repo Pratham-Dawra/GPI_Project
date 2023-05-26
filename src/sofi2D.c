@@ -343,9 +343,9 @@ int main(int argc, char **argv)
 
                     /*------------------------------------------------------------------------------*/
                     /*---------- Inversion: Start inversion process --------------------------------*/
-                    /*if (gv.mode == FWI) {
-                        inversion(&gv, &vinv);
-                    }*/
+                    if (gv.MODE == FWI) {
+                        inversion(iter, ishot, &gv, &vinv);
+                    }
                 }
                 /*----------------  end of loop over multiple shots  -----------------*/
                 

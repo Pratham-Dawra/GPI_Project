@@ -65,7 +65,6 @@ void time_loop(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemMo
                 if (gv->ABS_TYPE == 1) {
                     update_v_PML(gv->NX, gv->NY, nt, sw, mpm, mpw, minv, gv, vinv);
                 }
-
                 if (gv->ABS_TYPE == 2) {
                     update_v_abs(sw, mpm, mpw, minv, gv, vinv);
                 }
@@ -82,7 +81,6 @@ void time_loop(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemMo
                 if (gv->ABS_TYPE == 1) {
                     update_v_PML_4(gv->NX, gv->NY, nt, mpm, mpw, gv);
                 }
-
                 if (gv->ABS_TYPE == 2) {
                     update_v_abs_4(nt, mpm, mpw, gv);
                 }
@@ -178,7 +176,6 @@ void time_loop(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemMo
                   break;
               case EL_TTI:     /* elastic TTI */
                   update_s_elastic_tti_interior(nt, mpm, mpw, minv, gv);
-
                   if (gv->FW) {
                       if (gv->ABS_TYPE == 1)
                           update_s_elastic_tti_PML(mpm, mpw, minv, gv);
@@ -237,7 +234,6 @@ void time_loop(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemMo
                 shift_var3(&(mpw->pq), &(mpw->pq_2), &(mpw->pq_3), &(mpw->pq_4));
             } else {            /* elastic */
                 update_s_elastic_interior_4(nt, mpm, mpw, minv, gv);
-
                 if (gv->FW) {
                     if (gv->ABS_TYPE == 1)
                         update_s_elastic_PML_4(nt, mpm, mpw, minv, gv);
