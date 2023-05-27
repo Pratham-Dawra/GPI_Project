@@ -77,7 +77,7 @@
 
 
 "Snapshots" : "comment",
-			"SNAP" : "4",
+			"SNAP" : "2",
 			"TSNAP1" : "0.06",
 			"TSNAP2" : "0.18",
 			"TSNAPINC" : "0.04",
@@ -87,7 +87,7 @@
 			"SNAP_FILE" : "./weq1/snap",
 
 "Receiver" : "comment",
-			"SEISMO" : "4",
+			"SEISMO" : "2",
 			"READREC" : "1",
 			"REC_FILE" : "./receiver/receiver.dat",
 			"REFRECX, REFRECY" : "0.0 , 0.0",

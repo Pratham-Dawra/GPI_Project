@@ -72,13 +72,14 @@ void cpml_update_s_x(int i, int j, int h1, int h2, MemModel *mpm, MemWavefield *
 
 void cpml_update_s_y(int i, int j, int h1, int h2, MemModel *mpm, MemWavefield *mpw);
 
+void cpml_update_s_x_ac(int i, int j, int h1, int h2, MemModel *mpm, MemWavefield *mpw);
+
+void cpml_update_s_y_ac(int i, int j, int h1, int h2, MemModel *mpm, MemWavefield *mpw);
+
 void cpml_update_v_x(int i, int j, float *sxx_x, float *sxy_x, MemModel *mpm, MemWavefield *mpw);
 
 void cpml_update_v_y(int i, int j, float *sxy_y, float *syy_y, MemModel *mpm, MemWavefield *mpw);
 
-void cpml_update_s_x_ac(int i, int j, MemModel *mpm, MemWavefield *mpw);
-
-void cpml_update_s_y_ac(int i, int j, MemModel *mpm, MemWavefield *mpw);
 
 void cpml_update_v_x_ac(int i, int j, float *sxx_x, MemModel *mpm, MemWavefield *mpw);
 
