@@ -97,7 +97,7 @@ namespace fourier {
       //! pointer to file name string
       const char* Mfile;
       //! pointer to line number in source file
-      const int& Mline;
+      const int Mline;
       //! pointer to assertion condition text string
       const char* Mcondition;
   }; // class Exception

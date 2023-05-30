@@ -309,7 +309,7 @@ namespace fourier {
     DRFFTWAFFArrayEngine::TAseries 
       DRFFTWAFFArrayEngine::series(const unsigned int& i) const
     {
-      FOURIER_assert(((i>=0) && (i<this->nseries())),
+      FOURIER_assert(((i<this->nseries())),
                      "ERROR: signal index is out of range");
       return(aff::slice(Mseriesarray)()(i));
     } // DRFFTWAFFArrayEngine::TAseries DRFFTWAFFArrayEngine::series(i) const
@@ -320,7 +320,7 @@ namespace fourier {
     DRFFTWAFFArrayEngine::TAspectrum 
       DRFFTWAFFArrayEngine::spectrum(const unsigned int& i) const
     {
-      FOURIER_assert(((i>=0) && (i<this->nseries())),
+      FOURIER_assert(((i<this->nseries())),
                      "ERROR: signal index is out of range");
       return(aff::slice(Mspectrumarray)()(i));
     } // DRFFTWAFFArrayEngine::TAspectrum DRFFTWAFFArrayEngine::spectrum(i) const

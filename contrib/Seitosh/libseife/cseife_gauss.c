@@ -61,7 +61,7 @@ void seife_gauss(double *aik, int m, int n, double* rs, double* f)
     double h__[(C_MSIZE+2)];
     int j, k, l;
     double q;
-    int index;
+    int index = 0;
     double aikmax;
 
     SEIFE_CHECKERROR( m>C_MSIZE , "seife_gauss", "matrix is too large" )

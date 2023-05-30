@@ -82,7 +82,8 @@ void seife_tid(double* x, int n, double dt, int nstep)
     /* Local variables */
     static double tdif, omeg[C_MFREQ];
     static int ndim;
-    static double step, tint, omeg0, xgez1, xgez2, xgez3, 
+    // static double tint;
+    static double step, omeg0, xgez1, xgez2, xgez3, 
                   a[C_MDIM*C_MDIM], c__[C_MDIM], d__[C_MDIM], 
                   e[C_MDIM], f[C_MDIM];
     static int i__, j, k;
@@ -111,11 +112,11 @@ void seife_tid(double* x, int n, double dt, int nstep)
     nstep = nstep > 1 ? nstep : 1;
     step = (double) nstep;
     tstep2 = (step - one) * dth;
-    tint = tstep2 + dth;
+    // tint = tstep2 + dth;
     if (nstep == 1) {
 	step = 1.;
 	tstep2 = 0.;
-	tint = dth;
+	// tint = dth;
     }
 /*  determine the number of frequencies required for a good fit */
     dur = n * dt / 3600.;

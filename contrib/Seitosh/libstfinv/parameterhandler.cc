@@ -43,7 +43,7 @@ std::string stfinv::tools::clipstring(std::string& s, const std::string& delim)
 {
   std::string::size_type i=s.find(delim);
   std::string result;
-  if ((i>=0) && (i<s.length())) {
+  if ((i<s.length())) {
     result=s.substr(0,i);
     s.erase(0,i+delim.length());
   } else {

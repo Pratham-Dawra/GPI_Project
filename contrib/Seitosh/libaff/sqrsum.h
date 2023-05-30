@@ -62,7 +62,7 @@ namespace aff {
           public:
             typedef Tvalue Tretval;
             //! initialize member data
-            Extractsqrsum(const Tcont& c): Msum(0), Mn(0) { }
+      Extractsqrsum(const Tcont& c): Msum(0), Mn(0) { (void)c; /* avoid compiler warning about unused parameter; optimized away */ }
             //! collect another value
             void operator() (const Tvalue& v) { Msum+=(v*v); ++Mn; }
             //! return result of operation

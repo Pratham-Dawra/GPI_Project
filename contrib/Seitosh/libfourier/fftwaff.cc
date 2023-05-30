@@ -260,6 +260,8 @@ namespace fourier {
     DRFFTWAFF::Tseries DRFFTWAFF::operator()(const Tspectrum::Tcoc& s,
                                              const bool& debug) const
     {
+      (void)debug; // avoid compiler warning about unused parameter; optimized away
+
       // check number of expected Fourier coefficients
       if (this->ssize() != s.size())
       {

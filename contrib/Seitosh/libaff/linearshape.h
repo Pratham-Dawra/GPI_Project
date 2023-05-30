@@ -98,8 +98,8 @@ namespace aff {
                   const Tsubscript& firstinrepr):
         Mfirst(first), Mlast(last), Mbase(first-firstinrepr) 
         { 
-          AFF_assert((this->size()>=0),
-              "ERROR (LinearShape): inconsistent constructor arguments");
+          //AFF_assert((this->size()>=0),
+          //    "ERROR (LinearShape): inconsistent constructor arguments");
         }
       //! return first legal index
       const Tsubscript& first() const { return(Mfirst); }
