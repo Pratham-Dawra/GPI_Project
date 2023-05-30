@@ -23,6 +23,7 @@
 #include "fd.h"
 #include "logging.h"
 //#include "segy.h"
+#include "read_su.h"
 
 void inseis(int iter, int ishot, int sws, float **section, GlobVar *gv, GlobVarInv *vinv)
 {
@@ -30,8 +31,8 @@ void inseis(int iter, int ishot, int sws, float **section, GlobVar *gv, GlobVarI
     char data[STRING_SIZE];
     FILE *fpdata;
     int i, j;
-    segy tr;
-    float dump;
+    //segy tr;
+    //float dump;
 
     if (sws == 1) {             /* open seismic data vx */
         sprintf(data, "%s_vx.su.shot%d", vinv->DATA_DIR, ishot);
