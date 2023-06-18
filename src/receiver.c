@@ -27,10 +27,10 @@
 #include <math.h>
 #include <stdbool.h>
 
-int **receiver(GlobVar *gv)
+int **receiver(GlobVar *gv, int *topo)
 {
     int **recpos1 = NULL, **recpos = NULL;
-    int itr = 1, itr1 = 0, itr2 = 0, recflag = 0, n, i, j;
+    int itr = 1, itr1 = 0, itr2 = 0, recflag = 0, n, i, j, idx_topo;
     float nxrec = 0, nyrec = 0;
     float nxrec1, nxrec2, nyrec1, nyrec2;
     float xrec, yrec;
@@ -66,8 +66,13 @@ int **receiver(GlobVar *gv)
             for (itr = 1; itr <= gv->NTRG; itr++) {
                 fscanf(fpr, "%f%f\n", &xrec, &yrec);
                 recpos1[1][itr] = (int)floor((xrec + gv->REFREC[1]) / gv->DH) + 1;
-                recpos1[2][itr] = (int)floor((yrec + gv->REFREC[2]) / gv->DH) + 1;
                 recpos1[3][itr] = itr;
+                if (1 == gv->REC_TOPO) {
+                    idx_topo = topo[recpos1[1][itr]];
+                    recpos1[2][itr] = idx_topo + (int)floor(yrec / gv->DH);
+                } else {
+                    recpos1[2][itr] = (int)floor((yrec + gv->REFREC[2]) / gv->DH) + 1;
+                }
             }
             fclose(fpr);
 
@@ -160,8 +165,10 @@ int **receiver(GlobVar *gv)
         log_info("Number of receiver positions: %d\n", gv->NTRG);
 
         for (itr = 1; itr <= gv->NTRG; itr++) {
-            if (recpos[1][itr] == 0) recpos[1][itr] = 1;
-            if (recpos[2][itr] == 0) recpos[2][itr] = 1;
+            if (recpos[1][itr] == 0)
+                recpos[1][itr] = 1;
+            if (recpos[2][itr] == 0)
+                recpos[2][itr] = 1;
         }
     }
     /* End of if(gv->MPID==0) */
@@ -172,19 +179,19 @@ int **receiver(GlobVar *gv)
     MPI_Bcast(&recpos[1][1], (gv->NTRG) * 3, MPI_INT, 0, MPI_COMM_WORLD);
 
     if (gv->MPID == 0) {
-        if (gv->NTRG > 50)
+        if (gv->NTRG > 50 && 0 == gv->REC_TOPO)
             log_warn("The following table is quite large (%d lines); only printing the first 50 entries!\n", gv->NTRG);
         log_info("Receiver positions in the global model (indices are one-based):\n");
         log_info("x (gridpts)  y (gridpts)      x (in m)      y (in m)\n");
         log_info("-----------  -----------  ------------  ------------\n");
 
         int maxprint = gv->NTRG;
-        if (maxprint > 50)
+        if (maxprint > 50 && 0 == gv->REC_TOPO)
             maxprint = 50;
 
         for (itr = 1; itr <= maxprint; itr++) {
             log_info("%11d  %11d  %12.2f  %12.2f\n",
-                     recpos[1][itr], recpos[2][itr], (recpos[1][itr]-1) * gv->DH, (recpos[2][itr]-1) * gv->DH);
+                     recpos[1][itr], recpos[2][itr], (recpos[1][itr] - 1) * gv->DH, (recpos[2][itr] - 1) * gv->DH);
         }
     }
 

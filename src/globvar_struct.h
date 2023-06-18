@@ -31,10 +31,10 @@
 #include "enums.h"
 #include "memw_struct.h"
 
-typedef void (*FDop_s_fct) (int i, int j, float *vxx, float *vyx, float *vxy, float *vyy, MemWavefield *mpw);
-typedef void (*FDop_v_fct) (int i, int j, float *sxx_x, float *sxy_x, float *sxy_y, float *syy_y, MemWavefield *mpw);
-typedef void (*FDop_ac_s_fct) (int i, int j, float *vxx, float *vyy, MemWavefield *mpw);
-typedef void (*FDop_ac_v_fct) (int i, int j, float *sxx_x, float *syy_y, MemWavefield *mpw);
+typedef void (*FDop_s_fct)(int i, int j, float *vxx, float *vyx, float *vxy, float *vyy, MemWavefield *mpw);
+typedef void (*FDop_v_fct)(int i, int j, float *sxx_x, float *sxy_x, float *sxy_y, float *syy_y, MemWavefield *mpw);
+typedef void (*FDop_ac_s_fct)(int i, int j, float *vxx, float *vyy, MemWavefield *mpw);
+typedef void (*FDop_ac_v_fct)(int i, int j, float *sxx_x, float *syy_y, MemWavefield *mpw);
 
 typedef struct {
 //struct ModelVar {
@@ -55,6 +55,7 @@ typedef struct {
     // Source
     int SOURCE_TYPE;            // type of source
     int SOURCE_SHAPE;           // shape of source-signal
+    int SOURCE_TOPO;            // switch to place sources along topography
     char SIGNAL_FILE[STRING_SIZE];  // name of external signal file
     int SRCREC;                 // switch to read source parameters from external source file
     char SOURCE_FILE[STRING_SIZE];  // name of source parameter file
@@ -67,6 +68,7 @@ typedef struct {
     // Receiver
     int READREC;                // switch to read receiver positions from file
     char REC_FILE[STRING_SIZE]; // name of external receiver file
+    int REC_TOPO;               // switch to place receivers along topography
     float REFREC[4];            // reference point for receiver coordinate system
     float XREC1;                // x-position of first receiver [m]
     float XREC2;                // x-position of last receiver [m]
@@ -80,9 +82,6 @@ typedef struct {
     float REC_ARRAY_DEPTH;      // depth of first plane [m] 
     float REC_ARRAY_DIST;       // increment between receiver planes [m]
     int DRX;                    // increment between receivers in each plane [gridpoints]
-//}
-
-//struct IOVar {
     // Seismograms
     int SEISMO;                 // switch to output components of seismograms
     int NDT;                    // sampling rate of seismograms [timesteps DT]
@@ -112,10 +111,7 @@ typedef struct {
     int LOG;                    // switch to output logging information
     char LOG_VERBOSITY[STRING_SIZE];    // log output level (verbosity)       
     char LOG_FILE[STRING_SIZE]; // name of output file of logging information
-    int OUTNTIMESTEPINFO;       // every OUTNTIMESTEPINFO th timestep, information on the time step will be given to screen/file
-//}
-
-//struct FDParams{
+    int OUTNTIMESTEPINFO;       // every OUTNTIMESTEPINFO'th timestep, information output to log
     // FD Params
     WEQTYPE WEQ;                // wave equation
     float DH;                   // spacial increment [m]
@@ -123,13 +119,13 @@ typedef struct {
     int ND;                     // gv->FDORDER / 2
     float TIME;                 // time (of modelling) [s]
     float DT;                   // time increment (of modelling) [s]
-    float DTDH;                  // DT/DH
+    float DTDH;                 // DT/DH
     int FDORDER_TIME;           // temporal FD order
-    int NT;                     //// number of timesteps (=iround(TIME/DT))
+    int NT;                     // number of timesteps (=iround(TIME/DT))
     FDop_s_fct FDOP_S;          // function pointer for FD operator
     FDop_v_fct FDOP_V;          // function pointer for FD operator
-    FDop_ac_s_fct FDOP_AC_S;       // function pointer for FD operator (acoustic cases)
-    FDop_ac_v_fct FDOP_AC_V;       // function pointer for FD operator (acoustic cases)
+    FDop_ac_s_fct FDOP_AC_S;    // function pointer for FD operator (acoustic cases)
+    FDop_ac_v_fct FDOP_AC_V;    // function pointer for FD operator (acoustic cases)
     int MAXRELERROR;            // switch of maximum relative group velocity error
     // MPI-variables
     int NPROCX;                 // number of processors in x-direction

@@ -172,8 +172,6 @@ int main(int argc, char **argv)
     /* memory allocation of buffers */
     initmem(&mpm, &mpw, &gv);
 
-
-
     /* initialize FD operators */
     initfd(&gv);
 

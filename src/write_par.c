@@ -72,6 +72,11 @@ void write_par(GlobVar *gv)
     log_info("------------------------- Source parameters -----------------\n");
     if (gv->SRCREC) {
         log_info("Source parameters will be read from ASCII file %s.\n", gv->SOURCE_FILE);
+	if (1 == gv->SOURCE_TOPO) {
+	    log_info("Source topography option is on. Source depth is relative to topography!\n");
+	} else {
+	    log_info("Source topography option is off. Source depth is absolute depth.\n");
+	}
     } else {
         log_info("Plane wave excitation depth (PLANE_WAVE_DEPTH): %5.2fm\n", gv->PLANE_WAVE_DEPTH);
         log_info("Incidence angle of plane P-wave (from vertical; PLANE_WAVE_ANGLE): %5.2fdeg\n", gv->PLANE_WAVE_ANGLE);
@@ -141,6 +146,11 @@ void write_par(GlobVar *gv)
         if (gv->READREC) {
             log_info("Receiver positions will be read from ASCII file %s.\n", gv->REC_FILE);
             log_info("Reference point for receivers (REFRECX, REFRECY): (%f, %f)m\n", gv->REFREC[1], gv->REFREC[2]);
+	    if (1 == gv->REC_TOPO) {
+		log_info("Receiver topography option is on. Receiver depth is relative to topography!\n");
+	    } else {
+		log_info("Receiver topography option is off. Receiver depth is absolute depth.\n");
+	    }
         } else if (gv->REC_ARRAY > 0) {
             log_info("Using %d horizontal line(s) of receivers (REC_ARRAY).\n", gv->REC_ARRAY);
             log_info("Depth of upper line (REC_ARRAY_DEPTH): %em\n", gv->REC_ARRAY_DEPTH);

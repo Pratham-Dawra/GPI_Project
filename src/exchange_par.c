@@ -19,13 +19,13 @@
 --------------------------------------------------------------------------*/
 
 /* ------------------------------------------------------------------------
- *   Exchange FD-Parameters between PEs                         
+ * Exchange FD-Parameters between PEs
  * ----------------------------------------------------------------------*/
 
 #include "fd.h"
 #include "enums.h"
 
-void exchange_par(GlobVar * gv)
+void exchange_par(GlobVar *gv)
 {
     int idum[NPAR];
     float fdum[NPAR];
@@ -35,9 +35,9 @@ void exchange_par(GlobVar * gv)
         fdum[2] = gv->TIME;
         fdum[3] = gv->DT;
         fdum[4] = gv->TS;
-	//
-	//
-	//
+        //
+        //
+        //
         fdum[8] = gv->TAU;
         fdum[9] = gv->F_REF;
         fdum[10] = gv->TSNAP1;
@@ -48,24 +48,24 @@ void exchange_par(GlobVar * gv)
         fdum[15] = gv->PLANE_WAVE_ANGLE;
         fdum[16] = gv->XREC1;
         fdum[17] = gv->YREC1;
-	//
+        //
         fdum[19] = gv->XREC2;
         fdum[20] = gv->YREC2;
-	//
+        //
         fdum[22] = gv->DAMPING;
         fdum[23] = gv->REC_ARRAY_DEPTH;
         fdum[24] = gv->REC_ARRAY_DIST;
         fdum[25] = gv->PLANE_WAVE_DEPTH;
         fdum[26] = gv->NGEOPH;
-	//
-	//
-	//
+        //
+        //
+        //
         fdum[30] = gv->FPML;
         fdum[31] = gv->VPPML;
         fdum[32] = gv->NPOWER;
         fdum[33] = gv->K_MAX_CPML;
 
-	/*************************************/
+    /*************************************/
 
         idum[1] = gv->NPROCX;
         idum[2] = gv->NPROCY;
@@ -81,18 +81,18 @@ void exchange_par(GlobVar * gv)
         idum[12] = gv->FREE_SURF;
         idum[13] = gv->SNAP;
         idum[14] = gv->DRX;
-	//
+        //
         idum[16] = gv->BOUNDARY;
         idum[17] = gv->REC_ARRAY;
         idum[18] = gv->SRCREC;
         idum[19] = gv->IDX;
         idum[20] = gv->IDY;
-	//
+        idum[21] = gv->SOURCE_TOPO;
         idum[22] = gv->WEQ;
         idum[23] = gv->SNAP_FORMAT;
         idum[24] = gv->SEISMO;
         idum[25] = gv->READREC;
-	//
+        idum[26] = gv->REC_TOPO;
         idum[27] = gv->NDT;
         idum[28] = gv->SEIS_FORMAT;
         idum[29] = gv->NT;
@@ -181,12 +181,12 @@ void exchange_par(GlobVar * gv)
     gv->SRCREC = idum[18];
     gv->IDX = idum[19];
     gv->IDY = idum[20];
-    //
+    gv->SOURCE_TOPO = idum[21];
     gv->WEQ = (WEQTYPE)idum[22];
     gv->SNAP_FORMAT = idum[23];
     gv->SEISMO = idum[24];
     gv->READREC = idum[25];
-    //
+    gv->REC_TOPO = idum[26];
     gv->NDT = idum[27];
     gv->SEIS_FORMAT = idum[28];
     gv->NT = idum[29];

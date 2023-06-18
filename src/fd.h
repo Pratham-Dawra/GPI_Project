@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/gpl-2.0.html>.
  --------------------------------------------------------------------------*/
 
-/*------------------------------------------------------------------------
+/*----------------------------------------------------------------------
  *  fd.h - include file for viscoelastic FD program sofi2D
  * ---------------------------------------------------------------------*/
 
@@ -239,7 +239,7 @@ void readmod_visco_vti(MemModel *mpm, GlobVar *gv);
 
 void readmod_visco_tti(MemModel *mpm, GlobVar *gv);
 
-int **receiver(GlobVar *gv);
+int **receiver(GlobVar *gv, int *topo);
 
 void save_checkpoint(int nx1, int nx2, int ny1, int ny2,
                      float **vx, float **vy, float **sxx, float **syy, float **sxy, GlobVar *gv);
@@ -248,6 +248,8 @@ void saveseis(int ishot, AcqVar *acq, GlobVar *gv);
 
 void saveseis_glob(float **sectiondata, int **recpos, float **srcpos, int ishot, int ns, int sectiondatatype,
                    GlobVar *gv);
+
+int *scan_topo(GlobVar *gv);
 
 void set_fd_order(int new_order, GlobVar *gv);
 
@@ -261,7 +263,7 @@ void snap(int nt, int nsnap, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVa
 
 void snapmerge(int nsnap);
 
-void sources(AcqVar *acq, GlobVar *gv);
+void sources(AcqVar *acq, GlobVar *gv, int *topo);
 
 int **splitrec(int **recpos, int *recswitch, GlobVar *gv);
 

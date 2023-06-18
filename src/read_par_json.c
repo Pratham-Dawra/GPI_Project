@@ -19,9 +19,9 @@
 --------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------
- *   program SOFI2D, reading input-parameters from input-file or stdin
- *   that are formatted according to the json standard
- *  ----------------------------------------------------------------------*/
+ * program SOFI2D, reading input-parameters from input-file or stdin
+ * that are formatted according to the json standard
+ *----------------------------------------------------------------------*/
 
 #include <unistd.h>
 #include <stdbool.h>
@@ -56,13 +56,13 @@ const char *get_weq_verbose(WEQTYPE wt)
     return weq_verbose[wt];
 }
 
-static void parse_weqtype(const char *weqt, GlobVar * gv)
+static void parse_weqtype(const char *weqt, GlobVar *gv)
 {
     bool b_found = false;
 
     for (int i = 0; i < NWEQ; ++i) {
         if (!strncasecmp(weqt, weq_descr[i], STRING_SIZE - 1)) {
-            gv->WEQ = (WEQTYPE) i;
+            gv->WEQ = (WEQTYPE)i;
             b_found = true;
             break;
         }
@@ -74,7 +74,7 @@ static void parse_weqtype(const char *weqt, GlobVar * gv)
     }
 }
 
-void read_par_json(const char *fileinp, GlobVar * gv)
+void read_par_json(const char *fileinp, GlobVar *gv)
 {
     /* definition of local variables */
     int number_readobjects = 0, fserr = 0, i;
@@ -101,8 +101,6 @@ void read_par_json(const char *fileinp, GlobVar * gv)
 
     //print objects to screen
     print_objectlist_screen(number_readobjects, varname_list, value_list);
-
-    // extract variables from object list
 
     /* =================================
      * section general grid and discretization parameters
@@ -153,6 +151,8 @@ void read_par_json(const char *fileinp, GlobVar * gv)
      * section source parameters
      * ================================= */
 
+    gv->SOURCE_TOPO = 0;
+
     if (get_int_from_objectlist
         ("SOURCE_TYPE", number_readobjects, &(gv->SOURCE_TYPE), varname_list, value_list, used_list))
         log_fatal("Variable SOURCE_TYPE could not be retrieved from the json input file!");
@@ -192,6 +192,12 @@ void read_par_json(const char *fileinp, GlobVar * gv)
                 ("RUN_MULTIPLE_SHOTS", number_readobjects, &(gv->RUN_MULTIPLE_SHOTS), varname_list, value_list,
                  used_list))
                 log_fatal("Variable RUN_MULTIPLE_SHOTS could not be retrieved from the json input file!");
+            if (get_int_from_objectlist("SOURCE_TOPO", number_readobjects, &(gv->SOURCE_TOPO),
+                                        varname_list, value_list, used_list))
+                gv->SOURCE_TOPO = 0;
+            if (gv->SOURCE_TOPO < 0 || gv->SOURCE_TOPO > 1) {
+                log_fatal("Variable SOURCE_TOPO needs to be 0 or 1!");
+            }
         }
         if ((gv->SRCREC) == 2) {
             if (get_float_from_objectlist
@@ -273,7 +279,7 @@ void read_par_json(const char *fileinp, GlobVar * gv)
         log_fatal("Variable IDY could not be retrieved from the json input file!");
 
     if (gv->SNAP) {
-        if (!(gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI)&&(gv->SNAP>2)) {
+        if (!(gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI) && (gv->SNAP > 2)) {
             log_fatal("Output of curl impossible in case of acoustic modelling. Choose SNAP=1,2 \n");
         }
     }
@@ -281,6 +287,8 @@ void read_par_json(const char *fileinp, GlobVar * gv)
     /* =================================
      * section seismogramm parameters
      * ================================= */
+
+    gv->REC_TOPO = 0;
 
     if (get_int_from_objectlist("SEISMO", number_readobjects, &(gv->SEISMO), varname_list, value_list, used_list))
         log_fatal("Variable SEISMO could not be retrieved from the json input file!");
@@ -295,7 +303,12 @@ void read_par_json(const char *fileinp, GlobVar * gv)
             if (get_int_from_objectlist
                 ("READREC", number_readobjects, &(gv->READREC), varname_list, value_list, used_list))
                 log_fatal("Variable READREC could not be retrieved from the json input file!");
-            else {
+            if (get_int_from_objectlist
+                ("REC_TOPO", number_readobjects, &(gv->REC_TOPO), varname_list, value_list, used_list))
+                gv->REC_TOPO = 0;
+            if (gv->REC_TOPO < 0 || gv->REC_TOPO > 1) {
+                log_fatal("Variable REC_TOPO needs to be 0 or 1!");
+            } else {
                 if ((gv->READREC) == 0) {
                     if (get_float_from_objectlist
                         ("XREC1", number_readobjects, &(gv->XREC1), varname_list, value_list, used_list))
@@ -348,9 +361,13 @@ void read_par_json(const char *fileinp, GlobVar * gv)
     }
 
     if (gv->SEISMO) {
-        if (!(gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI)&&(gv->SEISMO>2)) {
+        if (!(gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI) && (gv->SEISMO > 2)) {
             log_fatal("Output of curl impossible in case of acoustic modelling. Choose SEISMO=1,2 \n");
         }
+    }
+
+    if ((1 == gv->SOURCE_TOPO || 1 == gv->REC_TOPO) && 1 == gv->FREE_SURF) {
+        log_fatal("Source or receiver topography option cannot be combined with free-surface option.\n");
     }
 
     /* =========================================
@@ -387,8 +404,8 @@ void read_par_json(const char *fileinp, GlobVar * gv)
         (gv->L) = 0;
     }
 
-    gv->NT = iround(gv->TIME / gv->DT);     /* number of time steps */
-    gv->NS = iround(gv->NT / gv->NDT);      /* number of samples per trace */
+    gv->NT = iround(gv->TIME / gv->DT); /* number of time steps */
+    gv->NS = iround(gv->NT / gv->NDT);  /* number of samples per trace */
 
     /* do NOT remove the FALLTHRU comments below, they are used to tell the compiler
      * that this is an intentional fall through */
@@ -432,9 +449,9 @@ void read_par_json(const char *fileinp, GlobVar * gv)
         (gv->FL) = NULL;
     }
 
-    /********************************************/
-    /* Check files and directories if necessary */
-    /********************************************/
+    /********************************************
+     * Check files and directories if necessary *
+     ********************************************/
 
     /* signal file */
     if ((gv->SOURCE_SHAPE) == 3) {
@@ -469,11 +486,11 @@ void read_par_json(const char *fileinp, GlobVar * gv)
         }
     }
 
-    /********************************************/
-    /* ERROR                                    */
-    /********************************************/
+    /********************************************
+     * ERROR                                    *
+     ********************************************/
     if (fserr > 0) {
-        log_fatal("%d error(s) encountered while processing json parameter file.\n",fserr);
+        log_fatal("%d error(s) encountered while processing json parameter file.\n", fserr);
     }
 
     for (i = 0; i < number_readobjects; ++i) {

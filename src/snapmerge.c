@@ -70,7 +70,9 @@ int main(int argc, char **argv)
     log_info("Number of snapshots per shot: %d\n", nsnap);
 
     int nshots = 1;
-    sources(&acq, &gv);
+    gv.SOURCE_TOPO = 0; // ensure we do not access topo buffer
+    gv.REC_TOPO = 0;    // ensure we do not access topo buffer
+    sources(&acq, &gv, NULL);
     if (gv.RUN_MULTIPLE_SHOTS) {
       nshots = acq.nsrc;
       log_info("Number of individual shots: %d\n", nshots);

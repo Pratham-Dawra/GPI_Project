@@ -201,6 +201,7 @@ FDMOD_FILES := sofi2D.c \
                receiver.c \
                saveseis.c \
                saveseis_glob.c \
+               scan_topo.c \
                seismo_ssg.c \
                snap_ssg.c \
                sources.c \
