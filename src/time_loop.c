@@ -24,8 +24,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
-               MemWavefield *mpw, GlobVar *gv, Perform *perf)
+void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm, MemWavefield *mpw, GlobVar *gv, Perform *perf)
 {
     int nt, lsnap, isnap, esnap;
     double time3 = 0.0, time4 = 0.0, time5 = 0.0, time6 = 0.0, time7 = 0.0, time8 = 0.0;
@@ -33,9 +32,9 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
 
     static int nsnap = 0;
 
-    lsnap = iround(gv->TSNAP1 / gv->DT);      /* first snapshot at this time step */
-    isnap = iround(gv->TSNAPINC / gv->DT);    /* snapshot increment in number of timesteps */
-    esnap = iround(gv->TSNAP2 / gv->DT);      /* last snapshot no later than this time step */
+    lsnap = iround(gv->TSNAP1 / gv->DT);    /* first snapshot at this time step */
+    isnap = iround(gv->TSNAPINC / gv->DT);  /* snapshot increment in number of timesteps */
+    esnap = iround(gv->TSNAP2 / gv->DT);    /* last snapshot no later than this time step */
 
     for (nt = 1; nt <= gv->NT; nt++) {
 
@@ -59,8 +58,6 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
             debug_check_matrix(mpw->pvy, nt, gv->NX, gv->NY, 121, 0, "pvy");
 #endif
 
- 
-            
             if (gv->FW) {
                 if (gv->ABS_TYPE == 1) {
                     update_v_PML(gv->NX, gv->NY, nt, mpm, mpw, gv);
@@ -100,15 +97,14 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
         /*---------------------------------------------------------------*
          * ------- exchange of particle velocities between PEs --------- *
          *---------------------------------------------------------------*/
- 
-        
+
         exchange_v(mpw->pvx, mpw->pvy, mpw, gv);
- 
+
         /* calculation and exchange of spatial derivation of particle velocities */
         v_derivatives(mpw, gv);
         exchange_v(mpw->pvxx, mpw->pvyy, mpw, gv);
-        if (gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI) exchange_v(mpw->pvyx, mpw->pvxy, mpw, gv);
-   
+        if (gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI)
+            exchange_v(mpw->pvyx, mpw->pvxy, mpw, gv);
 
         if ((gv->MPID == 0) && ((nt - 1) % gv->OUTNTIMESTEPINFO == 0)) {
             time5 = MPI_Wtime();
@@ -123,33 +119,14 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
 
             switch (gv->WEQ) {
               case AC_ISO:     /* acoustic */
-                    update_s_acoustic_interior(nt, mpm, mpw, gv);
-                    if (gv->FW) {
-                        if (gv->ABS_TYPE == 1)
-                            update_s_acoustic_PML(nt, mpm, mpw, gv);
-                        if (gv->ABS_TYPE == 2)
-                            update_s_acoustic_abs(nt, mpm, mpw, gv);
-                    }
-                 break;
-              case AC_VTI:     /* acoustic VTI */
-                    update_s_acoustic_vti_interior(nt, mpm, mpw, gv);
-                    if (gv->FW) {
-                        if (gv->ABS_TYPE == 1)
-                            update_s_acoustic_PML(nt, mpm, mpw, gv);
-                        if (gv->ABS_TYPE == 2)
-                            update_s_acoustic_abs(nt, mpm, mpw, gv);
-                    }
- 
-              break;
-              case AC_TTI:     /* acoustic TTI */
-                    update_s_acoustic_vti_interior(nt, mpm, mpw, gv);
-                    if (gv->FW) {
-                        if (gv->ABS_TYPE == 1)
-                            update_s_acoustic_PML(nt, mpm, mpw, gv);
-                        if (gv->ABS_TYPE == 2)
-                            update_s_acoustic_abs(nt, mpm, mpw, gv);
-                    }
-                   break;
+                  update_s_acoustic_interior(nt, mpm, mpw, gv);
+                  if (gv->FW) {
+                      if (gv->ABS_TYPE == 1)
+                          update_s_acoustic_PML(nt, mpm, mpw, gv);
+                      if (gv->ABS_TYPE == 2)
+                          update_s_acoustic_abs(nt, mpm, mpw, gv);
+                  }
+                  break;
               case EL_ISO:     /* elastic */
                   update_s_elastic_interior(nt, mpm, mpw, gv);
                   if (gv->FW) {
@@ -227,12 +204,6 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
               case VAC_ISO:    /* viscoacoustic */
                   log_fatal("not yet implemented\n");
                   break;
-              case VAC_VTI:    /* viscoacoustic VTI */
-                  log_fatal("not yet implemented\n");
-                  break;
-              case VAC_TTI:    /* viscoacoustic TTI */
-                  log_fatal("not yet implemented\n");
-                  break;
               default:
                   log_fatal("Unknown WEQ.\n");
             }
@@ -289,7 +260,7 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
             log_debug("Starting stress exchange between PEs...\n");
         }
 
-        /*---------------------------------------------------------------
+                                  /*---------------------------------------------------------------
          * -------- stress exchange between PEs --------
          *---------------------------------------------------------------*/
         exchange_s(mpw, gv);
@@ -302,7 +273,6 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
 
         /* store amplitudes at receivers in section-arrays */
         if ((gv->SEISMO) && (nt == lsamp) && (nt < gv->NT)) {
-
             seismo_ssg(lsamp, acq->recpos_loc, hc, mpm, mpw, gv);
             lsamp += gv->NDT;
         }
@@ -327,5 +297,6 @@ void time_loop(int ishot, float *hc, AcqVar *acq, MemModel *mpm,
     }
 
     log_infoc(0, "Finished time stepping.\n");
-    if (gv->SNAP) log_infoc(0,"Number of snapshots for this shot: %d\n", nsnap);
+    if (gv->SNAP)
+        log_infoc(0, "Number of snapshots for this shot: %d\n", nsnap);
 }

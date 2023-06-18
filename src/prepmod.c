@@ -36,16 +36,8 @@ void prepmod(MemModel *mpm, GlobVar *gv)
 
     switch (gv->WEQ) {
       case AC_ISO:             /* acoustic */
-            matcopy_elastic(mpm->prho, mpm->ppi, mpm->ppi, gv);
-            av_rho(mpm->prho, mpm->prip, mpm->prjp, gv);
-            break;
-      case AC_VTI:             /* acoustic VTI */
-            matcopy_elastic(mpm->prho, mpm->pc11, mpm->pc33, gv);
-            av_rho(mpm->prho, mpm->prip, mpm->prjp, gv);
-          break;
-      case AC_TTI:             /* acoustic TTI */
-            matcopy_elastic(mpm->prho, mpm->pc11, mpm->pc33, gv);
-            av_rho(mpm->prho, mpm->prip, mpm->prjp, gv);
+          matcopy_elastic(mpm->prho, mpm->ppi, mpm->ppi, gv);
+          av_rho(mpm->prho, mpm->prip, mpm->prjp, gv);
           break;
       case EL_ISO:             /* elastic */
           matcopy_elastic(mpm->prho, mpm->ppi, mpm->pu, gv);
@@ -53,7 +45,7 @@ void prepmod(MemModel *mpm, GlobVar *gv)
           av_rho(mpm->prho, mpm->prip, mpm->prjp, gv);
           break;
       case VEL_ISO:            /* viscoelastic */
-          matcopy(mpm->prho, mpm->ppi, mpm->pu, mpm->ptaus, mpm->ptaup, gv);    //???? why here just matcopy and not matcopy_elastic
+          matcopy(mpm->prho, mpm->ppi, mpm->pu, mpm->ptaus, mpm->ptaup, gv);
           av_mue(mpm->pu, mpm->puipjp, gv);
           av_rho(mpm->prho, mpm->prip, mpm->prjp, gv);
           av_tau(mpm->ptaus, mpm->ptausipjp, gv);
@@ -120,12 +112,6 @@ void prepmod(MemModel *mpm, GlobVar *gv)
       case VAC_ISO:            /* viscoacoustic */
           log_fatal("not yet implemented\n");
           break;
-      case VAC_VTI:            /* viscoacoustic VTI */
-          log_fatal("not yet implemented\n");
-          break;
-      case VAC_TTI:            /* viscoacoustic TTI */
-          log_fatal("not yet implemented\n");
-          break;
       default:
           log_fatal("Unknown WEQ.\n");
     }
@@ -135,17 +121,7 @@ void prepmod(MemModel *mpm, GlobVar *gv)
     if (gv->FDORDER_TIME == 2) {
         switch (gv->WEQ) {
           case AC_ISO:         /* acoustic */
-                prepare_update_s_ac(mpm, gv);
-                break;
-          case AC_VTI:         /* acoustic VTI */
-                dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc11);
-                dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc33);
-                dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc13);
-             break;
-          case AC_TTI:         /* acoustic TTI */
-                dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc11);
-                dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc33);
-                dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc13);
+              prepare_update_s_ac(mpm, gv);
               break;
           case EL_ISO:         /* elastic */
               prepare_update_s_el(mpm, gv);
@@ -161,7 +137,6 @@ void prepmod(MemModel *mpm, GlobVar *gv)
               break;
           case VEL_VTI:        /* viscoelastic VTI */
               prepare_update_s_vti(mpm, gv);
-
               break;
           case EL_TTI:
               dt_mult(gv->NX, gv->NY, gv->DT, mpm->pc11);
@@ -179,20 +154,13 @@ void prepmod(MemModel *mpm, GlobVar *gv)
           case VAC_ISO:        /* viscoacoustic */
               log_fatal("not yet implemented\n");
               break;
-          case VAC_VTI:        /* viscoacoustic VTI */
-              log_fatal("not yet implemented\n");
-              break;
-          case VAC_TTI:        /* viscoacoustic TTI */
-              log_fatal("not yet implemented\n");
-              break;
           default:
               log_fatal("Unknown WEQ.\n");
         }
     }
 
     gv->DTDH = gv->DT / gv->DH;
-    
-    
+
     if ((gv->WEQ == VEL_ISO) && gv->FDORDER_TIME == 4) {
         prepare_update_s_4(mpm, gv);
     }

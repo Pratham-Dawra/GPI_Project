@@ -31,24 +31,20 @@
 #include "enums.h"
 #include "macros.h"
 
-static const char *weq_descr[NWEQ] = { "AC_ISO", "AC_VTI", "AC_TTI",
-    "EL_ISO", "VEL_ISO", "EL_VTI",
-    "VEL_VTI", "EL_TTI", "VEL_TTI",
-    "VAC_ISO", "VAC_VTI", "VAC_TTI"
+static const char *weq_descr[NWEQ] = { "AC_ISO", "VAC_ISO",
+    "EL_ISO", "VEL_ISO",
+    "EL_VTI", "VEL_VTI",
+    "EL_TTI", "VEL_TTI"
 };
 
 static const char *weq_verbose[NWEQ] = { "acoustic wave equation",
-    "acoustic VTI wave equation",
-    "acoustic TTI wave equation",
+    "viscoacoustic wave equation",
     "elastic wave equation",
     "viscoelastic wave equation",
     "elastic VTI wave equation",
     "viscoelastic VTI wave equation",
     "elastic TTI wave equation",
-    "viscoelastic TTI wave equation",
-    "viscoacoustic wave equation",
-    "viscoacoustic VTI wave equation",
-    "viscoacoustic TTI wave equation"
+    "viscoelastic TTI wave equation"
 };
 
 const char *get_weq_verbose(WEQTYPE wt)
@@ -279,7 +275,7 @@ void read_par_json(const char *fileinp, GlobVar *gv)
         log_fatal("Variable IDY could not be retrieved from the json input file!");
 
     if (gv->SNAP) {
-        if (!(gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI) && (gv->SNAP > 2)) {
+        if ((gv->WEQ < EL_ISO) && (gv->SNAP > 2)) {
             log_fatal("Output of curl impossible in case of acoustic modelling. Choose SNAP=1,2 \n");
         }
     }
@@ -361,7 +357,7 @@ void read_par_json(const char *fileinp, GlobVar *gv)
     }
 
     if (gv->SEISMO) {
-        if (!(gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI) && (gv->SEISMO > 2)) {
+        if ((gv->WEQ < EL_ISO) && (gv->SEISMO > 2)) {
             log_fatal("Output of curl impossible in case of acoustic modelling. Choose SEISMO=1,2 \n");
         }
     }
@@ -395,13 +391,13 @@ void read_par_json(const char *fileinp, GlobVar *gv)
         log_fatal("Variable L could not be retrieved from the json input file!");
 
     if (((gv->L) == 0) && (((gv->WEQ) == VEL_ISO) || ((gv->WEQ) == VEL_VTI) || ((gv->WEQ) == VEL_TTI) ||
-                           ((gv->WEQ) == VAC_ISO) || ((gv->WEQ) == VAC_VTI) || ((gv->WEQ) == VAC_TTI)))
+                           ((gv->WEQ) == VAC_ISO)))
         log_fatal("L>0 required for viscoacoustic/elastic simulation!");
 
-    if (((gv->L) > 0) && (((gv->WEQ) == AC_ISO) || ((gv->WEQ) == AC_VTI) || ((gv->WEQ) == AC_TTI) ||
-                          ((gv->WEQ) == EL_ISO) || ((gv->WEQ) == EL_VTI) || ((gv->WEQ) == EL_TTI))) {
+    if (((gv->L) > 0) && (((gv->WEQ) == AC_ISO) || ((gv->WEQ) == EL_ISO) || ((gv->WEQ) == EL_VTI) ||
+                          ((gv->WEQ) == EL_TTI))) {
         log_warn("L reset to zero for elastic/acoustic simulation.\n");
-        (gv->L) = 0;
+        gv->L = 0;
     }
 
     gv->NT = iround(gv->TIME / gv->DT); /* number of time steps */
