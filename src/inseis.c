@@ -25,14 +25,12 @@
 //#include "segy.h"
 #include "read_su.h"
 
-void inseis(int iter, int ishot, int sws, float **section, GlobVar *gv, GlobVarInv *vinv)
+void inseis(int ishot, int sws, float **section, GlobVar *gv, GlobVarInv *vinv)
 {
     /* declaration of extern variables */
-    char data[STRING_SIZE];
+    char data[STRING_SIZE*2];
     FILE *fpdata;
-    int i, j;
-    //segy tr;
-    //float dump;
+    int i;
 
     if (sws == 1) {             /* open seismic data vx */
         sprintf(data, "%s_vx.su.shot%d", vinv->DATA_DIR, ishot);
@@ -69,17 +67,7 @@ void inseis(int iter, int ishot, int sws, float **section, GlobVar *gv, GlobVarI
 
     /* Read su data */
     for (i = 1; i <= gv->NTRG; i++) {
-        //section[i][1] = 0.0;      // !!! What is correct? !!!
         su_read_trace(fpdata, 0, (unsigned short)gv->NS, false, NULL, &(section[i][1]));
-        /*fread(&tr, 240, 1, fpdata);
-        fread(&tr.data, 4, gv->NS, fpdata);
-
-        section[i][1] = 0.0;
-
-        for (j = 1; j <= gv->NS; j++) {
-            dump = tr.data[j];
-            section[i][j + 1] = dump;
-        }*/
     }
     fclose(fpdata);
 }

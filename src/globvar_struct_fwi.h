@@ -184,7 +184,9 @@ typedef struct {
     int TIME_FILT;              // switch to apply frequency filter
     char FREQ_FILE[STRING_SIZE];    // file providing individual frequency
     int NFREQ;                  // number of frequencies in FREQ_FILE
-    float *F_LOW_PASS;          // vector containing frequencies of low pass filter
+    int FREQ_NR;                // actual frequency to read
+    float F_LOW_PASS;           // actual frequency of low pass filter
+    float *F_LOW_PASS_EXT;      // vector containing frequencies of low pass filter
     //int ZERO_PHASE   -> mentioned in manual but doesn't exist in code
     float F_LOW_PASS_START;     // lower limit of butterworth low pass filter [Hz]
     float F_LOW_PASS_END;       // upper limit of butterworth low pass filter [Hz]

@@ -184,6 +184,7 @@ FDMOD_FILES := sofi2D.c \
                av_rho.c \
                av_tau.c \
                calc_envelope.c \
+               calc_res.c \
                catseis.c \
                check_fs.c \
                checkfd.c \
@@ -258,6 +259,7 @@ FDMOD_FILES := sofi2D.c \
                subgrid_bounds.c \
                surface.c \
                surface_elastic.c \
+               timedomain_filt.c \
                time_loop.c \
                update_s_elastic_abs.c \
                update_s_elastic_VTI_abs.c \

@@ -137,13 +137,16 @@ void initmem_fwi(MemInv *minv, GlobVar *gv, GlobVarInv *vinv)
     minv->sectionpnp1 = matrix(1, gv->NTR, 1, gv->NS);
     minv->sectionpn = matrix(1, gv->NTR, 1, gv->NS);
     minv->sectionpdata = matrix(1, gv->NTR, 1, gv->NS);
+    minv->sectionpcalc = matrix(1, gv->NTR, 1, gv->NS);
     minv->sectionpdiff = matrix(1, gv->NTR, 1, gv->NS);
     minv->sectionpdiffold = matrix(1, gv->NTR, 1, gv->NS);
 
     minv->sectionvxdata = matrix(1, gv->NTR, 1, gv->NS);
+    minv->sectionvxcalc = matrix(1, gv->NTR, 1, gv->NS);
     minv->sectionvxdiff = matrix(1, gv->NTR, 1, gv->NS);
     minv->sectionvxdiffold = matrix(1, gv->NTR, 1, gv->NS);
     minv->sectionvydata = matrix(1, gv->NTR, 1, gv->NS);
+    minv->sectionvycalc = matrix(1, gv->NTR, 1, gv->NS);
     minv->sectionvydiff = matrix(1, gv->NTR, 1, gv->NS);
     minv->sectionvydiffold = matrix(1, gv->NTR, 1, gv->NS);
 

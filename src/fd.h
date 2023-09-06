@@ -64,6 +64,9 @@ void av_tau(float **taus, float **tausipjp, GlobVar *gv);
 
 void calc_envelope(float **datatrace, float **envelope, int ntr, int ns);
 
+void calc_res(float **sectiondata, float **section, float **sectiondiff, float **sectiondiffold,
+                int sws, int swstestshot, int ishot, int iter, AcqVar *acq, GlobVar *gv, GlobVarInv *vinv);
+
 void catseis(float **data, float **fulldata, int *recswitch, int ntr_glob, int ns);
 
 void check_fs(GlobVar *gv, GlobVarInv *vinv);
@@ -122,9 +125,9 @@ void initproc(GlobVar *gv);
 
 int initsrc(int ishot, int nshots, AcqVar *acq, GlobVar *gv);
 
-void  inseis(int iter, int ishot, int sws, float **section, GlobVar *gv, GlobVarInv *vinv);
+void inseis(int ishot, int sws, float **section, GlobVar *gv, GlobVarInv *vinv);
 
-void inversion(int iter, int ishot, GlobVar *gv, GlobVarInv *vinv);
+void inversion(int iter, int ishot, AcqVar *acq, MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
 
 void lbfgs_reset(int iter, MemInv * minv, GlobVar *gv, GlobVarInv *vinv);
 
@@ -261,7 +264,7 @@ int **receiver(GlobVar *gv);
 void save_checkpoint(int nx1, int nx2, int ny1, int ny2,
                      float **vx, float **vy, float **sxx, float **syy, float **sxy, GlobVar *gv);
 
-void saveseis(int ishot, AcqVar *acq, GlobVar *gv, GlobVarInv *vinv);
+void saveseis(int ishot, AcqVar *acq, MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
 
 void saveseis_glob(float **sectiondata, int **recpos, float **srcpos, int ishot, int ns, int sectiondatatype,
                    GlobVar *gv);
@@ -291,6 +294,8 @@ void subgrid_bounds(int nx1, int nx2, int ny1, int ny2, GlobVar *gv);
 void surface(int ndepth, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void surface_elastic(int ndepth, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+
+void timedomain_filt(float **data, int method, GlobVar *gv, GlobVarInv *vinv);
 
 void time_loop(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm, MemWavefield *mpw,
                MemInv *minv, GlobVar *gv, GlobVarInv *vinv, Perform *perf);

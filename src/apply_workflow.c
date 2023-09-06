@@ -81,9 +81,9 @@ void apply_workflow(int iter, GlobVar *gv, GlobVarInv *vinv)
             vinv->LBFGS_ITER_START = iter;
         vinv->F_HIGH_PASS = vinv->WORKFLOW[vinv->WORKFLOW_STAGE][6];
 
-        if (*(vinv->F_LOW_PASS) != vinv->WORKFLOW[vinv->WORKFLOW_STAGE][7])
+        if (vinv->F_LOW_PASS != vinv->WORKFLOW[vinv->WORKFLOW_STAGE][7])
             vinv->LBFGS_ITER_START = iter;
-        *(vinv->F_LOW_PASS) = vinv->WORKFLOW[vinv->WORKFLOW_STAGE][7];
+        vinv->F_LOW_PASS = vinv->WORKFLOW[vinv->WORKFLOW_STAGE][7];
     }
 
     /* Approx. Hessian  */
@@ -111,7 +111,7 @@ void apply_workflow(int iter, GlobVar *gv, GlobVarInv *vinv)
         log_info("PRO: %f\n", vinv->PRO);
         log_info("TIME_FILT: %d\n", vinv->TIME_FILT);
         log_info("F_HIGH_PASS: %f\n", vinv->F_HIGH_PASS);
-        log_info("F_LOW_PASS: %f\n", *(vinv->F_LOW_PASS));
+        log_info("F_LOW_PASS: %f\n", vinv->F_LOW_PASS);
         log_info("EPRECOND: %d\n", vinv->EPRECOND);
         log_info("EPSILON_WE: %f\n", vinv->EPSILON_WE);
         log_info("TIMEWIN: %d\n", vinv->TIMEWIN);

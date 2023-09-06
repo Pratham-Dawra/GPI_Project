@@ -48,14 +48,14 @@ void filter_frequencies(GlobVarInv *vinv)
     }
 
     /*-------------------alocate frequency array-----------------------------*/
-    vinv->F_LOW_PASS = vector(1, vinv->NFREQ);
+    vinv->F_LOW_PASS_EXT = vector(1, vinv->NFREQ);
 
     /*------------------Read frequencies from FREQ_FILE----------------------*/
     rewind(freqf);
     l = 1;
     while (fgets(buffer, STRING_SIZE, freqf)) {
         //sscanf(buffer, "%s", bufferstring);
-        if ((sscanf(buffer, "%f", &(vinv->F_LOW_PASS)[l]) == 1) && (vinv->F_LOW_PASS[l] != 0)) {
+        if ((sscanf(buffer, "%f", &(vinv->F_LOW_PASS_EXT)[l]) == 1) && (vinv->F_LOW_PASS_EXT[l] != 0)) {
             if (l > vinv->NFREQ) {
                 log_fatal
                     ("read_workflow.c: buffer not large enough to store all workflow parameters - programming error.\n");
@@ -63,8 +63,5 @@ void filter_frequencies(GlobVarInv *vinv)
             ++l;
         }
     }
-
     fclose(freqf);
-
-    return;
 }

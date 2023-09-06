@@ -24,12 +24,17 @@
 #include "fd.h"
 #include "logging.h"
 
-void inversion(int iter, int ishot, GlobVar *gv, GlobVarInv *vinv)
+void inversion(int iter, int ishot, AcqVar *acq, MemInv *minv, GlobVar *gv, GlobVarInv *vinv)
 {
+    int h, i, j;
     int itestshot, swstestshot;
-    float **sectionread;
+    //float **sectionread=NULL, **sectionvx=NULL, **sectionvxdata=NULL, **sectionvxdiff=NULL, **sectionvxdiffold=NULL;
+    float **sectionread=NULL, **sectionvxdata=NULL, **sectionvydata=NULL, **sectionpdata=NULL;
     
     sectionread = matrix(1, gv->NTRG, 1, gv->NS+1);
+    sectionvxdata = matrix(1,gv->NTR,1,gv->NS+1);
+    sectionvydata = matrix(1,gv->NTR,1,gv->NS+1);
+    sectionpdata = matrix(1,gv->NTR,1,gv->NS+1);
 
     /*-----------------------------------*/
     /*------- Calculate residuals -------*/
@@ -58,24 +63,26 @@ void inversion(int iter, int ishot, GlobVar *gv, GlobVarInv *vinv)
     /* --------------------------------------------- */
 
         if ((vinv->ADJOINT_TYPE == 1) || (vinv->ADJOINT_TYPE == 3)) {   /* if ADJOINT_TYPE */
-            inseis(iter, ishot, 1, sectionread, gv, vinv);
+            inseis(ishot, 1, sectionread, gv, vinv);
+            /* Output test */
             float **srcpos = matrix(1, NSPAR, 1, 1);
             int **recpos = imatrix(1, 3, 1, gv->NTRG);
-            outseis_glob(fopen("Test_seisread_3.su", "w"), sectionread, recpos, gv->NTRG, srcpos, gv->NS, gv->SEIS_FORMAT, ishot, 1, gv);
-            /*if ((TIME_FILT == 1) || (TIME_FILT == 2)) {
-                timedomain_filt(sectionread, F_LOW_PASS, ORDER, ntr_glob, ns, 1);
-            }*/
-            /*h = 1;
-            for (i = 1; i <= ntr; i++) {
-                for (j = 1; j <= ns; j++) {
-                    sectionvxdata[h][j] = sectionread[recpos_loc[3][i]][j];
+            outseis_glob(fopen("Test_seisread_prefilt.su", "w"), sectionread, recpos, gv->NTRG, srcpos, gv->NS, gv->SEIS_FORMAT, ishot, 1, gv);
+            //log_info("TIME_FILT; %d, FREQ_NR: %d\n", vinv->TIME_FILT, vinv->FREQ_NR);
+            if ((vinv->TIME_FILT == 1) || (vinv->TIME_FILT == 2)) {
+                //log_info("F_LOW_PASS, F_LOW_PASS_START, ORDER: %f, %f, %d\n", vinv->F_LOW_PASS, vinv->F_LOW_PASS_START, vinv->ORDER);
+                timedomain_filt(sectionread, 1, gv, vinv);
+            }
+            outseis_glob(fopen("Test_seisread_postfilt.su", "w"), sectionread, recpos, gv->NTRG, srcpos, gv->NS, gv->SEIS_FORMAT, ishot, 1, gv);
+            h = 1;
+            for (i = 1; i <= gv->NTR; i++) {
+                for (j = 1; j <= gv->NS; j++) {
+                    sectionvxdata[h][j] = sectionread[acq->recpos_loc[3][i]][j];
                 }
                 h++;
             }
-            L2 = calc_res(sectionvxdata, sectionvx, sectionvxdiff, sectionvxdiffold, ntr,
-                          ns, LNORM, L2, 0, 1, swstestshot, ntr_glob, recpos_loc, nsrc_glob,
-                          ishot, iter, srcpos, recpos);
-            if (swstestshot == 1) {
+            calc_res(sectionvxdata, minv->sectionvxcalc, minv->sectionvxdiff, minv->sectionvxdiffold, 1, swstestshot, ishot, iter, acq, gv, vinv);
+            /*if (swstestshot == 1) {
                 energy =
                     calc_energy(sectionvxdata, ntr, ns, energy, ntr_glob, recpos_loc,
                                 nsrc_glob, ishot, iter, srcpos, recpos);
@@ -90,25 +97,24 @@ void inversion(int iter, int ishot, GlobVar *gv, GlobVarInv *vinv)
         }
 
         /* end ADJOINT_TYPE */
+        
         /* --------------------------------- */
         /* read seismic data from SU file vy */
         /* --------------------------------- */
-        //if ((ADJOINT_TYPE == 1) || (ADJOINT_TYPE == 2)) {   /* if ADJOINT_TYPE */
-        /*    inseis(fprec, ishot, sectionread, ntr_glob, ns, 2, iter);
-            if ((TIME_FILT == 1) || (TIME_FILT == 2)) {
-                timedomain_filt(sectionread, F_LOW_PASS, ORDER, ntr_glob, ns, 1);
+        if ((vinv->ADJOINT_TYPE == 1) || (vinv->ADJOINT_TYPE == 2)) {   /* if ADJOINT_TYPE */
+            inseis(ishot, 2, sectionread, gv, vinv);
+            if ((vinv->TIME_FILT == 1) || (vinv->TIME_FILT == 2)) {
+                timedomain_filt(sectionread, 1, gv, vinv);
             }
             h = 1;
-            for (i = 1; i <= ntr; i++) {
-                for (j = 1; j <= ns; j++) {
-                    sectionvydata[h][j] = sectionread[recpos_loc[3][i]][j];
+            for (i = 1; i <= gv->NTR; i++) {
+                for (j = 1; j <= gv->NS; j++) {
+                    sectionvydata[h][j] = sectionread[acq->recpos_loc[3][i]][j];
                 }
                 h++;
             }
-            L2 = calc_res(sectionvydata, sectionvy, sectionvydiff, sectionvydiffold, ntr,
-                          ns, LNORM, L2, 0, 1, swstestshot, ntr_glob, recpos_loc, nsrc_glob,
-                          ishot, iter, srcpos, recpos);
-            if (swstestshot == 1) {
+            calc_res(sectionvydata, minv->sectionvycalc, minv->sectionvydiff, minv->sectionvydiffold, 1, swstestshot, ishot, iter, acq, gv, vinv);
+            /*if (swstestshot == 1) {
                 energy =
                     calc_energy(sectionvydata, ntr, ns, energy, ntr_glob, recpos_loc,
                                 nsrc_glob, ishot, iter, srcpos, recpos);
@@ -120,21 +126,22 @@ void inversion(int iter, int ishot, GlobVar *gv, GlobVarInv *vinv)
                 calc_misfit(sectionvydata, sectionvy, ntr, ns, LNORM, L2_all_shots, 0, 1, 1,
                             ntr_glob, recpos_loc, nsrc_glob, ishot, iter, srcpos, recpos);*/
             /*fprintf(FP,"Energy vydata for PE %d:   %f\n\n", MYID,energy); */
-        //}
+        }
 
         /* end ADJOINT_TYPE */
+        
         /* --------------------------------- */
         /* read seismic data from SU file p */
         /* --------------------------------- */
-        //if (ADJOINT_TYPE == 4) {    /* if ADJOINT_TYPE */
+        //if (vinv->ADJOINT_TYPE == 4) {    /* if ADJOINT_TYPE */
         /*    inseis(fprec, ishot, sectionread, ntr_glob, ns, 9, iter);
-            if ((TIME_FILT == 1) || (TIME_FILT == 2)) {
+            if ((vinv->TIME_FILT == 1) || (vinv->TIME_FILT == 2)) {
                 timedomain_filt(sectionread, F_LOW_PASS, ORDER, ntr_glob, ns, 1);
             }
             h = 1;
             for (i = 1; i <= ntr; i++) {
                 for (j = 1; j <= ns; j++) {
-                    sectionpdata[h][j] = sectionread[recpos_loc[3][i]][j];
+                    sectionpdata[h][j] = sectionread[acq->recpos_loc[3][i]][j];
                 }
                 h++;
             }

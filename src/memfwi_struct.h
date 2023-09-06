@@ -136,12 +136,15 @@ typedef struct {
     float **sectionpnp1;
     float **sectionpn;
     float **sectionpdata;
+    float **sectionpcalc;
     float **sectionpdiff;
     float **sectionpdiffold;
     float **sectionvxdata;
+    float **sectionvxcalc;
     float **sectionvxdiff;
     float **sectionvxdiffold;
     float **sectionvydata;
+    float **sectionvycalc;
     float **sectionvydiff;
     float **sectionvydiffold;
 

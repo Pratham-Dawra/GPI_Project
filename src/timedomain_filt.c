@@ -24,7 +24,7 @@
 #include "segy.h"
 #include "cseife.h"
 
-void  timedomain_filt(float ** data, float vinv->F_LOW_PASS, int vinv->ORDER, int gv->NTRG, int gv->NS, int method){
+void  timedomain_filt(float **data, int method, GlobVar *gv, GlobVarInv *vinv){
 
 	/* 
 	data	: 	2-dimensional array containing seismograms (
@@ -40,7 +40,8 @@ void  timedomain_filt(float ** data, float vinv->F_LOW_PASS, int vinv->ORDER, in
 	/* declaration of local variables */
 	int itr, j;
 	double *seismogram, T0;
-	double *seismogram_hp, T0_hp;
+	double *seismogram_hp, T0_hp=0.0;
+    //float dt_seis = gv->DT*gv->NDT;
 	
 	seismogram = dvector(1,gv->NS);
 	
@@ -51,14 +52,15 @@ void  timedomain_filt(float ** data, float vinv->F_LOW_PASS, int vinv->ORDER, in
 		T0_hp=1.0/(double)vinv->F_HIGH_PASS;
 	if(method==2)
 		T0_hp=1.0/(double)vinv->F_LOW_PASS;
-		
+
 	if (method==1){    /* lowpass filter */
 		for (itr=1;itr<=gv->NTRG;itr++){
 			for (j=1;j<=gv->NS;j++){
 				seismogram[j]=(double)data[itr][j];
 			}
 			
-			seife_lpb(seismogram,gv->NS+1,gv->DT,T0,vinv->ORDER); /* gv->NS+1 because vector[0] is also allocated and otherwise seife_lpb do not filter the last sample */
+			//seife_lpb(seismogram,gv->NS+1,dt_seis,T0,vinv->ORDER);
+			seife_lpb(seismogram,gv->NS+1,gv->DT,T0,vinv->ORDER);/* gv->NS+1 because vector[0] is also allocated and otherwise seife_lpb do not filter the last sample */
 
 			for (j=1;j<=gv->NS;j++){
 				data[itr][j]=(float)seismogram[j];
@@ -72,6 +74,7 @@ void  timedomain_filt(float ** data, float vinv->F_LOW_PASS, int vinv->ORDER, in
 				seismogram_hp[j]=(double)data[itr][j];
 			}
 			
+			//seife_hpb(seismogram_hp,gv->NS+1,dt_seis,T0_hp,vinv->ORDER);
 			seife_hpb(seismogram_hp,gv->NS+1,gv->DT,T0_hp,vinv->ORDER);
 			
 			for (j=1;j<=gv->NS;j++){
@@ -84,4 +87,4 @@ void  timedomain_filt(float ** data, float vinv->F_LOW_PASS, int vinv->ORDER, in
 
 	free_dvector(seismogram_hp,1,gv->NS);
 
-} /* end of function */
+}

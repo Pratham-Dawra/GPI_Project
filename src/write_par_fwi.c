@@ -226,7 +226,7 @@ void write_par_fwi(GlobVar *gv, GlobVarInv *vinv)
             log_info("Frequencies will be read from file: %s\n", vinv->FREQ_FILE);
             log_info("Number of freqencies specified: %d \n", vinv->NFREQ);
             for (l = 1; l <= (vinv->NFREQ); l++) {
-                log_info("Cut off frequency %d: %.2f Hz\n", l, vinv->F_LOW_PASS[l]);
+                log_info("Cut off frequency %d: %.2f Hz\n", l, vinv->F_LOW_PASS_EXT[l]);
             }
         }
         log_info("Order of lowpass filter is:\t%d\n", vinv->ORDER);

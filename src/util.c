@@ -123,6 +123,22 @@ float *vector(int nl, int nh)
     return v - nl + NR_END;
 }
 
+double *dvector(int nl, int nh)
+{
+    /* allocate a double vector with subscript range v[nl..nh] and initializing
+     * this vector, eg. vector[nl..nh]=0.0 */
+
+    double *v;
+    int i;
+
+    v = (double *)malloc((size_t) ((nh - nl + 1 + NR_END) * sizeof(double)));
+    if (!v)
+        log_fatal("Allocation failure in function dvector().\n");
+    for (i = 0; i < (nh - nl + 1 + NR_END); i++)
+        v[i] = 0.0;
+    return v - nl + NR_END;
+}
+
 int *ivector(int nl, int nh)
 {
     /* allocate an int vector with subscript range v[nl..nh] and initializing
@@ -176,22 +192,6 @@ unsigned long *lvector(int nl, int nh)
         log_fatal("Allocation failure in function lvector().\n");
     for (i = 0; i < (nh - nl + 1 + NR_END); i++)
         v[i] = 0;
-    return v - nl + NR_END;
-}
-
-double *dvector(int nl, int nh)
-{
-    /* allocate a double vector with subscript range v[nl..nh] and initializing
-     * this vector, eg. vector[nl..nh]=0.0 */
-
-    double *v;
-    int i;
-
-    v = (double *)malloc((size_t) ((nh - nl + 1 + NR_END) * sizeof(double)));
-    if (!v)
-        log_fatal("Allocation failure in function dvector().\n");
-    for (i = 0; i < (nh - nl + 1 + NR_END); i++)
-        v[i] = 0.0;
     return v - nl + NR_END;
 }
 
@@ -520,6 +520,13 @@ float ****f4tensor(int nrl, int nrh, int ncl, int nch, int ndl, int ndh, int nvl
 void free_vector(float *v, int nl, int nh)
 {
     /* free a float vector allocated with vector() */
+    free((FREE_ARG) (v + nl - NR_END));
+    UNUSED(nh);
+}
+
+void free_dvector(double *v, int nl, int nh)
+{
+    /* free a char vector allocated with vector() */
     free((FREE_ARG) (v + nl - NR_END));
     UNUSED(nh);
 }
