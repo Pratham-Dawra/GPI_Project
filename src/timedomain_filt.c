@@ -39,13 +39,15 @@ void  timedomain_filt(float **data, int method, GlobVar *gv, GlobVarInv *vinv){
 	
 	/* declaration of local variables */
 	int itr, j;
-	double *seismogram, T0;
-	double *seismogram_hp, T0_hp=0.0;
-    //float dt_seis = gv->DT*gv->NDT;
+	double *seismogram, *seismogram_rev, T0=0.0;
+	double *seismogram_hp, *seismogram_hp_rev, T0_hp=0.0;
+    float dt_seis = gv->DT*gv->NDT;
 	
 	seismogram = dvector(1,gv->NS);
+	seismogram_rev = dvector(1,gv->NS);
 	
 	seismogram_hp = dvector(1,gv->NS);
+	seismogram_hp_rev = dvector(1,gv->NS);
 	
 	T0=1.0/(double)vinv->F_LOW_PASS;
 	if(vinv->F_HIGH_PASS)
@@ -59,11 +61,15 @@ void  timedomain_filt(float **data, int method, GlobVar *gv, GlobVarInv *vinv){
 				seismogram[j]=(double)data[itr][j];
 			}
 			
-			//seife_lpb(seismogram,gv->NS+1,dt_seis,T0,vinv->ORDER);
-			seife_lpb(seismogram,gv->NS+1,gv->DT,T0,vinv->ORDER);/* gv->NS+1 because vector[0] is also allocated and otherwise seife_lpb do not filter the last sample */
-
+			seife_lpb(seismogram,gv->NS+1,dt_seis,T0,vinv->ORDER/2);/* gv->NS+1 because vector[0] is also allocated and otherwise seife_lpb do not filter the last sample */
 			for (j=1;j<=gv->NS;j++){
-				data[itr][j]=(float)seismogram[j];
+				seismogram_rev[gv->NS-j+1]=(float)seismogram[j];
+			}
+			
+			seife_lpb(seismogram_rev,gv->NS+1,dt_seis,T0,vinv->ORDER/2);
+			
+			for (j=1;j<=gv->NS;j++){
+				data[itr][j]=(float)seismogram_rev[gv->NS-j+1];
 			}
 		}
 	} /* end of itr<=gv->NTRG loop */
@@ -74,17 +80,21 @@ void  timedomain_filt(float **data, int method, GlobVar *gv, GlobVarInv *vinv){
 				seismogram_hp[j]=(double)data[itr][j];
 			}
 			
-			//seife_hpb(seismogram_hp,gv->NS+1,dt_seis,T0_hp,vinv->ORDER);
-			seife_hpb(seismogram_hp,gv->NS+1,gv->DT,T0_hp,vinv->ORDER);
+			seife_hpb(seismogram_hp,gv->NS+1,dt_seis,T0_hp,vinv->ORDER/2);
+			for (j=1;j<=gv->NS;j++){
+				seismogram_hp_rev[gv->NS-j+1]=(float)seismogram_hp[j];
+			}
+			
+			seife_hpb(seismogram_hp_rev,gv->NS+1,dt_seis,T0_hp,vinv->ORDER/2);
 			
 			for (j=1;j<=gv->NS;j++){
-				data[itr][j]=(float)seismogram_hp[j];
+				data[itr][j]=(float)seismogram_hp_rev[gv->NS-j+1];
 			}
 		}
 	} /* end of itr<=gv->NTRG loop */
 	
 	free_dvector(seismogram,1,gv->NS);
-
+	free_dvector(seismogram_rev,1,gv->NS);
 	free_dvector(seismogram_hp,1,gv->NS);
-
+	free_dvector(seismogram_hp_rev,1,gv->NS);
 }
