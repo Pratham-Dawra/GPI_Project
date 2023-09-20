@@ -1,3 +1,4 @@
+
 /*-----------------------------------------------------------------------------------------
  * Copyright (C) 2016  For the list of authors, see file AUTHORS.
  *
@@ -24,77 +25,89 @@
 #include "segy.h"
 #include "cseife.h"
 
-void  timedomain_filt(float **data, int method, GlobVar *gv, GlobVarInv *vinv){
+void timedomain_filt(float **data, int method, int ntr, GlobVar *gv, GlobVarInv *vinv)
+{
 
-	/* 
-	data	: 	2-dimensional array containing seismograms (
-	vinv->F_LOW_PASS	:	corner frequency in Hz
-	vinv->ORDER	:	order of filter
-	gv->NTRG	:	number of traces
-	gv->NS	:	number of samples
-	method	:	definition of filter
-			1: lowpass filter
-			2: highpass filter
-	*/
-	
-	/* declaration of local variables */
-	int itr, j;
-	double *seismogram, *seismogram_rev, T0=0.0;
-	double *seismogram_hp, *seismogram_hp_rev, T0_hp=0.0;
-    float dt_seis = gv->DT*gv->NDT;
-	
-	seismogram = dvector(1,gv->NS);
-	seismogram_rev = dvector(1,gv->NS);
-	
-	seismogram_hp = dvector(1,gv->NS);
-	seismogram_hp_rev = dvector(1,gv->NS);
-	
-	T0=1.0/(double)vinv->F_LOW_PASS;
-	if(vinv->F_HIGH_PASS)
-		T0_hp=1.0/(double)vinv->F_HIGH_PASS;
-	if(method==2)
-		T0_hp=1.0/(double)vinv->F_LOW_PASS;
+    /* 
+     * data :   2-dimensional array containing seismograms (
+     * vinv->F_LOW_PASS :   corner frequency in Hz
+     * vinv->ORDER  :   order of filter
+     * ntr  :   number of traces
+     * gv->NS   :   number of samples
+     * method   :   definition of filter
+     * 1: lowpass filter
+     * 2: highpass filter
+     */
 
-	if (method==1){    /* lowpass filter */
-		for (itr=1;itr<=gv->NTRG;itr++){
-			for (j=1;j<=gv->NS;j++){
-				seismogram[j]=(double)data[itr][j];
-			}
-			
-			seife_lpb(seismogram,gv->NS+1,dt_seis,T0,vinv->ORDER/2);/* gv->NS+1 because vector[0] is also allocated and otherwise seife_lpb do not filter the last sample */
-			for (j=1;j<=gv->NS;j++){
-				seismogram_rev[gv->NS-j+1]=(float)seismogram[j];
-			}
-			
-			seife_lpb(seismogram_rev,gv->NS+1,dt_seis,T0,vinv->ORDER/2);
-			
-			for (j=1;j<=gv->NS;j++){
-				data[itr][j]=(float)seismogram_rev[gv->NS-j+1];
-			}
-		}
-	} /* end of itr<=gv->NTRG loop */
+    /* declaration of local variables */
+    int itr, j;
+    double *seismogram, *seismogram_rev, T0 = 0.0;
+    double *seismogram_hp, *seismogram_hp_rev, T0_hp = 0.0;
 
-	if ((method==2)||(vinv->F_HIGH_PASS)){   /*highpass filter*/
-		for (itr=1;itr<=gv->NTRG;itr++){
-			for (j=1;j<=gv->NS;j++){
-				seismogram_hp[j]=(double)data[itr][j];
-			}
-			
-			seife_hpb(seismogram_hp,gv->NS+1,dt_seis,T0_hp,vinv->ORDER/2);
-			for (j=1;j<=gv->NS;j++){
-				seismogram_hp_rev[gv->NS-j+1]=(float)seismogram_hp[j];
-			}
-			
-			seife_hpb(seismogram_hp_rev,gv->NS+1,dt_seis,T0_hp,vinv->ORDER/2);
-			
-			for (j=1;j<=gv->NS;j++){
-				data[itr][j]=(float)seismogram_hp_rev[gv->NS-j+1];
-			}
-		}
-	} /* end of itr<=gv->NTRG loop */
-	
-	free_dvector(seismogram,1,gv->NS);
-	free_dvector(seismogram_rev,1,gv->NS);
-	free_dvector(seismogram_hp,1,gv->NS);
-	free_dvector(seismogram_hp_rev,1,gv->NS);
+    seismogram = dvector(1, gv->NS);
+    seismogram_rev = dvector(1, gv->NS);
+
+    seismogram_hp = dvector(1, gv->NS);
+    seismogram_hp_rev = dvector(1, gv->NS);
+
+    T0 = 1.0 / (double)vinv->F_LOW_PASS;
+    if (vinv->F_HIGH_PASS)
+        T0_hp = 1.0 / (double)vinv->F_HIGH_PASS;
+    if (method == 2)
+        T0_hp = 1.0 / (double)vinv->F_LOW_PASS;
+
+    if (method == 1) {          /* lowpass filter */
+        for (itr = 1; itr <= ntr; itr++) {
+            for (j = 1; j <= gv->NS; j++) {
+                seismogram[j] = (double)data[itr][j];
+            }
+
+            seife_lpb(seismogram, gv->NS + 1, gv->DT, T0, vinv->ORDER); /* gv->NS+1 because vector[0] is also allocated and otherwise seife_lpb do not filter the last sample */
+            for (j = 1; j <= gv->NS; j++) {
+                seismogram_rev[gv->NS - j + 1] = (float)seismogram[j];
+            }
+
+            seife_lpb(seismogram_rev, gv->NS + 1, gv->DT, T0, vinv->ORDER);
+
+            for (j = 1; j <= gv->NS; j++) {
+                data[itr][j] = (float)seismogram_rev[gv->NS - j + 1];
+            }
+
+            //OLD filter application
+            /*seife_lpb(seismogram,gv->NS+1,gv->DT,T0,vinv->ORDER);
+             * for (j=1;j<=gv->NS;j++){
+             * data[itr][j]=(float)seismogram[j];
+             * } */
+        }
+    }
+    /* end of itr<=ntr loop */
+    if ((method == 2) || (vinv->F_HIGH_PASS)) { /*highpass filter */
+        for (itr = 1; itr <= ntr; itr++) {
+            for (j = 1; j <= gv->NS; j++) {
+                seismogram_hp[j] = (double)data[itr][j];
+            }
+
+            seife_hpb(seismogram_hp, gv->NS + 1, gv->DT, T0_hp, vinv->ORDER);
+            for (j = 1; j <= gv->NS; j++) {
+                seismogram_hp_rev[gv->NS - j + 1] = (float)seismogram_hp[j];
+            }
+
+            seife_hpb(seismogram_hp_rev, gv->NS + 1, gv->DT, T0_hp, vinv->ORDER);
+
+            for (j = 1; j <= gv->NS; j++) {
+                data[itr][j] = (float)seismogram_hp_rev[gv->NS - j + 1];
+            }
+
+            //OLD filter application
+            /*seife_hpb(seismogram_hp,gv->NS+1,gv->DT,T0_hp,vinv->ORDER);
+             * for (j=1;j<=gv->NS;j++){
+             * data[itr][j]=(float)seismogram_hp[j];
+             * } */
+        }
+    }
+    /* end of itr<=ntr loop */
+    free_dvector(seismogram, 1, gv->NS);
+    free_dvector(seismogram_rev, 1, gv->NS);
+    free_dvector(seismogram_hp, 1, gv->NS);
+    free_dvector(seismogram_hp_rev, 1, gv->NS);
 }

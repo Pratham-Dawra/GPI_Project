@@ -233,6 +233,9 @@ void write_par_fwi(GlobVar *gv, GlobVarInv *vinv)
         if ((vinv->ORDER % 2) != 0) {
             log_fatal("Order of time domain filter must be an even number!\n");
         }
+        if (vinv->WRITE_FILTERED_DATA) {
+            log_info("Filtered data are written to disk (WRITE_FILTERED_DATA=%d).\n", vinv->WRITE_FILTERED_DATA);
+        }
     } else {
         log_info("No time domain filtering is applied (TIME_FILT=%d).\n", vinv->TIME_FILT);
     }
@@ -326,7 +329,9 @@ void write_par_fwi(GlobVar *gv, GlobVarInv *vinv)
       default:
           log_info("Every %dth time sample is used for the calculation of the gradients (DTINV).\n", vinv->DTINV);
     }
-
+    if (vinv->WRITE_DIFF) {
+        log_info("Differences are written to disk (WRITE_DIFF=%d).\n", vinv->WRITE_DIFF);
+    }
     log_info("------------------ Step length estimation -------------------\n");
     log_info("EPS_SCALE = %f\n", vinv->EPS_SCALE);
     log_info("STEPMAX = %d\n", vinv->STEPMAX);

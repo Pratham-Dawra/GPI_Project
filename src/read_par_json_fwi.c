@@ -41,6 +41,10 @@ int read_par_json_fwi(int number_readobjects, char **varname_list, char **value_
     log_warn("The following default values are set:\n");
     log_warn("=====================================\n");
 
+    if (gv->NDT != 1) {
+        gv->NDT = 1;
+        log_warn("Variable NDT is set to default value %d for MODE==FWI.\n", gv->NDT);
+    }
     /* Definition of inversion for source time function */
     if (get_int_from_objectlist("INV_STF", number_readobjects, &(vinv->INV_STF), varname_list, value_list, used_list)) {
         vinv->INV_STF = 0;
@@ -499,6 +503,7 @@ int read_par_json_fwi(int number_readobjects, char **varname_list, char **value_
             ("WRITE_FILTERED_DATA", number_readobjects, &(vinv->WRITE_FILTERED_DATA), varname_list, value_list,
              used_list)) {
             vinv->WRITE_FILTERED_DATA = 0;
+            log_warn("Variable WRITE_FILTERED_DATA is set to default value %d.\n", vinv->WRITE_FILTERED_DATA);
         }
         if (get_float_from_objectlist
             ("F_HIGH_PASS", number_readobjects, &(vinv->F_HIGH_PASS), varname_list, value_list, used_list)) {
@@ -507,7 +512,8 @@ int read_par_json_fwi(int number_readobjects, char **varname_list, char **value_
         }
         if (vinv->TIME_FILT == 1) {
             if (get_float_from_objectlist
-                ("F_LOW_PASS_START", number_readobjects, &(vinv->F_LOW_PASS_START), varname_list, value_list,used_list)) {
+                ("F_LOW_PASS_START", number_readobjects, &(vinv->F_LOW_PASS_START), varname_list, value_list,
+                 used_list)) {
                 log_fatal("Variable F_LOW_PASS_START could not be retrieved from the json input file!");
             }
             if (get_float_from_objectlist
@@ -548,13 +554,19 @@ int read_par_json_fwi(int number_readobjects, char **varname_list, char **value_
     if (get_int_from_objectlist("DTINV", number_readobjects, &(vinv->DTINV), varname_list, value_list, used_list)) {
         log_fatal("Variable DTINV could not be retrieved from the json input file!");
     } else {
-        if (vinv->DTINV <= 0) log_fatal("Variable DTINV must be a positive integer!");
+        if (vinv->DTINV <= 0)
+            log_fatal("Variable DTINV must be a positive integer!");
         vinv->NTDTINV = ceil((float)gv->NT / (float)vinv->DTINV);
     }
     if (vinv->LNORM == 8) {
         if (get_float_from_objectlist
             ("WATERLEVEL_LNORM8", number_readobjects, &(vinv->WATERLEVEL_LNORM8), varname_list, value_list, used_list))
             log_fatal("Variable WATERLEVEL_LNORM8 could not be retrieved from the json input file!");
+    }
+    if (get_int_from_objectlist
+        ("WRITE_DIFF", number_readobjects, &(vinv->WRITE_DIFF), varname_list, value_list, used_list)) {
+        vinv->WRITE_DIFF = 0;
+        log_warn("Variable WRITE_DIFF is set to default value %d.\n", vinv->WRITE_DIFF);
     }
 
     /* Step length estimation */

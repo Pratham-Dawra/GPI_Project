@@ -42,7 +42,7 @@ void exchange_par(GlobVar *gv, GlobVarInv *vinv)
         fdum[9] = gv->F_REF;
         fdum[10] = gv->TSNAP1;
         fdum[11] = gv->TSNAP2;
-        fdum[12] = gv->TSNAPINC;     
+        fdum[12] = gv->TSNAPINC;
         fdum[13] = gv->REFREC[1];
         fdum[14] = gv->REFREC[2];
         fdum[15] = gv->PLANE_WAVE_ANGLE;
@@ -124,7 +124,7 @@ void exchange_par(GlobVar *gv, GlobVarInv *vinv)
         idum[13] = gv->SNAP;
         idum[14] = gv->SNAPSHOT_START;
         idum[15] = gv->SNAPSHOT_END;
-        idum[16] = gv->SNAPSHOT_INCR;   
+        idum[16] = gv->SNAPSHOT_INCR;
         idum[17] = gv->DRX;
         idum[18] = gv->BOUNDARY;
         idum[19] = gv->REC_ARRAY;
@@ -208,7 +208,7 @@ void exchange_par(GlobVar *gv, GlobVarInv *vinv)
         idum[98] = vinv->SWS_TAPER_FILE_PER_SHOT;
         idum[99] = vinv->S;
         idum[100] = vinv->GRAD_FILT_WAVELENGTH;
-        //
+        idum[101] = vinv->WRITE_DIFF;
         //
         //  idum[103] = vinv->WAVETYPE;
         //  idum[104] = vinv->SOURCE_SHAPE_SH;
@@ -360,7 +360,7 @@ void exchange_par(GlobVar *gv, GlobVarInv *vinv)
     gv->SNAP = idum[13];
     gv->SNAPSHOT_START = idum[14];
     gv->SNAPSHOT_END = idum[15];
-    gv->SNAPSHOT_INCR = idum[16];  
+    gv->SNAPSHOT_INCR = idum[16];
     gv->DRX = idum[17];
     gv->BOUNDARY = idum[18];
     gv->REC_ARRAY = idum[19];
@@ -444,11 +444,11 @@ void exchange_par(GlobVar *gv, GlobVarInv *vinv)
     vinv->SWS_TAPER_FILE_PER_SHOT = idum[98];
     vinv->S = idum[99];
     vinv->GRAD_FILT_WAVELENGTH = idum[100];
+    vinv->WRITE_DIFF = idum[101];
     //
-    //
-//    vinv->WAVETYPE = idum[103];
-//    vinv->SOURCE_SHAPE_SH = idum[104];
-//    vinv->JOINT_INVERSION_PSV_SH_TYPE = idum[105];
+    //    vinv->WAVETYPE = idum[103];
+    //    vinv->SOURCE_SHAPE_SH = idum[104];
+    //    vinv->JOINT_INVERSION_PSV_SH_TYPE = idum[105];
     //
     //
     //

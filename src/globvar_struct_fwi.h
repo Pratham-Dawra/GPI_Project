@@ -68,7 +68,7 @@ typedef struct {
     int EPRECOND_PER_SHOT;      // switch to calculate approximated Hessian for each shot
 //    int EPRECOND_PER_SHOT_SH;                     !!! NO SH !!!
     int EPRECOND_ITER;
-    int EPRECOND_MAX;            // maximum EPRECOND in workflow.
+    int EPRECOND_MAX;           // maximum EPRECOND in workflow.
 
     /* PCG and L-BFGS */
     int GRAD_METHOD;            // choose method gradient calculation (PCG or L-BFGS)
@@ -80,16 +80,15 @@ typedef struct {
     /* Variables for L-BFGS */
     int N_LBFGS;                // 
     int LBFGS_STEP_LENGTH;      // switch to use second step length search
-    float LBFGS_SCALE_GRADIENTS;// NOT EXPLAINED IN MANUAL !!!
+    float LBFGS_SCALE_GRADIENTS;    // NOT EXPLAINED IN MANUAL !!!
     int LBFGS_ITER_START;       //
     float ALPHA_SL_OLD;         // switch
-    int FWI_RUN;            // switch
-    int GRADIENT_OPTIMIZATION;//switch
-    int STEPLENGTH_SEARCH;  // switch
+    int FWI_RUN;                // switch
+    int GRADIENT_OPTIMIZATION;  //switch
+    int STEPLENGTH_SEARCH;      // switch
     /* Variables for step length calculation */
-    int STEP3;              //
+    int STEP3;                  //
     int COUNTSTEP;              //
-    
 
     /* for Wolfe condition */
     /*int steplength_search = 0;
@@ -130,6 +129,7 @@ typedef struct {
     float L2_ALL_SHOTS;         //
     float ENERGY;               //
     float ENERGY_ALL_SHOTS;     //
+    int WRITE_DIFF;             // write difference between measured and synthetic seismogramms to disk
 
     /* Abort criterion */
     float PRO;                  // abort criterium per FWI stage [%]
@@ -149,7 +149,7 @@ typedef struct {
     float TRKILL_STF_OFFSET_UPPER;  // upper offset limit for trace killing [m]
     int STF_FULL;               //         !!! NOT IN MANUAL - needed ???
     int KILLED_TRACES;          //
-    int KILLED_TRACES_TESTSHOTS;//
+    int KILLED_TRACES_TESTSHOTS;    //
 
     /* Gradient smoothing */
     int GRAD_FILTER;            // switch to apply gradient smoothing
@@ -170,7 +170,7 @@ typedef struct {
     float SRTRADIUS;            // radius of taper [m]
     int FILTSIZE;               // size where taper is zero around source [grid cells]
     int SWS_TAPER_FILE;         // switch to use externally defined taper from file
-    int SWS_TAPER_FILE_PER_SHOT;// switch to use externally defined taper for each shot from file
+    int SWS_TAPER_FILE_PER_SHOT;    // switch to use externally defined taper for each shot from file
     char TAPER_FILE_NAME[STRING_SIZE];  // externally defined taper file
     int SWS_TESTSHOT;           //
 
@@ -191,7 +191,7 @@ typedef struct {
     float F_LOW_PASS_START;     // lower limit of butterworth low pass filter [Hz]
     float F_LOW_PASS_END;       // upper limit of butterworth low pass filter [Hz]
     float F_LOW_PASS_INCR;      // bandwidth increase per inversion step [Hz]
-    int ORDER;                  // order of butterworth low pass filter
+    int ORDER;                  // half order of butterworth low pass filter
     float F_HIGH_PASS;          // upper limit of an additional butterworth high pass filter [Hz]
     int WRITE_FILTERED_DATA;    // write the time filtered measured data to disk
 

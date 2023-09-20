@@ -213,8 +213,8 @@ void calc_res(float **sectiondata, float **section, float **sectiondiff, float *
         }
         /* calculate residual seismograms and norm */
 
-        if ((vinv->TRKILL == 1) && (kill_vector[i] == 1))
-            continue;
+        /*if ((vinv->TRKILL == 1) && (kill_vector[i] == 1))
+         * continue; */
 
         /*reverse time direction */
         invtime = gv->NS;
@@ -223,9 +223,12 @@ void calc_res(float **sectiondata, float **section, float **sectiondiff, float *
             /*printf("%d \t %d \t %e \t %e \n",i,j,sectionpdata[i][j],sectionp[i][j]); */
             /* calculate L1 residuals */
             if (vinv->LNORM == 1) {
-                if (((sectiondata[i][j] - section[i][j]) / RMS) > 0) signL1 = 1.0;
-                if (((sectiondata[i][j] - section[i][j]) / RMS) < 0) signL1 = -1.0;
-                if (((sectiondata[i][j] - section[i][j]) / RMS) == 0) signL1 = 0.0;
+                if (((sectiondata[i][j] - section[i][j]) / RMS) > 0)
+                    signL1 = 1.0;
+                if (((sectiondata[i][j] - section[i][j]) / RMS) < 0)
+                    signL1 = -1.0;
+                if (((sectiondata[i][j] - section[i][j]) / RMS) == 0)
+                    signL1 = 0.0;
 
                 sectiondiff[i][invtime] = signL1 / RMS;
             }
@@ -238,7 +241,11 @@ void calc_res(float **sectiondata, float **section, float **sectiondiff, float *
             /* calculate Cauchy residuals *//* NOT UP TO DATE */
             if (vinv->LNORM == 3) {
                 sectiondiff[i][invtime] =
-                    ((sectiondata[i][j] - section[i][j]) / RMS) / (1 + (((sectiondata[i][j] - section[i][j]) / RMS) * ((sectiondata[i][j] - section[i][j]) / RMS))) / RMS;
+                    ((sectiondata[i][j] - section[i][j]) / RMS) / (1 +
+                                                                   (((sectiondata[i][j] -
+                                                                      section[i][j]) / RMS) * ((sectiondata[i][j] -
+                                                                                                section[i][j]) /
+                                                                                               RMS))) / RMS;
             }
 
             /* calculate sech residuals *//* NOT UP TO DATE */

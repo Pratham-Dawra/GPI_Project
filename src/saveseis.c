@@ -44,24 +44,24 @@ void saveseis(int ishot, AcqVar *acq, MemInv *minv, GlobVar *gv, GlobVarInv *vin
                               minv->sectionvxcalc[i][j] = gv->SECTIONVX[i][j];
                           }
                       }
-                      if (vinv->LNORM == 8) { /* Why only for SEISMO==1 ??? */
+                      if (vinv->LNORM == 8) {   /* Why only for SEISMO==1 ??? */
                           calc_envelope(gv->SEISMO_FULLDATA, gv->SEISMO_FULLDATA, gv->NTRG, gv->NS);
                       }
                   }
                   saveseis_glob(gv->SEISMO_FULLDATA, acq->recpos, acq->srcpos, ishot, gv->NS, 1, gv);
               }
 
+              if (gv->MODE == FWI) {
+                  for (int i = 1; i <= gv->NTR; i++) {
+                      for (int j = 1; j <= gv->NS; j++) {
+                          minv->sectionvycalc[i][j] = gv->SECTIONVY[i][j];
+                      }
+                  }
+              }
               catseis(gv->SECTIONVY, gv->SEISMO_FULLDATA, acq->recswitch, gv->NTRG, gv->NS);
               if (gv->MPID == 0) {
-                  if (gv->MODE == FWI) {
-                      for (int i = 1; i <= gv->NTR; i++) {
-                          for (int j = 1; j <= gv->NS; j++) {
-                              minv->sectionvycalc[i][j] = gv->SECTIONVY[i][j];
-                          }
-                      }
-                      if (vinv->LNORM == 8) { /* Why only for SEISMO==1 ??? */
-                          calc_envelope(gv->SEISMO_FULLDATA, gv->SEISMO_FULLDATA, gv->NTRG, gv->NS);
-                      }
+                  if (gv->MODE == FWI && vinv->LNORM == 8) {    /* Why only for SEISMO==1 ??? */
+                      calc_envelope(gv->SEISMO_FULLDATA, gv->SEISMO_FULLDATA, gv->NTRG, gv->NS);
                   }
                   saveseis_glob(gv->SEISMO_FULLDATA, acq->recpos, acq->srcpos, ishot, gv->NS, 2, gv);
               }
@@ -99,23 +99,23 @@ void saveseis(int ishot, AcqVar *acq, MemInv *minv, GlobVar *gv, GlobVarInv *vin
                               minv->sectionvxcalc[i][j] = gv->SECTIONVX[i][j];
                           }
                       }
-                      if (vinv->LNORM == 8) { /* Why only for SEISMO==1 ??? */
+                      if (vinv->LNORM == 8) {   /* Why only for SEISMO==1 ??? */
                           calc_envelope(gv->SEISMO_FULLDATA, gv->SEISMO_FULLDATA, gv->NTRG, gv->NS);
                       }
                   }
                   saveseis_glob(gv->SEISMO_FULLDATA, acq->recpos, acq->srcpos, ishot, gv->NS, 1, gv);
               }
+              if (gv->MODE == FWI) {
+                  for (int i = 1; i <= gv->NTR; i++) {
+                      for (int j = 1; j <= gv->NS; j++) {
+                          minv->sectionvycalc[i][j] = gv->SECTIONVY[i][j];
+                      }
+                  }
+              }
               catseis(gv->SECTIONVY, gv->SEISMO_FULLDATA, acq->recswitch, gv->NTRG, gv->NS);
               if (gv->MPID == 0) {
-                  if (gv->MODE == FWI) {
-                      for (int i = 1; i <= gv->NTR; i++) {
-                          for (int j = 1; j <= gv->NS; j++) {
-                              minv->sectionvycalc[i][j] = gv->SECTIONVY[i][j];
-                          }
-                      }
-                      if (vinv->LNORM == 8) { /* Why only for SEISMO==1 ??? */
-                          calc_envelope(gv->SEISMO_FULLDATA, gv->SEISMO_FULLDATA, gv->NTRG, gv->NS);
-                      }
+                  if (gv->MODE == FWI && vinv->LNORM == 8) {    /* Why only for SEISMO==1 ??? */
+                      calc_envelope(gv->SEISMO_FULLDATA, gv->SEISMO_FULLDATA, gv->NTRG, gv->NS);
                   }
                   saveseis_glob(gv->SEISMO_FULLDATA, acq->recpos, acq->srcpos, ishot, gv->NS, 2, gv);
               }

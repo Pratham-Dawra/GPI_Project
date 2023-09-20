@@ -56,13 +56,13 @@ const char *get_weq_verbose(WEQTYPE wt)
     return weq_verbose[wt];
 }
 
-static void parse_weqtype(const char *weqt, GlobVar * gv)
+static void parse_weqtype(const char *weqt, GlobVar *gv)
 {
     bool b_found = false;
 
     for (int i = 0; i < NWEQ; ++i) {
         if (!strncasecmp(weqt, weq_descr[i], STRING_SIZE - 1)) {
-            gv->WEQ = (WEQTYPE) i;
+            gv->WEQ = (WEQTYPE)i;
             b_found = true;
             break;
         }
@@ -86,7 +86,7 @@ const char *get_mode_verbose(RUNMODE md)
     return mode_verbose[md];
 }
 
-static void parse_runmode(const char *mode, GlobVar * gv)
+static void parse_runmode(const char *mode, GlobVar *gv)
 {
     bool b_found = false;
 
@@ -109,7 +109,7 @@ static void parse_runmode(const char *mode, GlobVar * gv)
     }
 }
 
-void read_par_json(const char *fileinp, GlobVar * gv, GlobVarInv *vinv)
+void read_par_json(const char *fileinp, GlobVar *gv, GlobVarInv *vinv)
 {
     /* definition of local variables */
     int number_readobjects = 0, fserr = 0, i;
@@ -318,13 +318,13 @@ void read_par_json(const char *fileinp, GlobVar * gv, GlobVarInv *vinv)
                 ("SNAP_FILE", number_readobjects, (gv->SNAP_FILE), varname_list, value_list, used_list))
                 log_fatal("Variable SNAP_FILE could not be retrieved from the json input file!");
             if (get_int_from_objectlist
-                ("SNAPSHOT_START",number_readobjects,&(gv->SNAPSHOT_START),varname_list, value_list, used_list))
+                ("SNAPSHOT_START", number_readobjects, &(gv->SNAPSHOT_START), varname_list, value_list, used_list))
                 gv->SNAPSHOT_START = 1;
             if (get_int_from_objectlist
-                ("SNAPSHOT_END",number_readobjects,&(gv->SNAPSHOT_END),varname_list, value_list, used_list))
+                ("SNAPSHOT_END", number_readobjects, &(gv->SNAPSHOT_END), varname_list, value_list, used_list))
                 gv->SNAPSHOT_END = -9999;
             if (get_int_from_objectlist
-                ("SNAPSHOT_INCR",number_readobjects,&(gv->SNAPSHOT_INCR),varname_list, value_list, used_list))
+                ("SNAPSHOT_INCR", number_readobjects, &(gv->SNAPSHOT_INCR), varname_list, value_list, used_list))
                 gv->SNAPSHOT_INCR = 1;
         }
     }
@@ -437,9 +437,6 @@ void read_par_json(const char *fileinp, GlobVar * gv, GlobVarInv *vinv)
         (gv->L) = 0;
     }
 
-    gv->NT = iround(gv->TIME / gv->DT);     /* number of time steps */
-    gv->NS = iround(gv->NT / gv->NDT);      /* number of samples per trace */
-
     /* do NOT remove the FALLTHRU comments below, they are used to tell the compiler
      * that this is an intentional fall through */
     if ((gv->L) > 0) {
@@ -482,6 +479,8 @@ void read_par_json(const char *fileinp, GlobVar * gv, GlobVarInv *vinv)
         (gv->FL) = NULL;
     }
 
+    gv->NT = iround(gv->TIME / gv->DT); /* number of time steps */
+
     if ((gv->MODE) == FWI) {
         if (gv->IDX != 1 || gv->IDY != 1) {
             gv->IDX = 1;
@@ -490,9 +489,12 @@ void read_par_json(const char *fileinp, GlobVar * gv, GlobVarInv *vinv)
         }
         fserr = read_par_json_fwi(number_readobjects, varname_list, value_list, used_list, fserr, gv, vinv);
     }
-    
+
+    gv->NS = iround(gv->NT / gv->NDT);  /* number of samples per trace */
+
     /********************************************/
     /* Check files and directories if necessary */
+
     /********************************************/
 
     /* signal file */
@@ -530,9 +532,10 @@ void read_par_json(const char *fileinp, GlobVar * gv, GlobVarInv *vinv)
 
     /********************************************/
     /* ERROR                                    */
+
     /********************************************/
     if (fserr > 0) {
-        log_fatal("%d error(s) encountered while processing json parameter file.\n",fserr);
+        log_fatal("%d error(s) encountered while processing json parameter file.\n", fserr);
     }
 
     for (i = 0; i < number_readobjects; ++i) {
