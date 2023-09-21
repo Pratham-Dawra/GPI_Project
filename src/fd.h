@@ -267,6 +267,8 @@ void save_checkpoint(int nx1, int nx2, int ny1, int ny2,
 
 void saveseis(int ishot, AcqVar *acq, MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
 
+void saveseis_fwi(int ishot, AcqVar *acq, MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
+
 void saveseis_glob(float **sectiondata, int **recpos, float **srcpos, int ishot, int ns, int sectiondatatype,
                    GlobVar *gv);
 

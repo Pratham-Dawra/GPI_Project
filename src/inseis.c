@@ -28,17 +28,20 @@
 void inseis(int ishot, int sws, float **section, GlobVar *gv, GlobVarInv *vinv)
 {
     /* declaration of extern variables */
-    char data[STRING_SIZE*2];
+    char data[STRING_SIZE * 2];
     FILE *fpdata;
     int i;
 
     if (sws == 1) {             /* open seismic data vx */
         sprintf(data, "%s_vx.su.shot%d", vinv->DATA_DIR, ishot);
-        log_info("Read: %s\n",data);
+        if (gv->MPID == 0)
+            log_info("Read: %s\n", data);
     }
 
     if (sws == 2) {             /* open seismic data vy */
         sprintf(data, "%s_vy.su.shot%d", vinv->DATA_DIR, ishot);
+        if (gv->MPID == 0)
+            log_info("Read: %s\n", data);
     }
 
     /* sws 3 -- 8 not used */
@@ -53,6 +56,8 @@ void inseis(int ishot, int sws, float **section, GlobVar *gv, GlobVarInv *vinv)
 
     if (sws == 9) {             /* open seismic data p */
         sprintf(data, "%s_p.su.shot%d", vinv->DATA_DIR, ishot);
+        if (gv->MPID == 0)
+            log_info("Read: %s\n", data);
     }
     //if(sws==10){  /* open seismic data vz */
     //    sprintf(data,"%s_vz.su.shot%d",vinv->DATA_DIR,ishot);

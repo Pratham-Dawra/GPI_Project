@@ -247,6 +247,7 @@ FDMOD_FILES := sofi2D.c \
                readmod_visco_tti.c \
                receiver.c \
                saveseis.c \
+               saveseis_fwi.c \
                saveseis_glob.c \
                seismo_ssg.c \
                snap_ssg.c \

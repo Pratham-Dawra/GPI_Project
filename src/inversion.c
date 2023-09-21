@@ -28,11 +28,9 @@ void inversion(int iter, int ishot, AcqVar *acq, MemInv *minv, GlobVar *gv, Glob
 {
     int h, i, j;
     int itestshot, swstestshot;
-    float **sectionread = NULL, **fulldata = NULL;
+    float **sectionread = NULL;
 
     sectionread = matrix(1, gv->NTRG, 1, gv->NS);
-    if (vinv->WRITE_DIFF || vinv->WRITE_FILTERED_DATA)
-        fulldata = matrix(1, gv->NTRG, 1, gv->NS);
 
     /*-----------------------------------*/
 
@@ -189,70 +187,12 @@ void inversion(int iter, int ishot, AcqVar *acq, MemInv *minv, GlobVar *gv, Glob
         itestshot += vinv->TESTSHOT_INCR;
     }
 
-
     /* ------------------------------------------- */
     /* write filtered data and differences to file */
     /* ------------------------------------------- */
+    if (vinv->WRITE_DIFF || (vinv->TIME_FILT && vinv->WRITE_FILTERED_DATA))
+        saveseis_fwi(ishot, acq, minv, gv, vinv);
 
-    /* Write differences between measured and synthetic seismogramms (adjoint sources) to disk */
-    if (vinv->WRITE_DIFF) {
-        if ((vinv->ADJOINT_TYPE == 1) || (vinv->ADJOINT_TYPE == 3)) {
-            catseis(minv->sectionvxdiff, fulldata, acq->recswitch, gv->NTRG, gv->NS);
-            if (gv->MPID == 0)
-                saveseis_glob(fulldata, acq->recpos, acq->srcpos, ishot, gv->NS, 11, gv);
-        }
-        if ((vinv->ADJOINT_TYPE == 1) || (vinv->ADJOINT_TYPE == 2)) {
-            catseis(minv->sectionvydiff, fulldata, acq->recswitch, gv->NTRG, gv->NS);
-            if (gv->MPID == 0)
-                saveseis_glob(fulldata, acq->recpos, acq->srcpos, ishot, gv->NS, 12, gv);
-        }
-        if (vinv->ADJOINT_TYPE == 4) {
-            catseis(minv->sectionpdiff, fulldata, acq->recswitch, gv->NTRG, gv->NS);
-            if (gv->MPID == 0)
-                saveseis_glob(fulldata, acq->recpos, acq->srcpos, ishot, gv->NS, 14, gv);
-        }
-    }
-    /* Write measured filtered seismogramms to disk */
-    if (vinv->TIME_FILT && vinv->WRITE_FILTERED_DATA) {
-        if ((vinv->ADJOINT_TYPE == 1) || (vinv->ADJOINT_TYPE == 3)) {
-            catseis(minv->sectionvxdata, fulldata, acq->recswitch, gv->NTRG, gv->NS);
-            if (gv->MPID == 0)
-                saveseis_glob(fulldata, acq->recpos, acq->srcpos, ishot, gv->NS, 21, gv);
-        }
-        if ((vinv->ADJOINT_TYPE == 1) || (vinv->ADJOINT_TYPE == 2)) {
-            catseis(minv->sectionvydata, fulldata, acq->recswitch, gv->NTRG, gv->NS);
-            if (gv->MPID == 0)
-                saveseis_glob(fulldata, acq->recpos, acq->srcpos, ishot, gv->NS, 22, gv);
-        }
-        if (vinv->ADJOINT_TYPE == 4) {
-            catseis(minv->sectionpdata, fulldata, acq->recswitch, gv->NTRG, gv->NS);
-            if (gv->MPID == 0)
-                saveseis_glob(fulldata, acq->recpos, acq->srcpos, ishot, gv->NS, 24, gv);
-        }
-    }
-    /* Write synthetic filtered seismogramms to disk */
-    if (vinv->TIME_FILT && vinv->WRITE_FILTERED_DATA == 2) {
-        if ((vinv->ADJOINT_TYPE == 1) || (vinv->ADJOINT_TYPE == 3)) {
-            catseis(minv->sectionvxcalc, fulldata, acq->recswitch, gv->NTRG, gv->NS);
-            if (gv->MPID == 0)
-                saveseis_glob(fulldata, acq->recpos, acq->srcpos, ishot, gv->NS, 31, gv);
-        }
-        if ((vinv->ADJOINT_TYPE == 1) || (vinv->ADJOINT_TYPE == 2)) {
-            catseis(minv->sectionvycalc, fulldata, acq->recswitch, gv->NTRG, gv->NS);
-            if (gv->MPID == 0)
-                saveseis_glob(fulldata, acq->recpos, acq->srcpos, ishot, gv->NS, 32, gv);
-        }
-        if (vinv->ADJOINT_TYPE == 4) {
-            catseis(minv->sectionpcalc, fulldata, acq->recswitch, gv->NTRG, gv->NS);
-            if (gv->MPID == 0)
-                saveseis_glob(fulldata, acq->recpos, acq->srcpos, ishot, gv->NS, 34, gv);
-        }
-    }
-    
-    /* ------------------------------------------- */
-    
     free_matrix(sectionread, 1, gv->NTRG, 1, gv->NS);
-    if (vinv->WRITE_DIFF || vinv->WRITE_FILTERED_DATA)
-        free_matrix(fulldata, 1, gv->NTRG, 1, gv->NS);
 
 }
