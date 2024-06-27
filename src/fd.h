@@ -62,6 +62,8 @@ void av_rho(float **rho, float **rip, float **rjp, GlobVar *gv);
 
 void av_tau(float **taus, float **tausipjp, GlobVar *gv);
 
+void calc_conv(int hin, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
+
 void calc_envelope(float **datatrace, float **envelope, int ntr, int ns);
 
 void calc_res(float **sectiondata, float **section, float **sectiondiff, float **sectiondiffold,
@@ -81,7 +83,7 @@ void cpml_update_v_x(int i, int j, float *sxx_x, float *sxy_x, MemModel *mpm, Me
 
 void cpml_update_v_y(int i, int j, float *sxy_y, float *syy_y, MemModel *mpm, MemWavefield *mpw);
 
-void eprecond(MemWavefield *mpw, MemInv *minv, GlobVar *gv);
+void eprecond(MemWavefield *mpw, float **W, GlobVar *gv);
 
 void eqsource(int nt, AcqVar *acq, MemWavefield *mpw, GlobVar *gv);
 
@@ -127,7 +129,8 @@ int initsrc(int ishot, int nshots, AcqVar *acq, GlobVar *gv);
 
 void inseis(int ishot, int sws, float **section, GlobVar *gv, GlobVarInv *vinv);
 
-void inversion(int iter, int ishot, AcqVar *acq, MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
+void inversion(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm, MemWavefield *mpw,
+               MemInv *minv, GlobVar *gv, GlobVarInv *vinv, Perform *perf);
 
 void lbfgs_reset(int iter, MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
 
@@ -223,7 +226,7 @@ void prepare_update_s_tti(MemModel *mpm, GlobVar *gv);
 
 void prepmod(MemModel *mpm, GlobVar *gv);
 
-void psource(int nt, AcqVar *acq, MemWavefield *mpw, GlobVar *gv);
+void psource(int nt, float **srcpos, float **signal, int nsrc, MemWavefield *mpw, GlobVar *gv);
 
 void psource_rsg(int nt, float **sxx, float **syy, float **srcpos_loc, float **signals, int nsrc, GlobVar *gv);
 
@@ -300,7 +303,8 @@ void surface_elastic(int ndepth, float *hc, MemModel *mpm, MemWavefield *mpw, Gl
 
 void timedomain_filt(float **data, int method, int ntr, GlobVar *gv, GlobVarInv *vinv);
 
-void time_loop(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm, MemWavefield *mpw,
+void time_loop(int iter, int ishot, int snapcheck, float *hc, float **srcpos_loc, float **signalx,
+               float **signaly, int nsrc, int sw, AcqVar *acq, MemModel *mpm, MemWavefield *mpw,
                MemInv *minv, GlobVar *gv, GlobVarInv *vinv, Perform *perf);
 
 /* void update_s_elastic(int nx1, int nx2, int ny1, int ny2, int nt,

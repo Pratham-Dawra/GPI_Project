@@ -24,10 +24,11 @@
 #include "fd.h"
 #include "logging.h"
 
-void time_loop(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm,
-               MemWavefield *mpw, MemInv *minv, GlobVar *gv, GlobVarInv *vinv, Perform *perf)
+void time_loop(int iter, int ishot, int snapcheck, float *hc, float **srcpos_loc, float **signalx,
+               float **signaly, int nsrc, int sw, AcqVar *acq, MemModel *mpm, MemWavefield *mpw,
+               MemInv *minv, GlobVar *gv, GlobVarInv *vinv, Perform *perf)
 {
-    int nt, lsnap, isnap, esnap, sw = 0;
+    int nt, lsnap, isnap, esnap;
     double time3 = 0.0, time4 = 0.0, time5 = 0.0, time6 = 0.0, time7 = 0.0, time8 = 0.0;
     int lsamp = gv->NDT, hin = 1, hin1 = 1;
     //int  hi = 1, imat = 1, imat1 = 1, imat2 = 1;
@@ -54,8 +55,7 @@ void time_loop(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemMo
          * update of particle velocities --------------------------------
          *---------------------------------------------------------------*/
         if (gv->FDORDER_TIME == 2) {
-            update_v_interior(nt, acq->srcpos_loc, acq->signals, acq->signals, acq->nsrc_loc, sw, mpm, mpw, minv, gv,
-                              vinv);
+            update_v_interior(nt, srcpos_loc, signalx, signaly, nsrc, sw, mpm, mpw, minv, gv, vinv);
 #ifdef EBUG
             debug_check_matrix(mpw->pvx, nt, gv->NX, gv->NY, 121, 0, "pvx");
             debug_check_matrix(mpw->pvy, nt, gv->NX, gv->NY, 121, 0, "pvy");
@@ -76,7 +76,7 @@ void time_loop(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemMo
         }
 
         if (gv->FDORDER_TIME == 4) {
-            update_v_interior_4(nt, acq->srcpos_loc, acq->signals, acq->nsrc_loc, hc, mpm, mpw, gv);
+            update_v_interior_4(nt, srcpos_loc, signalx, nsrc, hc, mpm, mpw, gv);
             if (gv->FW) {
                 if (gv->ABS_TYPE == 1) {
                     update_v_PML_4(gv->NX, gv->NY, nt, mpm, mpw, gv);
@@ -249,11 +249,11 @@ void time_loop(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemMo
         }
 
         /* explosive source */
-        if (gv->SOURCE_TYPE == 1)
-            psource(nt, acq, mpw, gv);
+        if ((sw == 0 && gv->SOURCE_TYPE == 1) || (sw == 1 && vinv->ADJOINT_TYPE == 4))
+            psource(nt, srcpos_loc, signalx, nsrc, mpw, gv);
 
         /* earthquake source */
-        if ((gv->SOURCE_TYPE == 5))
+        if ((sw == 0 && gv->SOURCE_TYPE == 5))
             eqsource(nt, acq, mpw, gv);
 
         /* Applying free surface condition */
@@ -290,14 +290,20 @@ void time_loop(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemMo
 
         /* save snapshots from forward model for gradient calculation */
         if (gv->MODE == FWI) {
-            if(nt == hin1) {
+            if (sw == 0 && nt == hin1) {
                 snap_store(nt, hin, mpw, minv, gv, vinv);
-                hin++;
-                hin1 += vinv->DTINV;
             }
-            if ((vinv->EPRECOND == 1) || ((vinv->EPRECOND == 3) && (vinv->EPRECOND_ITER == iter || (vinv->EPRECOND_ITER == 0)))) {
-                eprecond(mpw, minv, gv);
+            /* calculate convolution */
+            if (sw == 1 && minv->DTINV_help[gv->NT - nt + 1] == 1) {
+                calc_conv(hin, mpm, mpw, minv, gv, vinv);
             }
+            if ((vinv->EPRECOND == 1) ||
+                ((vinv->EPRECOND == 3) && (vinv->EPRECOND_ITER == iter || (vinv->EPRECOND_ITER == 0)))) {
+                if (sw == 0) eprecond(mpw, minv->Ws, gv);
+                if (sw == 1) eprecond(mpw, minv->Wr, gv);
+            }
+            hin++;
+            hin1 += vinv->DTINV;
         }
 
         /* write snapshot to disk */

@@ -338,7 +338,8 @@ int main(int argc, char **argv)
 
                     /*------------------------------------------------------------------------------*/
                     /*---------- Start loop over timesteps (forward model) -------------------------*/
-                    time_loop(iter, ishot, snapcheck, hc, &acq, &mpm, &mpw, &minv, &gv, &vinv, &perf);
+                    time_loop(iter, ishot, snapcheck, hc, acq.srcpos_loc, acq.signals, acq.signals,
+                              acq.nsrc_loc, 0, &acq, &mpm, &mpw, &minv, &gv, &vinv, &perf);
 
                     /* gather and output seismograms if applicable */
                     saveseis(ishot, &acq, &minv, &gv, &vinv);
@@ -346,7 +347,7 @@ int main(int argc, char **argv)
                     /*------------------------------------------------------------------------------*/
                     /*---------- Inversion: Start inversion process --------------------------------*/
                     if (gv.MODE == FWI) {
-                        inversion(iter, ishot, &acq, &minv, &gv, &vinv);
+                        inversion(iter, ishot, snapcheck, hc, &acq, &mpm, &mpw, &minv, &gv, &vinv, &perf);
                     }
                 }
                 /*----------------  end of loop over multiple shots  -----------------*/

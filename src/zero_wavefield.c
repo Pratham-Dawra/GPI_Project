@@ -39,7 +39,10 @@ void zero_wavefield(int iter, MemWavefield *mpw, MemInv * minv, GlobVar *gv, Glo
     bzero(&(mpw->psxy[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
 
     if (gv->MODE == FWI) {
+        bzero(&(minv->ux[-gv->ND + 1][-gv->ND + 1]), nbyte_2); //added
+        bzero(&(minv->uy[-gv->ND + 1][-gv->ND + 1]), nbyte_2); //added
         bzero(&(minv->uxy[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+        bzero(&(minv->uyx[-gv->ND + 1][-gv->ND + 1]), nbyte_2); //added
         bzero(&(minv->pvxp1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
         bzero(&(minv->pvyp1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
         bzero(&(minv->pvxm1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);

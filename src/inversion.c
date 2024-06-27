@@ -24,11 +24,12 @@
 #include "fd.h"
 #include "logging.h"
 
-void inversion(int iter, int ishot, AcqVar *acq, MemInv *minv, GlobVar *gv, GlobVarInv *vinv)
+void inversion(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar *gv, GlobVarInv *vinv, Perform *perf)
 {
     int h, i, j;
     int itestshot, swstestshot;
     float **sectionread = NULL;
+    float **srcpos_loc_back = NULL;
 
     sectionread = matrix(1, gv->NTRG, 1, gv->NS);
 
@@ -45,10 +46,6 @@ void inversion(int iter, int ishot, AcqVar *acq, MemInv *minv, GlobVar *gv, Glob
     }
 
     itestshot = vinv->TESTSHOT_START;
-
-    log_info("MPID, NTR: %d %d\n", gv->MPID, gv->NTR);
-    if (gv->NTR > 0) {
-        log_info("MPID, NTR: %d %d\n", gv->MPID, gv->NTR);
 
         /* calculate L2-Norm and energy ? */
         if ((ishot == itestshot) && (ishot <= vinv->TESTSHOT_END)) {
@@ -192,6 +189,38 @@ void inversion(int iter, int ishot, AcqVar *acq, MemInv *minv, GlobVar *gv, Glob
     /* ------------------------------------------- */
     if (vinv->WRITE_DIFF || (vinv->TIME_FILT && vinv->WRITE_FILTERED_DATA))
         saveseis_fwi(ishot, acq, minv, gv, vinv);
+
+    /* ------------------------------------------- */
+    /*          starting backpropagation           */
+    /* ------------------------------------------- */
+    if (gv->MPID == 0) {
+        log_info("============================================================\n");
+        log_info("**********  Starting simulation (backward model)  **********\n");
+        log_info("============================================================\n");
+    }
+
+    /* determine source position out of reciever position on grid */
+
+    /* Distribute multiple source positions on subdomains */
+    /* define source positions at the receivers */
+    srcpos_loc_back = matrix(1, 6, 1, gv->NTR);
+    for (i = 1; i <= gv->NTR; i++) {
+        srcpos_loc_back[1][i] = (acq->recpos_loc[1][i]);
+        srcpos_loc_back[2][i] = (acq->recpos_loc[2][i]);
+    }
+    //ntr1 = gv->NTR;
+
+    /* initialize wavefield with zero   */
+    zero_wavefield(iter, mpw, minv, gv, vinv);
+
+    /*--------------------------------------------------------------------------------*/
+    /*---------------------- Start loop over timesteps (backpropagation) -------------*/
+    time_loop(iter, ishot, snapcheck, hc, srcpos_loc_back, minv->sectionvxdiff, minv->sectionvydiff,
+              gv->NTR, 1, acq, mpm, mpw, minv, gv, vinv, perf);
+
+
+
+
 
     free_matrix(sectionread, 1, gv->NTRG, 1, gv->NS);
 

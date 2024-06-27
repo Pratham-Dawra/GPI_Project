@@ -6,13 +6,13 @@
 
 #include "fd.h"
 
-void eprecond(MemWavefield *mpw, MemInv *minv, GlobVar *gv)
+void eprecond(MemWavefield *mpw, float **W, GlobVar *gv)
 {
     int i, j;
 
     for (j=1;j<=gv->NY;j++){
         for (i=1;i<=gv->NX;i++){
-            minv->Ws[j][i]+=((mpw->pvx[j][i] * mpw->pvx[j][i]) + (mpw->pvy[j][i] * mpw->pvy[j][i]));
+            W[j][i]+=((mpw->pvx[j][i] * mpw->pvx[j][i]) + (mpw->pvy[j][i] * mpw->pvy[j][i]));
         }
     }
 }

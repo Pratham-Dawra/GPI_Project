@@ -183,6 +183,7 @@ FDMOD_FILES := sofi2D.c \
                av_mue.c \
                av_rho.c \
                av_tau.c \
+               calc_conv.c \
                calc_envelope.c \
                calc_res.c \
                catseis.c \

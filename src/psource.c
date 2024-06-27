@@ -24,28 +24,28 @@
 
 #include "fd.h"
 
-void psource(int nt, AcqVar *acq, MemWavefield *mpw, GlobVar *gv)
+void psource(int nt, float **srcpos, float **signal, int nsrc, MemWavefield *mpw, GlobVar *gv)
 {
     float amp = 0.0f;
     int i, j;
 
     /* adding source wavelet to stress components (explosive source) at source points */
 
-    for (int l = 1; l <= acq->nsrc_loc; l++) {
-        i = (int)acq->srcpos_loc[1][l];
-        j = (int)acq->srcpos_loc[2][l];
+    for (int l = 1; l <= nsrc; l++) {
+        i = (int)srcpos[1][l];
+        j = (int)srcpos[2][l];
 
         //amp=acq->signals[l][nt]; //unscaled explosive source
-        amp = (acq->signals[l][nt]) / (gv->DH * gv->DH);    //scaled explosive source, seismic Moment = 1 Nm
+        amp = (signal[l][nt]) / (gv->DH * gv->DH);    //scaled explosive source, seismic Moment = 1 Nm
 
         if (nt == 1) {
-            amp = acq->signals[l][nt + 1] / (2.0 * gv->DH * gv->DH);
+            amp = signal[l][nt + 1] / (2.0 * gv->DH * gv->DH);
         }
         if ((nt > 1) && (nt < gv->NT)) {
-            amp = (acq->signals[l][nt + 1] - acq->signals[l][nt - 1]) / (2.0 * gv->DH * gv->DH);
+            amp = (signal[l][nt + 1] - signal[l][nt - 1]) / (2.0 * gv->DH * gv->DH);
         }
         if (nt == gv->NT) {
-            amp = -acq->signals[l][nt - 1] / (2.0 * gv->DH * gv->DH);
+            amp = -signal[l][nt - 1] / (2.0 * gv->DH * gv->DH);
         }
 
         mpw->psxx[j][i] += amp;
