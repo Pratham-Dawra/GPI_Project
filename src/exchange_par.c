@@ -19,7 +19,7 @@
 --------------------------------------------------------------------------*/
 
 /* ------------------------------------------------------------------------
- *   Exchange FD-Parameters between PEs                         
+ * Exchange FD-Parameters between PEs
  * ----------------------------------------------------------------------*/
 
 #include "fd.h"
@@ -118,37 +118,38 @@ void exchange_par(GlobVar *gv, GlobVarInv *vinv)
         idum[7] = gv->FW;
         idum[8] = gv->SOURCE_SHAPE;
         idum[9] = gv->SOURCE_TYPE;
-        idum[10] = gv->READMOD;
-        idum[11] = gv->L;
-        idum[12] = gv->FREE_SURF;
-        idum[13] = gv->SNAP;
-        idum[14] = gv->SNAPSHOT_START;
-        idum[15] = gv->SNAPSHOT_END;
-        idum[16] = gv->SNAPSHOT_INCR;
-        idum[17] = gv->DRX;
-        idum[18] = gv->BOUNDARY;
-        idum[19] = gv->REC_ARRAY;
-        idum[20] = gv->SRCREC;
-        idum[21] = gv->IDX;
-        idum[22] = gv->IDY;
-        idum[23] = gv->MODE;
-        idum[24] = gv->WEQ;
-        idum[25] = gv->SNAP_FORMAT;
-        idum[26] = gv->SEISMO;
-        idum[27] = gv->READREC;
-        idum[28] = gv->NDT;
-        idum[29] = gv->SEIS_FORMAT;
-        idum[30] = gv->NT;
-        idum[31] = gv->NS;
-        idum[32] = gv->FDORDER;
-        idum[33] = gv->MAXRELERROR;
-        idum[34] = gv->RUN_MULTIPLE_SHOTS;
-        idum[35] = gv->WRITE_MODELFILES;
-        idum[36] = gv->ABS_TYPE;
-        idum[37] = gv->FDORDER_TIME;
-        idum[38] = gv->SIGOUT;
-        idum[39] = gv->SIGOUT_FORMAT;
-        //
+        idum[10] = gv->SOURCE_TOPO;
+        idum[11] = gv->READMOD;
+        idum[12] = gv->L;
+        idum[13] = gv->FREE_SURF;
+        idum[14] = gv->SNAP;
+        idum[15] = gv->SNAPSHOT_START;
+        idum[16] = gv->SNAPSHOT_END;
+        idum[17] = gv->SNAPSHOT_INCR;
+        idum[18] = gv->DRX;
+        idum[19] = gv->BOUNDARY;
+        idum[20] = gv->REC_ARRAY;
+        idum[21] = gv->SRCREC;
+        idum[22] = gv->IDX;
+        idum[23] = gv->IDY;
+        idum[24] = gv->MODE;
+        idum[25] = gv->WEQ;
+        idum[26] = gv->SNAP_FORMAT;
+        idum[27] = gv->SEISMO;
+        idum[28] = gv->READREC;
+        idum[29] = gv->REC_TOPO;
+        idum[30] = gv->NDT;
+        idum[31] = gv->SEIS_FORMAT;
+        idum[32] = gv->NT;
+        idum[33] = gv->NS;
+        idum[34] = gv->FDORDER;
+        idum[35] = gv->MAXRELERROR;
+        idum[36] = gv->RUN_MULTIPLE_SHOTS;
+        idum[37] = gv->WRITE_MODELFILES;
+        idum[38] = gv->ABS_TYPE;
+        idum[39] = gv->FDORDER_TIME;
+        idum[40] = gv->SIGOUT;
+        idum[41] = gv->SIGOUT_FORMAT;
 
 /* ****** FWI ****** */
         idum[42] = vinv->TRKILL_STF;
@@ -354,36 +355,38 @@ void exchange_par(GlobVar *gv, GlobVarInv *vinv)
     gv->FW = idum[7];
     gv->SOURCE_SHAPE = idum[8];
     gv->SOURCE_TYPE = idum[9];
-    gv->READMOD = idum[10];
-    gv->L = idum[11];
-    gv->FREE_SURF = idum[12];
-    gv->SNAP = idum[13];
-    gv->SNAPSHOT_START = idum[14];
-    gv->SNAPSHOT_END = idum[15];
-    gv->SNAPSHOT_INCR = idum[16];
-    gv->DRX = idum[17];
-    gv->BOUNDARY = idum[18];
-    gv->REC_ARRAY = idum[19];
-    gv->SRCREC = idum[20];
-    gv->IDX = idum[21];
-    gv->IDY = idum[22];
-    gv->MODE = idum[23];
-    gv->WEQ = (WEQTYPE)idum[24];
-    gv->SNAP_FORMAT = idum[25];
-    gv->SEISMO = idum[26];
-    gv->READREC = idum[27];
-    gv->NDT = idum[28];
-    gv->SEIS_FORMAT = idum[29];
-    gv->NT = idum[30];
-    gv->NS = idum[31];
-    gv->FDORDER = idum[32];
-    gv->MAXRELERROR = idum[33];
-    gv->RUN_MULTIPLE_SHOTS = idum[34];
-    gv->WRITE_MODELFILES = idum[35];
-    gv->ABS_TYPE = idum[36];
-    gv->FDORDER_TIME = idum[37];
-    gv->SIGOUT = idum[38];
-    gv->SIGOUT_FORMAT = idum[39];
+    gv->SOURCE_TOPO = idum[10];
+    gv->READMOD = idum[11];
+    gv->L = idum[12];
+    gv->FREE_SURF = idum[13];
+    gv->SNAP = idum[14];
+    gv->SNAPSHOT_START = idum[15];
+    gv->SNAPSHOT_END = idum[16];
+    gv->SNAPSHOT_INCR = idum[17];
+    gv->DRX = idum[18];
+    gv->BOUNDARY = idum[19];
+    gv->REC_ARRAY = idum[20];
+    gv->SRCREC = idum[21];
+    gv->IDX = idum[22];
+    gv->IDY = idum[23];
+    gv->MODE = idum[24];
+    gv->WEQ = (WEQTYPE)idum[25];
+    gv->SNAP_FORMAT = idum[26];
+    gv->SEISMO = idum[27];
+    gv->READREC = idum[28];
+    gv->REC_TOPO = idum[29];
+    gv->NDT = idum[30];
+    gv->SEIS_FORMAT = idum[31];
+    gv->NT = idum[32];
+    gv->NS = idum[33];
+    gv->FDORDER = idum[34];
+    gv->MAXRELERROR = idum[35];
+    gv->RUN_MULTIPLE_SHOTS = idum[36];
+    gv->WRITE_MODELFILES = idum[37];
+    gv->ABS_TYPE = idum[38];
+    gv->FDORDER_TIME = idum[39];
+    gv->SIGOUT = idum[40];
+    gv->SIGOUT_FORMAT = idum[41];
 
 /* ****** FWI ****** */
 

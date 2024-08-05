@@ -89,10 +89,19 @@ void update_v_interior(int nt, float **srcpos_loc, float **signals, float **sign
         }
     }
 
-    for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
-        for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-            gv->FDOP_V(i, j, &sxx_x, &sxy_x, &sxy_y, &syy_y, mpw);
-            wavefield_update_v(i, j, sw, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, minv, gv, vinv);
+    if (gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI) {  /* elastic cases */
+        for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
+            for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
+                gv->FDOP_V(i, j, &sxx_x, &sxy_x, &sxy_y, &syy_y, mpw);
+                wavefield_update_v(i, j, sw, sxx_x, sxy_x, sxy_y, syy_y, mpm, mpw, minv, gv, vinv);
+            }
+        }
+    } else {    /*acoustic cases */
+        for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
+            for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
+                gv->FDOP_AC_V(i, j, &sxx_x, &syy_y, mpw);
+                wavefield_update_v_ac(i, j, sxx_x, syy_y, mpm, mpw, gv);
+            }
         }
     }
 

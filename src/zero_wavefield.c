@@ -36,49 +36,52 @@ void zero_wavefield(int iter, MemWavefield *mpw, MemInv * minv, GlobVar *gv, Glo
     bzero(&(mpw->pvy[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
     bzero(&(mpw->psxx[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
     bzero(&(mpw->psyy[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
-    bzero(&(mpw->psxy[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
 
-    if (gv->MODE == FWI) {
-        bzero(&(minv->ux[-gv->ND + 1][-gv->ND + 1]), nbyte_2); //added
-        bzero(&(minv->uy[-gv->ND + 1][-gv->ND + 1]), nbyte_2); //added
-        bzero(&(minv->uxy[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
-        bzero(&(minv->uyx[-gv->ND + 1][-gv->ND + 1]), nbyte_2); //added
-        bzero(&(minv->pvxp1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
-        bzero(&(minv->pvyp1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
-        bzero(&(minv->pvxm1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
-        bzero(&(minv->pvym1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+    if (gv->WEQ >= EL_ISO && gv->WEQ <= VEL_TTI) {  /*elastic cases */
+        bzero(&(mpw->psxy[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+
+        if (gv->MODE == FWI) {
+            bzero(&(minv->ux[-gv->ND + 1][-gv->ND + 1]), nbyte_2); //added
+            bzero(&(minv->uy[-gv->ND + 1][-gv->ND + 1]), nbyte_2); //added
+            bzero(&(minv->uxy[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+            bzero(&(minv->uyx[-gv->ND + 1][-gv->ND + 1]), nbyte_2); //added
+            bzero(&(minv->pvxp1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+            bzero(&(minv->pvyp1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+            bzero(&(minv->pvxm1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
+            bzero(&(minv->pvym1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
         
-        /* initialize gradient matrices for each shot with zeros */
-        bzero(&(minv->waveconv_shot[1][1]), nbyte_grad);
-        bzero(&(minv->waveconv_rho_shot[1][1]), nbyte_grad);
-        bzero(&(minv->waveconv_u_shot[1][1]), nbyte_grad);
-        
-        if ((vinv->EPRECOND == 1) || ((vinv->EPRECOND == 3) && (vinv->EPRECOND_ITER == iter || (vinv->EPRECOND_ITER == 0)))) {
-            bzero(&(minv->Ws[1][1]), nbyte_grad);
-            bzero(&(minv->Wr[1][1]), nbyte_grad);
-            bzero(&(minv->We[1][1]), nbyte_grad);
+            /* initialize gradient matrices for each shot with zeros */
+            bzero(&(minv->waveconv_shot[1][1]), nbyte_grad);
+            bzero(&(minv->waveconv_rho_shot[1][1]), nbyte_grad);
+            bzero(&(minv->waveconv_u_shot[1][1]), nbyte_grad);
+
+            if ((vinv->EPRECOND == 1) || ((vinv->EPRECOND == 3) && (vinv->EPRECOND_ITER == iter || (vinv->EPRECOND_ITER == 0)))) {
+                bzero(&(minv->Ws[1][1]), nbyte_grad);
+                bzero(&(minv->Wr[1][1]), nbyte_grad);
+                bzero(&(minv->We[1][1]), nbyte_grad);
+            }
         }
-    }
 
-    /* viscoelastic */
-    if (gv->L) {
-        bzero(&(mpw->pr[-gv->ND + 1][-gv->ND + 1][1]), nbyte_3);
-        bzero(&(mpw->pp[-gv->ND + 1][-gv->ND + 1][1]), nbyte_3);
-        bzero(&(mpw->pq[-gv->ND + 1][-gv->ND + 1][1]), nbyte_3);
-    }
+        /* viscoelastic */
+        if (gv->L) {
+            bzero(&(mpw->pr[-gv->ND + 1][-gv->ND + 1][1]), nbyte_3);
+            bzero(&(mpw->pp[-gv->ND + 1][-gv->ND + 1][1]), nbyte_3);
+            bzero(&(mpw->pq[-gv->ND + 1][-gv->ND + 1][1]), nbyte_3);
+        }
 
-    /* PML Boundary */
-    if (gv->ABS_TYPE == 1) {
-        bzero(&(mpw->psi_sxx_x[1][1]), nbyte_pml_x);
-        bzero(&(mpw->psi_sxy_x[1][1]), nbyte_pml_x);
-        bzero(&(mpw->psi_vxx[1][1]), nbyte_pml_x);
-        bzero(&(mpw->psi_vyx[1][1]), nbyte_pml_x);
-        bzero(&(mpw->psi_vxxs[1][1]), nbyte_pml_x);
+        /* PML Boundary */
+        if (gv->ABS_TYPE == 1) {
+            bzero(&(mpw->psi_sxx_x[1][1]), nbyte_pml_x);
+            bzero(&(mpw->psi_sxy_x[1][1]), nbyte_pml_x);
+            bzero(&(mpw->psi_vxx[1][1]), nbyte_pml_x);
+            bzero(&(mpw->psi_vyx[1][1]), nbyte_pml_x);
+            bzero(&(mpw->psi_vxxs[1][1]), nbyte_pml_x);
 
-        bzero(&(mpw->psi_syy_y[1][1]), nbyte_pml_y);
-        bzero(&(mpw->psi_sxy_y[1][1]), nbyte_pml_y);
-        bzero(&(mpw->psi_vyy[1][1]), nbyte_pml_y);
-        bzero(&(mpw->psi_vxy[1][1]), nbyte_pml_y);
+            bzero(&(mpw->psi_syy_y[1][1]), nbyte_pml_y);
+            bzero(&(mpw->psi_sxy_y[1][1]), nbyte_pml_y);
+            bzero(&(mpw->psi_vyy[1][1]), nbyte_pml_y);
+            bzero(&(mpw->psi_vxy[1][1]), nbyte_pml_y);
+        }
     }
 
     /* 4th order */

@@ -24,8 +24,7 @@
 
 #include "fd.h"
 
-void wavefield_update_s_visc_VTI(int i, int j, MemModel * mpm,
-                                 MemWavefield * mpw, MemInv *minv, GlobVar * gv)
+void wavefield_update_s_visc_VTI(int i, int j, MemModel * mpm, MemWavefield * mpw, MemInv *minv, GlobVar * gv)
 {
     float dthalbe = gv->DT / 2.0;
     float sumr_old = 0.0f, sump_old = 0.0f, sumq_old = 0.0f;

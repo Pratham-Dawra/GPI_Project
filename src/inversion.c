@@ -47,10 +47,9 @@ void inversion(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemMo
 
     itestshot = vinv->TESTSHOT_START;
 
-        /* calculate L2-Norm and energy ? */
-        if ((ishot == itestshot) && (ishot <= vinv->TESTSHOT_END)) {
-            swstestshot = 1;
-        }
+    /* calculate L2-Norm and energy ? */
+    if ((ishot == itestshot) && (ishot <= vinv->TESTSHOT_END)) {
+        swstestshot = 1;
     }
 
     /* --------------------------------------------- */

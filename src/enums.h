@@ -8,17 +8,13 @@
  */
 typedef enum WEQTYPE {
     AC_ISO = 0,
-    AC_VTI,
-    AC_TTI,
+    VAC_ISO,
     EL_ISO,
     VEL_ISO,
     EL_VTI,
     VEL_VTI,
     EL_TTI,
     VEL_TTI,
-    VAC_ISO,
-    VAC_VTI,
-    VAC_TTI,
     NWEQ
 } WEQTYPE;
 

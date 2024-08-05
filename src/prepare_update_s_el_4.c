@@ -30,7 +30,7 @@
 
 #include "fd.h"
 
-void prepare_update_s_4(MemModel *mpm, GlobVar *gv)
+void prepare_update_s_el_4(MemModel *mpm, GlobVar *gv)
 {
 
     /* Coefficients for Adam Bashforth */
@@ -38,9 +38,9 @@ void prepare_update_s_4(MemModel *mpm, GlobVar *gv)
 
     for (int j = 1; j <= gv->NY; j++) {
         for (int i = 1; i <= gv->NX; i++) {
-    float fipjp = mpm->puipjp[j][i] * gv->DT;
-    float f = mpm->pu[j][i] * gv->DT;
-    float g = mpm->ppi[j][i] * gv->DT;
+            float fipjp = mpm->puipjp[j][i] * gv->DT;
+            float f = mpm->pu[j][i] * gv->DT;
+            float g = mpm->ppi[j][i] * gv->DT;
         }
     }
 }

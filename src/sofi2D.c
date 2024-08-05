@@ -232,10 +232,11 @@ int main(int argc, char **argv)
     /* create model grids */
     readmod(&mpm, &minv, &gv, &vinv);
 
+
     MPI_Barrier(MPI_COMM_WORLD);
 
     /* check if the FD run will be stable and free of numerical dispersion */
-    checkfd(hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
+   checkfd(hc, acq.srcpos, acq.nsrc, acq.recpos, &gv);
 
     /* calculate damping coefficients for CPMLs */
     if (gv.ABS_TYPE == 1) {
@@ -361,7 +362,7 @@ int main(int argc, char **argv)
     }
 
     /* deallocate memory */
-    freemem(&mpm, &mpw, &gv);
+    /*freemem(&mpm, &mpw, &gv);*/
 
     if (gv.SEISMO)
         free_imatrix(acq.recpos, 1, 3, 1, gv.NTRG);

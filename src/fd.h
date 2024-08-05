@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/gpl-2.0.html>.
  --------------------------------------------------------------------------*/
 
-/*------------------------------------------------------------------------
+/*----------------------------------------------------------------------
  *  fd.h - include file for viscoelastic FD program sofi2D
  * ---------------------------------------------------------------------*/
 
@@ -45,6 +45,10 @@
 
 /* declaration of functions */
 void abs_update_s(int i, int j, MemModel *mpm, MemWavefield *mpw);
+
+// void abs_update_s_ac1(int i, int j, MemModel *mpm, MemWavefield *mpw);
+
+void abs_update_s_ac2(int i, int j, MemModel *mpm, MemWavefield *mpw);
 
 void abs_update_v(int i, int j, MemModel *mpm, MemWavefield *mpw);
 
@@ -77,11 +81,19 @@ void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar *gv);
 
 void cpml_update_s_x(int i, int j, int h1, int h2, MemModel *mpm, MemWavefield *mpw);
 
+void cpml_update_s_x_ac(int i, int j, int h1, int h2, MemModel *mpm, MemWavefield *mpw);
+
 void cpml_update_s_y(int i, int j, int h1, int h2, MemModel *mpm, MemWavefield *mpw);
+
+void cpml_update_s_y_ac(int i, int j, int h1, int h2, MemModel *mpm, MemWavefield *mpw);
 
 void cpml_update_v_x(int i, int j, float *sxx_x, float *sxy_x, MemModel *mpm, MemWavefield *mpw);
 
+void cpml_update_v_x_ac(int i, int j, float *sxx_x, MemModel * mpm, MemWavefield * mpw);
+
 void cpml_update_v_y(int i, int j, float *sxy_y, float *syy_y, MemModel *mpm, MemWavefield *mpw);
+
+void cpml_update_v_y_ac(int i, int j, float *syy_y, MemModel * mpm, MemWavefield * mpw);
 
 void eprecond(MemWavefield *mpw, float **W, GlobVar *gv);
 
@@ -152,10 +164,6 @@ void model_visco_vti(MemModel *mpm, GlobVar *gv);
 
 void model_visco_tti(MemModel *mpm, GlobVar *gv);
 
-/* void model_ani(float **rho, float **c11, float **c15, float **c13,
-               float **c35, float **c33, float **c55, float **taus, float **taup, float *eta);
-*/
-
 void matcopy(float **prho, float **ppi, float **pu, float **ptaup, float **ptaus, GlobVar *gv);
 
 void matcopy_elastic(float **prho, float **ppi, float **pu, GlobVar *gv);
@@ -172,49 +180,15 @@ void outseis_glob(FILE *fpdata, float **section,
 
 void output_source_signal(FILE *fp, float **signals, int ns, int seis_form);
 
-/* void operator_s_fd2(int i, int j, float *vxx, float *vyx, float *vxy,
-                    float *vyy, float **vx, float **vy, float *hc, GlobVar *gv);
-
-void operator_s_fd4(int i, int j, float *vxx, float *vyx, float *vxy,
-                    float *vyy, float **vx, float **vy, float *hc, GlobVar *gv);
-
-void operator_s_fd6(int i, int j, float *vxx, float *vyx, float *vxy,
-                    float *vyy, float **vx, float **vy, float *hc, GlobVar *gv);
-
-void operator_s_fd8(int i, int j, float *vxx, float *vyx, float *vxy,
-                    float *vyy, float **vx, float **vy, float *hc, GlobVar *gv);
-
-void operator_s_fd10(int i, int j, float *vxx, float *vyx, float *vxy,
-                     float *vyy, float **vx, float **vy, float *hc, GlobVar *gv);
-
-void operator_s_fd12(int i, int j, float *vxx, float *vyx, float *vxy,
-                     float *vyy, float **vx, float **vy, float *hc, GlobVar *gv);
-
-void operator_v_fd2(int i, int j, float *sxx_x, float *sxy_x, float *sxy_y,
-                    float *syy_y, float **sxx, float **syy, float **sxy, float *hc);
-
-void operator_v_fd4(int i, int j, float *sxx_x, float *sxy_x, float *sxy_y,
-                    float *syy_y, float **sxx, float **syy, float **sxy, float *hc);
-
-void operator_v_fd6(int i, int j, float *sxx_x, float *sxy_x, float *sxy_y,
-                    float *syy_y, float **sxx, float **syy, float **sxy, float *hc);
-
-void operator_v_fd8(int i, int j, float *sxx_x, float *sxy_x, float *sxy_y,
-                    float *syy_y, float **sxx, float **syy, float **sxy, float *hc);
-
-void operator_v_fd10(int i, int j, float *sxx_x, float *sxy_x, float *sxy_y,
-                     float *syy_y, float **sxx, float **syy, float **sxy, float *hc);
-
-void operator_v_fd12(int i, int j, float *sxx_x, float *sxy_x, float *sxy_y,
-                     float *syy_y, float **sxx, float **syy, float **sxy, float *hc); */
-
 void par_mult_dt(float **pi, float **u, float **uipjp);
 
 void PML_pro(MemModel *mpm, GlobVar *gv);
 
-void prepare_update_s(MemModel *mpm, GlobVar *gv);
+void prepare_update_s_ac(MemModel *mpm, GlobVar *gv);
 
-//void prepare_update_s_4(MemModel *mpm, GlobVar *gv);
+void prepare_update_s_el(MemModel *mpm, GlobVar *gv);
+
+void prepare_update_s_el_4(MemModel *mpm, GlobVar *gv);
 
 void prepare_update_s_visc(MemModel *mpm, GlobVar *gv);
 
@@ -232,10 +206,6 @@ void psource_rsg(int nt, float **sxx, float **syy, float **srcpos_loc, float **s
 
 float readdsk(FILE *fp_in, int format);
 
-/* void readbufs(float **sxx, float **syy,
-              float **sxy, float **bufferlef_to_rig, float **bufferrig_to_lef,
-              float **buffertop_to_bot, float **bufferbot_to_top); */
-
 void readbufv(float **vx, float **vy,
               float **bufferlef_to_rig, float **bufferrig_to_lef, float **buffertop_to_bot, float **bufferbot_to_top);
 
@@ -251,6 +221,12 @@ void read_workflow(GlobVar *gv, GlobVarInv *vinv);
 
 void readmod(MemModel *mpm, MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
 
+void readmod_acoustic(MemModel *mpm, GlobVar *gv);
+
+void readmod_acoustic_vti(MemModel *mpm, GlobVar *gv);
+
+void readmod_acoustic_tti(MemModel *mpm, GlobVar *gv);
+
 void readmod_elastic(MemModel *mpm, MemInv *minv, GlobVar *gv);
 
 void readmod_elastic_vti(MemModel *mpm, MemInv *minv, GlobVar *gv);
@@ -263,7 +239,7 @@ void readmod_visco_vti(MemModel *mpm, MemInv *minv, GlobVar *gv);
 
 void readmod_visco_tti(MemModel *mpm, MemInv *minv, GlobVar *gv);
 
-int **receiver(GlobVar *gv);
+int **receiver(GlobVar *gv, int *topo);
 
 void save_checkpoint(int nx1, int nx2, int ny1, int ny2,
                      float **vx, float **vy, float **sxx, float **syy, float **sxy, GlobVar *gv);
@@ -275,11 +251,9 @@ void saveseis_fwi(int ishot, AcqVar *acq, MemInv *minv, GlobVar *gv, GlobVarInv 
 void saveseis_glob(float **sectiondata, int **recpos, float **srcpos, int ishot, int ns, int sectiondatatype,
                    GlobVar *gv);
 
-void set_fd_order(int new_order, GlobVar *gv);
+int *scan_topo(GlobVar *gv);
 
-/* void seismo(int lsamp, int ntr, int **recpos, float **sectionvx,
-            float **sectionvy, float **sectionp, float **sectioncurl, float **sectiondiv,
-            float **pvx, float **pvy, float **psxx, float **psyy, float **ppi, float **pu); */
+void set_fd_order(int new_order, GlobVar *gv);
 
 void seismo_ssg(int lsamp, int **recpos, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
@@ -289,7 +263,7 @@ void snap_store(int nt, int hin, MemWavefield *mpw, MemInv *minv, GlobVar *gv, G
 
 void snapmerge(int nsnap);
 
-void sources(AcqVar *acq, GlobVar *gv);
+void sources(AcqVar *acq, GlobVar *gv, int *topo);
 
 int **splitrec(int **recpos, int *recswitch, GlobVar *gv);
 
@@ -311,6 +285,10 @@ void time_loop(int iter, int ishot, int snapcheck, float *hc, float **srcpos_loc
                       float **vx, float **vy, float **sxx, float **syy,
                       float **sxy, float **pi, float **u, float **uipjp, float **absorb_coeff, float *hc); */
 
+void update_s_acoustic_abs(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+
+void update_s_acoustic_interior(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+
 void update_s_elastic_abs(int nt, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar *gv);
 
 void update_s_elastic_abs_4(int nt, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar *gv);
@@ -318,6 +296,10 @@ void update_s_elastic_abs_4(int nt, MemModel *mpm, MemWavefield *mpw, MemInv *mi
 void update_s_elastic_interior(int nt, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar *gv);
 
 void update_s_elastic_interior_4(int nt, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar *gv);
+
+void update_s_acoustic_PML(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+
+void update_s_acoustic_vti_interior(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void update_s_elastic_PML(int nt, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar *gv);
 
@@ -395,6 +377,10 @@ void update_v_PML_4(int nx2, int ny2, int nt, MemModel *mpm, MemWavefield *mpw, 
 
 void v_derivatives(MemWavefield *mpw, GlobVar *gv);
 
+void wavefield_update_s_ac(int i, int j, MemModel *mpm, MemWavefield *mpw);
+
+void wavefield_update_s_ac_vti(int i, int j, MemModel *mpm, MemWavefield *mpw);
+
 void wavefield_update_s_el(int i, int j, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar *gv);
 
 void wavefield_update_s_el_4(int i, int j, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar *gv);
@@ -402,15 +388,6 @@ void wavefield_update_s_el_4(int i, int j, MemModel *mpm, MemWavefield *mpw, Mem
 void wavefield_update_s_el_vti(int i, int j, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar *gv);
 
 void wavefield_update_s_el_tti(int i, int j, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar *gv);
-
-/* void wavefield_update_s_el_tti_pml(int i, int j, float **vxx, float **vyx, float **vxy, float **vyy,
-                                   float **sxy, float **sxx, float **syy, float **pc11, float **pc55ipjp,
-                                   float **pc13, float **pc33,
-                                   float **pc15, float **pc35, float **pc15ipjp, float **pc35ipjp); */
-
-/* void wavefield_update_s_el_tti2(int i, int j, float vxx, float vyx, float vxy, float vyy, float **sxy, float **sxx,
-                                float **syy, float **pc11, float **pc55ipjp, float **pc13, float **pc33, float **pc15,
-                                float **pc35, float **pc15ipjp, float **pc35ipjp); */
 
 void wavefield_update_s_visc(int i, int j, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar *gv);
 
@@ -422,6 +399,8 @@ void wavefield_update_s_visc_TTI(int i, int j, MemModel *mpm, MemWavefield *mpw,
 
 void wavefield_update_v(int i, int j, int sw, float sxx_x, float sxy_x, float sxy_y, float syy_y, MemModel *mpm,
                         MemWavefield *mpw, MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
+
+void wavefield_update_v_ac(int i, int j, float sxx_x, float sxx_y, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void wavefield_update_v_4(int i, int j, float sxx_x, float sxy_x, float sxy_y, float syy_y, MemModel *mpm,
                           MemWavefield *mpw, GlobVar *gv);
@@ -445,6 +424,8 @@ void writemod(const char *modfile, float **array, int format, const GlobVar *gv)
 
 /*void zero_elastic(int j, int i, MemWavefield *mpw);
 
+void zero_acoustic(int j, int i, MemWavefield *mpw);
+
 void zero_elastic_4(int j, int i, MemWavefield *mpw);
 
 void zero_visco_4(int j, int i, int l, MemWavefield *mpw);
@@ -457,9 +438,8 @@ void zero_PML_y(int j, int i, MemWavefield *mpw);*/
 
 void zero_wavefield(int iter, MemWavefield *mpw, MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
 
-/* declaration of functions for parser*/
+/* declaration of functions for json parser in json_parser.c */
 
-/* declaration of functions for json parser in json_parser.c*/
 int read_objects_from_intputfile(const char *input_file, char **varname_list, char **value_list);
 
 void print_objectlist_screen(int number_readobject, char **varname_list, char **value_list);

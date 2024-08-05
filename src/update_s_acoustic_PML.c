@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with SOFI2D. See file COPYING and/or <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * along with SOFI2D See file COPYING and/or <http://www.gnu.org/licenses/gpl-2.0.html>.
 -----------------------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------
@@ -30,7 +30,7 @@
 #include "fd.h"
 #include "logging.h"
 
-void update_s_visc_PML(int nt, MemModel * mpm, MemWavefield * mpw, MemInv *minv, GlobVar * gv)
+void update_s_acoustic_PML(int nt, MemModel * mpm, MemWavefield * mpw, GlobVar * gv)
 {
     int h;
     double time1 = 0.0, time2 = 0.0;
@@ -43,8 +43,8 @@ void update_s_visc_PML(int nt, MemModel * mpm, MemWavefield * mpw, MemInv *minv,
     /* left boundary */
     for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
-            cpml_update_s_x(i, j, i, j, mpm, mpw);
-            wavefield_update_s_visc(i, j, mpm, mpw, minv, gv);
+            cpml_update_s_x_ac(i, j, i, j, mpm, mpw);
+            wavefield_update_s_ac(i, j, mpm, mpw);
         }
     }
 
@@ -52,16 +52,16 @@ void update_s_visc_PML(int nt, MemModel * mpm, MemWavefield * mpw, MemInv *minv,
     for (int j = gv->GY[2] + 1; j <= gv->GY[3]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
             h = (i - gv->NX + 2 * gv->FW);
-            cpml_update_s_x(i, j, h, j, mpm, mpw);
-            wavefield_update_s_visc(i, j, mpm, mpw, minv, gv);
+            cpml_update_s_x_ac(i, j, h, j, mpm, mpw);
+            wavefield_update_s_ac(i, j, mpm, mpw);
         }
     }
 
     /* top boundary */
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
-            cpml_update_s_y(i, j, i, j, mpm, mpw);
-            wavefield_update_s_visc(i, j, mpm, mpw, minv, gv);
+            cpml_update_s_y_ac(i, j, i, j, mpm, mpw);
+            wavefield_update_s_ac(i, j, mpm, mpw);
         }
     }
 
@@ -69,8 +69,8 @@ void update_s_visc_PML(int nt, MemModel * mpm, MemWavefield * mpw, MemInv *minv,
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[2] + 1; i <= gv->GX[3]; i++) {
             h = (j - gv->NY + 2 * gv->FW);
-            cpml_update_s_y(i, j, i, h, mpm, mpw);
-            wavefield_update_s_visc(i, j, mpm, mpw, minv, gv);
+            cpml_update_s_y_ac(i, j, i, h, mpm, mpw);
+            wavefield_update_s_ac(i, j, mpm, mpw);
         }
     }
 
@@ -79,19 +79,19 @@ void update_s_visc_PML(int nt, MemModel * mpm, MemWavefield * mpw, MemInv *minv,
     /*left-top */
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
-            cpml_update_s_x(i, j, i, j, mpm, mpw);
-            cpml_update_s_y(i, j, i, j, mpm, mpw);
-            wavefield_update_s_visc(i, j, mpm, mpw, minv, gv);
+            cpml_update_s_x_ac(i, j, i, j, mpm, mpw);
+            cpml_update_s_y_ac(i, j, i, j, mpm, mpw);
+            wavefield_update_s_ac(i, j, mpm, mpw);
         }
     }
 
     /*left-bottom */
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[1]; i <= gv->GX[2]; i++) {
-            cpml_update_s_x(i, j, i, j, mpm, mpw);
+            cpml_update_s_x_ac(i, j, i, j, mpm, mpw);
             h = (j - gv->NY + 2 * gv->FW);
-            cpml_update_s_y(i, j, i, h, mpm, mpw);
-            wavefield_update_s_visc(i, j, mpm, mpw, minv, gv);
+            cpml_update_s_y_ac(i, j, i, h, mpm, mpw);
+            wavefield_update_s_ac(i, j, mpm, mpw);
         }
     }
 
@@ -99,9 +99,9 @@ void update_s_visc_PML(int nt, MemModel * mpm, MemWavefield * mpw, MemInv *minv,
     for (int j = gv->GY[1]; j <= gv->GY[2]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
             h = (i - gv->NX + 2 * gv->FW);
-            cpml_update_s_x(i, j, h, j, mpm, mpw);
-            cpml_update_s_y(i, j, i, j, mpm, mpw);
-            wavefield_update_s_visc(i, j, mpm, mpw, minv, gv);
+            cpml_update_s_x_ac(i, j, h, j, mpm, mpw);
+            cpml_update_s_y_ac(i, j, i, j, mpm, mpw);
+            wavefield_update_s_ac(i, j, mpm, mpw);
         }
     }
 
@@ -109,10 +109,10 @@ void update_s_visc_PML(int nt, MemModel * mpm, MemWavefield * mpw, MemInv *minv,
     for (int j = gv->GY[3] + 1; j <= gv->GY[4]; j++) {
         for (int i = gv->GX[3] + 1; i <= gv->GX[4]; i++) {
             h = (i - gv->NX + 2 * gv->FW);
-            cpml_update_s_x(i, j, h, j, mpm, mpw);
+            cpml_update_s_x_ac(i, j, h, j, mpm, mpw);
             h = (j - gv->NY + 2 * gv->FW);
-            cpml_update_s_y(i, j, i, h, mpm, mpw);
-            wavefield_update_s_visc(i, j, mpm, mpw, minv, gv);
+            cpml_update_s_y_ac(i, j, i, h, mpm, mpw);
+            wavefield_update_s_ac(i, j, mpm, mpw);
         }
     }
 

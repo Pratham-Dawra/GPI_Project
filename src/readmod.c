@@ -31,13 +31,7 @@ void readmod(MemModel *mpm, MemInv *minv, GlobVar *gv, GlobVarInv *vinv)
     if (gv->READMOD) {
         switch (gv->WEQ) {
           case AC_ISO:         /* acoustic */
-              log_fatal("not yet implemented\n");
-              break;
-          case AC_VTI:         /* acoustic VTI */
-              log_fatal("not yet implemented\n");
-              break;
-          case AC_TTI:         /* acoustic TTI */
-              log_fatal("not yet implemented\n");
+              readmod_acoustic(mpm, gv);
               break;
           case EL_ISO:         /* elastic */
               readmod_elastic(mpm, minv, gv);
@@ -58,12 +52,6 @@ void readmod(MemModel *mpm, MemInv *minv, GlobVar *gv, GlobVarInv *vinv)
               readmod_visco_tti(mpm, minv, gv);
               break;
           case VAC_ISO:        /* viscoacoustic */
-              log_fatal("not yet implemented\n");
-              break;
-          case VAC_VTI:        /* viscoacoustic VTI */
-              log_fatal("not yet implemented\n");
-              break;
-          case VAC_TTI:        /* viscoacoustic TTI */
               log_fatal("not yet implemented\n");
               break;
           default:

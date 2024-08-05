@@ -60,7 +60,7 @@ void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar *gv)
     if (gv->MPID == 0) {
         log_info("The following velocities take anisotropy and/or attenuation into account.\n");
         log_info("Min and max P-wave (phase) velocity: Vp_min=%.2fm/s, Vp_max=%.2fm/s\n", gv->VPMIN, gv->VPMAX);
-        if (gv->VSMIN <= gv->VSMAX) {
+        if ((gv->VSMAX>0.0)&&(gv->VSMIN <= gv->VSMAX)) {
             log_info("Min and max S-wave (phase) velocity: Vs_min=%.2fm/s, Vs_max=%.2fm/s\n", gv->VSMIN, gv->VSMAX);
         } else {
             log_info("Min and max S-wave (phase) velocity not set (all values ignored).\n");
@@ -103,6 +103,8 @@ void checkfd(float *hc, float **srcpos, int nsrc, int **recpos, GlobVar *gv)
         } else {
             log_info("Skipping checks of snapshot parameters.\n");
         }
+
+ 
 
         if (gv->SEISMO) {
             log_info("Number of modeling time steps: %d\n", gv->NT);

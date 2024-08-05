@@ -24,12 +24,10 @@
 
 #include "fd.h"
 
-void prepare_update_s(MemModel *mpm, GlobVar *gv)
+void prepare_update_s_ac(MemModel *mpm, GlobVar *gv)
 {
     for (int j = 1; j <= gv->NY; j++) {
         for (int i = 1; i <= gv->NX; i++) {
-            mpm->fipjp[j][i] = mpm->puipjp[j][i] * gv->DT;
-            mpm->f[j][i] = mpm->pu[j][i] * gv->DT;
             mpm->g[j][i] = mpm->ppi[j][i] * gv->DT;
         }
     }

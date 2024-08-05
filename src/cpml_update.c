@@ -64,3 +64,33 @@ void cpml_update_v_y(int i, int j, float *sxy_y, float *syy_y, MemModel * mpm, M
     mpw->psi_sxy_y[j][i] = mpm->b_y[j] * mpw->psi_sxy_y[j][i] + mpm->a_y[j] * (*sxy_y);
     *sxy_y = (*sxy_y) / mpm->K_y[j] + mpw->psi_sxy_y[j][i];
 }
+
+/* acoustic cases ---------------------------------------------------*/
+
+void cpml_update_s_x_ac(int i, int j, int h1, int h2, MemModel * mpm, MemWavefield * mpw)
+{
+    mpw->psi_vxx[h2][h1] = mpm->b_x[h1] * mpw->psi_vxx[h2][h1] + mpm->a_x[h1] * (mpw->pvxx[j][i]);
+    mpw->pvxx[j][i] = (mpw->pvxx[j][i]) / mpm->K_x[h1] + mpw->psi_vxx[h2][h1];
+}
+
+void cpml_update_s_y_ac(int i, int j, int h1, int h2, MemModel * mpm, MemWavefield * mpw)
+{
+    mpw->psi_vyy[h2][h1] = mpm->b_y[h2] * mpw->psi_vyy[h2][h1] + mpm->a_y[h2] * (mpw->pvyy[j][i]);
+    mpw->pvyy[j][i] = (mpw->pvyy[j][i]) / mpm->K_y[h2] + mpw->psi_vyy[h2][h1];
+}
+
+/* CPML Functions for update_v ---------------------------------------------------*/
+
+void cpml_update_v_x_ac(int i, int j, float *sxx_x, MemModel * mpm, MemWavefield * mpw)
+{
+    mpw->psi_sxx_x[j][i] = mpm->b_x_half[i] * mpw->psi_sxx_x[j][i] + mpm->a_x_half[i] * (*sxx_x);
+    *sxx_x = (*sxx_x) / mpm->K_x_half[i] + mpw->psi_sxx_x[j][i];
+
+}
+
+void cpml_update_v_y_ac(int i, int j, float *syy_y, MemModel * mpm, MemWavefield * mpw)
+{
+    mpw->psi_syy_y[j][i] = mpm->b_y_half[j] * mpw->psi_syy_y[j][i] + mpm->a_y_half[j] * (*syy_y);
+    *syy_y = (*syy_y) / mpm->K_y_half[j] + mpw->psi_syy_y[j][i];
+
+}

@@ -19,29 +19,14 @@
 ---------------------------------------------------------------------------------*/
 
 /*
- * Update Function of the stress-Wavefields in the elastic case
+ * Update Function of the particle velocity wavefields 
  */
 
 #include "fd.h"
 
-void wavefield_update_s_el_vti(int i, int j, MemModel * mpm, MemWavefield * mpw, MemInv *minv, GlobVar * gv)
+void wavefield_update_v_ac(int i, int j, float sxx_x, float syy_y, MemModel * mpm,
+                        MemWavefield * mpw, GlobVar * gv)
 {
-    float u1 = 0.0f, u2 = 0.0f, u3 = 0.0f;
-
-    /* calculate stress component update */
-    u1 = (mpm->pc55ipjp[j][i] * (mpw->pvxy[j][i] + mpw->pvyx[j][i]));
-    u2 = ((mpm->pc11[j][i] * mpw->pvxx[j][i]) + (mpm->pc13[j][i] * mpw->pvyy[j][i]));
-    u3 = ((mpm->pc13[j][i] * mpw->pvxx[j][i]) + (mpm->pc33[j][i] * mpw->pvyy[j][i]));
-
-    /* updating components of the stress tensor */
-    mpw->psxy[j][i] += u1;
-    mpw->psxx[j][i] += u2;
-    mpw->psyy[j][i] += u3;
-
-    /* updating components of the gradient */
-    if (gv->MODE == FWI) {
-        minv->uxy[j][i] = u1 / gv->DT;
-        minv->ux[j][i] = u2 / gv->DT;
-        minv->uy[j][i] = u3 / gv->DT;
-    }
+    mpw->pvx[j][i] += (sxx_x) * gv->DTDH * mpm->prip[j][i];
+    mpw->pvy[j][i] += (syy_y) * gv->DTDH * mpm->prjp[j][i];
 }

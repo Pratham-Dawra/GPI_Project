@@ -51,7 +51,8 @@ void wavefield_update_s_el_4(int i, int j, MemModel * mpm, MemWavefield * mpw, M
     sumxy = c1 * mpw->vxy_1[j][i] + c2 * mpw->vxy_2[j][i] + c3 * mpw->vxy_3[j][i] + c4 * mpw->vxy_4[j][i];
     sumyx = c1 * mpw->vyx_1[j][i] + c2 * mpw->vyx_2[j][i] + c3 * mpw->vyx_3[j][i] + c4 * mpw->vyx_4[j][i];
 
-    /* updating components of the stress tensor */
+    /* The stress updates are stored in internal variables due to extensions necessary for FWI */
+    /* calculate stress component update */
     u1 = mpm->fipjp[j][i] * (sumxy + sumyx) * dhi;
     u2 = ((mpm->g[j][i] * (sumxx + sumyy)) - (2.0 * mpm->f[j][i] * sumyy)) * dhi;
     u3 = ((mpm->g[j][i] * (sumxx + sumyy)) - (2.0 * mpm->f[j][i] * sumxx)) * dhi;

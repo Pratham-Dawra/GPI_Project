@@ -109,11 +109,7 @@ The parameter \texttt{WEQ} specifies the type of wave equation to use for modell
 This parameter is given as string and can have the following values:
 \begin{itemize}
 \item \textbf{AC\_ISO}: acoustic isotropic wave equation
-\item \textbf{AC\_VTI}: acoustic VTI wave equation
-\item \textbf{AC\_TTI}: acoustic TTI wave equation
 \item \textbf{VAC\_ISO}: viscoacoustic isotropic wave equation
-\item \textbf{VAC\_VTI}: viscoacoustic VTI wave equation
-\item \textbf{VAC\_TTI}: viscoacoustic TTI wave equation
 \item \textbf{EL\_ISO}: elastic isotropic wave equation
 \item \textbf{EL\_VTI}: elastic VTI wave equation
 \item \textbf{EL\_TTI}: elastic TTI wave equation
@@ -133,6 +129,7 @@ The type of wave equation specified for \texttt{WEQ} determines which model file
             "SIGOUT_FILE" : "./sources/signal_out01",
             "SIGOUT_FORMAT" : "1",
             "SOURCE_TYPE" : "3",
+            "SOURCE_TOPO" : "0",
             "SRCREC" : "1",
             "SOURCE_FILE" : "./sources/source.dat",
             "RUN_MULTIPLE_SHOTS" : "0",
@@ -221,6 +218,10 @@ The wavelet can be output for quality control purpose by setting \texttt{SIGOUT}
     \caption{Scheme for \texttt{SOURCE\_TYPE}=4. The parameter \texttt{SOURCE\_AZIMUTH} denotes the angle between the vertical $y$- and horizontal $x$-coordinate.}
     \label{fig_source_azimuth}
 \end{figure}
+
+\texttt{SOURCE\_TOPO} : place sources relative to topography (=1) or at absolute depth (=0)
+
+The \texttt{SOURCE\_TOPO} option is only relevant in case sources are read from a file (\texttt{SRCREC}=1). Under normal circumstanes, i.e., when \texttt{SOURCE\_TOPO}=0 which is also the default, sources are placed at the absolute depth specified in the external source file given by \texttt{SOURCE\_FILE}. However, sometimes an explicit air layer is part of the model in case the Earth has topography. When \texttt{SOURCE\_TOPO}=1, then sources are not placed at an absolute depth value but the depth specified in the external source file becomes a depth below topography. The topography is determined by opening the P-wave velocity model and scanning each trace from top to bottom until a change of the first P-wave velocity value that was read in is found (this usually is the interface between air and the solid Earth). The actual P-wave velocity value of the first (air) layer itself does not matter, we only scan for a change. Example: if you would like to simulate sources in 12\;m deep shot holes along a free surface with topographic variations, you need an explicit air layer in the model, you need to set the depth of the source (YSRC, see below) to "12.0" in the external source file, and you finally need to switch on the \texttt{SOURCE\_TOPO} option.
 
 \texttt{SRCREC} : read source positions (from external \texttt{SOURCE\_FILE}=1; from internal \texttt{PLANE\_WAVE}=2)\\
 \texttt{SOURCE\_FILE} : external source file name
@@ -376,6 +377,7 @@ If \texttt{SNAP}>0, wavefield information (particle velocities, pressure or curl
 "Receiver" : "comment",
             "SEISMO" : "0",
             "READREC" : "1",
+            "REC_TOPO" : "0",
             "REC_FILE" : "./receiver/receiver.dat",
             "REFRECX, REFRECY" : "0.0 , 0.0",
             "XREC1,YREC1" : "50.0 , 1.0",
@@ -399,7 +401,12 @@ where $\lambda$ and $\mu$ are the Lam\`{e} parameters, and $\vec{v}$ is the part
 \end{equation}
 The magnitudes of $\bar{E}_p$ and $\bar{E}_s$ are proportional to the magnitudes of the P- and S-particle velocities, respectively. Note that interface waves like Rayleigh waves contain both a P- and S-wave component and therefore show up on both quantities of Eq.~\ref{eq_e}.
 
-\texttt{READREC} : read receiver positions from file (from the parameter file=0; from an external file=1)\\
+\texttt{READREC} : read receiver positions from file (from the parameter file=0; from an external file=1)
+
+\texttt{REC\_TOPO} : place receivers relative to topography (=1) or at absolute depth (=0)
+
+The \texttt{REC\_TOPO} option is only relevant in case receivers are read from an external file (\texttt{READREC}=1). Under normal circumstanes, i.e., when \texttt{REC\_TOPO}=0 which is also the default, receivers are placed at the absolute depth specified in the external receiver file given by \texttt{REC\_FILE}. However, sometimes an explicit air layer is part of the model in case the Earth has topography. When \texttt{REC\_TOPO}=1, then receivers are not placed at an absolute depth value but the depth specified in the external receiver file becomes a depth below topography. For details on how the topography is found, please check the \texttt{SOURCE\_TOPO} option.
+
 \texttt{REC\_FILE} : external receiver file name (ASCII-file)\\
 \texttt{REFREC} : reference point for receiver coordinate system (if 1, the following 3 parameters are ignored)\\
 \texttt{XREC1,YREC1} : position of the first receiver (in meters) \\

@@ -157,6 +157,12 @@ ifeq ($(OS),Darwin)
   RM      := rm -f 
 endif
 
+OS := $(shell uname)
+ifeq ($(OS),Darwin)
+  INSTALL := install -p
+  RM      := rm -f 
+endif
+
 DOC_MAIN := main
 DOC_FILES := $(wildcard $(strip $(realpath $(BASEDIR)))/doc/guide_sofi2D/latex/*.tex) \
              $(wildcard $(strip $(realpath $(BASEDIR)))/doc/guide_sofi2D/latex/figures/*) \
@@ -226,7 +232,9 @@ FDMOD_FILES := sofi2D.c \
                mergemod.c \
                outseis_glob.c \
                PML_pro.c \
-               prepare_update_s.c \
+               prepare_update_s_ac.c \
+               prepare_update_s_el.c \
+               prepare_update_s_el_4.c \
                prepare_update_s_visc.c \
                prepare_update_s_visc_4.c \
                prepare_update_s_vti.c \
@@ -240,9 +248,12 @@ FDMOD_FILES := sofi2D.c \
                read_workflow.c \
                readdsk.c \
                readmod.c \
+               readmod_acoustic.c \
                readmod_visco.c \
                readmod_elastic.c \
                readmod_elastic_vti.c \
+               readmod_acoustic_vti.c \
+               readmod_acoustic_tti.c \
                readmod_elastic_tti.c \
                readmod_visco_vti.c \
                readmod_visco_tti.c \
@@ -250,6 +261,7 @@ FDMOD_FILES := sofi2D.c \
                saveseis.c \
                saveseis_fwi.c \
                saveseis_glob.c \
+               scan_topo.c \
                seismo_ssg.c \
                snap_ssg.c \
                snap_store.c \
@@ -264,13 +276,17 @@ FDMOD_FILES := sofi2D.c \
                timedomain_filt.c \
                time_loop.c \
                update_s_elastic_abs.c \
+               update_s_acoustic_abs.c \
                update_s_elastic_VTI_abs.c \
                update_s_elastic_abs_4.c \
                update_s_elastic_interior.c \
+               update_s_acoustic_interior.c \
                update_s_elastic_VTI_interior.c \
+               update_s_acoustic_VTI_interior.c \
                update_s_elastic_TTI_interior.c \
                update_s_elastic_interior_4.c \
                update_s_elastic_PML.c \
+               update_s_acoustic_PML.c \
                update_s_elastic_VTI_PML.c \
                update_s_elastic_TTI_PML.c \
                update_s_elastic_TTI_abs.c \
@@ -296,15 +312,17 @@ FDMOD_FILES := sofi2D.c \
                util.c \
                v_derivatives.c \
                wavefield_update_s_el.c \
+               wavefield_update_s_ac.c \
                wavefield_update_s_el_vti.c \
+               wavefield_update_s_ac_vti.c \
                wavefield_update_s_el_tti.c \
-               wavefield_update_s_el_tti_pml.c \
                wavefield_update_s_el_4.c \
                wavefield_update_s_visc.c \
                wavefield_update_s_visc_VTI.c \
                wavefield_update_s_visc_TTI.c \
                wavefield_update_s_visc_4.c \
                wavefield_update_v.c \
+               wavefield_update_v_ac.c \
                wavefield_update_v_4.c \
                wavelet.c \
                write_par.c \

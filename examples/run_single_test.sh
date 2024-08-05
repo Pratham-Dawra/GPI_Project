@@ -9,7 +9,12 @@ usage()
     echo
     echo -e "${UNDERLINE}Run a single SOFI FD modeling test${RESET}"
     echo
-    echo -e "${BOLD}$(basename $0) test${RESET}"
+    echo -e "${BOLD}$(basename $0) [-h] [-v] [-e exe] [-s snm] test${RESET}"
+    echo
+    echo "-h       :: show help message and exit"
+    echo "-v       :: run test using 'valgrind' memory checker (attention: this is slow)"
+    echo "-e exe   :: use SOFI executable 'exe' rather than default '../bin/sofi2D'"
+    echo "-s snm   :: use SNAPMERGE executable 'snm' rather than default '../bin/snapmerge'"
     echo
     echo "where 'test' is:"
     echo "  1      :: acoustic wave equation"
@@ -30,13 +35,27 @@ usage()
     echo
 }
 
-if [[ $# -eq 0 ]] ; then 
-    usage
-    exit 0
-fi
+if [[ $# -eq 0 ]] ; then usage ; exit 0 ; fi
 
-if [[ $# -gt 1 ]] ; then 
-    echo "Error: more than one input argument given." >&2
+valgrind=0
+snapexe="../bin/snapmerge"
+sofiexe="../bin/sofi2D"
+
+while getopts "hvs:e:" _options; do
+    case $_options in
+        h ) usage && exit 0 ;;
+        v ) valgrind=1 ;;
+        e ) sofiexe="$OPTARG" ;;
+        s ) snapexe="$OPTARG" ;;
+        \?) echo "Invalid option. Run $(basename $0) -h for help." && exit 1 ;;
+        * ) ;;
+    esac
+done
+shift $(($OPTIND-1))
+weq="$*"
+
+if [ -z "${weq}" ] ; then
+    echo "No test specified. Run $(basename $0) -h for help."
     exit 1
 fi
 
@@ -57,11 +76,14 @@ if [[ ${mpi_found} -ne 0 ]] ; then
     exit 1
 fi
 
-sofiexe="../bin/sofi2D"
+is_openmpi=$(${mpiexe} --version | grep -c -i "Open MPI")
+if [[ ${is_openmpi} -gt 0 ]] ; then
+    mpiexe="${mpiexe} --mca orte_base_help_aggregate 0 --mca btl_base_warn_component_unused 0"
+fi
 
 sofi_found=$(ls ${sofiexe} &>/dev/null ; echo $?)
 if [[ ${sofi_found} -ne 0 ]] ; then
-    echo "Error: s${sofiexe} program not found."
+    echo "Error: ${sofiexe} program not found."
     exit 1
 fi
 
@@ -73,16 +95,29 @@ if [[ ${json_found} -ne 0 ]] ; then
     exit 1
 fi
 
-snapexe="../bin/snapmerge"
-
 snap_found=$(ls ${snapexe} &>/dev/null ; echo $?)
 if [[ ${snap_found} -ne 0 ]] ; then
     echo "Error: ${snapexe} program not found."
     exit 1
 fi
 
+valexe="valgrind"
+valcommand=""
+
+if [[ ${valgrind} -eq 1 ]] ; then
+    val_found=$(which ${valexe} &>/dev/null ; echo $?)
+    if [[ ${val_found} -ne 0 ]] ; then
+	echo "Error: ${valexe} program not available."
+	exit 1
+    else
+	valcommand="${valexe} --tool=memcheck"
+    fi
+fi
+
 outdir=$(echo ${weq} | sed 's/_fy//g' | sed 's/_fdt4//g' | sed 's/_fwi//g')
 
-${mpiexe} -np 4 ${sofiexe} ${json} && ${snapexe} ${json} && rm -f weq${outdir}/*.bin.{vx,vy,p,curl,div}.*.*
+echo "Command: ${mpiexe} -np 4 ${valcommand} ${sofiexe} ${json}"
 
-#${mpiexe} -np 4 --mca orte_base_help_aggregate 0 --mca btl_base_warn_component_unused 0 valgrind --tool=memcheck ${sofiexe} ${json} && ${snapexe} ${json} && rm -f weq${outdir}/*.bin.{vx,vy,p,curl,div}.*.*
+${mpiexe} -np 4 ${valcommand} ${sofiexe} ${json} && \
+${snapexe} ${json} && \
+rm -f weq${outdir}/*.bin.{vx,vy,p,curl,div}.*.*

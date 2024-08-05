@@ -165,6 +165,7 @@ SOFI2D_SRC= \
 	zero_elastic.c \
 	zero_elastic_4.c \
 	zero_visco_4.c \
+	zero_acoustic.c \
 	zero_visc.c \
 	zero_PML_elastic.c \
 	zero_PML_visc.c

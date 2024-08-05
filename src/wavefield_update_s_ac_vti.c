@@ -18,22 +18,16 @@
   * <http://www.gnu.org/licenses/gpl-2.0.html>.
 ---------------------------------------------------------------------------------*/
 
-/* 
+/*
  * Update Function of the stress-Wavefields in the elastic case
  */
 
 #include "fd.h"
 
-void wavefield_update_s_el_tti_pml(int i, int j, float **vxx, float **vyx, float **vxy, float **vyy, float **sxy,
-                                   float **sxx, float **syy, float **pc11, float **pc55ipjp, float **pc13, float **pc33,
-                                   float **pc15, float **pc35, float **pc15ipjp, float **pc35ipjp)
+void wavefield_update_s_ac_vti(int i, int j, MemModel * mpm, MemWavefield * mpw)
 {
-    float vij = vyx[j][i] + vxy[j][i];
-    float v = vxy[j][i] + vyx[j][i];
-
-    /* Update  */
-    sxx[j][i] += ((pc11[j][i] * vxx[j][i]) + (pc13[j][i] * vyy[j][i]) + (pc15[j][i] * vij));
-    syy[j][i] += ((pc13[j][i] * vxx[j][i]) + (pc33[j][i] * vyy[j][i]) + (pc35[j][i] * vij));
-    sxy[j][i] += ((pc55ipjp[j][i] * v) + (pc15ipjp[j][i] * vxx[j][i]) + (pc35ipjp[j][i] * vyy[j][i]));
-
+  
+    /* updating components of the stress tensor */
+    mpw->psxx[j][i] += ((mpm->pc11[j][i] * mpw->pvxx[j][i]) + (mpm->pc13[j][i] * mpw->pvyy[j][i]));
+    mpw->psyy[j][i] += ((mpm->pc13[j][i] * mpw->pvxx[j][i]) + (mpm->pc33[j][i] * mpw->pvyy[j][i]));
 }

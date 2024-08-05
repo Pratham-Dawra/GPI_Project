@@ -27,9 +27,9 @@
 #include "logging.h"
 #include "macros.h"
 
-void sources(AcqVar *acq, GlobVar *gv)
+void sources(AcqVar *acq, GlobVar *gv, int *topo)
 {
-    int i, l, isrc = 0, current_source = 0, nvarin = 0;
+    int i, l, isrc = 0, current_source = 0, nvarin = 0, xidx, idx_topo;
     float xsrc, ysrc, tshift, tan_phi, dz, x, fc = 0.0;
     char buffer[STRING_SIZE], bufferstring[10], cline[256];
     FILE *fpsrc = NULL;
@@ -81,8 +81,8 @@ void sources(AcqVar *acq, GlobVar *gv)
                         if (l > acq->nsrc)
                             log_fatal("sources.c: buffer not large enough to store all sources - programming error.\n");
                         nvarin =
-                            sscanf(cline, "%f%f%f%f%f%f%f", &xsrc, &ysrc, &tshift, &(acq->srcpos[5][l]), &(acq->srcpos[6][l]),
-                                   &(acq->srcpos[7][l]), &(acq->srcpos[8][l]));
+                            sscanf(cline, "%f%f%f%f%f%f%f", &xsrc, &ysrc, &tshift, &(acq->srcpos[5][l]),
+                                   &(acq->srcpos[6][l]), &(acq->srcpos[7][l]), &(acq->srcpos[8][l]));
                         switch (nvarin) {
                           case 0:
                               xsrc = 0.0;
@@ -118,7 +118,13 @@ void sources(AcqVar *acq, GlobVar *gv)
                                          l, current_source);
                         }
                         acq->srcpos[1][l] = xsrc;
-                        acq->srcpos[2][l] = ysrc;
+                        if (1 == gv->SOURCE_TOPO) {
+                            xidx = (int)floor(xsrc / gv->DH) + 1;   // convert x coordinate to global index grid point
+                            idx_topo = topo[xidx];
+                            acq->srcpos[2][l] = (idx_topo - 1) * gv->DH + ysrc;
+                        } else {
+                            acq->srcpos[2][l] = ysrc;
+                        }
                         acq->srcpos[3][l] = 0.0;
                         acq->srcpos[4][l] = tshift;
                         fc = acq->srcpos[5][l];
@@ -147,8 +153,9 @@ void sources(AcqVar *acq, GlobVar *gv)
                         if (l > acq->nsrc)
                             log_fatal("sources.c: buffer not large enough to store all sources - programming error.\n");
                         nvarin =
-                            sscanf(cline, "%f%f%f%f%f%f%f%f%f%f", &xsrc, &ysrc, &tshift, &(acq->srcpos[5][l]), &(acq->srcpos[6][l]),
-                                   &(acq->srcpos[9][l]), &(acq->srcpos[10][l]), &(acq->srcpos[11][l]), &(acq->srcpos[7][l]), &(acq->srcpos[8][l]));
+                            sscanf(cline, "%f%f%f%f%f%f%f%f%f%f", &xsrc, &ysrc, &tshift, &(acq->srcpos[5][l]),
+                                   &(acq->srcpos[6][l]), &(acq->srcpos[9][l]), &(acq->srcpos[10][l]),
+                                   &(acq->srcpos[11][l]), &(acq->srcpos[7][l]), &(acq->srcpos[8][l]));
                         switch (nvarin) {
                           case 0:
                               xsrc = 0.0;
@@ -201,7 +208,13 @@ void sources(AcqVar *acq, GlobVar *gv)
                                          l, current_source);
                         }
                         acq->srcpos[1][l] = xsrc;
-                        acq->srcpos[2][l] = ysrc;
+                        if (1 == gv->SOURCE_TOPO) {
+                            xidx = (int)floor(xsrc / gv->DH) + 1;   // convert x coordinate to global index grid point
+                            idx_topo = topo[xidx];
+                            acq->srcpos[2][l] = (idx_topo - 1) * gv->DH + ysrc;
+                        } else {
+                            acq->srcpos[2][l] = ysrc;
+                        }
                         acq->srcpos[3][l] = 0.0;
                         acq->srcpos[4][l] = tshift;
                         fc = acq->srcpos[5][l];
@@ -231,8 +244,9 @@ void sources(AcqVar *acq, GlobVar *gv)
                         if (l > acq->nsrc)
                             log_fatal("sources.c: buffer not large enough to store all sources - programming error.\n");
                         nvarin =
-                            sscanf(cline, "%f%f%f%f%f%f%f%f%f%f", &xsrc, &ysrc, &tshift, &(acq->srcpos[9][l]), &(acq->srcpos[10][l]),
-                                   &(acq->srcpos[6][l]), &(acq->srcpos[11][l]), &(acq->srcpos[12][l]), &(acq->srcpos[7][l]), &(acq->srcpos[8][l]));
+                            sscanf(cline, "%f%f%f%f%f%f%f%f%f%f", &xsrc, &ysrc, &tshift, &(acq->srcpos[9][l]),
+                                   &(acq->srcpos[10][l]), &(acq->srcpos[6][l]), &(acq->srcpos[11][l]),
+                                   &(acq->srcpos[12][l]), &(acq->srcpos[7][l]), &(acq->srcpos[8][l]));
                         switch (nvarin) {
                           case 0:
                               xsrc = 0.0;
@@ -285,7 +299,13 @@ void sources(AcqVar *acq, GlobVar *gv)
                                          l, current_source);
                         }
                         acq->srcpos[1][l] = xsrc;
-                        acq->srcpos[2][l] = ysrc;
+                        if (1 == gv->SOURCE_TOPO) {
+                            xidx = (int)floor(xsrc / gv->DH) + 1;   // convert x coordinate to global index grid point
+                            idx_topo = topo[xidx];
+                            acq->srcpos[2][l] = (idx_topo - 1) * gv->DH + ysrc;
+                        } else {
+                            acq->srcpos[2][l] = ysrc;
+                        }
                         acq->srcpos[3][l] = 0.0;
                         acq->srcpos[4][l] = tshift;
                         fc = (acq->srcpos[9][l] + acq->srcpos[10][l]) / 2;
@@ -325,15 +345,15 @@ void sources(AcqVar *acq, GlobVar *gv)
 
                 tan_phi = tan(gv->PLANE_WAVE_ANGLE * PI / 180.0);
 
-                dz = (float)(gv->NXG-1) * gv->DH * tan_phi;
+                dz = (float)(gv->NXG - 1) * gv->DH * tan_phi;
                 log_info("Maximum depth of plane wave: %5.2fm\n", gv->PLANE_WAVE_DEPTH + dz);
-                if ((gv->PLANE_WAVE_DEPTH + dz) <= (gv->NYG-1) * gv->DH) {
+                if ((gv->PLANE_WAVE_DEPTH + dz) <= (gv->NYG - 1) * gv->DH) {
                     acq->nsrc = gv->NXG;
                     acq->srcpos = matrix(1, 8, 1, acq->nsrc);
                     isrc = 0;
                     for (i = 1; i <= gv->NXG; i++) {
                         isrc++;
-                        x = (i-1) * gv->DH;
+                        x = (i - 1) * gv->DH;
                         acq->srcpos[1][isrc] = x;
                         acq->srcpos[2][isrc] = gv->PLANE_WAVE_DEPTH + (tan_phi * x);
                         acq->srcpos[3][isrc] = 0.0;
@@ -362,7 +382,7 @@ void sources(AcqVar *acq, GlobVar *gv)
 #endif
 
     if (gv->MPID == 0) {
-        if (acq->nsrc > 50)
+        if (acq->nsrc > 50 && 0 == gv->SOURCE_TOPO)
             log_warn("The following table is quite large (%d lines); only printing the first 50 entries!\n", acq->nsrc);
         if (4 >= gv->SOURCE_SHAPE) {
             log_info("  Shot         x         y   tshift       fc      amp azimuth type\n");
@@ -374,22 +394,24 @@ void sources(AcqVar *acq, GlobVar *gv)
         }
 
         int maxprint = acq->nsrc;
-        if (maxprint > 50)
+        if (maxprint > 50 && 0 == gv->SOURCE_TOPO)
             maxprint = 50;
 
         for (l = 1; l <= maxprint; l++) {
             if (4 >= gv->SOURCE_SHAPE) {
                 log_info("%6d %9.2f %9.2f %8.4f %8.2f %8.2f %7.2f %4d\n",
-                         l, acq->srcpos[1][l], acq->srcpos[2][l], acq->srcpos[4][l], acq->srcpos[5][l], acq->srcpos[6][l], acq->srcpos[7][l],
-                         (int)acq->srcpos[8][l]);
+                         l, acq->srcpos[1][l], acq->srcpos[2][l], acq->srcpos[4][l], acq->srcpos[5][l],
+                         acq->srcpos[6][l], acq->srcpos[7][l], (int)acq->srcpos[8][l]);
             } else if (5 == gv->SOURCE_SHAPE) {
                 log_info("%6d %9.2f %9.2f %8.4f %8.2f %8.2f %4.1f %7.2f %7.2f %7.2f %4d\n",
-                         l, acq->srcpos[1][l], acq->srcpos[2][l], acq->srcpos[4][l], acq->srcpos[5][l], acq->srcpos[6][l], acq->srcpos[9][l],
-                         acq->srcpos[10][l], acq->srcpos[11][l], acq->srcpos[7][l], (int)acq->srcpos[8][l]);
+                         l, acq->srcpos[1][l], acq->srcpos[2][l], acq->srcpos[4][l], acq->srcpos[5][l],
+                         acq->srcpos[6][l], acq->srcpos[9][l], acq->srcpos[10][l], acq->srcpos[11][l],
+                         acq->srcpos[7][l], (int)acq->srcpos[8][l]);
             } else if (6 == gv->SOURCE_SHAPE) {
                 log_info("%6d %9.2f %9.2f %8.4f %8.2f %8.2f %8.2f %7.2f %8.2f %8.2f %7.2f %4d\n",
-                         l, acq->srcpos[1][l], acq->srcpos[2][l], acq->srcpos[4][l], acq->srcpos[9][l], acq->srcpos[10][l], acq->srcpos[5][l],
-                         acq->srcpos[6][l], acq->srcpos[11][l], acq->srcpos[12][l], acq->srcpos[7][l], (int)acq->srcpos[8][l]);
+                         l, acq->srcpos[1][l], acq->srcpos[2][l], acq->srcpos[4][l], acq->srcpos[9][l],
+                         acq->srcpos[10][l], acq->srcpos[5][l], acq->srcpos[6][l], acq->srcpos[11][l],
+                         acq->srcpos[12][l], acq->srcpos[7][l], (int)acq->srcpos[8][l]);
             }
         }
     }                           // end gv->MPID==0

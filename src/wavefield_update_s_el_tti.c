@@ -33,11 +33,10 @@ void wavefield_update_s_el_tti(int i, int j, MemModel * mpm, MemWavefield * mpw,
         (0.25 * (mpw->pvxy[j][i] + mpw->pvxy[j - 1][i] + mpw->pvxy[j][i - 1] + mpw->pvxy[j - 1][i - 1]));
     float v = mpw->pvxy[j][i] + mpw->pvyx[j][i];
 
-    /* Update  */
+    /* calculate stress component update */
     u1 = ((mpm->pc55ipjp[j][i] * v) + (mpm->pc15ipjp[j][i] * vxxipjp) + (mpm->pc35ipjp[j][i] * vyyipjp));
     u2 = ((mpm->pc11[j][i] * mpw->pvxx[j][i]) + (mpm->pc13[j][i] * mpw->pvyy[j][i]) + (mpm->pc15[j][i] * vij));
     u3 = ((mpm->pc13[j][i] * mpw->pvxx[j][i]) + (mpm->pc33[j][i] * mpw->pvyy[j][i]) + (mpm->pc35[j][i] * vij));
-
 
     /* updating components of the stress tensor */
     mpw->psxy[j][i] += u1;
