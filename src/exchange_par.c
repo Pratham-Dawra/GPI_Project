@@ -150,12 +150,10 @@ void exchange_par(GlobVar *gv, GlobVarInv *vinv)
         idum[39] = gv->FDORDER_TIME;
         idum[40] = gv->SIGOUT;
         idum[41] = gv->SIGOUT_FORMAT;
+        idum[42] = gv->SOURCE_SHAPE_OLD;
 
 /* ****** FWI ****** */
-        idum[42] = vinv->TRKILL_STF;
-        //
-        //
-        //
+        idum[45] = vinv->TRKILL_STF;
         idum[46] = vinv->GRADT1;
         idum[47] = vinv->GRADT2;
         idum[48] = vinv->GRADT3;
@@ -387,13 +385,11 @@ void exchange_par(GlobVar *gv, GlobVarInv *vinv)
     gv->FDORDER_TIME = idum[39];
     gv->SIGOUT = idum[40];
     gv->SIGOUT_FORMAT = idum[41];
+    gv->SOURCE_SHAPE_OLD = idum[42];
 
 /* ****** FWI ****** */
 
-    vinv->TRKILL_STF = idum[42];
-    //  
-    //
-    //
+    vinv->TRKILL_STF = idum[45];
     vinv->GRADT1 = idum[46];
     vinv->GRADT2 = idum[47];
     vinv->GRADT3 = idum[48];
