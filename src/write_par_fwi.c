@@ -68,9 +68,9 @@ void write_par_fwi(GlobVar *gv, GlobVarInv *vinv)
 
     log_info("File name for output of inverted models: %s\n", vinv->INV_MODELFILE);
     log_info("Every %d iteration(s) a model will be output starting at iteration %d.\n", vinv->NF, vinv->NFSTART);
-    log_info("File name for output of jacobian: %s\n", vinv->JACOBIAN);
-    log_info("Every %d iteration(s) a jacobian matrix will be output starting at iteration %d.\n", vinv->NF_JAC,
-             vinv->NFSTART_JAC);
+    log_info("File name for output of gradient: %s\n", vinv->GRADIENT);
+    log_info("Every %d iteration(s) a gradient matrix will be output starting at iteration %d.\n", vinv->NF_GRAD,
+             vinv->NFSTART_GRAD);
 
     log_info("Vp is inverted from iteration step %d on.\n", vinv->INV_VP_ITER);
     if (gv->WEQ > 2 && gv->WEQ < 9) {

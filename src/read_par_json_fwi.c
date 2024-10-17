@@ -255,13 +255,13 @@ int read_par_json_fwi(int number_readobjects, char **varname_list, char **value_
 
     /* Output of gradients */
     if (get_string_from_objectlist
-        ("JACOBIAN", number_readobjects, (vinv->JACOBIAN), varname_list, value_list, used_list))
-        log_fatal("Variable JACOBIAN could not be retrieved from the json input file!");
+        ("GRADIENT", number_readobjects, (vinv->GRADIENT), varname_list, value_list, used_list))
+        log_fatal("Variable GRADIENT could not be retrieved from the json input file!");
     if (get_int_from_objectlist
-        ("NFSTART_JAC", number_readobjects, &(vinv->NFSTART_JAC), varname_list, value_list, used_list))
-        log_fatal("Variable NFSTART_JAC could not be retrieved from the json input file!");
-    if (get_int_from_objectlist("NF_JAC", number_readobjects, &(vinv->NF_JAC), varname_list, value_list, used_list))
-        log_fatal("Variable NF_JAC could not be retrieved from the json input file!");
+        ("NFSTART_GRAD", number_readobjects, &(vinv->NFSTART_GRAD), varname_list, value_list, used_list))
+        log_fatal("Variable NFSTART_GRAD could not be retrieved from the json input file!");
+    if (get_int_from_objectlist("NF_GRAD", number_readobjects, &(vinv->NF_GRAD), varname_list, value_list, used_list))
+        log_fatal("Variable NF_GRAD could not be retrieved from the json input file!");
 
     /* Inversion for density */
     if (get_int_from_objectlist

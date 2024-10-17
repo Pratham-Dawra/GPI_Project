@@ -141,17 +141,17 @@ void check_fs(GlobVar * gv, GlobVarInv *vinv)
         free(moddirc);
 
         /* Gradient directory */
-        char *jacdirc = strdup(vinv->JACOBIAN);
-        if (!jacdirc)
+        char *graddirc = strdup(vinv->GRADIENT);
+        if (!graddirc)
             log_fatal("Could not copy string in check_fs.c - memory issue encountered.\n");
-        char *jacname = dirname(jacdirc);
-        if (access(jacname, W_OK) != 0) {
-            log_error("Cannot write to gradient file directory %s.\n", jacname);
+        char *gradname = dirname(graddirc);
+        if (access(gradname, W_OK) != 0) {
+            log_error("Cannot write to gradient file directory %s.\n", gradname);
             fserr = 1;
         } else {
-            log_infoc(0, "Filesystem check: gradient file directory %s is writable.\n", jacname);
+            log_infoc(0, "Filesystem check: gradient file directory %s is writable.\n", gradname);
         }
-        free(jacdirc);
+        free(graddirc);
 
     }
 

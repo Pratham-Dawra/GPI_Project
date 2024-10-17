@@ -150,9 +150,11 @@ void exchange_par(GlobVar *gv, GlobVarInv *vinv)
         idum[39] = gv->FDORDER_TIME;
         idum[40] = gv->SIGOUT;
         idum[41] = gv->SIGOUT_FORMAT;
-        idum[42] = gv->SOURCE_SHAPE_OLD;
 
 /* ****** FWI ****** */
+        idum[42] = gv->SOURCE_SHAPE_OLD;
+        //
+        //
         idum[45] = vinv->TRKILL_STF;
         idum[46] = vinv->GRADT1;
         idum[47] = vinv->GRADT2;
@@ -178,8 +180,8 @@ void exchange_par(GlobVar *gv, GlobVarInv *vinv)
         idum[68] = vinv->INV_RHO_ITER;
         idum[69] = vinv->NFSTART;
         idum[70] = vinv->NF;
-        idum[71] = vinv->NFSTART_JAC;
-        idum[72] = vinv->NF_JAC;
+        idum[71] = vinv->NFSTART_GRAD;
+        idum[72] = vinv->NF_GRAD;
         idum[73] = vinv->SWS_TAPER_FILE;
         idum[75] = vinv->GRAD_METHOD;
         idum[76] = vinv->MODEL_FILTER;
@@ -255,7 +257,7 @@ void exchange_par(GlobVar *gv, GlobVarInv *vinv)
     MPI_Bcast(&(vinv->DATA_DIR), STRING_SIZE, MPI_CHAR, 0, MPI_COMM_WORLD);
     MPI_Bcast(&(vinv->MISFIT_LOG_FILE), STRING_SIZE, MPI_CHAR, 0, MPI_COMM_WORLD);
     MPI_Bcast(&(vinv->INV_MODELFILE), STRING_SIZE, MPI_CHAR, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&(vinv->JACOBIAN), STRING_SIZE, MPI_CHAR, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&(vinv->GRADIENT), STRING_SIZE, MPI_CHAR, 0, MPI_COMM_WORLD);
     MPI_Bcast(&(vinv->FILE_WORKFLOW), STRING_SIZE, MPI_CHAR, 0, MPI_COMM_WORLD);
     MPI_Bcast(&(vinv->WORKFLOW_HEADER), STRING_SIZE, MPI_CHAR, 0, MPI_COMM_WORLD);
     MPI_Bcast(&(vinv->PARA), STRING_SIZE, MPI_CHAR, 0, MPI_COMM_WORLD);
@@ -385,10 +387,12 @@ void exchange_par(GlobVar *gv, GlobVarInv *vinv)
     gv->FDORDER_TIME = idum[39];
     gv->SIGOUT = idum[40];
     gv->SIGOUT_FORMAT = idum[41];
-    gv->SOURCE_SHAPE_OLD = idum[42];
 
 /* ****** FWI ****** */
 
+    gv->SOURCE_SHAPE_OLD= idum[42];
+    //  
+    //
     vinv->TRKILL_STF = idum[45];
     vinv->GRADT1 = idum[46];
     vinv->GRADT2 = idum[47];
@@ -414,8 +418,8 @@ void exchange_par(GlobVar *gv, GlobVarInv *vinv)
     vinv->INV_RHO_ITER = idum[68];
     vinv->NFSTART = idum[69];
     vinv->NF = idum[70];
-    vinv->NFSTART_JAC = idum[71];
-    vinv->NF_JAC = idum[72];
+    vinv->NFSTART_GRAD = idum[71];
+    vinv->NF_GRAD = idum[72];
     vinv->SWS_TAPER_FILE = idum[73];
     vinv->GRAD_METHOD = idum[75];
     vinv->MODEL_FILTER = idum[76];

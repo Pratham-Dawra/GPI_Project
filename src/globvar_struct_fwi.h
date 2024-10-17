@@ -48,9 +48,9 @@ typedef struct {
     char INV_MODELFILE[STRING_SIZE];    // file name to output inverted model
     int NFSTART;                // iteration step for first model output
     int NF;                     // iteration increment for model output
-    char JACOBIAN[STRING_SIZE]; // file name to output gradients
-    int NFSTART_JAC;            // first iteration step to save gradients
-    int NF_JAC;                 // gradients are saved every nf_jac iteration step
+    char GRADIENT[STRING_SIZE]; // file name to output gradients
+    int NFSTART_GRAD;            // first iteration step to save gradients
+    int NF_GRAD;                 // gradients are saved every nf_grad iteration step
 
     /* Workflow setting */
     int USE_WORKFLOW;           // switch to use workflow file

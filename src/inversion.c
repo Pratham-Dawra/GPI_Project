@@ -30,6 +30,9 @@ void inversion(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemMo
     int itestshot, swstestshot;
     float **sectionread = NULL;
     float **srcpos_loc_back = NULL;
+    char modfile[2*STRING_SIZE];
+
+    FILE *FP1 = NULL;
 
     sectionread = matrix(1, gv->NTRG, 1, gv->NS);
 
@@ -80,6 +83,7 @@ void inversion(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemMo
         }
         calc_res(minv->sectionvxdata, minv->sectionvxcalc, minv->sectionvxdiff, minv->sectionvxdiffold, 1, swstestshot,
                  ishot, iter, acq, gv, vinv);
+
         /*if (swstestshot == 1) {
          * energy =
          * calc_energy(sectionvxdata, ntr, ns, energy, ntr_glob, recpos_loc,
@@ -218,7 +222,72 @@ void inversion(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemMo
               gv->NTR, 1, acq, mpm, mpw, minv, gv, vinv, perf);
 
 
+    /* prepare gradient output: merge gradient files */
+    /* merge gradient file - vp */
+    sprintf(modfile,"%s_gradient_vp.old.%i.%i",vinv->GRADIENT,gv->POS[1],gv->POS[2]);
+	FP1=fopen(modfile,"wb");
 
+	for (i=1;i<=gv->NX;i=i+gv->IDX){
+		for (j=1;j<=gv->NY;j=j+gv->IDY){
+			fwrite(&minv->waveconv_shot[j][i],sizeof(float),1,FP1);
+		}
+	}
+
+	fclose(FP1);
+
+	MPI_Barrier(MPI_COMM_WORLD);
+
+	sprintf(modfile,"%s_gradient_vp.old",vinv->GRADIENT);
+	if (gv->MPID==0) mergemod(modfile, 3, gv);
+
+
+    /* merge gradient file - vs*/
+    sprintf(modfile,"%s_gradient_vs.old.%i.%i",vinv->GRADIENT,gv->POS[1],gv->POS[2]);
+	FP1=fopen(modfile,"wb");
+
+	for (i=1;i<=gv->NX;i=i+gv->IDX){
+		for (j=1;j<=gv->NY;j=j+gv->IDY){
+			fwrite(&minv->waveconv_u_shot[j][i],sizeof(float),1,FP1);
+		}
+	}
+
+	fclose(FP1);
+
+	MPI_Barrier(MPI_COMM_WORLD);
+
+	sprintf(modfile,"%s_gradient_vs.old",vinv->GRADIENT);
+	if (gv->MPID==0) mergemod(modfile, 3, gv);
+
+
+    /* merge gradient filer - rho'*/
+    sprintf(modfile,"%s_gradient_rho.old.%i.%i",vinv->GRADIENT,gv->POS[1],gv->POS[2]);
+	FP1=fopen(modfile,"wb");
+
+	for (i=1;i<=gv->NX;i=i+gv->IDX){
+		for (j=1;j<=gv->NY;j=j+gv->IDY){
+			fwrite(&minv->waveconv_rho_shot[j][i],sizeof(float),1,FP1);
+		}
+	}
+
+	fclose(FP1);
+
+	MPI_Barrier(MPI_COMM_WORLD);
+
+	sprintf(modfile,"%s_gradient_rho.old",vinv->GRADIENT);
+	if (gv->MPID==0) mergemod(modfile, 3, gv);
+
+
+
+
+    /* output gradient */
+    sprintf(modfile,"%s_gradient_vp_shot%i",vinv->GRADIENT,ishot);
+    writemod(modfile, minv->waveconv_u_shot, 3, gv);
+
+    sprintf(modfile,"%s_gradient_rho_shot%i",vinv->GRADIENT,ishot);
+    writemod(modfile, minv->waveconv_rho_shot, 3, gv);
+
+    sprintf(modfile,"%s_gradient_vs_shot%i",vinv->GRADIENT,ishot);
+    writemod(modfile, minv->waveconv_shot, 3, gv);
 
 
     free_matrix(sectionread, 1, gv->NTRG, 1, gv->NS);

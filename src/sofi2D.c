@@ -132,6 +132,7 @@ int main(int argc, char **argv)
     /* exchange parameters between MPI processes */
     exchange_par(&gv, &vinv);
 
+
     /* read FWI workflow */
     if (gv.MODE == FWI) {
         if (vinv.USE_WORKFLOW) {

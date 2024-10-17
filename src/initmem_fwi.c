@@ -74,7 +74,7 @@ void initmem_fwi(MemInv *minv, GlobVar *gv, GlobVarInv *vinv)
 
     minv->waveconvtmp = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
     minv->wcpart = matrix(1, 3, 1, 3);
-    minv->wavejac = matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
+    minv->wavejac= matrix(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND);
 
     minv->DTINV_help = ivector(1, gv->NT);
     minv->forward_prop_x = f3tensor(-gv->ND + 1, gv->NY + gv->ND, -gv->ND + 1, gv->NX + gv->ND, 1, vinv->NTDTINV);

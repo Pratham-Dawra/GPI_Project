@@ -148,9 +148,9 @@
 			"NF" : "1",
 
 "Output of gradients" : "comment",
-			"JACOBIAN" : "weq8_fwi/jacobian/jacobian_Test",
-			"NFSTART_JAC" : "1",
-			"NF_JAC" : "1",
+			"GRADIENT" : "weq8_fwi/gradient/gradient_Test",
+			"NFSTART_GRAD" : "1",
+			"NF_GRAD" : "1",
 
 "Hessian and Gradient-Method" : "comment",
 			"GRAD_METHOD" : "1",
