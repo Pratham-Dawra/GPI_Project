@@ -357,9 +357,9 @@ int main(int argc, char **argv)
 
                     for (j=1;j<=gv.NY;j=j+gv.IDY){
                          for (i=1;i<=gv.NX;i=i+gv.IDX){
-                             minv.waveconv[j][i] += minv.waveconv_shot[j][i];
-                             minv.waveconv_u[j][i] += minv.waveconv_u_shot[j][i];
-                             minv.waveconv_rho[j][i] += minv.waveconv_rho_shot[j][i];
+                             minv.gradVp[j][i] += minv.gradVp_shot[j][i];
+                             minv.gradVs[j][i] += minv.gradVs_shot[j][i];
+                             minv.gradRho[j][i] += minv.gradRho_shot[j][i];
                          }
                     }
 

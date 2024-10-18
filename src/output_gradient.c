@@ -39,7 +39,7 @@ void output_gradient(int ishot, int nshots, MemInv *minv, GlobVar *gv, GlobVarIn
 
 	for (i=1;i<=gv->NX;i=i+gv->IDX){
 		for (j=1;j<=gv->NY;j=j+gv->IDY){
-			fwrite(&minv->waveconv_shot[j][i],sizeof(float),1,FP6);
+			fwrite(&minv->gradVp_shot[j][i],sizeof(float),1,FP6);
 		}
 	}
 
@@ -50,7 +50,7 @@ void output_gradient(int ishot, int nshots, MemInv *minv, GlobVar *gv, GlobVarIn
 	sprintf(modfile,"%s_gradient_vp_shot.%i",vinv->GRADIENT,ishot);
 	if (gv->MPID==0) mergemod(modfile, 3, gv);
 
-    writemod(modfile, minv->waveconv_shot, 3, gv);
+    writemod(modfile, minv->gradVp_shot, 3, gv);
 
 
 
@@ -60,7 +60,7 @@ void output_gradient(int ishot, int nshots, MemInv *minv, GlobVar *gv, GlobVarIn
 
 	for (i=1;i<=gv->NX;i=i+gv->IDX){
 		for (j=1;j<=gv->NY;j=j+gv->IDY){
-			fwrite(&minv->waveconv_u_shot[j][i],sizeof(float),1,FP6);
+			fwrite(&minv->gradVs_shot[j][i],sizeof(float),1,FP6);
 		}
 	}
 
@@ -71,7 +71,7 @@ void output_gradient(int ishot, int nshots, MemInv *minv, GlobVar *gv, GlobVarIn
 	sprintf(modfile,"%s_gradient_vs_shot.%i",vinv->GRADIENT,ishot);
 	if (gv->MPID==0) mergemod(modfile, 3, gv);
 
-    writemod(modfile, minv->waveconv_u_shot, 3, gv);
+    writemod(modfile, minv->gradVs_shot, 3, gv);
 
 
     /* merge gradient filer - rho'*/
@@ -80,7 +80,7 @@ void output_gradient(int ishot, int nshots, MemInv *minv, GlobVar *gv, GlobVarIn
 
 	for (i=1;i<=gv->NX;i=i+gv->IDX){
 		for (j=1;j<=gv->NY;j=j+gv->IDY){
-			fwrite(&minv->waveconv_rho_shot[j][i],sizeof(float),1,FP6);
+			fwrite(&minv->gradRho_shot[j][i],sizeof(float),1,FP6);
 		}
 	}
 
@@ -91,7 +91,7 @@ void output_gradient(int ishot, int nshots, MemInv *minv, GlobVar *gv, GlobVarIn
 	sprintf(modfile,"%s_gradient_rho_shot.%i",vinv->GRADIENT,ishot);
 	if (gv->MPID==0) mergemod(modfile, 3, gv);
 
-    writemod(modfile, minv->waveconv_rho_shot, 3, gv);
+    writemod(modfile, minv->gradRho_shot, 3, gv);
 
     /* output of gradient summed up for all shots */
     if (ishot == nshots){
@@ -102,7 +102,7 @@ void output_gradient(int ishot, int nshots, MemInv *minv, GlobVar *gv, GlobVarIn
 
         for (i=1;i<=gv->NX;i=i+gv->IDX){
             for (j=1;j<=gv->NY;j=j+gv->IDY){
-                fwrite(&minv->waveconv[j][i],sizeof(float),1,FP6);
+                fwrite(&minv->gradVp[j][i],sizeof(float),1,FP6);
             }
         }
 
@@ -113,7 +113,7 @@ void output_gradient(int ishot, int nshots, MemInv *minv, GlobVar *gv, GlobVarIn
         sprintf(modfile,"%s_gradient.vp",vinv->GRADIENT);
         if (gv->MPID==0) mergemod(modfile, 3, gv);
 
-        writemod(modfile, minv->waveconv, 3, gv);
+        writemod(modfile, minv->gradVp, 3, gv);
 
 
 
@@ -123,7 +123,7 @@ void output_gradient(int ishot, int nshots, MemInv *minv, GlobVar *gv, GlobVarIn
 
         for (i=1;i<=gv->NX;i=i+gv->IDX){
             for (j=1;j<=gv->NY;j=j+gv->IDY){
-                fwrite(&minv->waveconv_u[j][i],sizeof(float),1,FP6);
+                fwrite(&minv->gradVs[j][i],sizeof(float),1,FP6);
             }
         }
 
@@ -134,7 +134,7 @@ void output_gradient(int ishot, int nshots, MemInv *minv, GlobVar *gv, GlobVarIn
         sprintf(modfile,"%s_gradient.vs",vinv->GRADIENT);
         if (gv->MPID==0) mergemod(modfile, 3, gv);
 
-        writemod(modfile, minv->waveconv_u, 3, gv);
+        writemod(modfile, minv->gradVs, 3, gv);
 
 
         /* merge gradient filer - rho'*/
@@ -143,7 +143,7 @@ void output_gradient(int ishot, int nshots, MemInv *minv, GlobVar *gv, GlobVarIn
 
         for (i=1;i<=gv->NX;i=i+gv->IDX){
             for (j=1;j<=gv->NY;j=j+gv->IDY){
-                fwrite(&minv->waveconv_rho[j][i],sizeof(float),1,FP6);
+                fwrite(&minv->gradRho[j][i],sizeof(float),1,FP6);
             }
         }
 
@@ -154,7 +154,7 @@ void output_gradient(int ishot, int nshots, MemInv *minv, GlobVar *gv, GlobVarIn
         sprintf(modfile,"%s_gradient.rho",vinv->GRADIENT);
         if (gv->MPID==0) mergemod(modfile, 3, gv);
 
-        writemod(modfile, minv->waveconv_rho, 3, gv);
+        writemod(modfile, minv->gradRho, 3, gv);
 
     }
 

@@ -19,9 +19,9 @@ void init_inv(int iter, MemInv * minv, GlobVar *gv, GlobVarInv *vinv)
     /* initialize waveconv matrix */
     for (j = 1; j <= gv->NY; j++) {
         for (i = 1; i <= gv->NX; i++) {
-            minv->waveconv[j][i] = 0.0;
-            minv->waveconv_rho[j][i] = 0.0;
-            minv->waveconv_u[j][i] = 0.0;
+            minv->gradVp[j][i] = 0.0;
+            minv->gradRho[j][i] = 0.0;
+            minv->gradVs[j][i] = 0.0;
         }
     }
 

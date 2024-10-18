@@ -60,29 +60,29 @@ typedef struct {
 
     float ***forward_prop_x;
     float ***forward_prop_y;
-    float **gradg;
-    float **gradp;
+    //float **gradg;
+    //float **gradp;
     float ***forward_prop_rho_x;
     float ***forward_prop_rho_y;
-    float **gradg_rho;
-    float **gradp_rho;
+    //float **gradg_rho;
+    //float **gradp_rho;
     float ***forward_prop_u;
-    float **gradg_u;
-    float **gradp_u;
+    //float **gradg_u;
+    //float **gradp_u;
     //float ***forward_prop_p;
 
-    float **waveconv;
-    float **waveconv_lam;
-    float **waveconv_shot;
-    float **waveconvtmp;
+    float **gradVp;
+    float **gradLam_shot;
+    float **gradVp_shot;
+    float **gradTmp;
     float **wcpart;
-    float **wavejac;
-    float **waveconv_rho;
-    float **waveconv_rho_s;
-    float **waveconv_rho_shot;
-    float **waveconv_u;
-    float **waveconv_mu;
-    float **waveconv_u_shot;
+    //float **wavegrad;
+    float **gradRho;
+    float **gradRhos_shot; /* w.r.t. lambda/mu/rho parameterization*/
+    float **gradRho_shot;
+    float **gradVs;
+    float **gradMu_shot;
+    float **gradVs_shot;
     
     /* for Wolfe condition*/
 

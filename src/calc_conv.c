@@ -1,4 +1,5 @@
 
+
 /*-----------------------------------------------------------------------------------------
  * Copyright (C) 2016  For the list of authors, see file AUTHORS.
  *
@@ -40,20 +41,22 @@ void calc_conv(int hin, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar 
     for (j = 1; j <= gv->NY; j = j + IDYI) {
         for (i = 1; i <= gv->NX; i = i + IDXI) {
 
-            minv->waveconv_rho_shot[j][i] +=
-                (minv->pvxp1[j][i] * minv->forward_prop_rho_x[j][i][vinv->NTDTINV - hin + 1]) +
-                (minv->pvyp1[j][i] * minv->forward_prop_rho_y[j][i][vinv->NTDTINV - hin + 1]);
-
-            minv->waveconv_shot[j][i] +=
-                (minv->forward_prop_x[j][i][vinv->NTDTINV - hin + 1] +
-                 minv->forward_prop_y[j][i][vinv->NTDTINV - hin + 1]) * (mpw->psxx[j][i] + mpw->psyy[j][i]);
+            /* get gradient for lambda/mu/rho parameterization */
 
             muss = mpm->prho[j][i] * mpm->pu[j][i] * mpm->pu[j][i];
             lamss = mpm->prho[j][i] * mpm->ppi[j][i] * mpm->ppi[j][i] - 2.0 * muss;
 
+            minv->gradRhos_shot[j][i] += - gv->DT *
+                ((minv->pvxp1[j][i] * minv->forward_prop_rho_x[j][i][vinv->NTDTINV - hin + 1]) +
+                (minv->pvyp1[j][i] * minv->forward_prop_rho_y[j][i][vinv->NTDTINV - hin + 1]));
+
+            minv->gradLam_shot[j][i] += - gv->DT * (1.0/(4.0 * (lamss+muss) * (lamss+muss))) *
+                ((minv->forward_prop_x[j][i][vinv->NTDTINV - hin + 1] +
+                 minv->forward_prop_y[j][i][vinv->NTDTINV - hin + 1]) * (mpw->psxx[j][i] + mpw->psyy[j][i]));
+
             if (mpm->pu[j][i] > 0.0) {
-                minv->waveconv_u_shot[j][i] +=
-                    ((1.0 / (muss * muss)) * (minv->forward_prop_u[j][i][vinv->NTDTINV - hin + 1] *
+                minv->gradMu_shot[j][i] += - gv->DT *
+                    (((1.0 / (muss * muss)) * (minv->forward_prop_u[j][i][vinv->NTDTINV - hin + 1] *
                     mpw->psxy[j][i])) +
                     ((1.0 / 4.0) *
                     ((minv->forward_prop_x[j][i][vinv->NTDTINV - hin + 1] +
@@ -62,8 +65,23 @@ void calc_conv(int hin, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar 
                     ((1.0 / 4.0) *
                     ((minv->forward_prop_x[j][i][vinv->NTDTINV - hin + 1] -
                     minv->forward_prop_y[j][i][vinv->NTDTINV - hin + 1]) *
-                    (mpw->psxx[j][i] - mpw->psyy[j][i])) / (muss * muss));
+                    (mpw->psxx[j][i] - mpw->psyy[j][i])) / (muss * muss)));
             }
+
+
+            /* get gradient for vp/vs/rho' parameterization */
+
+            /* calculate vp gradient */
+            minv->gradVp_shot[j][i] = 2.0 * mpm->ppi[j][i] * mpm->prho[j][i] * minv->gradLam_shot[j][i];
+
+            /* calculate vs gradient */
+            minv->gradVs_shot[j][i] = (- 4.0 * mpm->prho[j][i] * mpm->pu[j][i] * minv->gradLam_shot[j][i])
+                                           + 2.0 * mpm->prho[j][i] * mpm->pu[j][i] * minv->gradMu_shot[j][i];
+
+            /* calculate rho' gradient */
+            minv->gradRho_shot[j][i] = ((((mpm->ppi[j][i] * mpm->ppi[j][i]) - (2.0 * mpm->pu[j][i] * mpm->pu[j][i])) * minv->gradLam_shot[j][i]) +
+                                            (mpm->pu[j][i] * mpm->pu[j][i] * minv->gradMu_shot[j][i]) + minv->gradRhos_shot[j][i]);
+
         }
     }
 }

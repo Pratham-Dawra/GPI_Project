@@ -51,9 +51,9 @@ void zero_wavefield(int iter, MemWavefield *mpw, MemInv * minv, GlobVar *gv, Glo
             bzero(&(minv->pvym1[-gv->ND + 1][-gv->ND + 1]), nbyte_2);
         
             /* initialize gradient matrices for each shot with zeros */
-            bzero(&(minv->waveconv_shot[1][1]), nbyte_grad);
-            bzero(&(minv->waveconv_rho_shot[1][1]), nbyte_grad);
-            bzero(&(minv->waveconv_u_shot[1][1]), nbyte_grad);
+            bzero(&(minv->gradVp_shot[1][1]), nbyte_grad);
+            bzero(&(minv->gradRho_shot[1][1]), nbyte_grad);
+            bzero(&(minv->gradVs_shot[1][1]), nbyte_grad);
 
             if ((vinv->EPRECOND == 1) || ((vinv->EPRECOND == 3) && (vinv->EPRECOND_ITER == iter || (vinv->EPRECOND_ITER == 0)))) {
                 bzero(&(minv->Ws[1][1]), nbyte_grad);
