@@ -231,6 +231,7 @@ FDMOD_FILES := sofi2D.c \
                matcopy_elastic.c \
                mergemod.c \
                outseis_glob.c \
+	       output_gradient.c \
                PML_pro.c \
                prepare_update_s_ac.c \
                prepare_update_s_el.c \

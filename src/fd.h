@@ -178,6 +178,8 @@ void mergemod(const char *modfile, int format, GlobVar *gv);
 void outseis_glob(FILE *fpdata, float **section,
                   int **recpos, int ntr, float **srcpos_loc, int ns, int seis_form, int ishot, int comp, GlobVar *gv);
 
+void output_gradient(int ishot, int nshots, MemInv *minv, GlobVar *gv, GlobVarInv *vinv);
+
 void output_source_signal(FILE *fp, float **signals, int ns, int seis_form);
 
 void par_mult_dt(float **pi, float **u, float **uipjp);

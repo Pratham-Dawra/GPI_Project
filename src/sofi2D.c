@@ -55,6 +55,7 @@ int main(int argc, char **argv)
     /* variables in main */
     int ishot, nshots, snapcheck;   /* Added ishot and nshots for multiple shots */
     int iter;
+    int i,j;
     clock_t cpu_time1 = 0, cpu_time = 0;
     FILE *log_fp = NULL;
     char ext[10];
@@ -351,6 +352,18 @@ int main(int argc, char **argv)
                     if (gv.MODE == FWI) {
                         inversion(iter, ishot, snapcheck, hc, &acq, &mpm, &mpw, &minv, &gv, &vinv, &perf);
                     }
+
+                    /* sum gradients up for all shots */
+
+                    for (j=1;j<=gv.NY;j=j+gv.IDY){
+                         for (i=1;i<=gv.NX;i=i+gv.IDX){
+                             minv.waveconv[j][i] += minv.waveconv_shot[j][i];
+                             minv.waveconv_u[j][i] += minv.waveconv_u_shot[j][i];
+                             minv.waveconv_rho[j][i] += minv.waveconv_rho_shot[j][i];
+                         }
+                    }
+
+                    output_gradient(ishot, nshots, &minv, &gv, &vinv);
                 }
                 /*----------------  end of loop over multiple shots  -----------------*/
                 
