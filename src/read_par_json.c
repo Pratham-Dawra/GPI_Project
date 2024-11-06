@@ -219,16 +219,14 @@ void read_par_json(const char *fileinp, GlobVar *gv, GlobVarInv *vinv)
         }
     }
     if (get_int_from_objectlist
-        ("SOURCE_SHAPE", number_readobjects, &(gv->SOURCE_SHAPE), varname_list, value_list, used_list))
+        ("SOURCE_SHAPE", number_readobjects, &(gv->SOURCE_SHAPE), varname_list, value_list, used_list)) {
         log_fatal("Variable SOURCE_SHAPE could not be retrieved from the json input file!");
-    else {
-        if ((gv->SOURCE_SHAPE) == 3) {
-            if (get_string_from_objectlist
-                ("SIGNAL_FILE", number_readobjects, (gv->SIGNAL_FILE), varname_list, value_list, used_list))
-                log_fatal("Variable SIGNAL_FILE could not be retrieved from the json input file!");
-        }
+    } else if ((gv->SOURCE_SHAPE) == 3) {
+        if (get_string_from_objectlist
+            ("SIGNAL_FILE", number_readobjects, (gv->SIGNAL_FILE), varname_list, value_list, used_list))
+            log_fatal("Variable SIGNAL_FILE could not be retrieved from the json input file!");
     }
-    /* Save old SOURCE_SHAPE, which is needed for STF */
+    /* Save old SOURCE_SHAPE, which is needed for STFI */
     gv->SOURCE_SHAPE_OLD = gv->SOURCE_SHAPE;
     if (get_int_from_objectlist("SRCREC", number_readobjects, &(gv->SRCREC), varname_list, value_list, used_list))
         log_fatal("Variable SRCREC could not be retrieved from the json input file!");
@@ -300,9 +298,9 @@ void read_par_json(const char *fileinp, GlobVar *gv, GlobVarInv *vinv)
      * section snapshot parameters
      * ================================= */
 
-    if (get_int_from_objectlist("SNAP", number_readobjects, &(gv->SNAP), varname_list, value_list, used_list))
+    if (get_int_from_objectlist("SNAP", number_readobjects, &(gv->SNAP), varname_list, value_list, used_list)) {
         log_fatal("Variable SNAP could not be retrieved from the json input file!");
-    else {
+    } else {
         if ((gv->SNAP) > 0) {
             if (get_int_from_objectlist
                 ("SNAP_FORMAT", number_readobjects, &(gv->SNAP_FORMAT), varname_list, value_list, used_list))
@@ -319,16 +317,16 @@ void read_par_json(const char *fileinp, GlobVar *gv, GlobVarInv *vinv)
             if (get_string_from_objectlist
                 ("SNAP_FILE", number_readobjects, (gv->SNAP_FILE), varname_list, value_list, used_list))
                 log_fatal("Variable SNAP_FILE could not be retrieved from the json input file!");
-            if (get_int_from_objectlist
-                ("SNAPSHOT_START", number_readobjects, &(gv->SNAPSHOT_START), varname_list, value_list, used_list))
-                gv->SNAPSHOT_START = 1;
-            if (get_int_from_objectlist
-                ("SNAPSHOT_END", number_readobjects, &(gv->SNAPSHOT_END), varname_list, value_list, used_list))
-                gv->SNAPSHOT_END = -9999;
-            if (get_int_from_objectlist
-                ("SNAPSHOT_INCR", number_readobjects, &(gv->SNAPSHOT_INCR), varname_list, value_list, used_list))
-                gv->SNAPSHOT_INCR = 1;
         }
+        if (get_int_from_objectlist
+            ("SNAPSHOT_START", number_readobjects, &(gv->SNAPSHOT_START), varname_list, value_list, used_list))
+            gv->SNAPSHOT_START = 1;
+        if (get_int_from_objectlist
+            ("SNAPSHOT_END", number_readobjects, &(gv->SNAPSHOT_END), varname_list, value_list, used_list))
+            gv->SNAPSHOT_END = -9999;
+        if (get_int_from_objectlist
+            ("SNAPSHOT_INCR", number_readobjects, &(gv->SNAPSHOT_INCR), varname_list, value_list, used_list))
+            gv->SNAPSHOT_INCR = 1;
     }
     /* increments are read in any case, because they will be also used as increment for model output */
     if (get_int_from_objectlist("IDX", number_readobjects, &(gv->IDX), varname_list, value_list, used_list))

@@ -29,7 +29,7 @@
 
 int initsrc(int ishot, int nshots, AcqVar *acq, GlobVar *gv)
 {
-    int nt, snapcheck;
+    int nt, snapcheck = 0;
     char sigf[STRING_SIZE * 2], file_ext[5];
 
     if (acq->nsrc_loc > 0) {
@@ -93,10 +93,8 @@ int initsrc(int ishot, int nshots, AcqVar *acq, GlobVar *gv)
     }
     
     /* Check if snapshot output for this shot is wanted */
-    if (((ishot-gv->SNAPSHOT_START)%gv->SNAPSHOT_INCR) == 0 && ishot <= gv->SNAPSHOT_START) {
+    if (0 < gv->SNAP && ((ishot - gv->SNAPSHOT_START)%gv->SNAPSHOT_INCR) == 0 && ishot <= gv->SNAPSHOT_START) {
         snapcheck=1;
-    } else {
-        snapcheck=0;
     }
     
     return (snapcheck);
