@@ -43,8 +43,11 @@ void calc_conv(int hin, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar 
 
             /* get gradient for lambda/mu/rho parameterization */
 
-            muss = mpm->prho[j][i] * mpm->pu[j][i] * mpm->pu[j][i];
-            lamss = mpm->prho[j][i] * mpm->ppi[j][i] * mpm->ppi[j][i] - 2.0 * muss;
+            /*muss = mpm->prho[j][i] * mpm->pu[j][i] * mpm->pu[j][i];
+            lamss = mpm->prho[j][i] * mpm->ppi[j][i] * mpm->ppi[j][i] - 2.0 * muss;*/
+
+            muss = minv->Vs0[j][i] * minv->Vs0[j][i] * minv->Rho0[j][i];
+            lamss = minv->Vp0[j][i] * minv->Vp0[j][i] * minv->Rho0[j][i] - 2.0 * muss;
 
             minv->gradRhos_shot[j][i] += - gv->DT *
                 ((minv->pvxp1[j][i] * minv->forward_prop_rho_x[j][i][vinv->NTDTINV - hin + 1]) +
@@ -72,15 +75,15 @@ void calc_conv(int hin, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVar 
             /* get gradient for vp/vs/rho' parameterization */
 
             /* calculate vp gradient */
-            minv->gradVp_shot[j][i] = 2.0 * mpm->ppi[j][i] * mpm->prho[j][i] * minv->gradLam_shot[j][i];
+            minv->gradVp_shot[j][i] = 2.0 * minv->Rho0[j][i] * minv->Vp0[j][i] * minv->gradLam_shot[j][i];
 
             /* calculate vs gradient */
-            minv->gradVs_shot[j][i] = (- 4.0 * mpm->prho[j][i] * mpm->pu[j][i] * minv->gradLam_shot[j][i])
-                                           + 2.0 * mpm->prho[j][i] * mpm->pu[j][i] * minv->gradMu_shot[j][i];
+            minv->gradVs_shot[j][i] = (- 4.0 * minv->Vs0[j][i] * minv->Rho0[j][i] * minv->gradLam_shot[j][i])
+                                           + 2.0 * minv->Rho0[j][i] * minv->Vp0[j][i] * minv->gradMu_shot[j][i];
 
             /* calculate rho' gradient */
-            minv->gradRho_shot[j][i] = ((((mpm->ppi[j][i] * mpm->ppi[j][i]) - (2.0 * mpm->pu[j][i] * mpm->pu[j][i])) * minv->gradLam_shot[j][i]) +
-                                            (mpm->pu[j][i] * mpm->pu[j][i] * minv->gradMu_shot[j][i]) + minv->gradRhos_shot[j][i]);
+            minv->gradRho_shot[j][i] = ((((minv->Vp0[j][i] * minv->Vp0[j][i]) - (2.0 * minv->Vs0[j][i] * minv->Vs0[j][i])) * minv->gradLam_shot[j][i]) +
+                                            (minv->Vs0[j][i] * minv->Vs0[j][i] * minv->gradMu_shot[j][i]) + minv->gradRhos_shot[j][i]);
 
         }
     }
