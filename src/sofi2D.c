@@ -362,7 +362,9 @@ int main(int argc, char **argv)
                              minv.gradRho[j][i] += minv.gradRho_shot[j][i];
                          }
                     }
-
+                    
+                    MPI_Barrier(MPI_COMM_WORLD);
+                    
                     output_gradient(ishot, nshots, &minv, &gv, &vinv);
                 }
                 /*----------------  end of loop over multiple shots  -----------------*/
