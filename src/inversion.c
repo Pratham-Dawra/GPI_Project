@@ -218,8 +218,39 @@ void inversion(int iter, int ishot, int snapcheck, float *hc, AcqVar *acq, MemMo
 
     /*--------------------------------------------------------------------------------*/
     /*---------------------- Start loop over timesteps (backpropagation) -------------*/
+
     time_loop(iter, ishot, snapcheck, hc, srcpos_loc_back, minv->sectionvxdiff, minv->sectionvydiff,
               gv->NTR, 1, acq, mpm, mpw, minv, gv, vinv, perf);
+
+    /* get gradient for vp/vs/rho' parameterization */
+
+    for (j=1;j<=gv->NY;j=j+gv->IDY){
+        for (i=1;i<=gv->NX;i=i+gv->IDX){
+            /* calculate vp gradient */
+            minv->gradVp_shot[j][i] = 2.0 * minv->Rho0[j][i] * minv->Vp0[j][i] * minv->gradLam_shot[j][i];
+
+            /* calculate vs gradient */
+            minv->gradVs_shot[j][i] = (- 4.0 * minv->Vs0[j][i] * minv->Rho0[j][i] * minv->gradLam_shot[j][i])
+                                       + 2.0 * minv->Rho0[j][i] * minv->Vp0[j][i] * minv->gradMu_shot[j][i];
+
+            /* calculate rho' gradient */
+            minv->gradRho_shot[j][i] = ((((minv->Vp0[j][i] * minv->Vp0[j][i]) - (2.0 * minv->Vs0[j][i] * minv->Vs0[j][i])) * minv->gradLam_shot[j][i]) +
+                                       (minv->Vs0[j][i] * minv->Vs0[j][i] * minv->gradMu_shot[j][i]) + minv->gradRhos_shot[j][i]);
+        }
+    }
+
+
+    /* sum gradients up for all shots */
+
+    for (j=1;j<=gv->NY;j=j+gv->IDY){
+         for (i=1;i<=gv->NX;i=i+gv->IDX){
+             minv->gradVp[j][i] += minv->gradVp_shot[j][i];
+             minv->gradVs[j][i] += minv->gradVs_shot[j][i];
+             minv->gradRho[j][i] += minv->gradRho_shot[j][i];
+         }
+    }
+
+
 
 
     free_matrix(sectionread, 1, gv->NTRG, 1, gv->NS);

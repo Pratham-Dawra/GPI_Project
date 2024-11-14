@@ -349,23 +349,23 @@ int main(int argc, char **argv)
 
                     /*------------------------------------------------------------------------------*/
                     /*---------- Inversion: Start inversion process --------------------------------*/
-                    if (gv.MODE == FWI) {
-                        inversion(iter, ishot, snapcheck, hc, &acq, &mpm, &mpw, &minv, &gv, &vinv, &perf);
-                    }
-
-                    /* sum gradients up for all shots */
 
                     for (j=1;j<=gv.NY;j=j+gv.IDY){
                          for (i=1;i<=gv.NX;i=i+gv.IDX){
-                             minv.gradVp[j][i] += minv.gradVp_shot[j][i];
-                             minv.gradVs[j][i] += minv.gradVs_shot[j][i];
-                             minv.gradRho[j][i] += minv.gradRho_shot[j][i];
+                             minv.gradRhos_shot[j][i] = 0;
+                             minv.gradLam_shot[j][i] = 0;
+                             minv.gradMu_shot[j][i] = 0;
                          }
+                    }
+
+                    if (gv.MODE == FWI) {
+                        inversion(iter, ishot, snapcheck, hc, &acq, &mpm, &mpw, &minv, &gv, &vinv, &perf);
                     }
                     
                     MPI_Barrier(MPI_COMM_WORLD);
-                    
+
                     output_gradient(ishot, nshots, &minv, &gv, &vinv);
+
                 }
                 /*----------------  end of loop over multiple shots  -----------------*/
                 

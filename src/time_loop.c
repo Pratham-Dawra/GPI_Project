@@ -288,6 +288,7 @@ void time_loop(int iter, int ishot, int snapcheck, float *hc, float **srcpos_loc
         if (gv->MODE == FWI) {
             if (sw == 0 && nt == hin1) {
                 snap_store(nt, hin, mpw, minv, gv, vinv);
+                hin1 += vinv->DTINV;
             }
             /* calculate convolution */
             if (sw == 1 && minv->DTINV_help[gv->NT - nt + 1] == 1) {
@@ -299,7 +300,6 @@ void time_loop(int iter, int ishot, int snapcheck, float *hc, float **srcpos_loc
                 if (sw == 1) eprecond(mpw, minv->Wr, gv);
             }
             hin++;
-            hin1 += vinv->DTINV;
         }
 
         /* write snapshot to disk */
