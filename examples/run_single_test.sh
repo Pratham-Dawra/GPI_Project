@@ -38,7 +38,7 @@ usage()
 if [[ $# -eq 0 ]] ; then usage ; exit 0 ; fi
 
 valgrind=0
-snapexe="../bin/snapmerge"
+#snapexe="../bin/snapmerge"
 sofiexe="../bin/sofi2D"
 
 while getopts "hvs:e:" _options; do
@@ -119,5 +119,5 @@ outdir=$(echo ${weq} | sed 's/_fy//g' | sed 's/_fdt4//g' | sed 's/_fwi//g')
 echo "Command: ${mpiexe} -np 4 ${valcommand} ${sofiexe} ${json}"
 
 ${mpiexe} -np 4 ${valcommand} ${sofiexe} ${json} && \
-${snapexe} ${json} && \
+#${snapexe} ${json} && \
 rm -f weq${outdir}/*.bin.{vx,vy,p,curl,div}.*.*

@@ -25,13 +25,9 @@
 
 #include "fd.h"
 
-void seismo_ssg(int lsamp, int **recpos, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv)
+void seismo_ssg(int lsamp, int **recpos, MemModel *mpm, MemWavefield *mpw, GlobVar *gv)
 {
-    int i, j, ins, nxrec, nyrec, m;
-    float vxx, vyy, vxy, vyx;
-
-    float dhi = 1.0 / gv->DH;
-    int fdoh = gv->FDORDER / 2;
+    int ins, nxrec, nyrec;
 
     ins = lsamp / gv->NDT;
     
@@ -45,63 +41,26 @@ void seismo_ssg(int lsamp, int **recpos, float *hc, MemModel *mpm, MemWavefield 
               break;
 
           case 2:              /* pressure */
-              i = nxrec;
-              j = nyrec;
-              gv->SECTIONP[itr][ins]=-mpw->psxx[nyrec][nxrec]-mpw->psyy[nyrec][nxrec]; // unscaled amplitude
+              gv->SECTIONP[itr][ins] = -mpw->psxx[nyrec][nxrec] - mpw->psyy[nyrec][nxrec]; // unscaled amplitude
               /*gv->SECTIONP[itr][ins] = ((3.0 * mpm->ppi[j][i] - 4.0 * mpm->pu[j][i]) / (2.0 * mpm->ppi[j][i] - 2.0 * mpm->pu[j][i]))
                                        * (-mpw->psxx[nyrec][nxrec] - mpw->psyy[nyrec][nxrec]) / 3;  */  // true amplitude
               break;
 
           case 3:              /* curl +div */
-              i = nxrec;
-              j = nyrec;
 
-              vxx = 0;
-              vyy = 0;
-              vyx = 0;
-              vxy = 0;
-              for (m = 1; m <= fdoh; m++) {
-                  vxx += hc[m] * (mpw->pvx[j][i + m - 1] - mpw->pvx[j][i - m]);
-                  vyy += hc[m] * (mpw->pvy[j + m - 1][i] - mpw->pvy[j - m][i]);
-                  vyx += hc[m] * (mpw->pvy[j][i + m] - mpw->pvy[j][i - m + 1]);
-                  vxy += hc[m] * (mpw->pvx[j + m][i] - mpw->pvx[j - m + 1][i]);
-              }
-              vxx *= dhi;
-              vyy *= dhi;
-              vyx *= dhi;
-              vxy *= dhi;
-
-              gv->SECTIONDIV[itr][ins] = (vxx + vyy) * sqrt(mpm->ppi[j][i]);
-              gv->SECTIONCURL[itr][ins] = (vxy - vyx) * sqrt(mpm->pu[j][i]);
+              gv->SECTIONDIV[itr][ins] = (mpw->pvxx[nyrec][nxrec] + mpw->pvyy[nyrec][nxrec]) * sqrt(mpm->ppi[nyrec][nxrec]);
+              gv->SECTIONCURL[itr][ins] = (mpw->pvxy[nyrec][nxrec] - mpw->pvyx[nyrec][nxrec]) * sqrt(mpm->pu[nyrec][nxrec]);
               break;
 
           case 4:              /* all */
-              i = nxrec;
-              j = nyrec;
 
-              vxx = 0;
-              vyy = 0;
-              vyx = 0;
-              vxy = 0;
-              for (m = 1; m <= fdoh; m++) {
-                  vxx += hc[m] * (mpw->pvx[j][i + m - 1] - mpw->pvx[j][i - m]);
-                  vyy += hc[m] * (mpw->pvy[j + m - 1][i] - mpw->pvy[j - m][i]);
-                  vyx += hc[m] * (mpw->pvy[j][i + m] - mpw->pvy[j][i - m + 1]);
-                  vxy += hc[m] * (mpw->pvx[j + m][i] - mpw->pvx[j - m + 1][i]);
-              }
-              vxx *= dhi;
-              vyy *= dhi;
-              vyx *= dhi;
-              vxy *= dhi;
-
-              gv->SECTIONDIV[itr][ins] = (vxx + vyy) * sqrt(mpm->ppi[j][i]);
-              gv->SECTIONCURL[itr][ins] = (vxy - vyx) * sqrt(mpm->pu[j][i]);
+              gv->SECTIONDIV[itr][ins] = (mpw->pvxx[nyrec][nxrec] + mpw->pvyy[nyrec][nxrec]) * sqrt(mpm->ppi[nyrec][nxrec]);
+              gv->SECTIONCURL[itr][ins] = (mpw->pvxy[nyrec][nxrec] - mpw->pvyx[nyrec][nxrec]) * sqrt(mpm->pu[nyrec][nxrec]);
               gv->SECTIONVX[itr][ins] = mpw->pvx[nyrec][nxrec];
               gv->SECTIONVY[itr][ins] = mpw->pvy[nyrec][nxrec];
               //gv->SECTIONP[itr][ins]=-sxx[nyrec][nxrec]-syy[nyrec][nxrec]; //unscaled amplitude
-              gv->SECTIONP[itr][ins] = ((3.0 * mpm->ppi[j][i] - 4.0 * mpm->pu[j][i]) / (2.0 * mpm->ppi[j][i] -
-                                                                                        2.0 * mpm->pu[j][i])) *
-                  (-mpw->psxx[nyrec][nxrec] - mpw->psyy[nyrec][nxrec]) / 3;
+              gv->SECTIONP[itr][ins] = ((3.0 * mpm->ppi[nyrec][nxrec] - 4.0 * mpm->pu[nyrec][nxrec]) / (2.0 * mpm->ppi[nyrec][nxrec] -
+                                         2.0 * mpm->pu[nyrec][nxrec])) * (-mpw->psxx[nyrec][nxrec] - mpw->psyy[nyrec][nxrec]) / 3;
               break;
         }
     }

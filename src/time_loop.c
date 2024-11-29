@@ -280,7 +280,7 @@ void time_loop(int iter, int ishot, int snapcheck, float *hc, float **srcpos_loc
 
         /* store amplitudes at receivers in section-arrays */
         if ((gv->SEISMO) && (nt == lsamp) && (nt < gv->NT)) {
-            seismo_ssg(lsamp, acq->recpos_loc, hc, mpm, mpw, gv);
+            seismo_ssg(lsamp, acq->recpos_loc, mpm, mpw, gv);
             lsamp += gv->NDT;
         }
 

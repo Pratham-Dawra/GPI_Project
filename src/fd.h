@@ -257,7 +257,7 @@ int *scan_topo(GlobVar *gv);
 
 void set_fd_order(int new_order, GlobVar *gv);
 
-void seismo_ssg(int lsamp, int **recpos, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
+void seismo_ssg(int lsamp, int **recpos, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void snap(int nt, int nsnap, float *hc, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
