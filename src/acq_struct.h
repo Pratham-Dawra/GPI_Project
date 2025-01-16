@@ -31,6 +31,7 @@ typedef struct {
     // Acquisition parameters
     float **srcpos;
     float **srcpos_loc;
+    int *srcswitch;
 
     int **recpos;
     int **recpos_loc;

@@ -61,6 +61,7 @@ void sources(AcqVar *acq, GlobVar *gv, int *topo)
                 log_info("Number of source positions: %d\n", acq->nsrc);
 
             acq->srcpos = matrix(1, NSPAR, 1, acq->nsrc);
+            acq->srcswitch = ivector(1, acq->nsrc);
 
             /* memory for source position definition (Ricker, Fuchs-Mueller, sin**3 & from_File) */
             if (gv->SOURCE_SHAPE <= 4) {
@@ -376,8 +377,10 @@ void sources(AcqVar *acq, GlobVar *gv, int *topo)
     MPI_Bcast(&(acq->nsrc), 1, MPI_INT, 0, MPI_COMM_WORLD);
     MPI_Bcast(&(gv->TS), 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
-    if (gv->MPID != 0)
+    if (gv->MPID != 0) {
         acq->srcpos = matrix(1, NSPAR, 1, acq->nsrc);
+        acq->srcswitch = ivector(1, acq->nsrc);
+    }
     MPI_Bcast(&(acq->srcpos[1][1]), (acq->nsrc) * NSPAR, MPI_FLOAT, 0, MPI_COMM_WORLD);
 #endif
 

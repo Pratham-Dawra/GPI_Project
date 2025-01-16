@@ -47,11 +47,11 @@ int initsrc(int ishot, int nshots, AcqVar *acq, GlobVar *gv)
             srcpos_current[nt][1] = acq->srcpos[nt][ishot];
         }
         /* find this single source positions on subdomains  */
-        acq->srcpos_loc = splitsrc(srcpos_current, &acq->nsrc_loc, 1, gv);
+        acq->srcpos_loc = splitsrc(srcpos_current, &acq->nsrc_loc, 1, acq->srcswitch, gv);
         free_matrix(srcpos_current, 1, NSPAR, 1, 1);
     } else {
         /* distribute source positions on subdomains */
-        acq->srcpos_loc = splitsrc(acq->srcpos, &acq->nsrc_loc, acq->nsrc, gv);
+        acq->srcpos_loc = splitsrc(acq->srcpos, &acq->nsrc_loc, acq->nsrc, acq->srcswitch, gv);
     }
 
     MPI_Barrier(MPI_COMM_WORLD);

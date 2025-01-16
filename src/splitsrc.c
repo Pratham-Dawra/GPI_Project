@@ -24,8 +24,9 @@
 
 #include "fd.h"
 #include <math.h>
+#include "logging.h"
 
-float **splitsrc(float **srcpos, int *nsrc_loc, int nsrc, GlobVar *gv)
+float **splitsrc(float **srcpos, int *nsrc_loc, int nsrc, int *srcswitch, GlobVar *gv)
 {
     int a, b, i = 0;
     float **srcpos_local = NULL;
@@ -34,6 +35,8 @@ float **splitsrc(float **srcpos, int *nsrc_loc, int nsrc, GlobVar *gv)
     for (int j = 1; j <= nsrc; j++) {
         a = (int)floor(srcpos[1][j] / gv->DH) + 1;  // convert x coordinate to index grid point
         b = (int)floor(srcpos[2][j] / gv->DH) + 1;  // convert y coordinate to index grid point
+        log_info("j: %d, nsrc_loc: %d, nsrc: %d.\n", j, nsrc_loc, nsrc);
+        srcswitch[j] = 0;
         if (a >= gv->GGRID[1] && a <= gv->GGRID[2] && b >= gv->GGRID[3] && b <= gv->GGRID[4]) {
             i++;
             srcpos_dummy[1][i] = (float)(a - gv->GGRID[1] + 1);
@@ -48,6 +51,7 @@ float **splitsrc(float **srcpos, int *nsrc_loc, int nsrc, GlobVar *gv)
             srcpos_dummy[10][i] = srcpos[10][j];
             srcpos_dummy[11][i] = srcpos[11][j];
             srcpos_dummy[12][i] = srcpos[12][j];
+            srcswitch[j] = 1;
         }
     }
 
@@ -70,6 +74,8 @@ float **splitsrc(float **srcpos, int *nsrc_loc, int nsrc, GlobVar *gv)
     free_matrix(srcpos_dummy, 1, NSPAR, 1, nsrc);
 
     *nsrc_loc = i;
+    
+    log_info("nsrc_loc: %d, nsrc: %d, srcswitch: %d.\n", *nsrc_loc, nsrc, srcswitch[1]);
 
     return srcpos_local;
 }
