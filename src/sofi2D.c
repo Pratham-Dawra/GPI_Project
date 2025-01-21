@@ -56,11 +56,13 @@ int main(int argc, char **argv)
     int ishot, nshots, snapcheck;   /* Added ishot and nshots for multiple shots */
     int iter;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
     int i,j;
     clock_t cpu_time1 = 0, cpu_time = 0;
+
 =======
-    clock_t cpu_time1 = 0, cpu_time = 0 ;
->>>>>>> Stashed changes
+
     FILE *log_fp = NULL;
     char ext[10];
     double time1 = 0.0, time2 = 0.0, time9 = 0.0;
