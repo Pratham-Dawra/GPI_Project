@@ -55,12 +55,37 @@ int main(int argc, char **argv)
     /* variables in main */
     int ishot, nshots, snapcheck;   /* Added ishot and nshots for multiple shots */
     int iter;
+<<<<<<< Updated upstream
     int i,j;
     clock_t cpu_time1 = 0, cpu_time = 0;
+=======
+    clock_t cpu_time1 = 0, cpu_time = 0 ;
+>>>>>>> Stashed changes
     FILE *log_fp = NULL;
     char ext[10];
     double time1 = 0.0, time2 = 0.0, time9 = 0.0;
     float *hc = NULL;
+    st_boundary nb;
+    st_velocity vel;
+    st_stress stress;
+    st_model mod, testmod;
+    st_model_av mod_av;
+    st_visc_mem visco_mem;
+    st_seismogram section, section_obs;
+    st_signals signals = { };
+    int ntr_loc = 0, nsrc_loc = 0;
+    st_pml_coeff pml_coeff;
+    st_pml_wfd pml_wfd;
+    st_buffer velbuff, stressbuff;
+    st_freq_velocity fourier_vel_fw, fourier_vel_back;
+    /*finv is an instance of vector function created in util;*/
+    double L2 = 0.0;
+    int ntast=1;
+    int lsnap = 0, nsnap = 0;
+    int iteration = 0, cdf = 0, groupnum = 0, nf = 0;
+    int it_group = 0;
+    int ncplx= 0;
+
 
     /* FWI variables */
     /*float alpha_SL_old;
@@ -68,7 +93,7 @@ int main(int argc, char **argv)
      * int gradient_optimization = 1;
      * int steplength_search = 0; */
     /* Variables for step length calculation */
-    //int step3 = 0, countstep;
+    //int step3 = 0, countstep;signals
     //int step1, step2, step3 = 0; // itests, iteste, stepmax, countstep;
     //float scalefac;
 
@@ -110,7 +135,7 @@ int main(int argc, char **argv)
     if (gv.MPID == 0) {
         if (argc != 2) {
             log_fatal
-                ("Unexpected number of commandline arguments; single argument required: name of json parameter file.\n");
+                ("Unexpected number of commandline arguments; ssignalsingle argument required: name of json parameter file.\n");
         }
 
         const char *fileinp = argv[1];
@@ -338,6 +363,15 @@ int main(int argc, char **argv)
 
                     /* determine block index boundaries for inner area and frame */
                     subgrid_bounds(1, gv.NX, 1, gv.NY, &gv);
+
+                    /* forward propagation */
+
+                    if (gv.METHOD) {
+                        if (gv.STFI) {
+                            stfi(&acq, &section, &signals,  nsrc_loc,  ntr_loc, &stressbuff, ishot, cdf,iteration, it_group, ncplx, &gv, iter, snapcheck, hc,0, &mpm, &mpw, &minv, &vinv, &perf);/*, &section_obs, &sect, &sectiondiff, &sectiondiffold, int sws, int swstestshot);*/
+                        }
+                    }
+
 
                     /*------------------------------------------------------------------------------*/
                     /*---------- Start loop over timesteps (forward model) -------------------------*/

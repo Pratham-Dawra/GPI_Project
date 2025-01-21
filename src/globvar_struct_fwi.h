@@ -34,6 +34,7 @@
 typedef struct {
 
     /* Inversion parameters */
+
     int ITERMAX;                // maximum number of iterations
     char DATA_DIR[STRING_SIZE]; // folder containing real data
     int ADJOINT_TYPE;           // choose seismic component for back-propagation (x & y, y only or x only)

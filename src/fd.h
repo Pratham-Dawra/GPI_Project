@@ -43,7 +43,90 @@
 #include "util.h"
 #include "macros.h"
 
+/* declaration of structs */
+
+typedef struct boundary {
+    int nx1, nx2, ny1, ny2, nz1, nz2;
+} st_boundary;
+
+typedef struct Particle_velocity {
+    // particle velocity
+    // Pointer for dynamic wavefields:
+    float ***vx, ***vy, ***vz;
+} st_velocity;
+
+typedef struct Stress {
+    // pressure
+    float ***sp;
+    // stress tensor
+    float ***sxx, ***syy, ***szz;
+    float ***sxy, ***syz, ***sxz;
+} st_stress;
+
+typedef struct Model {
+    float ***rho, ***pi, ***u;
+    /* Variables for viscoelastic modeling */
+    float ***taus, ***taup, *eta;
+    float ***absorb_coeff;
+} st_model;
+
+typedef struct Model_AV {
+    float ***uipjp, ***ujpkp, ***uipkp, ***rjp, ***rkp, ***rip;
+    /* Variables for viscoelastic modeling */
+    float ***tausipjp, ***tausjpkp, ***tausipkp;
+} st_model_av;
+
+typedef struct Visco_memory {
+    float ***rp;
+    /* memory variables for viscoelastic modeling */
+    float ***rxy, ***ryz, ***rxz;
+    float ***rxx, ***ryy, ***rzz;
+} st_visc_mem;
+
+typedef struct Seismogram {
+    float **vx, **vy, **vz, **p, **curl, **div;
+} st_seismogram;
+
+typedef struct signals {
+    float **fw;
+    kiss_fft_cpx *stfi_filt, *stfi_filt_new;
+    float **sectionvxdiff, **sectionvydiff, **sectionvzdiff, **sectionpdiff;
+
+} st_signals;
+
+typedef struct PML_Coefficients {
+    //Pml coefficients for pml damping boundaries
+    float *K_x, *K_x_half, *K_y, *K_y_half, *K_z, *K_z_half;
+    float *a_x, *a_x_half, *a_y, *a_y_half, *a_z, *a_z_half;
+    float *b_x, *b_x_half, *b_y, *b_y_half, *b_z, *b_z_half;
+    float *alpha_prime_x, *alpha_prime_x_half, *alpha_prime_y, *alpha_prime_y_half, *alpha_prime_z, *alpha_prime_z_half;
+} st_pml_coeff;
+
+typedef struct PML_Wavefield {
+    float ***psi_sp_x, ***psi_sp_y, ***psi_sp_z;
+    //Pml Damping Wavefields for pml damping boundaries
+    float ***psi_sxx_x, ***psi_syy_y, ***psi_szz_z;
+    float ***psi_sxy_y, ***psi_sxy_x, ***psi_sxz_x, ***psi_sxz_z, ***psi_syz_y, ***psi_syz_z;
+    float ***psi_vxx, ***psi_vyy, ***psi_vzz;
+    float ***psi_vxy, ***psi_vxz, ***psi_vyx, ***psi_vyz, ***psi_vzx, ***psi_vzy;
+} st_pml_wfd;
+
+typedef struct Buffer {
+    // buffer arrays in which the wavefield is exchanged between neighbouring PEs
+    float ***lef_to_rig, ***rig_to_lef;
+    float ***top_to_bot, ***bot_to_top;
+    float ***fro_to_bac, ***bac_to_fro;
+} st_buffer;
+
+typedef struct Freq_Particle_velocity {
+    //particle velocity in the frequency domain
+    // Pointer for dynamic wavefields:
+    float ****Fvx_re, ****Fvy_re, ****Fvz_re;
+    float ****Fvx_im, ****Fvy_im, ****Fvz_im;
+} st_freq_velocity;
+
 /* declaration of functions */
+
 void abs_update_s(int i, int j, MemModel *mpm, MemWavefield *mpw);
 
 // void abs_update_s_ac1(int i, int j, MemModel *mpm, MemWavefield *mpw);
@@ -175,6 +258,9 @@ void merge(int nsnap, int type, int SNAPIDX[][5], GlobVar *gv);
 
 void mergemod(const char *modfile, int format, GlobVar *gv);
 
+void outseis(FILE *fpdata, int comp, float **section,
+             int **recpos, int **recpos_loc, int ntr, float **srcpos_loc, int nsrc, GlobVar *gv);//to be checked
+
 void outseis_glob(FILE *fpdata, float **section,
                   int **recpos, int ntr, float **srcpos_loc, int ns, int seis_form, int ishot, int comp, GlobVar *gv);
 
@@ -252,6 +338,7 @@ void saveseis_fwi(int ishot, AcqVar *acq, MemInv *minv, GlobVar *gv, GlobVarInv 
 
 void saveseis_glob(float **sectiondata, int **recpos, float **srcpos, int ishot, int ns, int sectiondatatype,
                    GlobVar *gv);
+void savesig(float **signals, AcqVar *acq, int nsrc_loc, int ishot, int iter, int fswitch, GlobVar *gv);//to be checked
 
 int *scan_topo(GlobVar *gv);
 
@@ -266,6 +353,20 @@ void snap_store(int nt, int hin, MemWavefield *mpw, MemInv *minv, GlobVar *gv, G
 void snapmerge(int nsnap);
 
 void sources(AcqVar *acq, GlobVar *gv, int *topo);
+
+void stfi(AcqVar*acq, st_seismogram *section,
+          st_signals *signals, int nsrc_loc, int ntr_loc,
+          st_buffer *stressbuff, int ishot, int cdf,
+          int iteration, int it_group, int ncplx, GlobVar *gv, int iter, int snapcheck,
+          float *hc, int sw, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVarInv *vinv, Perform *perf,
+          float **sectiondata, float **section1, float **sectiondiff , float **sectiondiffold,
+          int sws, int swstestshot);
+
+void stfi_calc(int ishot, st_seismogram *section, st_seismogram *section_obs, st_signals *signals, int ntr_loc, int nfft_min, GlobVar *gv);
+
+void stfi_apply(int ishot, st_signals *signals, int nsrc_loc, int nfft_min, GlobVar *gv);
+
+void stfi_merge(int ishot, st_signals *signals, int ncplx);
 
 int **splitrec(int **recpos, int *recswitch, GlobVar *gv);
 

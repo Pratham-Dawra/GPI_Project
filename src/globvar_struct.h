@@ -57,6 +57,7 @@ typedef struct {
 
     // MPI-variables
     int MPID;                   // ID of processor
+    int MPID_SHOT;                  // ID of processor in COMM_SHOT domain
     int NPROC;                  // number of processors (=NPROCX*NPROCY; also number of MPI processes)
     int NPROCX;                 // number of processors in x-direction
     int NPROCY;                 // number of processors in y-direction
@@ -160,6 +161,7 @@ typedef struct {
     int SNAPSHOT_START;         // first shot to write snapshots
     int SNAPSHOT_END;           // last shot to write snapshots
     int SNAPSHOT_INCR;          // shot increment to write snapshots
+    int METHOD;                 // run mode (Forward only, FWI)
     int IDX;                    // increment in x-direction [gridpoints]
     int IDY;                    // increment in y-direction [gridpoints]
     int SNAPIDCHECK;            // reset IDX and IDY if MODE=FWI
@@ -173,6 +175,13 @@ typedef struct {
     char LOG_VERBOSITY[STRING_SIZE];    // log output level (verbosity)       
     char LOG_FILE[STRING_SIZE]; // name of output file of logging information
     int OUTNTIMESTEPINFO;       // every OUTNTIMESTEPINFO th timestep, information on the time step will be given to screen/file
+
+    // Inversion parameters
+    int STFI;                   // switch to apply source time function inversion (STFI)
+    int STFI_CALC;              // switch to calculate STFI
+    int ITMIN;                  // minimum number of iteration
+    int ITMAX;                  // maximum number of iteration
+    int RAND_SHOT;              // use random shot selection for inversion
 
 } GlobVar;
 

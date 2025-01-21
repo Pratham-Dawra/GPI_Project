@@ -111,9 +111,7 @@ FOU_O     := $(strip ./libfourier_obj)
 SEI_O     := $(strip ./libseife_obj)
 INV_O     := $(strip ./libstfinv_obj)
 LIBAFF    := libaff.a
-LIBFOU    := libfourierxx.a
 LIBSEI    := libcseife.a
-LIBINV    := libstfinv.a
 LATEX_O   := $(strip ./latex)
 dummy     := $(shell mkdir -p $(FDMOD_O))
 dummy     := $(shell mkdir -p $(MERGE_O))
@@ -225,6 +223,8 @@ FDMOD_FILES := sofi2D.c \
                inseis.c \
                inversion.c \
                json_parser.c \
+               kiss_fftr.c\
+               kiss_fft.c\
                lbfgs.c \
                logging.c \
                matcopy.c \
@@ -264,11 +264,16 @@ FDMOD_FILES := sofi2D.c \
                saveseis_glob.c \
                scan_topo.c \
                seismo_ssg.c \
+               seismo_shift.c\
                snap_ssg.c \
                snap_store.c \
                sources.c \
                splitrec.c \
                splitsrc.c \
+               stfi.c\
+               stfi_apply.c\
+               stfi_merge.c\
+               stfi_calc.c\
                su_gather.c \
                su_struct.c \
                subgrid_bounds.c \
@@ -276,6 +281,7 @@ FDMOD_FILES := sofi2D.c \
                surface_elastic.c \
                timedomain_filt.c \
                time_loop.c \
+               timeloop.c\
                update_s_elastic_abs.c \
                update_s_acoustic_abs.c \
                update_s_elastic_VTI_abs.c \
