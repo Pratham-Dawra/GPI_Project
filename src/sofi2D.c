@@ -49,19 +49,26 @@
 #endif
 
 #include <unistd.h>
+#include "globvar_struct.h"
+#include "globvar_struct.h"
+#include "globvar_struct.h"
+#include "globvar_struct.h"
+#include "globvar_struct.h"
+#include "globvar_struct.h"
+#include "globvar_struct.h"
+#include "globvar_struct.h"
+#include "globvar_struct.h"
+#include "globvar_struct.h"
+#include "globvar_struct.h"
 
 int main(int argc, char **argv)
 {
     /* variables in main */
     int ishot, nshots, snapcheck;   /* Added ishot and nshots for multiple shots */
     int iter;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     int i,j;
     clock_t cpu_time1 = 0, cpu_time = 0;
 
-=======
 
     FILE *log_fp = NULL;
     char ext[10];
