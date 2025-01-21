@@ -1,0 +1,18 @@
+198.0  198.0
+198.0  398.0
+198.0  598.0
+398.0  198.0
+398.0  598.0
+598.0  198.0
+598.0  398.0
+598.0  598.0
+#
+# (comment line is indicated by # or % as first character)
+#
+# Parameters for each receiver postiton (one receiver per line):
+#
+#       XSRC            YSRC
+#
+# Symbols:
+# XSRC= x-coordinate of source point [meter]
+# YSRC= y-coordinate of source point [meter] (vertical)

@@ -1,0 +1,10 @@
+README - Documentation
+
+To create the SOFI manual as PDF, please go to the build directory and 
+type "make doc". This will compile the LaTeX sources into a local PDF 
+file in the build directory.
+
+Obviously, LaTeX needs to be installed on your system. Any recent LaTeX
+distribution like TeX Live or MiKTeX should work.
+
+

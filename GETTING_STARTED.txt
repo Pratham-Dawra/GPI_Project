@@ -1,0 +1,54 @@
+This file contains information on how to compile the software. We assume that
+you have successfully checked out the git-repository containing the software
+and you are now reading this file on your local computer system.
+
+The software is written using C99 standard. In order to compile it, you need
+a) a working C compiler (e.g., gcc) and b) a working MPI installation (e.g.,
+OpenMPI). In order to compile the documentation, you require a recent version
+of LaTeX.
+
+Go to the "build" directory. Type "make" to get a brief help. The output will
+show available Makefile targets and current compiler settings. If you are 
+happy with the current setup, simply type "make install" to compile the main 
+programs and install them in the specified installation directory. The 
+Makefile supports parallel builds, i.e., if you would like to speed up the
+compilation process, simply use "make -j6 install" or something similar.
+
+By default, the compile and link commands won't be shown in full but only an
+abbreviation what the system currently does. In case of problems, please run
+"make V=1 install" to see the detailed commands as they are executed.
+
+In case you would like to build the software entirely out of the cloned git
+respository, simply copy the "build" directory to another place and adjust the
+Makefile (BASEDIR, possibly INSTDIR) so the source tree can be found from the
+new location.
+
+After the compilation and installation step, the main programs are located in
+the specified installation directory and ready for use.
+
+In case you would like to adjust the compiler settings etc., you can edit the
+Makefile. The variables you need to adjust are at the beginning of the file.
+Usually, a brief explanation is given in the Makefile, i.e., it should be 
+fairly straightforward to make adjustments. Usually, there is no need to 
+change anything below a certain line marked in the Makefile. If you are an
+expert, feel free, though, to adapt the Makefile as required.
+
+The documentation can be built by "make doc". This will compile the LaTeX
+source into a PDF file whose name can be specified in the Makefile. By 
+default, it is "sofi2D_manual.pdf", and the file is located in your build
+directory.
+
+The "examples" folder contains various components to run simple tests. Once
+the software has been compiled successfully, you should visit this folder to
+run some basic tests to ensure the software is working as expected.
+
+The software has been successfully compiled and run on various Linux systems.
+At the time of writing, all code compiles without warnings with -Wall and 
+-Wextra compiler flags. The code has been tested with GCC, Intel's compiler
+and Intel's MPI library, and clang (LLVM). The open-source compilers used
+OpenMPI v3 as MPI library but other MPI libraries should work as well as long
+as they implemented the MPI standard. The startup procedure for the software
+might change, though, dependent on what MPI library you use and whether you
+run software directly or through a queuing system like "slurm". Always make
+sure you use the identical MPI library when compiling and running the 
+software.

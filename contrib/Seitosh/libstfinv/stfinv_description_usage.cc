@@ -1,0 +1,25 @@
+// DO NOT EDIT: this file is automatically derived from usage/stfinv_description_usage.txt
+#include "stfinv_description_usage.h"
+char stfinv_description_usage[]=
+{
+  "STFINV -- create and apply a source wavelet correction filter\n"
+  "=============================================================\n"
+  "\n"
+  "Different methods are provided for the derivation of source wavelet correction\n"
+  "filters in approaches to full waveform inversion. Given a set of recorded data\n"
+  "and a set of synthetic data (typically, but not necessarilly the expected\n"
+  "impulse response of the subsurface) a source wavelet correction filter is\n"
+  "obtained by application of a user-selectable optimization citerion. The\n"
+  "synthetic waveforms are convolved with this filter wavelet and the convolved\n"
+  "synthetics as well as the wavelet itself are returned to the user.\n"
+  "\n"
+  "The effective time history of the seismic source used in field recordings is\n"
+  "not well known in most cases. This applies in particular to transient sources\n"
+  "(like explosives or hammer blows). The so-called 'source-time-function' might\n"
+  "even vary from shot to shot. For this reason it is not possible to use an\n"
+  "appropriate source-time-function in the initial simulation of synthetic data\n"
+  "in an approach of full-waveform inversion. However, after synthetic data have\n"
+  "been calculated using a generic source-time-function, a correction filter can\n"
+  "be constructed such that an improved source-time-function will reduce the\n"
+  "misfit to the recorded data.\n"
+};
