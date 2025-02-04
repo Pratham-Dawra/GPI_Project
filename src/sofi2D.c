@@ -74,24 +74,12 @@ int main(int argc, char **argv)
     char ext[10];
     double time1 = 0.0, time2 = 0.0, time9 = 0.0;
     float *hc = NULL;
-    st_boundary nb;
-    st_velocity vel;
-    st_stress stress;
-    st_model mod, testmod;
-    st_model_av mod_av;
-    st_visc_mem visco_mem;
-    st_seismogram section, section_obs;
+    st_seismogram section;
     st_signals signals = { };
     int ntr_loc = 0, nsrc_loc = 0;
-    st_pml_coeff pml_coeff;
-    st_pml_wfd pml_wfd;
-    st_buffer velbuff, stressbuff;
-    st_freq_velocity fourier_vel_fw, fourier_vel_back;
+    st_buffer stressbuff;
     /*finv is an instance of vector function created in util;*/
-    double L2 = 0.0;
-    int ntast=1;
-    int lsnap = 0, nsnap = 0;
-    int iteration = 0, cdf = 0, groupnum = 0, nf = 0;
+    int iteration = 0, cdf = 0;
     int it_group = 0;
     int ncplx= 0;
 
