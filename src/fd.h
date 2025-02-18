@@ -315,7 +315,7 @@ void stfi_merge(int ishot, st_signals *signals, int ncplx);
 
 int **splitrec(int **recpos, int *recswitch, GlobVar *gv);
 
-float **splitsrc(float **srcpos, int *nsrc_loc, int nsrc, GlobVar *gv);
+float **splitsrc(float **srcpos, int *nsrc_loc, int nsrc, int *srcswitch, GlobVar *gv);
 
 void subgrid_bounds(int nx1, int nx2, int ny1, int ny2, GlobVar *gv);
 
