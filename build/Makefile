@@ -53,7 +53,7 @@ DOC := sofi2D_manual.pdf
 ### GNU compiler with OpenMPI (standard)
 CC             := mpicc
 CXX            := mpicxx
-CPPFLAGS        = -D_GNU_SOURCE -DLOG_COLOR
+CPPFLAGS        = -D_GNU_SOURCE -DLOG_COLOR -DKISSFFT_DATATYPE=float
 EXTRA_CPPFLAGS := -DUSE_MPI
 CFLAGS          = -O3 -Wall -Wextra -g -fstack-protector -std=c99 -ftree-vectorize
 CXXFLAGS        = -O3 -Wall -Wextra -g -fstack-protector -ftree-vectorize
@@ -68,14 +68,14 @@ EXTRA_LDFLAGS  := -lmpi -lfftw3 -lstdc++
 ### Intel compiler (OneAPI) with Intel MPI
 ### => GPI: module load compiler/latest mpi/latest
 #CC             := mpicc -cc=icx
-#CXX            := 
+#CXX            :=
 #CPPFLAGS        = -D_GNU_SOURCE -DLOG_COLOR
 #EXTRA_CPPFLAGS := -DLOG_MPI
 #CFLAGS          = -O3 -Wall -Wextra -g -fstack-protector -std=c99 --intel
 #CXXFLAGS        = -O3 -Wall -Wextra -g -fstack-protector --intel
 #CDEPEND         = -MMD -MP -MF .dep-$(subst /,-,$@)
 #LD             := $(CC)
-#LDFLAGS         = -static-intel -lm 
+#LDFLAGS         = -static-intel -lm
 #EXTRA_LDFLAGS  := -lmpi -lstdc++
 
 ###############################################################################
@@ -88,12 +88,12 @@ EXTRA_LDFLAGS  := -lmpi -lfftw3 -lstdc++
 #CXXFLAGS        = -O3 -Wall -Wextra -g -fstack-protector
 #CDEPEND         = -MMD -MP -MF .dep-$(subst /,-,$@)
 #LD             := $(CC)
-#LDFLAGS         = -lm 
+#LDFLAGS         = -lm
 #EXTRA_LDFLAGS  := -L/usr/lib64/mpi/gcc/openmpi3/lib64 -lmpi -lstdc++
 
 ###############################################################################
 ###############################################################################
-# Usually, there is no need to change anything below this line 
+# Usually, there is no need to change anything below this line
 ###############################################################################
 ###############################################################################
 
@@ -104,6 +104,7 @@ AFFTREE   := $(strip $(realpath $(CONTREE)/Seitosh/libaff))
 SEITREE   := $(strip $(realpath $(CONTREE)/Seitosh/libseife))
 FOUTREE   := $(strip $(realpath $(CONTREE)/Seitosh/libfourier))
 INVTREE   := $(strip $(realpath $(CONTREE)/Seitosh/libstfinv))
+KISS_O    := $(strip ./kissfft_obj)
 FDMOD_O   := $(strip ./fdmod_obj)
 MERGE_O   := $(strip ./merge_obj)
 AFF_O     := $(strip ./libaff_obj)
@@ -118,11 +119,13 @@ dummy     := $(shell mkdir -p $(MERGE_O))
 dummy     := $(shell mkdir -p $(AFF_O))
 dummy     := $(shell mkdir -p $(FOU_O))
 dummy     := $(shell mkdir -p $(SEI_O))
+dummy     := $(shell mkdir -p $(KISS_O))
 dummy     := $(shell mkdir -p $(INV_O))
 dummy     := $(shell mkdir -p $(LATEX_O))
 dummy     := $(shell mkdir -p $(strip $(INSTDIR)))
 FDMOD_EXE := $(strip $(FDMOD))
 MERGE_EXE := $(strip $(MERGE))
+KISS_LIB  := $(strip libkissfft-float.a)
 INSTALL   := install -D -p --backup=simple --suffix=.bck
 AR        := ar
 ARFLAGS   := cr
@@ -152,20 +155,20 @@ LOCALLIBS  = -L$(PWD) $(addprefix -l,$(subst lib,,$(basename $(LIBAFF) $(LIBSEI)
 OS := $(shell uname)
 ifeq ($(OS),Darwin)
   INSTALL := install -p
-  RM      := rm -f 
+  RM      := rm -f
 endif
 
 OS := $(shell uname)
 ifeq ($(OS),Darwin)
   INSTALL := install -p
-  RM      := rm -f 
+  RM      := rm -f
 endif
 
 DOC_MAIN := main
 DOC_FILES := $(wildcard $(strip $(realpath $(BASEDIR)))/doc/guide_sofi2D/latex/*.tex) \
              $(wildcard $(strip $(realpath $(BASEDIR)))/doc/guide_sofi2D/latex/figures/*) \
              $(strip $(realpath $(BASEDIR)))/doc/guide_sofi2D/latex/sofi2D.json \
-             $(strip $(realpath $(BASEDIR)))/doc/guide_sofi2D/latex/biblio.bib 
+             $(strip $(realpath $(BASEDIR)))/doc/guide_sofi2D/latex/biblio.bib
 
 MERGE_FILES := snapmerge.c \
                holbergcoeff.c \
@@ -178,6 +181,9 @@ MERGE_FILES := snapmerge.c \
                sources.c \
                util.c \
                writedsk.c
+
+KISS_FILES := kiss_fftr.c \
+              kiss_fft.c
 
 FDMOD_FILES := sofi2D.c \
                abs_update.c \
@@ -223,8 +229,6 @@ FDMOD_FILES := sofi2D.c \
                inseis.c \
                inversion.c \
                json_parser.c \
-               kiss_fftr.c\
-               kiss_fft.c\
                lbfgs.c \
                logging.c \
                matcopy.c \
@@ -389,6 +393,7 @@ AFF_OBJ   := $(addprefix $(AFF_O)/, $(patsubst %.cc, %.o, $(AFF_FILES)))
 SEI_OBJ   := $(addprefix $(SEI_O)/, $(patsubst %.c, %.o, $(SEI_FILES)))
 FOU_OBJ   := $(addprefix $(FOU_O)/, $(patsubst %.cc, %.o, $(FOU_FILES)))
 INV_OBJ   := $(addprefix $(INV_O)/, $(patsubst %.cc, %.o, $(INV_FILES)))
+KISS_OBJ := $(addprefix $(KISS_O)/, $(patsubst %.c, %.o, $(KISS_FILES)))
 
 ifdef V
   ifeq ("$(origin V)", "command line")
@@ -399,8 +404,8 @@ ifndef BUILD_VERBOSE
   BUILD_VERBOSE := 0
 endif
 ifeq ($(BUILD_VERBOSE),1)
-  quiet := 
-  Q     := 
+  quiet :=
+  Q     :=
 else
   quiet := quiet_
   Q     := @
@@ -422,7 +427,7 @@ help:
 	@echo "   clean     : remove object files and executables"
 	@echo "   distclean : clean up entire build directory"
 	@echo "   uninstall : remove previously installed programs"
-	@echo 
+	@echo
 	@echo -e "Main programs:"
 	@echo "   $(FDMOD_EXE), $(MERGE_EXE)"
 	@echo -e "Installation directory:"
@@ -432,29 +437,31 @@ help:
 	@echo "   CXX: $(CXX)"
 	@echo "   CPPFLAGS: $(CPPFLAGS) [$(EXTRA_CPPFLAGS)]"
 	@echo "   CFLAGS: $(CFLAGS)"
-	@echo "   CXXFLAGS: $(CXXFLAGS)"
+	@echo "   CXXFLAGS: $(CXXFLAGS)
+
 	@echo "   LD: $(LD)"
 	@echo "   LOCALLIB: $(LOCALLIB)"
 	@echo "   LDFLAGS: $(LDFLAGS) [$(EXTRA_LDFLAGS)]"
-	@echo 
+	@echo
 	@echo "Use V=1 to see full command being executed."
-	@echo 
+	@echo
 
 install: all
 	$(call cmd,install,$(FDMOD_EXE))
 	$(call cmd,install,$(MERGE_EXE))
 
-clean: 
+clean:
 	$(call cmd,rmdir,$(FDMOD_O))
 	$(call cmd,rmdir,$(MERGE_O))
 	$(call cmd,rmdir,$(AFF_O))
 	$(call cmd,rmdir,$(SEI_O))
+	$(call cmd,rmdir,$(KISS_O))
 	$(call cmd,rmdir,$(FOU_O))
 	$(call cmd,rmdir,$(INV_O))
 	@echo -e "   \e[31m[RM]\e[0m    executables $(FDMOD_EXE) $(MERGE_EXE)"
 	-$(Q)$(RM) $(FDMOD_EXE) $(MERGE_EXE)
-	@echo -e "   \e[31m[RM]\e[0m    archives $(LIBAFF) $(LIBSEI) $(LIBFOU) $(LIBINV)"
-	-$(Q)$(RM) $(LIBAFF) $(LIBSEI) $(LIBFOU) $(LIBINV)
+	@echo -e "   \e[31m[RM]\e[0m    archives $(LIBAFF) $(LIBSEI) $(LIBFOU) $(LIBINV) $(KISS_LIB)"
+	-$(Q)$(RM) $(LIBAFF) $(LIBSEI) $(LIBFOU) $(LIBINV) $(KISS_LIB)
 	@$(RM) *~
 
 distclean: clean
@@ -467,12 +474,12 @@ distclean: clean
 
 uninstall:
 	@echo -e "   \e[31m[RM]\e[0m    main programs in $(strip $(INSTDIR))"
-	-$(Q)$(RM) $(strip $(INSTDIR))/$(FDMOD_EXE) $(strip $(INSTDIR))/$(MERGE_EXE) 
+	-$(Q)$(RM) $(strip $(INSTDIR))/$(FDMOD_EXE) $(strip $(INSTDIR))/$(MERGE_EXE)
 
 force:
 	@$(MAKE) -B all
 
-all: $(FDMOD_EXE) $(MERGE_EXE)
+all: $(KISS_LIB) $(FDMOD_EXE) $(MERGE_EXE)
 
 doc: $(DOC)
 
@@ -486,6 +493,7 @@ $(DOC): $(DOC_FILES)
 	echo -e "   \e[33m[DOC]\e[0m   $(DOC)"
 	@cd $(CURRENT)
 
+
 $(MERGE_EXE): $(MERGE_OBJ)
 	$(call cmd,link)
 
@@ -498,18 +506,29 @@ $(LIBAFF): $(AFF_OBJ)
 $(LIBSEI): $(SEI_OBJ)
 	$(call cmd,ar)
 
+$(KISS_LIB): $(KISS_OBJ)
+	$(call cmd,ar)
+
+$(MERGE_O)/%.o: CPPFLAGS += -I$(SRCTREE)/../libkissfft/
+$(MERGE_O)/%.o: $(SRCTREE)/%.c
+	$(call cmd,compile_cc)
+
 $(LIBFOU): $(FOU_OBJ)
 	$(call cmd,ar)
 
 $(LIBINV): $(INV_OBJ)
 	$(call cmd,ar)
 
+$(KISS_O)/%.o: CPPFLAGS += -I$(SRCTREE)/../libkissfft/
+$(KISS_O)/%.o: $(SRCTREE)/../libkissfft/%.c
+	$(call cmd,compile_cc)
+
 LDFLAGS.$(FDMOD_EXE) = $(LOCALLIBS)
 $(FDMOD_EXE): LDFLAGS += $(EXTRA_LDFLAGS)
 $(FDMOD_EXE): $(LIBAFF) $(LIBSEI) $(LIBFOU) $(LIBINV) $(FDMOD_OBJ)
 	$(call cmd,link)
 
-$(FDMOD_O)/%.o: CPPFLAGS += $(EXTRA_CPPFLAGS) -I$(SEITREE) -I$(INVTREE)
+$(FDMOD_O)/%.o: CPPFLAGS += $(EXTRA_CPPFLAGS) -I$(SEITREE) -I$(INVTREE) -I$(SRCTREE)/../libkissfft/
 $(FDMOD_O)/%.o: $(SRCTREE)/%.c
 	$(call cmd,compile_cc)
 

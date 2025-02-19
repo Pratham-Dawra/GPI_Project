@@ -30,6 +30,7 @@
 #include "macros.h"
 #include "enums.h"
 #include "memw_struct.h"
+#include <mpi.h>
 
 typedef void (*FDop_s_fct)(int i, int j, float *vxx, float *vyx, float *vxy, float *vyy, MemWavefield *mpw);
 typedef void (*FDop_v_fct)(int i, int j, float *sxx_x, float *sxy_x, float *sxy_y, float *syy_y, MemWavefield *mpw);
@@ -58,6 +59,7 @@ typedef struct {
     // MPI-variables
     int MPID;                   // ID of processor
     int MPID_SHOT;                  // ID of processor in COMM_SHOT domain
+    MPI_Comm COMM_SHOT;             // COMM_SHOT domain
     int NPROC;                  // number of processors (=NPROCX*NPROCY; also number of MPI processes)
     int NPROCX;                 // number of processors in x-direction
     int NPROCY;                 // number of processors in y-direction
@@ -142,6 +144,8 @@ typedef struct {
     int SEISMO;                 // switch to output components of seismograms
     int NDT;                    // sampling rate of seismograms [timesteps DT]
     int NS;                     // number of samples of seismogram
+    int NDTSHIFT;                   // shift to apply to seismograms (in timesteps)
+    int AUTO_SHIFT;                 // shift seismograms back automatically when using internal wavelets with shifts
     int SEIS_FORMAT;            // data output format for seismograms
     char SEIS_FILE[STRING_SIZE];    // name of output file of seismograms
     float **SECTIONVX;          // buffer for seismogram output (vx-component)
@@ -178,7 +182,9 @@ typedef struct {
 
     // Inversion parameters
     int STFI;                   // switch to apply source time function inversion (STFI)
+    float STFI_EPS;                 // white noise level to stabilize source time function inversion (STFI)
     int STFI_CALC;              // switch to calculate STFI
+    int ADJOINT_TYPE;               // component(s) to be inverted
     int ITMIN;                  // minimum number of iteration
     int ITMAX;                  // maximum number of iteration
     int RAND_SHOT;              // use random shot selection for inversion
