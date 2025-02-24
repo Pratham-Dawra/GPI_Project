@@ -334,8 +334,7 @@ void time_loop(int iter, int ishot, int snapcheck, float *hc, float **srcpos_loc
                       float **vx, float **vy, float **sxx, float **syy,
                       float **sxy, float **pi, float **u, float **uipjp, float **absorb_coeff, float *hc); */
 
-void update_s_acoustic_abs(AcqVar* acq, st_seismogram* section, st_signals* signals, int nsrc_loc, int ntr_loc, st_buffer* stressbuff, int ishot, int cdf, int iteration, int it_group, int ncplx, GlobVar* gv, int iter, int snapcheck, float* hc, int sw, MemModel* mpm, MemWavefield* mpw, MemInv* minv, GlobVarInv* vinv, Perform* perf, float** sectiondata, float** section1, float** sectiondiff, float** sectiondiffold, int sws, int swstestshot)
-;
+void update_s_acoustic_abs(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
 void update_s_acoustic_interior(int nt, MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
