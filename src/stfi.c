@@ -35,9 +35,9 @@ void stfi(AcqVar*acq, st_seismogram *section,
           st_signals *signals, int nsrc_loc, int ntr_loc,
           st_buffer *stressbuff, int ishot, int cdf,
           int iteration, int it_group, int ncplx, GlobVar *gv, int iter, int snapcheck,
-          float *hc, int sw, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVarInv *vinv, Perform *perf)
-          /*float **sectiondata, float **section1, float **sectiondiff , float **sectiondiffold,
-          int sws, int swstestshot)*/
+          float *hc, int sw, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVarInv *vinv, Perform *perf,
+          float **sectiondata, float **section1, float **sectiondiff , float **sectiondiffold,
+          int sws, int swstestshot)
 {
 
     if (2 == it_group || iteration == gv->ITMIN || gv->RAND_SHOT) {
@@ -55,8 +55,8 @@ void stfi(AcqVar*acq, st_seismogram *section,
         time_loop(iter, ishot, snapcheck, hc, acq->srcpos_loc, acq ->signals, acq ->signals, acq->nsrc_loc, sw, acq, mpm, mpw, minv ,gv ,vinv, perf);
 
         /* STFI: Calculate filter */
-        /*seismo_shift(section, ntr_loc, acq->srcpos[5][ishot], gv);
-        calc_res(sectiondata, section1, sectiondiff, sectiondiffold, sws,swstestshot,ishot, iter,acq, gv, vinv);*/
+        seismo_shift(section, ntr_loc, acq->srcpos[5][ishot], gv);
+        calc_res(sectiondata, section1, sectiondiff, sectiondiffold, sws,swstestshot,ishot, iter,acq, gv, vinv);
     }
 
     if (2 == gv->STFI && 1 != cdf && nsrc_loc > 0) {

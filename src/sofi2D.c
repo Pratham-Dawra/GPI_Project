@@ -365,10 +365,11 @@ int main(int argc, char **argv)
 
                     if (gv.METHOD) {
                         if (gv.STFI) {
-                            stfi(&acq, &section, &signals,  nsrc_loc,  ntr_loc, &stressbuff, ishot, cdf,iteration, it_group, ncplx, &gv, iter, snapcheck, hc,0, &mpm, &mpw, &minv, &vinv, &perf);/*, &section_obs, &sect, &sectiondiff, &sectiondiffold, int sws, int swstestshot);*/
+                            stfi(&acq, &section, &signals,  nsrc_loc,  ntr_loc, &stressbuff, ishot,
+                               cdf,iteration, it_group, ncplx, &gv, iter, snapcheck, hc,0, &mpm, &mpw, &minv,
+                               &vinv, &perf, &section_obs, &sect, &sectiondiff, &sectiondiffold, int sws, int swstestshot);
                         }
                     }
-
 
                     /*------------------------------------------------------------------------------*/
                     /*---------- Start loop over timesteps (forward model) -------------------------*/

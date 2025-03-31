@@ -285,7 +285,6 @@ FDMOD_FILES := sofi2D.c \
                surface_elastic.c \
                timedomain_filt.c \
                time_loop.c \
-               timeloop.c\
                update_s_elastic_abs.c \
                update_s_acoustic_abs.c \
                update_s_elastic_VTI_abs.c \
@@ -525,7 +524,7 @@ $(KISS_O)/%.o: $(SRCTREE)/../libkissfft/%.c
 
 LDFLAGS.$(FDMOD_EXE) = $(LOCALLIBS)
 $(FDMOD_EXE): LDFLAGS += $(EXTRA_LDFLAGS)
-$(FDMOD_EXE): $(LIBAFF) $(LIBSEI) $(LIBFOU) $(LIBINV) $(FDMOD_OBJ)
+$(FDMOD_EXE): $(LIBAFF) $(LIBSEI) $(LIBFOU) $(LIBINV) $(FDMOD_OBJ) $(KISS_LIB)
 	$(call cmd,link)
 
 $(FDMOD_O)/%.o: CPPFLAGS += $(EXTRA_CPPFLAGS) -I$(SEITREE) -I$(INVTREE) -I$(SRCTREE)/../libkissfft/
