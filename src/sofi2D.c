@@ -50,16 +50,6 @@
 
 #include <unistd.h>
 #include "globvar_struct.h"
-#include "globvar_struct.h"
-#include "globvar_struct.h"
-#include "globvar_struct.h"
-#include "globvar_struct.h"
-#include "globvar_struct.h"
-#include "globvar_struct.h"
-#include "globvar_struct.h"
-#include "globvar_struct.h"
-#include "globvar_struct.h"
-#include "globvar_struct.h"
 
 int main(int argc, char **argv)
 {
@@ -367,7 +357,7 @@ int main(int argc, char **argv)
                         if (gv.STFI) {
                             stfi(&acq, &section, &signals,  nsrc_loc,  ntr_loc, &stressbuff, ishot,
                                cdf,iteration, it_group, ncplx, &gv, iter, snapcheck, hc,0, &mpm, &mpw, &minv,
-                               &vinv, &perf, &section_obs, &sect, &sectiondiff, &sectiondiffold, int sws, int swstestshot);
+                               &vinv, &perf, &section_obs, &sect, &sectiondiff, &sectiondiffold, sws, swstestshot);
                         }
                     }
 
