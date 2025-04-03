@@ -304,9 +304,9 @@ void stfi(AcqVar*acq, st_seismogram *section,
           st_signals *signals, int nsrc_loc, int ntr_loc,
           st_buffer *stressbuff, int ishot, int cdf,
           int iteration, int it_group, int ncplx, GlobVar *gv, int iter, int snapcheck,
-          float *hc, int sw, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVarInv *vinv, Perform *perf,
-          float **sectiondata, float **section1, float **sectiondiff , float **sectiondiffold,
-          int sws, int swstestshot);
+          float *hc, int sw, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVarInv *vinv, Perform *perf);
+//          float **sectiondata, float **section1, float **sectiondiff , float **sectiondiffold,
+//          int sws, int swstestshot);
 
 void stfi_calc(int ishot, st_seismogram *section, st_seismogram *section_obs, st_signals *signals, int ntr_loc, int nfft_min, GlobVar *gv);
 
