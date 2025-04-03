@@ -111,5 +111,15 @@
 			"LOG_FILE" : "./log/test.log",
 			"LOG" : "0",
 			"LOG_VERBOSITY" : "INFO",
-			"OUT_TIMESTEP_INFO" : "100"
+			"OUT_TIMESTEP_INFO" : "100",
+
+"Stfi Parameters" : "comment",
+			"METHOD" : "1",
+			"STFI" : "1",
+			"RAND_SHOT" : "1",
+			"ITMIN" : "0",
+			"ITMAX" : "200",
+			"STFI_EPS" : "0.00",
+			"STFI_CALC" : "1",
+			"ADJOINT_TYPE" : "1"
 }

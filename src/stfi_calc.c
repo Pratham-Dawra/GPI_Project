@@ -118,10 +118,10 @@ void stfi_calc(int ishot, st_seismogram *section, st_seismogram *section_obs, st
         }
     }
 
-    MPI_Barrier(gv->COMM_SHOT);
-    MPI_Allreduce(tmp_CC, CC, 2 * ncplx, MPI_FLOAT, MPI_SUM, gv->COMM_SHOT);
-    MPI_Allreduce(tmp_AC, AC, ncplx, MPI_FLOAT, MPI_SUM, gv->COMM_SHOT);
-    MPI_Allreduce(&tmp_Err_max, &Err_max, 1, MPI_FLOAT, MPI_SUM, gv->COMM_SHOT);
+    MPI_Barrier(gv->COMM_WORLD);
+    MPI_Allreduce(tmp_CC, CC, 2 * ncplx, MPI_FLOAT, MPI_SUM, gv->COMM_WORLD);
+    MPI_Allreduce(tmp_AC, AC, ncplx, MPI_FLOAT, MPI_SUM, gv->COMM_WORLD);
+    MPI_Allreduce(&tmp_Err_max, &Err_max, 1, MPI_FLOAT, MPI_SUM, gv->COMM_WORLD);
     kiss_fft_scalar fac = Err_max * gv->STFI_EPS;
 
     // design matching filter

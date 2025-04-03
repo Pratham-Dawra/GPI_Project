@@ -515,6 +515,45 @@ void read_par_json(const char *fileinp, GlobVar *gv, GlobVarInv *vinv)
 
     gv->NS = iround(gv->NT / gv->NDT);  /* number of samples per trace */
 
+    /************************************************
+     * test parameters for stfi *
+     ************************************************/
+    // Read METHOD (global parameter)
+if (get_int_from_objectlist("METHOD", number_readobjects, &(gv->METHOD), varname_list, value_list, used_list)) {
+    log_fatal("Variable METHOD could not be retrieved from the json input file!");
+}
+
+if (gv->METHOD == 1) {
+    // STFI
+    if (get_int_from_objectlist("STFI", number_readobjects,&(gv->STFI), varname_list, value_list, used_list)) {
+        log_fatal("Variable STFI could not be retrieved from the json input file!");
+    }
+    // STFI_EPS
+    if (get_float_from_objectlist("STFI_EPS", number_readobjects, &(gv->STFI_EPS), varname_list, value_list, used_list)) {
+        log_fatal("Variable STFI_EPS could not be retrieved from the json input file!");
+    }
+    // STFI_CALC
+    if (get_int_from_objectlist("STFI_CALC", number_readobjects, &(gv->STFI_CALC), varname_list, value_list, used_list)) {
+        log_fatal("Variable STFI_CALC could not be retrieved from the json input file!");
+    }
+    // ADJOINT_TYPE
+    if (get_int_from_objectlist("ADJOINT_TYPE", number_readobjects, &(gv->ADJOINT_TYPE), varname_list, value_list, used_list)) {
+        log_fatal("Variable ADJOINT_TYPE could not be retrieved from the json input file!");
+    }
+    // ITMIN
+    if (get_int_from_objectlist("ITMIN", number_readobjects, &(gv->ITMIN), varname_list, value_list, used_list)) {
+        log_fatal("Variable ITMIN could not be retrieved from the json input file!");
+    }
+    // ITMAX
+    if (get_int_from_objectlist("ITMAX", number_readobjects, &(gv->ITMAX), varname_list, value_list, used_list)) {
+        log_fatal("Variable ITMAX could not be retrieved from the json input file!");
+    }
+    // RAND_SHOT
+    if (get_int_from_objectlist("RAND_SHOT", number_readobjects, &(gv->RAND_SHOT), varname_list, value_list, used_list)) {
+        log_fatal("Variable RAND_SHOT could not be retrieved from the json input file!");
+    }
+}
+
 
     /********************************************
      * Check files and directories if necessary *

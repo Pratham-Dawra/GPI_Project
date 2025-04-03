@@ -99,7 +99,7 @@ void savesig(float **signals, AcqVar *acq, int nsrc_loc, int ishot, int iter, in
             if (!fp) {
                 log_error("Could not open %s for writing. Continuing.\n", sigf);
             } else {
-                outseis(fp, gv->SOURCE_TYPE, signals, acq->recpos, NULL, nsig, srcpos1, 1, gv);
+                outseis(fp, gv->SOURCE_TYPE, signals, acq->recpos, NULL, nsig, srcpos1, 1, ishot, gv);
                 log_info("Writing source signature to file %s.\n", sigf);
             }
         }
@@ -108,14 +108,14 @@ void savesig(float **signals, AcqVar *acq, int nsrc_loc, int ishot, int iter, in
         if (0 == gv->MPID_SHOT) {
             fulldata = matrix(1, nsig, 0, gv->NS-1);
         }
-        MPI_Barrier(gv->COMM_SHOT);
+        MPI_Barrier(gv->COMM_WORLD);
         fp = fopen(sigf, "w");
         if (!fp) {
 	    log_error("Could not open %s for writing. Continuing.\n", sigf);
         } else {
             catseis(signals, fulldata, acq->srcswitch, nsig, gv->NS);
             if (0 == gv->MPID_SHOT) {
-                outseis(fp, gv->SOURCE_TYPE, fulldata, acq->recpos, NULL, nsig, srcpos1, 1, gv);
+                outseis(fp, gv->SOURCE_TYPE, fulldata, acq->recpos, NULL, nsig, srcpos1, 1, ishot, gv);
                 log_info("Writing source signature to file %s.\n", sigf);
             }
         }

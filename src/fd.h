@@ -205,8 +205,8 @@ void merge(int nsnap, int type, int SNAPIDX[][5], GlobVar *gv);
 
 void mergemod(const char *modfile, int format, GlobVar *gv);
 
-void outseis(FILE *fpdata, int comp, float **section,
-             int **recpos, int **recpos_loc, int ntr, float **srcpos_loc, int nsrc, GlobVar *gv);//to be checked
+void outseis(FILE * fpdata, int comp, float **section, int **recpos, int **recpos_loc,
+             int ntr, float **srcpos, int nsrc, int ishot, GlobVar *gv);
 
 void outseis_glob(FILE *fpdata, float **section,
                   int **recpos, int ntr, float **srcpos_loc, int ns, int seis_form, int ishot, int comp, GlobVar *gv);
@@ -284,7 +284,7 @@ void saveseis_fwi(int ishot, AcqVar *acq, MemInv *minv, GlobVar *gv, GlobVarInv 
 
 void saveseis_glob(float **sectiondata, int **recpos, float **srcpos, int ishot, int ns, int sectiondatatype,
                    GlobVar *gv);
-void savesig(float **signals, AcqVar *acq, int nsrc_loc, int ishot, int iter, int fswitch, GlobVar *gv);//to be checked
+void savesig(float **signals, AcqVar *acq, int nsrc_loc, int ishot, int iter, int fswitch, GlobVar *gv);
 
 int *scan_topo(GlobVar *gv);
 
@@ -304,9 +304,9 @@ void stfi(AcqVar*acq, st_seismogram *section,
           st_signals *signals, int nsrc_loc, int ntr_loc,
           st_buffer *stressbuff, int ishot, int cdf,
           int iteration, int it_group, int ncplx, GlobVar *gv, int iter, int snapcheck,
-          float *hc, int sw, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVarInv *vinv, Perform *perf,
-          float **sectiondata, float **section1, float **sectiondiff , float **sectiondiffold,
-          int sws, int swstestshot);
+          float *hc, int sw, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVarInv *vinv, Perform *perf);
+//          ,float **sectiondata, float **section1, float **sectiondiff , float **sectiondiffold,
+//          int sws, int swstestshot);
 
 void stfi_calc(int ishot, st_seismogram *section, st_seismogram *section_obs, st_signals *signals, int ntr_loc, int nfft_min, GlobVar *gv);
 

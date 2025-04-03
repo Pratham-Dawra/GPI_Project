@@ -234,8 +234,9 @@ FDMOD_FILES := sofi2D.c \
                matcopy.c \
                matcopy_elastic.c \
                mergemod.c \
+               outseis.c\
                outseis_glob.c \
-	       output_gradient.c \
+	       	   output_gradient.c \
                PML_pro.c \
                prepare_update_s_ac.c \
                prepare_update_s_el.c \
@@ -266,6 +267,7 @@ FDMOD_FILES := sofi2D.c \
                saveseis.c \
                saveseis_fwi.c \
                saveseis_glob.c \
+               savesig.c\
                scan_topo.c \
                seismo_ssg.c \
                seismo_shift.c\
