@@ -58,8 +58,8 @@ typedef struct {
 
     // MPI-variables
     int MPID;                   // ID of processor
-    int MPID_SHOT;                  // ID of processor in COMM_SHOT domain
-   MPI_Comm COMM_WORLD;             // COMM_SHOT domain
+    //int MPID_SHOT;                  // ID of processor in COMM_SHOT domain
+
     int NPROC;                  // number of processors (=NPROCX*NPROCY; also number of MPI processes)
     int NPROCX;                 // number of processors in x-direction
     int NPROCY;                 // number of processors in y-direction

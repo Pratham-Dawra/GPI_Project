@@ -105,22 +105,22 @@ void savesig(float **signals, AcqVar *acq, int nsrc_loc, int ishot, int iter, in
         }
     } else {
         float **fulldata = NULL;
-        if (0 == gv->MPID_SHOT) {
+        if (0 == gv->MPID) {
             fulldata = matrix(1, nsig, 0, gv->NS-1);
         }
-        MPI_Barrier(gv->COMM_WORLD);
+        MPI_Barrier(MPI_COMM_WORLD);
         fp = fopen(sigf, "w");
         if (!fp) {
 	    log_error("Could not open %s for writing. Continuing.\n", sigf);
         } else {
             catseis(signals, fulldata, acq->srcswitch, nsig, gv->NS);
-            if (0 == gv->MPID_SHOT) {
+            if (0 == gv->MPID) {
                 outseis(fp, gv->SOURCE_TYPE, fulldata, acq->recpos, NULL, nsig, srcpos1, 1, ishot, gv);
                 log_info("Writing source signature to file %s.\n", sigf);
             }
         }
         
-        if (0 == gv->MPID_SHOT) {
+        if (0 == gv->MPID) {
             free_matrix(fulldata, 1, nsig, 0, gv->NS-1);
         }        
     }
