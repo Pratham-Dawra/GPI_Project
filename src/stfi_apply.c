@@ -59,7 +59,7 @@ void stfi_apply(int ishot, st_signals *signals, int nsrc_loc, int nfft_min, Glob
 
         // reduce trace to original number of samples
         for (int k = 0; k <= gv->NS-1; k++) {
-            signals->fw[j][k] = trace_filt_pad[k - 1] / nfft;
+            signals->fw[j][k] = trace_filt_pad[k-1] / nfft;
         }
     }
 

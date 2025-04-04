@@ -44,7 +44,7 @@ void stfi_calc(int ishot, st_seismogram *section, st_seismogram *section_obs, st
 
     float **trace = NULL, **target = NULL;
 
-    if (0 == gv->MPID_SHOT)
+    if (0 == gv->MPID)
         log_info("STFI: Calculating filter for shot %d ...\n", ishot);
 
     switch (gv->ADJOINT_TYPE) {

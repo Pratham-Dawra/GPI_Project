@@ -55,33 +55,33 @@ void stfi(AcqVar*acq, st_seismogram *section,
         time_loop(iter, ishot, snapcheck, hc, acq->srcpos_loc, acq ->signals, acq ->signals, acq->nsrc_loc, sw, acq, mpm, mpw, minv ,gv ,vinv, perf);
 
         /* STFI: Calculate filter */
-        log_info("Starting seismo_shift");
+        log_info("Starting seismo_shift \n");
         seismo_shift(section, ntr_loc, acq->srcpos[5][ishot], gv);
 //        calc_res(sectiondata, section1, sectiondiff, sectiondiffold, sws,swstestshot,ishot, iter,acq, gv, vinv);
     }
 
     if (2 == gv->STFI && 1 != cdf && nsrc_loc > 0) {
-        log_info("Starting stfi_merge");
+        log_info("Starting stfi_merge \n");
         stfi_merge(ishot, signals, ncplx);
     }
     /*Copy new derived filter in filter application buffer */
-    log_info("Starting memcpy");
+    log_info("Starting memcpy \n");
     memcpy(signals->stfi_filt, signals->stfi_filt_new, acq->nsrc * ncplx * sizeof(kiss_fft_cpx));
 
     if (nsrc_loc > 0) {
         /* STFI: Apply filter */
-        log_info("Starting stfi_apply");
+        log_info("Starting stfi_apply \n");
         stfi_apply(ishot, signals, nsrc_loc, 1024, gv);
     }
     if (gv->SIGOUT && (1 == cdf || gv->RAND_SHOT || 2 == gv->STFI)) {
-        log_info("Starting savesig");
+        log_info("Starting savesig \n");
         savesig(signals->fw, acq, nsrc_loc, ishot, iteration, 1, gv);
     }
     if (2 == gv->STFI)
         gv->STFI_CALC = 1;
 
     /* initialize wavefield with zero */
-    log_info("Starting zero_wavefield");
-    zero_wavefield( iter, mpw, minv, gv, vinv);
+    log_info("Starting zero_wavefield \n");
+    //zero_wavefield( iter, mpw, minv, gv, vinv);
     return;
 }
