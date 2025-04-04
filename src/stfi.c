@@ -75,13 +75,14 @@ void stfi(AcqVar*acq, st_seismogram *section,
     }
     if (gv->SIGOUT && (1 == cdf || gv->RAND_SHOT || 2 == gv->STFI)) {
         log_info("Starting savesig \n");
-        savesig(signals->fw, acq, nsrc_loc, ishot, iteration, 1, gv);
+        //savesig(signals->fw, acq, nsrc_loc, ishot, iteration, 1, gv);
     }
     if (2 == gv->STFI)
         gv->STFI_CALC = 1;
 
     /* initialize wavefield with zero */
     log_info("Starting zero_wavefield \n");
-    //zero_wavefield( iter, mpw, minv, gv, vinv);
+    zero_wavefield( iter, mpw, minv, gv, vinv);
+    log_info("Ended zero_wavefield \n");
     return;
 }

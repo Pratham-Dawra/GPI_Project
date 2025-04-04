@@ -23,6 +23,7 @@
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
+#include "logging.h"
 
 void zero_wavefield(int iter, MemWavefield *mpw, MemInv * minv, GlobVar *gv, GlobVarInv *vinv)
 {
@@ -126,4 +127,5 @@ void zero_wavefield(int iter, MemWavefield *mpw, MemInv * minv, GlobVar *gv, Glo
             bzero(&(mpw->pq_4[-gv->ND + 1][-gv->ND + 1][1]), nbyte_3);
         }
     }
+    log_info("Successful in zero_wavefield \n");
 }
