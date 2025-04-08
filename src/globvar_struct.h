@@ -193,6 +193,12 @@ typedef struct {
     char SEIS_OBS_FILE[STRING_SIZE];// file name containing real data
     float SEIS_OBS_DT;              // sampling interval of observed data
     int NFMAX;                      // maximum number of frequencies used in one stage
+    int TW_START_READING_AT_LINE;   // Line in mute file, where reading mute values starts
+    char TW_PICKFILE[STRING_SIZE];  // file name for time window start and end times
+    float TW_EXP_START;               // damping factor used for time windowing (TW; used for exp-taper if USE_TW == 1)
+    float TW_EXP_END;              // damping factor used for time windowing (TW; used for exp-taper if USE_TW == 1)
+    float TW_SIN_START;               // time window used for time windowing (TW; used for sine-taper if USE_TW == 2) [s]
+    float TW_SIN_END;              // time window used for time windowing (TW; used for sine-taper if USE_TW == 2) [s]
 
 } GlobVar;
 
