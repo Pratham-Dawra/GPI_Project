@@ -102,6 +102,9 @@ void calc_envelope(float **datatrace, float **envelope, int ntr, int ns);
 
 void calc_res(float **sectiondata, float **section, float **sectiondiff, float **sectiondiffold,
               int sws, int swstestshot, int ishot, int iter, AcqVar *acq, GlobVar *gv, GlobVarInv *vinv);
+void calc_res_1(int ishot, int shot_id, st_seismogram *section, st_seismogram *section_obs, st_signals *signals,
+              int ntr_loc, const float *finv, int nf, double *L2, int res_switch, int groupnum,
+              st_acquisition *acq, GlobVar *gv);
 
 void catseis(float **data, float **fulldata, int *recswitch, int ntr_glob, int ns);
 

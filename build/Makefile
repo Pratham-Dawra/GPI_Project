@@ -196,6 +196,7 @@ FDMOD_FILES := sofi2D.c \
                calc_conv.c \
                calc_envelope.c \
                calc_res.c \
+               calc_res_1.c\
                catseis.c \
                check_fs.c \
                checkfd.c \
