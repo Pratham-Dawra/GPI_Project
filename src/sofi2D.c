@@ -356,8 +356,8 @@ int main(int argc, char **argv)
 
                     /* forward propagation */
 
-                    if (true) {
-                        if (true) {
+                    if (gv.METHOD) {
+                        if (gv.STFI) {
                             stfi(&acq, &section, &section_obs, finv, &L2, nf,groupnum, &signals,  nsrc_loc,  ntr_loc, &stressbuff, ishot,
                                cdf,iteration, it_group, ncplx, &gv, iter, snapcheck, hc,0, &mpm, &mpw, &minv,
                                &vinv, &perf);

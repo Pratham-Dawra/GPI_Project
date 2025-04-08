@@ -166,5 +166,4 @@ void calc_res_(int ishot, st_seismogram *section, st_seismogram *section_obs, st
           break;
     }
     gv->STFI_CALC = 0;
-    log_info("Successful in calc_res \n");
 }
