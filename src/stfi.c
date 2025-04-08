@@ -31,13 +31,11 @@
 #include "seismo_shift.h"
 #include "kiss_fftr.h"
 
-void stfi(AcqVar*acq, st_seismogram *section,
+void stfi(AcqVar*acq, st_seismogram *section, st_seismogram *section_obs, const float *finv, double *L2, int nf,int groupnum,
           st_signals *signals, int nsrc_loc, int ntr_loc,
           st_buffer *stressbuff, int ishot, int cdf,
           int iteration, int it_group, int ncplx, GlobVar *gv, int iter, int snapcheck,
           float *hc, int sw, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVarInv *vinv, Perform *perf)
-//          float **sectiondata, float **section1, float **sectiondiff , float **sectiondiffold,
-//          int sws, int swstestshot)
 {
 
     if (2 == it_group || iteration == gv->ITMIN || gv->RAND_SHOT) {
@@ -57,7 +55,7 @@ void stfi(AcqVar*acq, st_seismogram *section,
         /* STFI: Calculate filter */
         log_info("Starting seismo_shift \n");
         seismo_shift(section, ntr_loc, acq->srcpos[5][ishot], gv);
-//        calc_res(sectiondata, section1, sectiondiff, sectiondiffold, sws,swstestshot,ishot, iter,acq, gv, vinv);
+        calc_res_(ishot, section, section_obs, signals, ntr_loc, finv, nf, L2, 0, groupnum, acq, gv);
     }
 
     if (2 == gv->STFI && 1 != cdf && nsrc_loc > 0) {

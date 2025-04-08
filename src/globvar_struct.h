@@ -188,6 +188,11 @@ typedef struct {
     int ITMIN;                  // minimum number of iteration
     int ITMAX;                  // maximum number of iteration
     int RAND_SHOT;              // use random shot selection for inversion
+    int USE_TW;                     // switch to apply time windowing
+    int FILT;                       // switch to filter the source wavelet
+    char SEIS_OBS_FILE[STRING_SIZE];// file name containing real data
+    float SEIS_OBS_DT;              // sampling interval of observed data
+    int NFMAX;                      // maximum number of frequencies used in one stage
 
 } GlobVar;
 

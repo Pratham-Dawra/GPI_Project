@@ -196,7 +196,7 @@ FDMOD_FILES := sofi2D.c \
                calc_conv.c \
                calc_envelope.c \
                calc_res.c \
-               calc_res_1.c\
+               calc_res_.c\
                catseis.c \
                check_fs.c \
                checkfd.c \
@@ -208,6 +208,7 @@ FDMOD_FILES := sofi2D.c \
                exchange_s.c \
                exchange_v.c \
                filter_frequencies.c \
+               filt_seis.c\
                freemem.c \
                freemem_model.c \
                freemem_wavefield.c \
@@ -218,6 +219,7 @@ FDMOD_FILES := sofi2D.c \
                hh_visco_TTI.c \
                hh_visco_VTI.c \
                holbergcoeff.c \
+               interpol.c\
                initfd.c \
                init_grad.c \
                init_inv.c \
@@ -237,7 +239,7 @@ FDMOD_FILES := sofi2D.c \
                mergemod.c \
                outseis.c\
                outseis_glob.c \
-	       	   output_gradient.c \
+	       output_gradient.c \
                PML_pro.c \
                prepare_update_s_ac.c \
                prepare_update_s_el.c \
@@ -264,6 +266,7 @@ FDMOD_FILES := sofi2D.c \
                readmod_elastic_tti.c \
                readmod_visco_vti.c \
                readmod_visco_tti.c \
+               readseis.c\
                receiver.c \
                saveseis.c \
                saveseis_fwi.c \
@@ -288,6 +291,7 @@ FDMOD_FILES := sofi2D.c \
                surface_elastic.c \
                timedomain_filt.c \
                time_loop.c \
+               time_window.c\
                update_s_elastic_abs.c \
                update_s_acoustic_abs.c \
                update_s_elastic_VTI_abs.c \

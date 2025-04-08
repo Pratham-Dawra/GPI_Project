@@ -102,9 +102,10 @@ void calc_envelope(float **datatrace, float **envelope, int ntr, int ns);
 
 void calc_res(float **sectiondata, float **section, float **sectiondiff, float **sectiondiffold,
               int sws, int swstestshot, int ishot, int iter, AcqVar *acq, GlobVar *gv, GlobVarInv *vinv);
-void calc_res_1(int ishot, int shot_id, st_seismogram *section, st_seismogram *section_obs, st_signals *signals,
+
+void calc_res_(int ishot, st_seismogram *section, st_seismogram *section_obs, st_signals *signals,
               int ntr_loc, const float *finv, int nf, double *L2, int res_switch, int groupnum,
-              st_acquisition *acq, GlobVar *gv);
+              AcqVar *acq, GlobVar *gv);
 
 void catseis(float **data, float **fulldata, int *recswitch, int ntr_glob, int ns);
 
@@ -139,6 +140,8 @@ void exchange_s(MemWavefield *mpw, GlobVar *gv);
 void exchange_par(GlobVar *gv, GlobVarInv *vinv);
 
 void filter_frequencies(GlobVarInv *vinv);
+
+void filt_seis(float **data, int ntr, int NS, float finv, const GlobVar *gv);
 
 void freemem(MemModel *mpm, MemWavefield *mpw, GlobVar *gv);
 
@@ -270,6 +273,8 @@ void readmod_elastic_vti(MemModel *mpm, MemInv *minv, GlobVar *gv);
 
 void readmod_elastic_tti(MemModel *mpm, MemInv *minv, GlobVar *gv);
 
+void readseis(int ishot, float **section, const AcqVar *acq, int ntr, int ns, int comp, const GlobVar *gv);
+
 void readmod_visco(MemModel *mpm, MemInv *minv, GlobVar *gv);
 
 void readmod_visco_vti(MemModel *mpm, MemInv *minv, GlobVar *gv);
@@ -303,13 +308,11 @@ void snapmerge(int nsnap);
 
 void sources(AcqVar *acq, GlobVar *gv, int *topo);
 
-void stfi(AcqVar*acq, st_seismogram *section,
+void stfi(AcqVar*acq, st_seismogram *section, st_seismogram *section_obs, const float *finv, double *L2, int nf,int groupnum,
           st_signals *signals, int nsrc_loc, int ntr_loc,
           st_buffer *stressbuff, int ishot, int cdf,
           int iteration, int it_group, int ncplx, GlobVar *gv, int iter, int snapcheck,
           float *hc, int sw, MemModel *mpm, MemWavefield *mpw, MemInv *minv, GlobVarInv *vinv, Perform *perf);
-//          ,float **sectiondata, float **section1, float **sectiondiff , float **sectiondiffold,
-//          int sws, int swstestshot);
 
 void stfi_calc(int ishot, st_seismogram *section, st_seismogram *section_obs, st_signals *signals, int ntr_loc, int nfft_min, GlobVar *gv);
 
@@ -332,6 +335,9 @@ void timedomain_filt(float **data, int method, int ntr, GlobVar *gv, GlobVarInv 
 void time_loop(int iter, int ishot, int snapcheck, float *hc, float **srcpos_loc, float **signalx,
                float **signaly, int nsrc, int sw, AcqVar *acq, MemModel *mpm, MemWavefield *mpw,
                MemInv *minv, GlobVar *gv, GlobVarInv *vinv, Perform *perf);
+
+void time_window(float **sectiondata1, float **sectiondata2, int **recpos_loc, int ntr,
+                 int ntr_loc, int ishot, int groupnum, int stf_switch, const GlobVar *gv);
 
 /* void update_s_elastic(int nx1, int nx2, int ny1, int ny2, int nt,
                       float **vx, float **vy, float **sxx, float **syy,

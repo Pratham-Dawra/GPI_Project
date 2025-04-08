@@ -63,15 +63,16 @@ int main(int argc, char **argv)
     FILE *log_fp = NULL;
     char ext[10];
     double time1 = 0.0, time2 = 0.0, time9 = 0.0;
-    float *hc = NULL;
-    st_seismogram section;
+    float *hc = NULL, *finv=NULL;
+    st_seismogram section,section_obs;
     st_signals signals = { };
     int ntr_loc = 0, nsrc_loc = 0;
     st_buffer stressbuff;
     /*finv is an instance of vector function created in util;*/
     int iteration = 0, cdf = 0;
-    int it_group = 0;
+    int it_group = 0,groupnum=0,nf=0;
     int ncplx= 0;
+    double L2 =0.0;
 
 
     /* FWI variables */
@@ -219,6 +220,8 @@ int main(int argc, char **argv)
           break;
     }
 
+    finv = vector(0, gv.NFMAX - 1);
+
     MPI_Barrier(MPI_COMM_WORLD);
 
     /* domain decomposition */
@@ -355,10 +358,9 @@ int main(int argc, char **argv)
 
                     if (true) {
                         if (true) {
-                            stfi(&acq, &section, &signals,  nsrc_loc,  ntr_loc, &stressbuff, ishot,
+                            stfi(&acq, &section, &section_obs, finv, &L2, nf,groupnum, &signals,  nsrc_loc,  ntr_loc, &stressbuff, ishot,
                                cdf,iteration, it_group, ncplx, &gv, iter, snapcheck, hc,0, &mpm, &mpw, &minv,
                                &vinv, &perf);
-//                               , &section_obs, &sect, &sectiondiff, &sectiondiffold, sws, swstestshot);
                         }
                     }
 
